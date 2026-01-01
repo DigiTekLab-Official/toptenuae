@@ -20,7 +20,6 @@ export default function HomeNewsletter() {
       const res = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // ✅ 2026 Best Practice: Sanitize email string before sending
         body: JSON.stringify({ email: email.trim().toLowerCase() }),
       });
 
@@ -28,7 +27,6 @@ export default function HomeNewsletter() {
 
       setStatus("success");
       
-      // ✅ Delay redirect slightly so user sees the success state
       setTimeout(() => {
         router.push('/thank-you'); 
       }, 800);
@@ -46,6 +44,9 @@ export default function HomeNewsletter() {
         <div className="relative flex-grow">
           <input 
             type="email" 
+            name="email"  // ✅ Added name for better browser autofill support
+            id="email-input" // ✅ Added ID (good practice for linking)
+            aria-label="Email address" // ✅ THE FIX: Solves the "Missing form label" error
             required
             autoComplete="email"
             value={email}
@@ -66,6 +67,7 @@ export default function HomeNewsletter() {
         <button 
           type="submit"
           disabled={status === 'loading' || status === 'success'}
+          aria-label="Subscribe to newsletter" // ✅ Good practice: Label the icon-only states too
           className="bg-[#4b0082] text-white font-bold px-8 py-3 rounded-full hover:bg-[#3b0066] shadow-md transition-all hover:scale-105 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center min-w-[140px]"
         >
           {status === 'loading' ? (
