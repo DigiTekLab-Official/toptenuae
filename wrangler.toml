@@ -1,12 +1,10 @@
 name = "toptenuae"
-account_id = "7a0fd3236617b1be4a2a6968dfebf55d"
-compatibility_date = "2026-01-01"
+compatibility_date = "2024-01-01"
+
+pages_build_output_dir = ".open-next/worker"
+
+[site]
+bucket = ".open-next/worker"
+
+# Add compatibility flags for Next.js features
 compatibility_flags = ["nodejs_compat"]
-
-main = ".open-next/worker.js"
-
-[build]
-command = "pnpm run pages:build"
-
-[assets]
-directory = ".open-next/assets"
