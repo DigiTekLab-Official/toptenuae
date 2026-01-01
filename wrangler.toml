@@ -1,0 +1,12 @@
+name = "toptenuae"
+account_id = "7a0fd3236617b1be4a2a6968dfebf55d"
+compatibility_date = "2026-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+main = ".open-next/worker.js"
+
+[build]
+command = "pnpm run pages:build"
+
+[assets]
+directory = ".open-next/assets"

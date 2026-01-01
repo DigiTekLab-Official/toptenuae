@@ -2,12 +2,16 @@
   "name": "toptenuae",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20 <=20",
+    "pnpm": ">=8"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "pages:build": "opennextjs-cloudflare build",
-    "preview": "pnpm pages:build && wrangler dev",
-    "deploy": "pnpm pages:build && wrangler deploy",
+    "preview": "opennextjs-cloudflare preview",
+    "deploy": "opennextjs-cloudflare deploy",
     "start": "next start",
     "lint": "eslint"
   },
@@ -18,7 +22,7 @@
     "@sanity/image-url": "^2.0.2",
     "aws4": "^1.13.2",
     "clsx": "^2.1.1",
-    "lucide-react": "0.555.0",
+    "lucide-react": "^0.555.0",
     "next": "16.0.10",
     "next-sanity": "11.6.12",
     "react": "19.2.3",
@@ -43,7 +47,6 @@
   },
   "pnpm": {
     "overrides": {
-      "glob": ">=10.5.0",
       "prismjs": ">=1.30.0"
     },
     "onlyBuiltDependencies": [
