@@ -1,0 +1,23 @@
+{
+  "/[category]/[slug]/page": "/[category]/[slug]",
+  "/[category]/page": "/[category]",
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/about-us/page": "/about-us",
+  "/affiliate-disclosure/page": "/affiliate-disclosure",
+  "/api/subscribe/route": "/api/subscribe",
+  "/contact-us/page": "/contact-us",
+  "/cookies-policy/page": "/cookies-policy",
+  "/deals/page": "/deals",
+  "/disclaimer/page": "/disclaimer",
+  "/icon.svg/route": "/icon.svg",
+  "/page": "/",
+  "/privacy-policy/page": "/privacy-policy",
+  "/report/page": "/report",
+  "/robots.txt/route": "/robots.txt",
+  "/search/page": "/search",
+  "/sitemap.xml/route": "/sitemap.xml",
+  "/subscribe/page": "/subscribe",
+  "/terms-and-conditions/page": "/terms-and-conditions",
+  "/thank-you/page": "/thank-you"
+}

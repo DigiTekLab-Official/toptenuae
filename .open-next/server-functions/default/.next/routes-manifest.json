@@ -1,0 +1,441 @@
+{
+  "version": 3,
+  "pages404": true,
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "priority": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    },
+    {
+      "source": "/best-beard-trimmers-uae",
+      "destination": "/reviews/best-beard-trimmers-uae",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/best-beard-trimmers-uae(?:/)?$"
+    },
+    {
+      "source": "/best-electric-shaver-uae",
+      "destination": "/reviews/best-electric-shaver-uae",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/best-electric-shaver-uae(?:/)?$"
+    },
+    {
+      "source": "/best-wireless-earbuds-uae",
+      "destination": "/reviews/best-wireless-earbuds-uae",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/best-wireless-earbuds-uae(?:/)?$"
+    },
+    {
+      "source": "/best-beauty-products-uae",
+      "destination": "/reviews/best-beauty-products-uae",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/best-beauty-products-uae(?:/)?$"
+    },
+    {
+      "source": "/best-diaper-bags-uae",
+      "destination": "/reviews/best-diaper-bags-uae",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/best-diaper-bags-uae(?:/)?$"
+    },
+    {
+      "source": "/best-baby-monitors-uae",
+      "destination": "/reviews/best-baby-monitors-uae",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/best-baby-monitors-uae(?:/)?$"
+    },
+    {
+      "source": "/best-baby-skincare-uae",
+      "destination": "/reviews/best-baby-skincare-uae",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/best-baby-skincare-uae(?:/)?$"
+    },
+    {
+      "source": "/best-educational-toys-uae",
+      "destination": "/reviews/best-educational-toys-uae",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/best-educational-toys-uae(?:/)?$"
+    },
+    {
+      "source": "/zakat-calculator",
+      "destination": "/finance-tools/zakat-calculator",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/zakat-calculator(?:/)?$"
+    },
+    {
+      "source": "/gratuity-calculator-uae",
+      "destination": "/finance-tools/gratuity-calculator-uae",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/gratuity-calculator-uae(?:/)?$"
+    },
+    {
+      "source": "/uae-vat-calculator",
+      "destination": "/finance-tools/uae-vat-calculator",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/uae-vat-calculator(?:/)?$"
+    },
+    {
+      "source": "/how-to-pay-zakat-in-uae-online",
+      "destination": "/finance-tools/how-to-pay-zakat-in-uae-online",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/how-to-pay-zakat-in-uae-online(?:/)?$"
+    },
+    {
+      "source": "/eid-al-fitr-uae-prayer-timings-free-events",
+      "destination": "/events-holidays/eid-al-fitr-uae-prayer-timings-free-events",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/eid-al-fitr-uae-prayer-timings-free-events(?:/)?$"
+    },
+    {
+      "source": "/uae-eid-holidays-dates-events-travel-tips",
+      "destination": "/events-holidays/uae-eid-holidays-dates-events-travel-tips",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/uae-eid-holidays-dates-events-travel-tips(?:/)?$"
+    },
+    {
+      "source": "/free-eid-events-festive-activities-uae",
+      "destination": "/events-holidays/free-eid-events-festive-activities-uae",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/free-eid-events-festive-activities-uae(?:/)?$"
+    },
+    {
+      "source": "/best-eid-holiday-travel-destinations-uae",
+      "destination": "/events-holidays/best-eid-holiday-travel-destinations-uae",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/best-eid-holiday-travel-destinations-uae(?:/)?$"
+    },
+    {
+      "source": "/best-places-visit-uae-eid-holidays",
+      "destination": "/events-holidays/best-places-visit-uae-eid-holidays",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/best-places-visit-uae-eid-holidays(?:/)?$"
+    },
+    {
+      "source": "/uae-holidays-2025",
+      "destination": "/events-holidays/uae-holidays-2025",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/uae-holidays-2025(?:/)?$"
+    },
+    {
+      "source": "/how-to-use-deepseek-ai-data-extraction-analysis",
+      "destination": "/tech/how-to-use-deepseek-ai-data-extraction-analysis",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/how-to-use-deepseek-ai-data-extraction-analysis(?:/)?$"
+    },
+    {
+      "source": "/deepseek-ai-revolutionary-data-retrieval-method",
+      "destination": "/tech/deepseek-ai-revolutionary-data-retrieval-method",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/deepseek-ai-revolutionary-data-retrieval-method(?:/)?$"
+    },
+    {
+      "source": "/deepseek-ai-startup-disrupting-big-tech-with-innovation",
+      "destination": "/tech/deepseek-ai-startup-disrupting-big-tech-with-innovation",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/deepseek-ai-startup-disrupting-big-tech-with-innovation(?:/)?$"
+    },
+    {
+      "source": "/nasa-astronaut-don-pettit-burj-khalifa-image-from-space",
+      "destination": "/tech",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/nasa-astronaut-don-pettit-burj-khalifa-image-from-space(?:/)?$"
+    },
+    {
+      "source": "/where-to-donate-used-toys-uae",
+      "destination": "/parenting-kids/where-to-donate-used-toys-uae",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/where-to-donate-used-toys-uae(?:/)?$"
+    },
+    {
+      "source": "/charity-organizations-uae-donations",
+      "destination": "/parenting-kids/charity-organizations-uae-donations",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/charity-organizations-uae-donations(?:/)?$"
+    },
+    {
+      "source": "/how-to-clean-washing-machine",
+      "destination": "/smart-home/how-to-clean-washing-machine",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/how-to-clean-washing-machine(?:/)?$"
+    },
+    {
+      "source": "/trending-now",
+      "destination": "/deals",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/trending-now(?:/)?$"
+    },
+    {
+      "source": "/ramadan-deals-uae",
+      "destination": "/deals/ramadan-deals-uae",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/ramadan-deals-uae(?:/)?$"
+    },
+    {
+      "source": "/category/how-to-guides",
+      "destination": "/smart-home",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/category/how-to-guides(?:/)?$"
+    },
+    {
+      "source": "/category/buyers-guide",
+      "destination": "/reviews",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/category/buyers-guide(?:/)?$"
+    },
+    {
+      "source": "/category/education",
+      "destination": "/parenting-kids",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/category/education(?:/)?$"
+    },
+    {
+      "source": "/category/travel-tourism",
+      "destination": "/events-holidays",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/category/travel-tourism(?:/)?$"
+    },
+    {
+      "source": "/category/public-holidays-events",
+      "destination": "/events-holidays",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/category/public-holidays-events(?:/)?$"
+    },
+    {
+      "source": "/category/tech",
+      "destination": "/tech",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/category/tech(?:/)?$"
+    },
+    {
+      "source": "/category/finance-tools",
+      "destination": "/finance-tools",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/category/finance-tools(?:/)?$"
+    },
+    {
+      "source": "/category/reviews",
+      "destination": "/reviews",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/category/reviews(?:/)?$"
+    },
+    {
+      "source": "/category/smart-home",
+      "destination": "/smart-home",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/category/smart-home(?:/)?$"
+    },
+    {
+      "source": "/category/parenting-kids",
+      "destination": "/parenting-kids",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/category/parenting-kids(?:/)?$"
+    },
+    {
+      "source": "/about",
+      "destination": "/about-us",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/about(?:/)?$"
+    },
+    {
+      "source": "/terms-conditions",
+      "destination": "/terms-and-conditions",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/terms-conditions(?:/)?$"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/:path*",
+      "headers": [
+        {
+          "key": "X-DNS-Prefetch-Control",
+          "value": "on"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=()"
+        }
+      ],
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+    }
+  ],
+  "rewrites": {
+    "beforeFiles": [],
+    "afterFiles": [],
+    "fallback": []
+  },
+  "dynamicRoutes": [
+    {
+      "page": "/[category]",
+      "regex": "^/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPcategory": "nxtPcategory"
+      },
+      "namedRegex": "^/(?<nxtPcategory>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/[category]/[slug]",
+      "regex": "^/([^/]+?)/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPcategory": "nxtPcategory",
+        "nxtPslug": "nxtPslug"
+      },
+      "namedRegex": "^/(?<nxtPcategory>[^/]+?)/(?<nxtPslug>[^/]+?)(?:/)?$"
+    }
+  ],
+  "staticRoutes": [
+    {
+      "page": "/",
+      "regex": "^/(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/_global-error",
+      "regex": "^/_global\\-error(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_global\\-error(?:/)?$"
+    },
+    {
+      "page": "/_not-found",
+      "regex": "^/_not\\-found(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_not\\-found(?:/)?$"
+    },
+    {
+      "page": "/about-us",
+      "regex": "^/about\\-us(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/about\\-us(?:/)?$"
+    },
+    {
+      "page": "/affiliate-disclosure",
+      "regex": "^/affiliate\\-disclosure(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/affiliate\\-disclosure(?:/)?$"
+    },
+    {
+      "page": "/api/subscribe",
+      "regex": "^/api/subscribe(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/subscribe(?:/)?$"
+    },
+    {
+      "page": "/contact-us",
+      "regex": "^/contact\\-us(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/contact\\-us(?:/)?$"
+    },
+    {
+      "page": "/cookies-policy",
+      "regex": "^/cookies\\-policy(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/cookies\\-policy(?:/)?$"
+    },
+    {
+      "page": "/deals",
+      "regex": "^/deals(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/deals(?:/)?$"
+    },
+    {
+      "page": "/disclaimer",
+      "regex": "^/disclaimer(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/disclaimer(?:/)?$"
+    },
+    {
+      "page": "/icon.svg",
+      "regex": "^/icon\\.svg(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/icon\\.svg(?:/)?$"
+    },
+    {
+      "page": "/privacy-policy",
+      "regex": "^/privacy\\-policy(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/privacy\\-policy(?:/)?$"
+    },
+    {
+      "page": "/report",
+      "regex": "^/report(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/report(?:/)?$"
+    },
+    {
+      "page": "/robots.txt",
+      "regex": "^/robots\\.txt(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/robots\\.txt(?:/)?$"
+    },
+    {
+      "page": "/search",
+      "regex": "^/search(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/search(?:/)?$"
+    },
+    {
+      "page": "/sitemap.xml",
+      "regex": "^/sitemap\\.xml(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/sitemap\\.xml(?:/)?$"
+    },
+    {
+      "page": "/subscribe",
+      "regex": "^/subscribe(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/subscribe(?:/)?$"
+    },
+    {
+      "page": "/terms-and-conditions",
+      "regex": "^/terms\\-and\\-conditions(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/terms\\-and\\-conditions(?:/)?$"
+    },
+    {
+      "page": "/thank-you",
+      "regex": "^/thank\\-you(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/thank\\-you(?:/)?$"
+    }
+  ],
+  "dataRoutes": [],
+  "rsc": {
+    "header": "rsc",
+    "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+    "prefetchHeader": "next-router-prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSuffix": ".prefetch.rsc",
+    "prefetchSegmentHeader": "next-router-segment-prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments",
+    "clientParamParsing": false,
+    "dynamicRSCPrerender": false
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  }
+}

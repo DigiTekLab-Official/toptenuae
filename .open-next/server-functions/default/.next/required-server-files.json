@@ -1,0 +1,530 @@
+{
+  "version": 1,
+  "config": {
+    "env": {},
+    "webpack": null,
+    "typescript": {
+      "ignoreBuildErrors": false
+    },
+    "typedRoutes": false,
+    "distDir": ".next",
+    "cleanDistDir": true,
+    "assetPrefix": "",
+    "cacheMaxMemorySize": 52428800,
+    "configOrigin": "next.config.ts",
+    "useFileSystemPublicRoutes": true,
+    "generateEtags": true,
+    "pageExtensions": [
+      "tsx",
+      "ts",
+      "jsx",
+      "js"
+    ],
+    "poweredByHeader": true,
+    "compress": true,
+    "images": {
+      "deviceSizes": [
+        640,
+        750,
+        828,
+        1080,
+        1200,
+        1920,
+        2048,
+        3840
+      ],
+      "imageSizes": [
+        32,
+        48,
+        64,
+        96,
+        128,
+        256,
+        384
+      ],
+      "path": "/_next/image",
+      "loader": "default",
+      "loaderFile": "",
+      "domains": [],
+      "disableStaticImages": false,
+      "minimumCacheTTL": 14400,
+      "formats": [
+        "image/webp"
+      ],
+      "maximumRedirects": 3,
+      "dangerouslyAllowLocalIP": false,
+      "dangerouslyAllowSVG": true,
+      "contentSecurityPolicy": "default-src 'self'; script-src 'none'; sandbox;",
+      "contentDispositionType": "attachment",
+      "localPatterns": [
+        {
+          "pathname": "**",
+          "search": ""
+        }
+      ],
+      "remotePatterns": [
+        {
+          "protocol": "https",
+          "hostname": "cdn.sanity.io",
+          "pathname": "**"
+        },
+        {
+          "protocol": "https",
+          "hostname": "placehold.co",
+          "pathname": "**"
+        },
+        {
+          "protocol": "https",
+          "hostname": "toptenuae.com",
+          "pathname": "**"
+        }
+      ],
+      "qualities": [
+        75
+      ],
+      "unoptimized": false
+    },
+    "devIndicators": {
+      "position": "bottom-left"
+    },
+    "onDemandEntries": {
+      "maxInactiveAge": 60000,
+      "pagesBufferLength": 5
+    },
+    "basePath": "",
+    "sassOptions": {},
+    "trailingSlash": false,
+    "i18n": null,
+    "productionBrowserSourceMaps": false,
+    "excludeDefaultMomentLocales": true,
+    "reactProductionProfiling": false,
+    "reactStrictMode": null,
+    "reactMaxHeadersLength": 6000,
+    "httpAgentOptions": {
+      "keepAlive": true
+    },
+    "logging": {},
+    "compiler": {},
+    "expireTime": 31536000,
+    "staticPageGenerationTimeout": 60,
+    "output": "standalone",
+    "modularizeImports": {
+      "@mui/icons-material": {
+        "transform": "@mui/icons-material/{{member}}"
+      },
+      "lodash": {
+        "transform": "lodash/{{member}}"
+      }
+    },
+    "outputFileTracingRoot": "/Users/ameer/Web-Projects/toptenuae",
+    "cacheComponents": false,
+    "cacheLife": {
+      "default": {
+        "stale": 300,
+        "revalidate": 900,
+        "expire": 4294967294
+      },
+      "seconds": {
+        "stale": 30,
+        "revalidate": 1,
+        "expire": 60
+      },
+      "minutes": {
+        "stale": 300,
+        "revalidate": 60,
+        "expire": 3600
+      },
+      "hours": {
+        "stale": 300,
+        "revalidate": 3600,
+        "expire": 86400
+      },
+      "days": {
+        "stale": 300,
+        "revalidate": 86400,
+        "expire": 604800
+      },
+      "weeks": {
+        "stale": 300,
+        "revalidate": 604800,
+        "expire": 2592000
+      },
+      "max": {
+        "stale": 300,
+        "revalidate": 2592000,
+        "expire": 31536000
+      }
+    },
+    "cacheHandlers": {},
+    "experimental": {
+      "useSkewCookie": false,
+      "cssChunking": true,
+      "multiZoneDraftMode": false,
+      "appNavFailHandling": false,
+      "prerenderEarlyExit": true,
+      "serverMinification": true,
+      "serverSourceMaps": false,
+      "linkNoTouchStart": false,
+      "caseSensitiveRoutes": false,
+      "dynamicOnHover": false,
+      "preloadEntriesOnStart": true,
+      "clientRouterFilter": true,
+      "clientRouterFilterRedirects": false,
+      "fetchCacheKeyPrefix": "",
+      "proxyPrefetch": "flexible",
+      "optimisticClientCache": true,
+      "manualClientBasePath": false,
+      "cpus": 7,
+      "memoryBasedWorkersCount": false,
+      "imgOptConcurrency": null,
+      "imgOptTimeoutInSeconds": 7,
+      "imgOptMaxInputPixels": 268402689,
+      "imgOptSequentialRead": null,
+      "imgOptSkipMetadata": null,
+      "isrFlushToDisk": true,
+      "workerThreads": false,
+      "optimizeCss": false,
+      "nextScriptWorkers": false,
+      "scrollRestoration": false,
+      "externalDir": false,
+      "disableOptimizedLoading": false,
+      "gzipSize": true,
+      "craCompat": false,
+      "esmExternals": true,
+      "fullySpecified": false,
+      "swcTraceProfiling": false,
+      "forceSwcTransforms": false,
+      "largePageDataBytes": 128000,
+      "typedEnv": false,
+      "parallelServerCompiles": false,
+      "parallelServerBuildTraces": false,
+      "ppr": false,
+      "authInterrupts": false,
+      "webpackMemoryOptimizations": false,
+      "optimizeServerReact": true,
+      "viewTransition": false,
+      "removeUncaughtErrorAndRejectionListeners": false,
+      "validateRSCRequestHeaders": false,
+      "staleTimes": {
+        "dynamic": 0,
+        "static": 300
+      },
+      "reactDebugChannel": false,
+      "serverComponentsHmrCache": true,
+      "staticGenerationMaxConcurrency": 8,
+      "staticGenerationMinPagesPerWorker": 25,
+      "inlineCss": false,
+      "useCache": false,
+      "globalNotFound": false,
+      "browserDebugInfoInTerminal": false,
+      "lockDistDir": true,
+      "isolatedDevBuild": true,
+      "proxyClientMaxBodySize": 10485760,
+      "hideLogsAfterAbort": false,
+      "mcpServer": true,
+      "optimizePackageImports": [
+        "lucide-react",
+        "date-fns",
+        "lodash-es",
+        "ramda",
+        "antd",
+        "react-bootstrap",
+        "ahooks",
+        "@ant-design/icons",
+        "@headlessui/react",
+        "@headlessui-float/react",
+        "@heroicons/react/20/solid",
+        "@heroicons/react/24/solid",
+        "@heroicons/react/24/outline",
+        "@visx/visx",
+        "@tremor/react",
+        "rxjs",
+        "@mui/material",
+        "@mui/icons-material",
+        "recharts",
+        "react-use",
+        "effect",
+        "@effect/schema",
+        "@effect/platform",
+        "@effect/platform-node",
+        "@effect/platform-browser",
+        "@effect/platform-bun",
+        "@effect/sql",
+        "@effect/sql-mssql",
+        "@effect/sql-mysql2",
+        "@effect/sql-pg",
+        "@effect/sql-sqlite-node",
+        "@effect/sql-sqlite-bun",
+        "@effect/sql-sqlite-wasm",
+        "@effect/sql-sqlite-react-native",
+        "@effect/rpc",
+        "@effect/rpc-http",
+        "@effect/typeclass",
+        "@effect/experimental",
+        "@effect/opentelemetry",
+        "@material-ui/core",
+        "@material-ui/icons",
+        "@tabler/icons-react",
+        "mui-core",
+        "react-icons/ai",
+        "react-icons/bi",
+        "react-icons/bs",
+        "react-icons/cg",
+        "react-icons/ci",
+        "react-icons/di",
+        "react-icons/fa",
+        "react-icons/fa6",
+        "react-icons/fc",
+        "react-icons/fi",
+        "react-icons/gi",
+        "react-icons/go",
+        "react-icons/gr",
+        "react-icons/hi",
+        "react-icons/hi2",
+        "react-icons/im",
+        "react-icons/io",
+        "react-icons/io5",
+        "react-icons/lia",
+        "react-icons/lib",
+        "react-icons/lu",
+        "react-icons/md",
+        "react-icons/pi",
+        "react-icons/ri",
+        "react-icons/rx",
+        "react-icons/si",
+        "react-icons/sl",
+        "react-icons/tb",
+        "react-icons/tfi",
+        "react-icons/ti",
+        "react-icons/vsc",
+        "react-icons/wi"
+      ],
+      "trustHostHeader": false,
+      "isExperimentalCompile": false
+    },
+    "htmlLimitedBots": "[\\w-]+-Google|Google-[\\w-]+|Chrome-Lighthouse|Slurp|DuckDuckBot|baiduspider|yandex|sogou|bitlybot|tumblr|vkShare|quora link preview|redditbot|ia_archiver|Bingbot|BingPreview|applebot|facebookexternalhit|facebookcatalog|Twitterbot|LinkedInBot|Slackbot|Discordbot|WhatsApp|SkypeUriPreview|Yeti|googleweblight",
+    "bundlePagesRouterDependencies": false,
+    "configFileName": "next.config.ts",
+    "turbopack": {
+      "root": "/Users/ameer/Web-Projects/toptenuae"
+    },
+    "distDirRoot": ".next",
+    "_originalRedirects": [
+      {
+        "source": "/best-beard-trimmers-uae",
+        "destination": "/reviews/best-beard-trimmers-uae",
+        "permanent": true
+      },
+      {
+        "source": "/best-electric-shaver-uae",
+        "destination": "/reviews/best-electric-shaver-uae",
+        "permanent": true
+      },
+      {
+        "source": "/best-wireless-earbuds-uae",
+        "destination": "/reviews/best-wireless-earbuds-uae",
+        "permanent": true
+      },
+      {
+        "source": "/best-beauty-products-uae",
+        "destination": "/reviews/best-beauty-products-uae",
+        "permanent": true
+      },
+      {
+        "source": "/best-diaper-bags-uae",
+        "destination": "/reviews/best-diaper-bags-uae",
+        "permanent": true
+      },
+      {
+        "source": "/best-baby-monitors-uae",
+        "destination": "/reviews/best-baby-monitors-uae",
+        "permanent": true
+      },
+      {
+        "source": "/best-baby-skincare-uae",
+        "destination": "/reviews/best-baby-skincare-uae",
+        "permanent": true
+      },
+      {
+        "source": "/best-educational-toys-uae",
+        "destination": "/reviews/best-educational-toys-uae",
+        "permanent": true
+      },
+      {
+        "source": "/zakat-calculator",
+        "destination": "/finance-tools/zakat-calculator",
+        "permanent": true
+      },
+      {
+        "source": "/gratuity-calculator-uae",
+        "destination": "/finance-tools/gratuity-calculator-uae",
+        "permanent": true
+      },
+      {
+        "source": "/uae-vat-calculator",
+        "destination": "/finance-tools/uae-vat-calculator",
+        "permanent": true
+      },
+      {
+        "source": "/how-to-pay-zakat-in-uae-online",
+        "destination": "/finance-tools/how-to-pay-zakat-in-uae-online",
+        "permanent": true
+      },
+      {
+        "source": "/eid-al-fitr-uae-prayer-timings-free-events",
+        "destination": "/events-holidays/eid-al-fitr-uae-prayer-timings-free-events",
+        "permanent": true
+      },
+      {
+        "source": "/uae-eid-holidays-dates-events-travel-tips",
+        "destination": "/events-holidays/uae-eid-holidays-dates-events-travel-tips",
+        "permanent": true
+      },
+      {
+        "source": "/free-eid-events-festive-activities-uae",
+        "destination": "/events-holidays/free-eid-events-festive-activities-uae",
+        "permanent": true
+      },
+      {
+        "source": "/best-eid-holiday-travel-destinations-uae",
+        "destination": "/events-holidays/best-eid-holiday-travel-destinations-uae",
+        "permanent": true
+      },
+      {
+        "source": "/best-places-visit-uae-eid-holidays",
+        "destination": "/events-holidays/best-places-visit-uae-eid-holidays",
+        "permanent": true
+      },
+      {
+        "source": "/uae-holidays-2025",
+        "destination": "/events-holidays/uae-holidays-2025",
+        "permanent": true
+      },
+      {
+        "source": "/how-to-use-deepseek-ai-data-extraction-analysis",
+        "destination": "/tech/how-to-use-deepseek-ai-data-extraction-analysis",
+        "permanent": true
+      },
+      {
+        "source": "/deepseek-ai-revolutionary-data-retrieval-method",
+        "destination": "/tech/deepseek-ai-revolutionary-data-retrieval-method",
+        "permanent": true
+      },
+      {
+        "source": "/deepseek-ai-startup-disrupting-big-tech-with-innovation",
+        "destination": "/tech/deepseek-ai-startup-disrupting-big-tech-with-innovation",
+        "permanent": true
+      },
+      {
+        "source": "/nasa-astronaut-don-pettit-burj-khalifa-image-from-space",
+        "destination": "/tech",
+        "permanent": true
+      },
+      {
+        "source": "/where-to-donate-used-toys-uae",
+        "destination": "/parenting-kids/where-to-donate-used-toys-uae",
+        "permanent": true
+      },
+      {
+        "source": "/charity-organizations-uae-donations",
+        "destination": "/parenting-kids/charity-organizations-uae-donations",
+        "permanent": true
+      },
+      {
+        "source": "/how-to-clean-washing-machine",
+        "destination": "/smart-home/how-to-clean-washing-machine",
+        "permanent": true
+      },
+      {
+        "source": "/trending-now",
+        "destination": "/deals",
+        "permanent": true
+      },
+      {
+        "source": "/ramadan-deals-uae",
+        "destination": "/deals/ramadan-deals-uae",
+        "permanent": true
+      },
+      {
+        "source": "/category/how-to-guides",
+        "destination": "/smart-home",
+        "permanent": true
+      },
+      {
+        "source": "/category/buyers-guide",
+        "destination": "/reviews",
+        "permanent": true
+      },
+      {
+        "source": "/category/education",
+        "destination": "/parenting-kids",
+        "permanent": true
+      },
+      {
+        "source": "/category/travel-tourism",
+        "destination": "/events-holidays",
+        "permanent": true
+      },
+      {
+        "source": "/category/public-holidays-events",
+        "destination": "/events-holidays",
+        "permanent": true
+      },
+      {
+        "source": "/category/tech",
+        "destination": "/tech",
+        "permanent": true
+      },
+      {
+        "source": "/category/finance-tools",
+        "destination": "/finance-tools",
+        "permanent": true
+      },
+      {
+        "source": "/category/reviews",
+        "destination": "/reviews",
+        "permanent": true
+      },
+      {
+        "source": "/category/smart-home",
+        "destination": "/smart-home",
+        "permanent": true
+      },
+      {
+        "source": "/category/parenting-kids",
+        "destination": "/parenting-kids",
+        "permanent": true
+      },
+      {
+        "source": "/about",
+        "destination": "/about-us",
+        "permanent": true
+      },
+      {
+        "source": "/terms-conditions",
+        "destination": "/terms-and-conditions",
+        "permanent": true
+      }
+    ]
+  },
+  "appDir": "/Users/ameer/Web-Projects/toptenuae",
+  "relativeAppDir": "",
+  "files": [
+    ".next/routes-manifest.json",
+    ".next/server/pages-manifest.json",
+    ".next/build-manifest.json",
+    ".next/prerender-manifest.json",
+    ".next/server/functions-config-manifest.json",
+    ".next/server/middleware-manifest.json",
+    ".next/server/middleware-build-manifest.js",
+    ".next/server/app-paths-manifest.json",
+    ".next/app-path-routes-manifest.json",
+    ".next/server/server-reference-manifest.js",
+    ".next/server/server-reference-manifest.json",
+    ".next/BUILD_ID",
+    ".next/server/next-font-manifest.js",
+    ".next/server/next-font-manifest.json",
+    ".next/required-server-files.json"
+  ],
+  "ignore": []
+}

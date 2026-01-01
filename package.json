@@ -10,8 +10,11 @@
     "dev": "next dev",
     "build": "next build",
     "pages:build": "opennextjs-cloudflare build",
+    "pages:deploy": "wrangler pages deploy .open-next --project-name=toptenuae",
+    "pages:deploy:production": "wrangler pages deploy .open-next --project-name=toptenuae --branch=main",
     "preview": "opennextjs-cloudflare preview",
-    "deploy": "opennextjs-cloudflare deploy",
+    "deploy": "pnpm run pages:build && pnpm run pages:deploy",
+    "deploy:prod": "pnpm run pages:build && pnpm run pages:deploy:production",
     "start": "next start",
     "lint": "eslint"
   },

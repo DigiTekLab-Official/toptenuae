@@ -1,0 +1,23 @@
+{
+  "/[category]/[slug]/page": "app/[category]/[slug]/page.js",
+  "/[category]/page": "app/[category]/page.js",
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/about-us/page": "app/about-us/page.js",
+  "/affiliate-disclosure/page": "app/affiliate-disclosure/page.js",
+  "/api/subscribe/route": "app-edge-has-no-entrypoint",
+  "/contact-us/page": "app/contact-us/page.js",
+  "/cookies-policy/page": "app/cookies-policy/page.js",
+  "/deals/page": "app/deals/page.js",
+  "/disclaimer/page": "app/disclaimer/page.js",
+  "/icon.svg/route": "app/icon.svg/route.js",
+  "/page": "app-edge-has-no-entrypoint",
+  "/privacy-policy/page": "app/privacy-policy/page.js",
+  "/report/page": "app/report/page.js",
+  "/robots.txt/route": "app/robots.txt/route.js",
+  "/search/page": "app/search/page.js",
+  "/sitemap.xml/route": "app/sitemap.xml/route.js",
+  "/subscribe/page": "app/subscribe/page.js",
+  "/terms-and-conditions/page": "app/terms-and-conditions/page.js",
+  "/thank-you/page": "app/thank-you/page.js"
+}
