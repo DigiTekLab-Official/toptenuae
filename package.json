@@ -28,7 +28,7 @@
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
-    "@cloudflare/next-on-pages": "^1",
+    "@cloudflare/next-on-pages": "^1.13.16",
     "@tailwindcss/postcss": "^4",
     "@types/aws4": "^1.11.6",
     "@types/node": "^20",
@@ -44,8 +44,11 @@
   },
   "pnpm": {
     "overrides": {
-      "glob": ">=10.5.0",
+      "glob": "8.1.0",
       "prismjs": ">=1.30.0"
-    }
+    },
+    "hoistPattern": [
+      "*"
+    ]
   }
-}
+  }
