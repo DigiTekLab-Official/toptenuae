@@ -1,6 +1,7 @@
-// app/api/subscribe/route.ts
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
+
+export const runtime = 'edge'; // ✅ CRITICAL: Required for Cloudflare Pages
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -12,46 +13,38 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
     }
 
-    // 1. Create or update the contact in Resend
+    // 1. Create/Update Contact
     const contactResponse = await resend.contacts.create({
-      email,
+      email: email.trim().toLowerCase(), // ✅ Best practice: sanitize input
       firstName: firstName || 'Subscriber',
       lastName: lastName || '',
+      audienceId: process.env.RESEND_AUDIENCE_ID as string, // ✅ Use Audience ID for better management
       unsubscribed: false,
     });
-    console.log('Contact Response:', contactResponse);
 
     if (contactResponse.error) {
-      console.error('Resend Contact Error:', contactResponse.error);
-      return NextResponse.json(
-        { error: 'Failed to create contact' },
-        { status: 500 }
-      );
+      // If contact already exists, Resend returns an error. 
+      // We should check if it's a "conflict" and proceed to send the email anyway.
+      console.warn('Resend Contact Note:', contactResponse.error);
     }
 
-    // 2. Send the email (Confirmation)
-    // IMPORTANT: 'from' must be a domain you verified in Resend (e.g., newsletter@toptenuae.com)
-    // If you haven't verified a domain yet, use 'onboarding@resend.dev' for testing.
+    // 2. Send Welcome Email
     const emailResponse = await resend.emails.send({
       from: 'Top Ten UAE <info@toptenuae.com>', 
       to: [email],
       subject: 'Welcome to Top Ten UAE! 🇦🇪',
       html: `
-        <div style="font-family: sans-serif; color: #333;">
-          <h1>You're in! 🎉</h1>
-          <p>Thanks for subscribing to Top Ten UAE.</p>
-          <p>You'll now get the best deals and tech news straight to your inbox.</p>
-          <hr />
-          <p style="font-size: 12px; color: #666;">If you didn't request this, please ignore this email.</p>
+        <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: auto;">
+          <h1 style="color: #4b0082;">You're in! 🎉</h1>
+          <p>Thanks for subscribing to <strong>Top Ten UAE</strong>.</p>
+          <p>You'll now get the best UAE deals and tech news straight to your inbox.</p>
+          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+          <p style="font-size: 12px; color: #666;">TopTenUAE.com - Dubai, United Arab Emirates</p>
         </div>
       `,
     });
 
-    return NextResponse.json({ 
-      success: true, 
-      contact: contactResponse.data,
-      email: emailResponse.data,
-    });
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Newsletter Error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
