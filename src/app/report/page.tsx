@@ -1,6 +1,7 @@
 import { client } from '@/sanity/client';
 import Link from 'next/link';
 
+export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 export const metadata = {
   title: 'Full Content Report',

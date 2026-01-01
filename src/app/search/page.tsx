@@ -5,6 +5,7 @@ import { Search, Clock, ArrowRight, FileQuestion, ArrowLeft } from "lucide-react
 import { Metadata } from "next";
 
 // Force dynamic so each search is fresh
+export const runtime = 'edge';
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({

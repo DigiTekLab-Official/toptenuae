@@ -1,5 +1,7 @@
 // src/app/[category]/[slug]/page.tsx
 
+export const runtime = 'edge';
+
 import { client } from "@/sanity/lib/client";
 import { notFound, permanentRedirect } from "next/navigation";
 import { Metadata } from "next";
