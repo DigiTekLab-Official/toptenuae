@@ -1,7 +1,7 @@
 // src/lib/schemaGenerator.ts
 
 // --- CONFIGURATION ---
-const baseUrl = process.env.NEXT_PUBLIC_baseUrl || 'https://toptenuae.com';
+const baseUrl = process.env.baseUrl || 'https://toptenuae.com';
 const ORGANIZATION_LOGO = `${baseUrl}/images/brand/logoIcon.svg`;
 
 // --- HELPER: DATE FORMATTING ---

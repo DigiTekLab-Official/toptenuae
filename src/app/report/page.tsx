@@ -8,7 +8,7 @@ export const metadata = {
 };
 
 export default async function ReportPage() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://toptenuae.com';
+  const baseUrl = process.env.BASE_URL || 'https://toptenuae.com';
 
   // 1. IMPROVED QUERY: Fetches ANY document with a slug (Posts, Holidays, Tools, etc.)
   // We exclude 'category' because we fetch those separately below.

@@ -3,7 +3,7 @@ import { MetadataRoute } from 'next';
 import { client } from '@/sanity/lib/client';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = (process.env.NEXT_PUBLIC_baseUrl || 'https://toptenuae.com').replace(/\/$/, '');
+  const baseUrl = (process.env.baseUrl || 'https://toptenuae.com').replace(/\/$/, '');
 
   // 1. Static Routes (Core Pages)
   const staticRoutes = [

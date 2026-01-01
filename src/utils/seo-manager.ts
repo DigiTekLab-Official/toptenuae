@@ -2,7 +2,7 @@
 import { Metadata } from 'next';
 
 // --- CONFIGURATION ---
-const SITE_URL = process.env.NEXT_PUBLIC_baseUrl || 'https://toptenuae.com';
+const SITE_URL = process.env.baseUrl || 'https://toptenuae.com';
 const DEFAULT_OG_IMAGE = `${SITE_URL}/images/brand/og-default.jpg`;
 
 /**

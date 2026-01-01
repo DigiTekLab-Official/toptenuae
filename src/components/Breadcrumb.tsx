@@ -13,7 +13,7 @@ interface BreadcrumbProps {
 }
 
 // Use Environment variable for domain, fallback to hardcoded if missing
-const BASE_URL = process.env.NEXT_PUBLIC_baseUrl || 'https://toptenuae.com';
+const BASE_URL = process.env.baseUrl || 'https://toptenuae.com';
 
 export default function Breadcrumb({
   categoryName,

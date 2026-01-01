@@ -3,7 +3,7 @@ import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
   // ✅ 1. Match the variable name used in sitemap.ts
-  const baseUrl = process.env.NEXT_PUBLIC_baseUrl || 'https://toptenuae.com';
+  const baseUrl = process.env.baseUrl || 'https://toptenuae.com';
 
   return {
     rules: [
