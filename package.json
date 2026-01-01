@@ -5,22 +5,22 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "pages:build": "pnpm next-on-pages",
-    "preview": "pnpm pages:build && wrangler pages dev",
-    "deploy": "pnpm pages:build && wrangler pages deploy",
+    "pages:build": "opennextjs-cloudflare",
+    "preview": "pnpm pages:build && wrangler dev",
+    "deploy": "pnpm pages:build && wrangler deploy",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
     "@formspree/react": "^3.0.0",
-    "@next/third-parties": "^16.0.7",
+    "@next/third-parties": "^16.1.1",
     "@portabletext/react": "^5.0.0",
     "@sanity/image-url": "^2.0.2",
     "aws4": "^1.13.2",
     "clsx": "^2.1.1",
-    "lucide-react": "^0.555.0",
+    "lucide-react": "0.555.0",
     "next": "16.0.10",
-    "next-sanity": "^11.6.12",
+    "next-sanity": "11.6.12",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-syntax-highlighter": "^16.1.0",
@@ -28,27 +28,29 @@
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
-    "@cloudflare/next-on-pages": "^1.13.16",
-    "@tailwindcss/postcss": "^4",
+    "@opennextjs/cloudflare": "^1.14.7",
+    "@tailwindcss/postcss": "^4.1.18",
     "@types/aws4": "^1.11.6",
-    "@types/node": "^20",
+    "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/react-syntax-highlighter": "^15.5.13",
     "eslint": "^9",
     "eslint-config-next": "16.0.10",
-    "tailwindcss": "^4.0.0",
+    "tailwindcss": "^4.1.18",
     "typescript": "^5",
-    "vercel": "^37",
-    "wrangler": "^3"
+    "wrangler": "^4.54.0"
   },
   "pnpm": {
     "overrides": {
-      "glob": "8.1.0",
+      "glob": ">=10.5.0",
       "prismjs": ">=1.30.0"
     },
-    "hoistPattern": [
-      "*"
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp",
+      "unrs-resolver",
+      "workerd"
     ]
   }
-  }
+}
