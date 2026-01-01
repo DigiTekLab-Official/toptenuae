@@ -1,0 +1,120 @@
+.
+├── .DS_Store
+├── .env.local
+├── .gitignore
+├── README.md
+├── eslint.config.mjs
+├── next-env.d.ts
+├── next.config.ts
+├── package.json
+├── pnpm-lock.yaml
+├── pnpm-workspace.yaml
+├── postcss.config.mjs
+├── project-structure.txt
+├── public
+│   ├── .DS_Store
+│   ├── about-og.webp
+│   └── images
+│       ├── .DS_Store
+│       ├── brand
+│       │   ├── .DS_Store
+│       │   └── logoIcon.svg
+│       └── contact-og.webp
+├── src
+│   ├── .DS_Store
+│   ├── app
+│   │   ├── [slug]
+│   │   │   └── page.tsx
+│   │   ├── about-us
+│   │   │   └── page.tsx
+│   │   ├── affiliate-disclosure
+│   │   │   └── page.tsx
+│   │   ├── category
+│   │   │   └── [slug]
+│   │   │       └── page.tsx
+│   │   ├── contact-us
+│   │   │   └── page.tsx
+│   │   ├── cookies-policy
+│   │   │   └── page.tsx
+│   │   ├── disclaimer
+│   │   │   └── page.tsx
+│   │   ├── globals.css
+│   │   ├── gratuity-calculator-uae
+│   │   │   └── page.tsx
+│   │   ├── icon.svg
+│   │   ├── layout.tsx
+│   │   ├── not-found.tsx
+│   │   ├── page.tsx
+│   │   ├── privacy-policy
+│   │   │   └── page.tsx
+│   │   ├── robots.ts
+│   │   ├── search
+│   │   │   └── page.tsx
+│   │   ├── sitemap.ts
+│   │   ├── subscribe
+│   │   │   └── page.tsx
+│   │   ├── terms
+│   │   │   └── page.tsx
+│   │   ├── terms-and-conditions
+│   │   │   └── page.tsx
+│   │   ├── thank-you
+│   │   │   └── page.tsx
+│   │   ├── uae-vat-calculator
+│   │   │   └── page.tsx
+│   │   └── zakat-calculator
+│   │       └── page.tsx
+│   ├── components
+│   │   ├── Breadcrumb.tsx
+│   │   ├── CharityCard.tsx
+│   │   ├── ContactForm.tsx
+│   │   ├── FAQAccordion.tsx
+│   │   ├── Footer.tsx
+│   │   ├── Header.tsx
+│   │   ├── JsonLd.tsx
+│   │   ├── NewsletterForm.tsx
+│   │   ├── PortableText.tsx
+│   │   ├── Sidebar.tsx
+│   │   ├── analytics
+│   │   │   ├── Clarity.tsx
+│   │   │   └── GTM.tsx
+│   │   ├── home
+│   │   │   ├── CategorySection.tsx
+│   │   │   ├── HeroSection.tsx
+│   │   │   └── LatestPosts.tsx
+│   │   ├── icons
+│   │   │   ├── LogoIcon.tsx
+│   │   │   └── TopTenUAELogo.tsx
+│   │   ├── templates
+│   │   │   ├── ArticleTemplate.tsx
+│   │   │   ├── ComparisonSummaryTable.tsx
+│   │   │   ├── QuickSummaryTable.tsx
+│   │   │   └── TopTenTemplate.tsx
+│   │   ├── tools
+│   │   │   ├── GratuityCalculator.tsx
+│   │   │   ├── RelatedTools.tsx
+│   │   │   ├── VatCalculator.tsx
+│   │   │   └── ZakatCalculator.tsx
+│   │   └── ui
+│   │       ├── Accordion.tsx
+│   │       ├── AffiliateDisclosure.tsx
+│   │       ├── BuyButton.tsx
+│   │       ├── CodeBlock.tsx
+│   │       ├── DisclaimerBlock.tsx
+│   │       ├── NavigationGrid.tsx
+│   │       ├── RelatedLinkCard.tsx
+│   │       └── SanityTable.tsx
+│   ├── lib
+│   │   ├── amazon.ts
+│   │   ├── gtm.ts
+│   │   └── utils.ts
+│   ├── sanity
+│   │   ├── client.ts
+│   │   └── lib
+│   │       └── image.ts
+│   └── types
+│       ├── react-syntax-highlighter.d.ts
+│       └── sanity-image-url.d.ts
+├── tailwind.config.ts
+└── tsconfig.json
+
+34 directories, 84 files
