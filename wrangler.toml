@@ -1,8 +1,0 @@
-name = "toptenuae"
-compatibility_date = "2024-01-01"
-
-# Cloudflare Pages output directory - OpenNext creates the worker structure here
-pages_build_output_dir = ".open-next"
-
-# Enable Node.js compatibility for Next.js
-compatibility_flags = ["nodejs_compat"]
