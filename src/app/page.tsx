@@ -56,8 +56,7 @@ const HOMEPAGE_QUERY = `{
     "slug": slug.current,
     intro,
     "imageUrl": mainImage.asset->url,
-    // ✅ FIX: Fetch string directly to prevent React object rendering error
-    "category": coalesce(categories[0], category)->title,
+    "category": coalesce(categories[0]->title, category->title, "General"),
     "categorySlug": coalesce(
       categories[0]->slug.current,
       category->slug.current,
@@ -65,15 +64,13 @@ const HOMEPAGE_QUERY = `{
     ),
     publishedAt
   },
-  // ✅ FIX: Added "tool" to the list so calculators appear in Latest
-  "latest": *[_type in ["topTenList", "howTo", "article", "tool"]] | order(publishedAt desc)[1...9]{
+  "latest": *[_type in ["topTenList", "howTo", "article"]] | order(publishedAt desc)[1...7]{
     _id,
-    _type, 
     title,
     "slug": slug.current,
     intro,
     "imageUrl": mainImage.asset->url,
-    "category": coalesce(categories[0], category)->title,
+    "category": coalesce(categories[0]->title, category->title, "General"),
     "categorySlug": coalesce(
       categories[0]->slug.current,
       category->slug.current,
