@@ -45,6 +45,24 @@ const nextConfig: NextConfig = {
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
         ],
       },
+      // ✅ FIX: RSC Prefetch Caching for Cloudflare Pages
+      // When Next.js prefetches pages on hover, it requests /?_rsc=xxxxx payloads.
+      // These need proper Cache-Control headers to work with Cloudflare's edge network.
+      {
+        source: "/:path*",
+        has: [
+          {
+            type: "query",
+            key: "_rsc",
+          },
+        ],
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
     ];
   },
 
