@@ -179,32 +179,7 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
           </div>
         )}
 
-        {/* --- EXPANDABLE REVIEW --- */}
-        {product.itemDescription && (
-          <div className="mb-6 border-t border-gray-100 pt-4">
-             <div className="flex items-center gap-2 mb-3">
-              <div className="bg-blue-50 p-1.5 rounded-full">
-                <Monitor className="w-4 h-4 text-blue-600" />
-              </div>
-              <h3 className="text-sm font-black text-gray-800 uppercase tracking-widest">
-                Our Expert Take
-              </h3>
-            </div>
-            <div className={`prose prose-sm max-w-none text-gray-700 transition-all ${isDescExpanded ? "" : "line-clamp-3 overflow-hidden"}`}>
-               <PortableText value={product.itemDescription} />
-            </div>
-            <button
-              onClick={() => setIsDescExpanded(!isDescExpanded)}
-              className="mt-2 flex items-center gap-1 text-sm font-bold text-blue-600 hover:underline"
-            >
-              {isDescExpanded ? (
-                  <>Show Less <ChevronUp className="w-3 h-3" /></>
-                ) : (
-                  <>Read Full Review <ChevronDown className="w-3 h-3" /></>
-                )}
-            </button>
-          </div>
-        )}
+
 
         {/* --- KEY FEATURES --- */}
         {product.keyFeatures && product.keyFeatures.length > 0 && (
@@ -305,7 +280,34 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
                     </div>
                   )}
               </div>
+              
            </div>
+                   {/* --- EXPANDABLE REVIEW --- */}
+        {/* {product.itemDescription && (
+          <div className="mb-6 border-t border-gray-100 pt-4">
+             <div className="flex items-center gap-2 mb-3">
+              <div className="bg-blue-50 p-1.5 rounded-full">
+                <Monitor className="w-4 h-4 text-blue-600" />
+              </div>
+              <h3 className="text-sm font-black text-gray-800 uppercase tracking-widest">
+                Our Expert Take
+              </h3>
+            </div>
+            <div className={`prose prose-sm max-w-none text-gray-700 transition-all ${isDescExpanded ? "" : "line-clamp-3 overflow-hidden"}`}>
+               <PortableText value={product.itemDescription} />
+            </div>
+            <button
+              onClick={() => setIsDescExpanded(!isDescExpanded)}
+              className="mt-2 flex items-center gap-1 text-sm font-bold text-blue-600 hover:underline"
+            >
+              {isDescExpanded ? (
+                  <>Show Less <ChevronUp className="w-3 h-3" /></>
+                ) : (
+                  <>Read Full Review <ChevronDown className="w-3 h-3" /></>
+                )}
+            </button>
+          </div>
+        )} */}
         </div>
       )}
     </article>
