@@ -7,6 +7,8 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
+// ⚠️ Ensure you have created src/lib/sanityLoader.ts for this to work
+import sanityLoader from "@/lib/sanityLoader";
 
 // Dynamic Components
 import ClientToolRenderer from "@/components/tools/ClientToolRenderer"; 
@@ -348,7 +350,7 @@ export default async function Page({ params }: PageProps) {
                       <Link
                         key={tool.slug}
                         href={`/${category}/${tool.slug}`}
-                        prefetch={false} // ✅ FIX: Disable prefetch
+                        prefetch={false}
                         className="group relative block h-full focus:outline-none focus:ring-2 focus:ring-[#4b0082] rounded-2xl"
                         aria-label={`Go to ${tool.title}`}
                       >
@@ -486,15 +488,19 @@ export default async function Page({ params }: PageProps) {
               </div>
             </div>
             
+            {/* ✅ OPTIMIZED LCP IMAGE SECTION */}
             {data.mainImage?.url && (data._type === "article" || data._type === "news") && (
-               <div className="mt-6 relative w-full h-[400px] rounded-xl overflow-hidden">
+               <div className="mt-6 relative w-full h-[auto] aspect-video rounded-xl overflow-hidden bg-gray-100">
                  <Image 
+                   loader={sanityLoader} // 👈 1. Custom loader
                    src={data.mainImage.url} 
                    alt={data.mainImage.alt || data.title}
                    fill
                    className="object-cover"
-                   priority
-                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 70vw, 800px"
+                   priority={true} // 👈 2. priority=true automatically handles priority loading
+                   // ❌ Removed fetchPriority="high" to fix TypeScript error
+                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 850px"
+                   quality={85}
                  />
                </div>
             )}
