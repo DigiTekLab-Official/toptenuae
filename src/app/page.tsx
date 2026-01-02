@@ -23,9 +23,6 @@ import {
   PieChart 
 } from "lucide-react";
 
-// --- CONFIGURATION ---
-const SELECTED_CATEGORIES = ["tech", "reviews", "events-holidays", "parenting-kids", "finance-tools"]; 
-
 // --- SEO ---
 export async function generateMetadata(): Promise<Metadata> {
   return generateSeoMetadata({
@@ -59,7 +56,8 @@ const HOMEPAGE_QUERY = `{
     "slug": slug.current,
     intro,
     "imageUrl": mainImage.asset->url,
-    "category": coalesce(categories[0], category)->{title},
+    // ✅ FIX: Fetch string directly to prevent React object rendering error
+    "category": coalesce(categories[0], category)->title,
     "categorySlug": coalesce(
       categories[0]->slug.current,
       category->slug.current,
@@ -67,13 +65,15 @@ const HOMEPAGE_QUERY = `{
     ),
     publishedAt
   },
-  "latest": *[_type in ["topTenList", "howTo", "article"]] | order(publishedAt desc)[1...7]{
+  // ✅ FIX: Added "tool" to the list so calculators appear in Latest
+  "latest": *[_type in ["topTenList", "howTo", "article", "tool"]] | order(publishedAt desc)[1...9]{
     _id,
+    _type, 
     title,
     "slug": slug.current,
     intro,
     "imageUrl": mainImage.asset->url,
-    "category": coalesce(categories[0], category)->{title},
+    "category": coalesce(categories[0], category)->title,
     "categorySlug": coalesce(
       categories[0]->slug.current,
       category->slug.current,
@@ -173,8 +173,10 @@ export default async function Home() {
             <p className="text-lg md:text-xl text-slate-200 mb-8 line-clamp-2 max-w-2xl leading-relaxed">
               {heroDescription}
             </p>
+            {/* ✅ FIX: Added prefetch={false} */}
             <Link 
               href={`/${featured.categorySlug}/${featured.slug}`}
+              prefetch={false}
               className="inline-flex items-center gap-2 bg-white text-slate-900 font-bold px-8 py-4 rounded-full hover:bg-primary hover:text-white transition-all transform hover:scale-105 shadow-lg"
             >
               Read Full Review <ArrowRight className="w-5 h-5" />
@@ -191,10 +193,11 @@ export default async function Home() {
                <div className="bg-amber-100 p-2 rounded-lg">
                  <Flame className="w-5 h-5 text-amber-600" />
                </div>
-               <h2 className="text-2xl font-black text-gray-900">Latest Articles</h2>
+               <h2 className="text-2xl font-black text-gray-900">Latest Updates</h2>
             </div>
-            <Link href="/articles" className="text-sm font-bold text-primary hover:text-primary-700 hidden sm:block">
-              View All Articles &rarr;
+            {/* ✅ FIX: Added prefetch={false} */}
+            <Link href="/latest" prefetch={false} className="text-sm font-bold text-primary hover:text-primary-700 hidden sm:block">
+              View All &rarr;
             </Link>
           </div>
 
@@ -203,11 +206,13 @@ export default async function Home() {
               const isTool = post._type === "tool";
               const postLink = `/${post.categorySlug}/${post.slug}`;
 
+              // RENDER: Finance Tools / Calculators
               if (isTool) {
                  const config = getToolConfig(post.slug);
                  const ToolIcon = config.icon;
                  return (
-                  <Link key={post.slug} href={postLink} className="group relative block h-full">
+                  // ✅ FIX: Added prefetch={false} & key={post._id}
+                  <Link key={post._id} href={postLink} prefetch={false} className="group relative block h-full">
                     <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl border border-slate-300 hover:border-primary/30 transition-all h-full flex flex-col overflow-hidden">
                       <div className="absolute top-0 right-0 bg-primary/5 w-24 h-24 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
                       <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-6 transition-colors duration-300 ${config.iconBg}`}>
@@ -224,8 +229,10 @@ export default async function Home() {
                  );
               }
 
+              // RENDER: Standard Articles
               return (
-                <Link key={post.slug} href={postLink} className="group flex flex-col bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
+                // ✅ FIX: Added prefetch={false} & key={post._id}
+                <Link key={post._id} href={postLink} prefetch={false} className="group flex flex-col bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
                   <div className="relative h-48 w-full overflow-hidden bg-gray-100">
                     {post.imageUrl ? (
                       <Image
@@ -244,7 +251,7 @@ export default async function Home() {
                   <div className="p-5 flex flex-col flex-1">
                     <div className="flex items-center gap-2 text-xs text-gray-500 font-bold uppercase tracking-wider mb-2">
                       <Clock className="w-3 h-3" />
-                      {formatDate(post.publishedAt)}
+                      {post.publishedAt ? formatDate(post.publishedAt) : "Recently"}
                     </div>
                     <h3 className="text-lg font-bold text-gray-900 mb-3 group-hover:text-primary transition-colors line-clamp-2 leading-tight">
                       {post.title}
