@@ -8,34 +8,31 @@ const nextConfig: NextConfig = {
   trailingSlash: false,
 
   // -----------------------------------------------------------------------------
-  // IMAGE OPTIMIZATION (Optimized for Sanity + Cloudflare)
+  // IMAGE OPTIMIZATION (Standard Mode - safest for Sanity)
   // -----------------------------------------------------------------------------
   images: {
-    // ✅ Use the custom loader to offload processing to Sanity's CDN
-    loader: 'custom',
-    loaderFile: './src/sanity/lib/sanity-image-loader.ts',
+    // 🔴 REMOVED: Custom loader lines (This fixes your double-URL bug)
+    // loader: 'custom', 
+    // loaderFile: ..., 
     
     dangerouslyAllowSVG: true,
 
     remotePatterns: [
-      { protocol: "https", hostname: "cdn.sanity.io", pathname: "/images/**" },
-      { protocol: "https", hostname: "placehold.co", pathname: "**" },
-      { protocol: "https", hostname: "toptenuae.com", pathname: "**" },
+      { 
+        protocol: "https", 
+        hostname: "cdn.sanity.io" 
+        // Allowing everything from Sanity is safer to prevent 404s
+      },
+      { protocol: "https", hostname: "placehold.co" },
+      { protocol: "https", hostname: "toptenuae.com" },
     ],
 
     deviceSizes: [320, 420, 768, 1024, 1200],
     imageSizes: [16, 32, 48, 64, 96],
-
-    // Set to false because our custom loader handles the "optimization"
-    unoptimized: false,
-
-    // ✅ CSP updated to allow base64 data URIs (required for blur placeholders)
-    contentSecurityPolicy:
-      "default-src 'self'; script-src 'none'; sandbox; img-src 'self' cdn.sanity.io placehold.co toptenuae.com data: blob:;",
   },
 
   // -----------------------------------------------------------------------------
-  // SECURITY HEADERS (Your "Wordfence" Replacement)
+  // SECURITY HEADERS
   // -----------------------------------------------------------------------------
   async headers() {
     return [
