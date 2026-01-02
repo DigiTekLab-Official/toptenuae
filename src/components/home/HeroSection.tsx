@@ -8,7 +8,8 @@ export interface TopTenItem {
   slug: string;
   intro: any; 
   imageUrl?: string;
-  category?: string;
+  category?: string; // Title (e.g., "Tech")
+  categorySlug?: string; // ✅ ADDED: Slug (e.g., "tech")
   publishedAt?: string;
 }
 
@@ -19,11 +20,12 @@ interface HeroProps {
 
 // 1. The Main "Featured" Card
 const FeaturedCard = ({ post }: { post: TopTenItem }) => {
+  // ✅ FIX: Safe URL construction
+  const postUrl = `/${post.categorySlug || 'general'}/${post.slug}`;
+
   return (
-    // REMOVED rounded-2xl to make corners sharp
     <div className="group relative h-full flex flex-col border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md">
       
-      {/* Aspect Ratio 16:9 - No Rounded Corners */}
       <div className="relative w-full aspect-video overflow-hidden bg-gray-100">
         {post.imageUrl ? (
           <Image
@@ -50,7 +52,8 @@ const FeaturedCard = ({ post }: { post: TopTenItem }) => {
       <div className="flex flex-1 flex-col justify-between p-6 md:p-8">
         <div>
           <h2 className="mb-4 text-2xl font-black leading-tight text-gray-900 group-hover:text-blue-600 md:text-3xl lg:text-4xl">
-            <Link href={`/${post.slug}`}>
+            {/* ✅ FIX: Disable Prefetch */}
+            <Link href={postUrl} prefetch={false}>
               {post.title}
             </Link>
           </h2>
@@ -65,7 +68,8 @@ const FeaturedCard = ({ post }: { post: TopTenItem }) => {
             {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : 'Recently Updated'}
           </time>
           <span className="mx-2 text-gray-300">•</span>
-          <Link href={`/${post.slug}`} className="text-blue-600 hover:underline">
+          {/* ✅ FIX: Disable Prefetch */}
+          <Link href={postUrl} prefetch={false} className="text-blue-600 hover:underline">
             Read Guide →
           </Link>
         </div>
@@ -76,10 +80,11 @@ const FeaturedCard = ({ post }: { post: TopTenItem }) => {
 
 // 2. The Side List Items
 const SideListItem = ({ post }: { post: TopTenItem }) => {
+  // ✅ FIX: Safe URL construction
+  const postUrl = `/${post.categorySlug || 'general'}/${post.slug}`;
+
   return (
-    // REMOVED rounded classes
     <article className="group flex gap-4 items-start p-3 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0">
-      {/* Thumbnail - Sharp Corners */}
       <div className="relative h-20 w-24 shrink-0 overflow-hidden bg-gray-100 border border-gray-100">
         {post.imageUrl ? (
           <Image
@@ -103,7 +108,8 @@ const SideListItem = ({ post }: { post: TopTenItem }) => {
           )}
         </div>
         <h3 className="text-sm font-bold leading-snug text-gray-900 group-hover:text-blue-600 line-clamp-2">
-          <Link href={`/${post.slug}`}>
+          {/* ✅ FIX: Disable Prefetch */}
+          <Link href={postUrl} prefetch={false}>
             {post.title}
           </Link>
         </h3>
@@ -124,10 +130,11 @@ export default function HeroSection({ featuredPost, sidePosts }: HeroProps) {
     <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
       <div className="mb-6 flex items-center justify-between border-b border-gray-200 pb-2">
         <h2 className="text-xl font-black uppercase tracking-tight text-gray-900 flex items-center gap-2">
-          <span className="w-2 h-6 bg-blue-600"></span> {/* Square indicator */}
+          <span className="w-2 h-6 bg-blue-600"></span>
           Trending Now
         </h2>
-        <Link href="/latest" className="text-xs font-bold text-gray-500 hover:text-blue-600 transition-colors">
+        {/* ✅ FIX: Disable Prefetch */}
+        <Link href="/latest" prefetch={false} className="text-xs font-bold text-gray-500 hover:text-blue-600 transition-colors">
           View All
         </Link>
       </div>

@@ -1,4 +1,3 @@
-// src/components/Header.tsx
 "use client";
 
 import { useState } from "react";
@@ -42,7 +41,7 @@ export default function Header() {
           
           {/* --- LOGO SECTION --- */}
           <div className={`flex-shrink-0 ${isSearchOpen ? 'hidden xl:block' : 'block'}`}>
-            <Link href="/" className="flex items-center" aria-label="TopTenUAE Homepage">
+            <Link href="/" prefetch={false} className="flex items-center" aria-label="TopTenUAE Homepage">
               <TopTenUAELogo className="h-8 w-auto md:h-10" />
             </Link>
           </div>
@@ -75,6 +74,8 @@ export default function Header() {
                   <Link
                     key={link.name}
                     href={link.href}
+                    // ✅ FIX: Disable Prefetch for Menu Items
+                    prefetch={false}
                     className={`
                       text-sm font-bold uppercase tracking-wide transition-colors whitespace-nowrap flex items-center gap-1
                       ${link.isHighlight 
@@ -100,6 +101,7 @@ export default function Header() {
                 </button>
                 <Link
                   href="/subscribe"
+                  prefetch={false}
                   className="rounded-full bg-primary px-5 py-2 text-xs font-bold uppercase text-white transition-colors hover:bg-primary-800 whitespace-nowrap"
                 >
                   Subscribe
@@ -139,8 +141,9 @@ export default function Header() {
               <Link
                 key={link.name}
                 href={link.href}
+                // ✅ FIX: Disable Prefetch for Mobile Menu
+                prefetch={false}
                 onClick={() => setIsMobileMenuOpen(false)}
-                // ✅ FIXED: Removed 'block', kept 'flex' to align items properly
                 className={`
                   flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium w-full
                   ${link.isHighlight 
@@ -156,6 +159,7 @@ export default function Header() {
              <div className="mt-4 border-t border-gray-100 pt-4 pb-4">
               <Link
                 href="/subscribe"
+                prefetch={false}
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="block w-full rounded-md bg-primary px-3 py-3 text-center text-sm font-bold uppercase text-white hover:bg-primary-800"
               >

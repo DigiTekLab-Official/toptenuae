@@ -18,62 +18,66 @@ export default function LatestPosts({ posts }: { posts: TopTenItem[] }) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
-          {posts.map((post) => (
-            <article key={post._id} className="flex flex-col group">
-              
-              {/* Image Card - REMOVED rounded-lg */}
-              <div className="relative aspect-[3/2] overflow-hidden bg-gray-100 mb-4 shadow-sm border border-gray-100">
-                {post.imageUrl ? (
-                  <Image
-                    src={post.imageUrl}
-                    alt={post.title}
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-400">
-                    No Image
-                  </div>
-                )}
-                {/* Category Badge Floating */}
-                {post.category && (
-                  <span className="absolute top-0 left-0 bg-blue-600 text-white text-xs font-bold uppercase px-3 py-1 shadow-sm">
-                    {post.category}
-                  </span>
-                )}
-              </div>
-
-              <div className="flex flex-col flex-1">
-                <div className="flex items-center text-xs text-gray-500 mb-2 space-x-2 uppercase tracking-wide">
-                  <span>{post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : 'Recently'}</span>
-                </div>
+          {posts.map((post) => {
+             // ✅ FIX: Safe URL Construction
+             const postUrl = `/${post.categorySlug || 'general'}/${post.slug}`;
+             
+             return (
+              <article key={post._id} className="flex flex-col group">
                 
-                <h3 className="text-xl font-bold text-gray-900 mb-2 leading-snug group-hover:text-blue-600 transition-colors">
-                  {/* FIX: Removed /list/ prefix */}
-                  <Link href={`/${post.slug}`}>
-                    {post.title}
-                  </Link>
-                </h3>
-
-                <div className="text-gray-600 text-sm leading-relaxed line-clamp-3 mb-4 flex-1">
-                  {typeof post.intro === 'string' ? (
-                    <p>{post.intro}</p>
+                <div className="relative aspect-[3/2] overflow-hidden bg-gray-100 mb-4 shadow-sm border border-gray-100">
+                  {post.imageUrl ? (
+                    <Image
+                      src={post.imageUrl}
+                      alt={post.title}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    />
                   ) : (
-                    <PortableText value={post.intro} />
+                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                      No Image
+                    </div>
+                  )}
+                  {post.category && (
+                    <span className="absolute top-0 left-0 bg-blue-600 text-white text-xs font-bold uppercase px-3 py-1 shadow-sm">
+                      {post.category}
+                    </span>
                   )}
                 </div>
 
-                {/* FIX: Removed /list/ prefix */}
-                <Link 
-                  href={`/${post.slug}`} 
-                  className="inline-flex items-center text-sm font-bold text-blue-600 hover:text-blue-800 transition-colors uppercase tracking-tight"
-                >
-                  Read Review <span className="ml-1">→</span>
-                </Link>
-              </div>
-            </article>
-          ))}
+                <div className="flex flex-col flex-1">
+                  <div className="flex items-center text-xs text-gray-500 mb-2 space-x-2 uppercase tracking-wide">
+                    <span>{post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : 'Recently'}</span>
+                  </div>
+                  
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 leading-snug group-hover:text-blue-600 transition-colors">
+                    {/* ✅ FIX: Disable Prefetch */}
+                    <Link href={postUrl} prefetch={false}>
+                      {post.title}
+                    </Link>
+                  </h3>
+
+                  <div className="text-gray-600 text-sm leading-relaxed line-clamp-3 mb-4 flex-1">
+                    {typeof post.intro === 'string' ? (
+                      <p>{post.intro}</p>
+                    ) : (
+                      <PortableText value={post.intro} />
+                    )}
+                  </div>
+
+                  {/* ✅ FIX: Disable Prefetch */}
+                  <Link 
+                    href={postUrl} 
+                    prefetch={false}
+                    className="inline-flex items-center text-sm font-bold text-blue-600 hover:text-blue-800 transition-colors uppercase tracking-tight"
+                  >
+                    Read Review <span className="ml-1">→</span>
+                  </Link>
+                </div>
+              </article>
+            );
+          })}
         </div>
 
       </div>

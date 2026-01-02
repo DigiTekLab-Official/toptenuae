@@ -5,7 +5,7 @@ import PortableText from '@/components/PortableText';
 
 interface CategorySectionProps {
   title: string;
-  slug: string;
+  slug: string; // This is the category slug
   posts: TopTenItem[];
   color?: string; 
 }
@@ -21,11 +21,11 @@ export default function CategorySection({ title, slug, posts, color = "bg-blue-6
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl md:text-2xl font-bold text-gray-900 flex flex-col">
             <span className="z-10">{title}</span>
-            {/* Square underline instead of rounded */}
             <span className={`h-1 w-12 mt-1 ${color}`}></span>
           </h2>
           <Link 
-            href={`/category/${slug}`}
+            href={`/${slug}`} // ✅ FIX: Link to category root (e.g. /tech)
+            prefetch={false}  // ✅ FIX: Disable prefetch to stop 404s
             className="text-xs font-bold uppercase tracking-wider text-gray-500 hover:text-blue-600 transition-colors flex items-center gap-1"
           >
             View All <span className="hidden sm:inline">{title}</span> &rarr;
@@ -36,7 +36,6 @@ export default function CategorySection({ title, slug, posts, color = "bg-blue-6
           {posts.map((post) => (
             <article key={post._id} className="group flex flex-col h-full">
               
-              {/* Image - REMOVED rounded-md */}
               <div className="relative aspect-[3/2] overflow-hidden bg-gray-100 mb-3 border border-gray-100">
                 {post.imageUrl ? (
                   <Image
@@ -53,8 +52,8 @@ export default function CategorySection({ title, slug, posts, color = "bg-blue-6
 
               <div className="flex flex-col flex-1">
                 <h3 className="text-base font-bold leading-snug text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 mb-2">
-                  {/* FIX: Removed /list/ prefix */}
-                  <Link href={`/${post.slug}`}>
+                  {/* ✅ FIX: Use Category Slug in URL + Disable Prefetch */}
+                  <Link href={`/${slug}/${post.slug}`} prefetch={false}>
                     {post.title}
                   </Link>
                 </h3>
