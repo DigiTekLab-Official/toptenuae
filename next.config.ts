@@ -13,16 +13,12 @@ const nextConfig: NextConfig = {
   images: {
     // ✅ CRITICAL FIX: Cloudflare Pages does not support Next.js Image Optimization API.
     // We set 'unoptimized: true' to force the browser to load images directly from Sanity's CDN.
-    // This fixes the "404 Failed to load resource" errors in your console.
     unoptimized: true,
     
     dangerouslyAllowSVG: true,
 
     remotePatterns: [
-      { 
-        protocol: "https", 
-        hostname: "cdn.sanity.io" 
-      },
+      { protocol: "https", hostname: "cdn.sanity.io" },
       { protocol: "https", hostname: "placehold.co" },
       { protocol: "https", hostname: "toptenuae.com" },
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
@@ -33,21 +29,38 @@ const nextConfig: NextConfig = {
   // SECURITY HEADERS
   // -----------------------------------------------------------------------------
   async headers() {
+    // 1. Define CSP: Whitelist Sanity, Google, and your image domains
+    const ContentSecurityPolicy = `
+      default-src 'self';
+      script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com;
+      style-src 'self' 'unsafe-inline';
+      img-src 'self' blob: data: https://cdn.sanity.io https://placehold.co https://toptenuae.com https://lh3.googleusercontent.com https://*.google.com;
+      font-src 'self' data:;
+      connect-src 'self' https://*.api.sanity.io https://www.google-analytics.com;
+      frame-ancestors 'self';
+    `.replace(/\s{2,}/g, ' ').trim();
+
     return [
       {
         source: "/:path*",
         headers: [
+          // Standard Security Headers
           { key: "X-DNS-Prefetch-Control", value: "on" },
           { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "origin-when-cross-origin" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+
+          // ✅ NEW: Fixes "Ensure proper origin isolation with COOP"
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+
+          // ✅ NEW: Fixes "Ensure CSP is effective against XSS attacks"
+          { key: "Content-Security-Policy", value: ContentSecurityPolicy },
         ],
       },
-      // ✅ FIX: RSC Prefetch Caching for Cloudflare Pages
+      // ✅ FIX: RSC Prefetch - Prevent caching 404s
       // When Next.js prefetches pages on hover, it requests /?_rsc=xxxxx payloads.
-      // These need proper Cache-Control headers to work with Cloudflare's edge network.
       {
         source: "/:path*",
         has: [
@@ -59,7 +72,7 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: "Cache-Control",
-            value: "public, max-age=31536000, immutable",
+            value: "no-store", // Prevents Cloudflare from caching broken prefetch attempts
           },
         ],
       },
