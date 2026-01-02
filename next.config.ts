@@ -8,12 +8,13 @@ const nextConfig: NextConfig = {
   trailingSlash: false,
 
   // -----------------------------------------------------------------------------
-  // IMAGE OPTIMIZATION (Standard Mode - safest for Sanity)
+  // IMAGE OPTIMIZATION (Cloudflare Pages Fix)
   // -----------------------------------------------------------------------------
   images: {
-    // 🔴 REMOVED: Custom loader lines (This fixes your double-URL bug)
-    // loader: 'custom', 
-    // loaderFile: ..., 
+    // ✅ CRITICAL FIX: Cloudflare Pages does not support Next.js Image Optimization API.
+    // We set 'unoptimized: true' to force the browser to load images directly from Sanity's CDN.
+    // This fixes the "404 Failed to load resource" errors in your console.
+    unoptimized: true,
     
     dangerouslyAllowSVG: true,
 
@@ -21,14 +22,11 @@ const nextConfig: NextConfig = {
       { 
         protocol: "https", 
         hostname: "cdn.sanity.io" 
-        // Allowing everything from Sanity is safer to prevent 404s
       },
       { protocol: "https", hostname: "placehold.co" },
       { protocol: "https", hostname: "toptenuae.com" },
+      { protocol: "https", hostname: "lh3.googleusercontent.com" },
     ],
-
-    deviceSizes: [320, 420, 768, 1024, 1200],
-    imageSizes: [16, 32, 48, 64, 96],
   },
 
   // -----------------------------------------------------------------------------

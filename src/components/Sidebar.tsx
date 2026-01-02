@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Clock, TrendingUp, ShieldCheck } from "lucide-react";
 
-// ✅ UPDATED QUERY: Now fetches the category slug so we can build correct links
+// ✅ UPDATED QUERY: Fetches category slug for correct link building
 const SIDEBAR_QUERY = `
   *[_type in ["topTenList", "howTo", "post"] && slug.current != $currentSlug]
   | order(publishedAt desc)[0...5] {
@@ -25,7 +25,7 @@ export default async function Sidebar({ currentSlug, categorySlug }: SidebarProp
   const recentPosts = await client.fetch(SIDEBAR_QUERY, { currentSlug });
 
   return (
-    <aside className="w-full lg:w-80 flex-shrink-0 space-y-8 mt-8 lg:mt-0">
+    <aside className="w-full lg:w-80 shrink-0 space-y-8 mt-8 lg:mt-0">
       
       {/* WIDGET 1: TRUST SIGNAL */}
       <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm relative overflow-hidden">
@@ -56,7 +56,6 @@ export default async function Sidebar({ currentSlug, categorySlug }: SidebarProp
         <div className="flex flex-col gap-6">
           {recentPosts.map((post: any) => {
             // ✅ LOGIC FIX: Determine the correct folder path
-            // If category exists, use it. If not, fallback to 'reviews' (or 'tech' etc.)
             const categoryPrefix = post.category ? post.category : 'reviews';
             const postUrl = `/${categoryPrefix}/${post.slug}`;
 
@@ -64,7 +63,7 @@ export default async function Sidebar({ currentSlug, categorySlug }: SidebarProp
               <Link key={post.slug} href={postUrl} className="group flex gap-4 items-start">
                 
                 {/* Thumbnail */}
-                <div className="relative w-24 h-16 flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden border border-gray-100 shadow-sm">
+                <div className="relative w-24 h-16 shrink-0 bg-gray-50 rounded-lg overflow-hidden border border-gray-100 shadow-sm">
                   {post.imageUrl ? (
                     <Image 
                       src={post.imageUrl} 
@@ -88,7 +87,15 @@ export default async function Sidebar({ currentSlug, categorySlug }: SidebarProp
                   {post.publishedAt && (
                      <div className="flex items-center gap-1.5 text-[12px] text-gray-500 uppercase tracking-wider font-bold">
                         <Clock className="w-4 h-4" />
-                        {new Date(post.publishedAt).toLocaleDateString("en-AE", { month: 'short', day: 'numeric', year: 'numeric' })}
+                        {/* ✅ HYDRATION FIX: Use <time> tag with suppressHydrationWarning to stop image crashes */}
+                        <time suppressHydrationWarning>
+                          {new Date(post.publishedAt).toLocaleDateString("en-AE", { 
+                            timeZone: "Asia/Dubai", // Forces consistent timezone (Server vs Client)
+                            month: 'short', 
+                            day: 'numeric', 
+                            year: 'numeric' 
+                          })}
+                        </time>
                      </div>
                   )}
                 </div>
