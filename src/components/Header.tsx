@@ -147,7 +147,7 @@ export default function Header() {
                 className={`
                   flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium w-full
                   ${link.isHighlight 
-                    ? "text-red-600 bg-red-50 hover:bg-red-100" 
+                    ? "text-red-700 bg-red-50 hover:bg-red-100" 
                     : "text-gray-700 hover:bg-primary-50 hover:text-primary"
                   }
                 `}
@@ -171,4 +171,4 @@ export default function Header() {
       )}
     </header>
   );
-}
+} 

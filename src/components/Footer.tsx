@@ -6,7 +6,7 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-slate-900 text-slate-300 font-sans border-t-4 border-[#8B5CF6]">
+    <footer className="bg-slate-950 text-slate-200 font-sans border-t-4 border-[#8B5CF6]">
       
       {/* 1. TOP SECTION (Links) */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
@@ -19,7 +19,7 @@ export default function Footer() {
                 <TopTenUAELogo className="h-8 w-auto" />
               </div>
             </Link>
-            <p className="text-sm leading-relaxed text-slate-400">
+            <p className="text-sm leading-relaxed text-slate-200">
               Your trusted buying guide for the Emirates. We review, rank, and compare the best products and services in the UAE.
             </p>
             
@@ -47,13 +47,13 @@ export default function Footer() {
 
           {/* Column 3: Family & Guides */}
           <div>
-            <h2 className="text-white font-bold text-base uppercase tracking-wider mb-4">Tools & Money</h2>
+            <h2 className="text-white font-bold text-base uppercase tracking-wider mb-4">Calculators & Money</h2>
             <ul className="space-y-2.5 text-sm">
               {/* Tool Badge */}
               <li className="pt-0">
                 <Link href="/finance-tools" prefetch={false} className="group flex items-center gap-2 hover:text-white transition-colors">
                    <span className=" group-hover:text-[#8B5CF6] transition-colors text-amber-400 text-base">Financial Calculators</span>
-                   <span className="bg-violet-300 text-[#4b0082] text-[12px] font-bold px-1.5 py-0.5 rounded animate-pulse">NEW</span>
+                   <span className="bg-violet-300 text-[#34005b] text-[12px] font-bold px-1.5 py-0.5 rounded animate-pulse">NEW</span>
                 </Link>
               </li>
               {/* ✅ FIXED: Corrected paths to match Next.js redirects (/finance-tools/...) */}
