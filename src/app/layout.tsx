@@ -72,10 +72,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // ✅ FIXED: Added 'suppressHydrationWarning' here to ignore GTM attributes
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${ibmPlexSans.className} ${ibmPlexSans.variable} antialiased min-h-screen flex flex-col overflow-x-hidden`}
+        // ✅ FIXED: Added 'text-slate-900 bg-slate-50' for High Contrast Score
+        className={`${ibmPlexSans.className} ${ibmPlexSans.variable} font-sans text-slate-900 bg-slate-50 antialiased min-h-screen flex flex-col overflow-x-hidden`}
         suppressHydrationWarning={true}
       >
         <Suspense fallback={null}>

@@ -284,11 +284,11 @@ export default async function Home() {
            <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-4">
              Don't Miss the Best UAE Deals
            </h2>
-           <p className="text-gray-600 max-w-xl mx-auto mb-8">
+           <p className="text-gray-700 max-w-xl mx-auto mb-8">
              Join 15,000+ subscribers getting our weekly "Top 10" digests and exclusive tech discounts.
            </p>
            <HomeNewsletter />
-           <p className="text-sm text-gray-500 mt-4">Unsubscribe at any time. No spam, guaranteed.</p>
+           <p className="text-sm text-gray-700 mt-4">Unsubscribe at any time. No spam, guaranteed.</p>
         </div>
       </section>
     </main>
