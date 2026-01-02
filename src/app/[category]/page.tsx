@@ -178,19 +178,23 @@ export default async function CategoryPage({ params }: PageProps) {
 
   if (!data) return notFound();
 
+  // ✅ FIX 1: Robust Category Slug
+  // Ensure we never use "null" in the URL. Use data.slug from DB, or fallback to the URL param.
+  const categorySlug = data.slug || category;
+
   // --- SEO: Generate Collection Schema ---
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     "name": data.title,
     "description": data.description || `Collection of ${data.title}`,
-    "url": `https://toptenuae.com/${category}`,
+    "url": `https://toptenuae.com/${categorySlug}`,
     "mainEntity": {
       "@type": "ItemList",
       "itemListElement": data.items?.map((item: any, index: number) => ({
         "@type": "ListItem",
         "position": index + 1,
-        "url": `https://toptenuae.com/${category}/${item.slug}`,
+        "url": `https://toptenuae.com/${categorySlug}/${item.slug}`,
         "name": item.title
       })) || []
     }
@@ -244,8 +248,13 @@ export default async function CategoryPage({ params }: PageProps) {
                 const ToolIcon = config.icon;
 
                 return (
-                  // ✅ LINK: Includes Category Structure
-                  <Link key={item.slug} href={`/${data.slug}/${item.slug}`} className="group relative block h-full">
+                  // ✅ FIX 2: Added prefetch={false} and Safe Slug
+                  <Link 
+                    key={item.slug} 
+                    href={`/${categorySlug}/${item.slug}`} 
+                    prefetch={false} // Prevents RSC 404 console errors
+                    className="group relative block h-full"
+                  >
                     <div className="bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl border border-slate-300 hover:border-[#4b0082]/30 transition-all h-full flex flex-col overflow-hidden">
                       
                       {/* Corner Decoration */}
@@ -339,9 +348,11 @@ export default async function CategoryPage({ params }: PageProps) {
             {data.items && data.items.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {data.items.map((post: any) => (
+                  // ✅ FIX 2: Added prefetch={false} and Safe Slug
                   <Link 
                     key={post.slug} 
-                    href={`/${data.slug}/${post.slug}`} 
+                    href={`/${categorySlug}/${post.slug}`} 
+                    prefetch={false} // Prevents RSC 404 console errors
                     className="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-xl transition-all overflow-hidden flex flex-col h-full"
                   >
                     {/* Image Section */}
@@ -404,7 +415,7 @@ export default async function CategoryPage({ params }: PageProps) {
 
           {/* Sidebar */}
           <aside className="w-full lg:w-80 shrink-0 space-y-8">
-             <Sidebar currentSlug="" categorySlug={data.slug} />
+             <Sidebar currentSlug="" categorySlug={categorySlug} />
           </aside>
         </div>
       </div>
