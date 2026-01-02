@@ -26,13 +26,8 @@ import {
 // --- SEO ---
 export async function generateMetadata(): Promise<Metadata> {
   return generateSeoMetadata({
-    // Updated Title with high-value keywords
     title: "TopTenUAE – Best Reviews, Deals & Free Finance Calculators (2026)",
-    
-    // Updated Description to match the "Free" and "Calculator" intent
-    description:
-      "Compare the best products in the UAE and find verified deals. Access free finance calculators for VAT, Gratuity, and Salary. Your trusted guide for Dubai & UAE living.",
-    
+    description: "Compare the best products in the UAE and find verified deals. Access free finance calculators for VAT, Gratuity, and Salary. Your trusted guide for Dubai & UAE living.",
     url: "https://toptenuae.com",
     _type: "website",
     imageUrl: "https://toptenuae.com/images/brand/og-home.jpg"
@@ -49,13 +44,17 @@ const getToolConfig = (slug: string) => {
 };
 
 // --- QUERY ---
+// ✅ FIX: Added defined(slug.current) to ensure we don't fetch broken drafts.
+// ✅ FIX: Removed explicit "featured == true" requirement. Now it prioritizes featured, 
+// but falls back to the latest post if nothing is featured.
 const HOMEPAGE_QUERY = `{
-  "featured": *[_type in ["topTenList", "howTo", "article"] && featured == true] | order(publishedAt desc)[0]{
+  "featured": *[_type in ["topTenList", "howTo", "article"] && defined(slug.current)] | order(featured desc, publishedAt desc)[0]{
     _id,
     title,
     "slug": slug.current,
     intro,
     "imageUrl": mainImage.asset->url,
+    // ✅ SAFE CATEGORY FETCHING:
     "category": coalesce(categories[0]->title, category->title, "General"),
     "categorySlug": coalesce(
       categories[0]->slug.current,
@@ -64,12 +63,14 @@ const HOMEPAGE_QUERY = `{
     ),
     publishedAt
   },
-  "latest": *[_type in ["topTenList", "howTo", "article"]] | order(publishedAt desc)[1...7]{
+  "latest": *[_type in ["topTenList", "howTo", "article", "tool"] && defined(slug.current)] | order(publishedAt desc)[1...9]{
     _id,
+    _type, 
     title,
     "slug": slug.current,
     intro,
     "imageUrl": mainImage.asset->url,
+    // ✅ SAFE CATEGORY FETCHING:
     "category": coalesce(categories[0]->title, category->title, "General"),
     "categorySlug": coalesce(
       categories[0]->slug.current,
@@ -84,32 +85,48 @@ const formatDate = (date: string) =>
   new Date(date).toLocaleDateString("en-AE", { month: "long", day: "numeric", year: "numeric" });
 
 export default async function Home() {
-  // ✅ Robust fetch to prevent build-time crashes if Sanity is unreachable
   let data;
+  
   try {
     data = await client.fetch(HOMEPAGE_QUERY);
   } catch (error) {
-    console.error("Sanity Fetch Error on Home:", error);
+    console.error("🔥 SANITY QUERY ERROR:", error);
     return (
-      <div className="min-h-[50vh] flex flex-col items-center justify-center p-4 text-center">
-        <h2 className="text-xl font-bold mb-2">Content Connection Error</h2>
-        <p className="text-gray-500">We're updating our UAE guides. Please refresh in a moment.</p>
+      <div className="min-h-[60vh] flex flex-col items-center justify-center p-4 text-center">
+        <h2 className="text-xl font-bold mb-2 text-red-600">Content Error</h2>
+        <p className="text-gray-500 max-w-md">
+          Unable to connect to content server. Please check your internet connection or try again later.
+        </p>
       </div>
     );
   }
 
   const { featured, latest } = data || {};
 
+  // ✅ DEBUGGING: If this screen appears, check your Sanity Studio to ensure you have published posts.
   if (!featured) {
+    console.warn("⚠️ TopTenUAE: No 'featured' or 'latest' posts found. Check Sanity Content.");
     return (
-      <div className="min-h-[50vh] flex items-center justify-center">
-        <p className="text-gray-500">Initializing TopTenUAE engine...</p>
+      <div className="min-h-[60vh] flex flex-col items-center justify-center bg-slate-50 text-center px-4">
+        <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 max-w-md">
+           <Zap className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+           <h1 className="text-xl font-bold text-gray-900 mb-2">Welcome to TopTenUAE</h1>
+           <p className="text-gray-500 mb-6">
+             We are currently curating the best content for you. No posts were found in the database yet.
+           </p>
+           <Link href="/admin" prefetch={false} className="text-sm font-bold text-primary hover:underline">
+             Go to Sanity Studio
+           </Link>
+        </div>
       </div>
     );
   }
 
+  // Safe fallback for Intro text
   const heroDescription = 
-    featured.intro?.[0]?.children?.[0]?.text || 
+    (Array.isArray(featured.intro) 
+      ? featured.intro[0]?.children?.[0]?.text 
+      : featured.intro) || 
     "Read our latest comprehensive review for the UAE market.";
 
   const homeSchema = {
@@ -170,9 +187,9 @@ export default async function Home() {
             <p className="text-lg md:text-xl text-slate-200 mb-8 line-clamp-2 max-w-2xl leading-relaxed">
               {heroDescription}
             </p>
-            {/* ✅ FIX: Added prefetch={false} */}
+            {/* ✅ LINK: Prefetch False + Safe Slug */}
             <Link 
-              href={`/${featured.categorySlug}/${featured.slug}`}
+              href={`/${featured.categorySlug || 'general'}/${featured.slug}`}
               prefetch={false}
               className="inline-flex items-center gap-2 bg-white text-slate-900 font-bold px-8 py-4 rounded-full hover:bg-primary hover:text-white transition-all transform hover:scale-105 shadow-lg"
             >
@@ -192,7 +209,6 @@ export default async function Home() {
                </div>
                <h2 className="text-2xl font-black text-gray-900">Latest Updates</h2>
             </div>
-            {/* ✅ FIX: Added prefetch={false} */}
             <Link href="/latest" prefetch={false} className="text-sm font-bold text-primary hover:text-primary-700 hidden sm:block">
               View All &rarr;
             </Link>
@@ -201,14 +217,13 @@ export default async function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {latest.map((post: any) => {
               const isTool = post._type === "tool";
-              const postLink = `/${post.categorySlug}/${post.slug}`;
+              const postLink = `/${post.categorySlug || 'general'}/${post.slug}`;
 
-              // RENDER: Finance Tools / Calculators
+              // RENDER: Finance Tools
               if (isTool) {
                  const config = getToolConfig(post.slug);
                  const ToolIcon = config.icon;
                  return (
-                  // ✅ FIX: Added prefetch={false} & key={post._id}
                   <Link key={post._id} href={postLink} prefetch={false} className="group relative block h-full">
                     <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl border border-slate-300 hover:border-primary/30 transition-all h-full flex flex-col overflow-hidden">
                       <div className="absolute top-0 right-0 bg-primary/5 w-24 h-24 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
@@ -226,9 +241,8 @@ export default async function Home() {
                  );
               }
 
-              // RENDER: Standard Articles
+              // RENDER: Articles
               return (
-                // ✅ FIX: Added prefetch={false} & key={post._id}
                 <Link key={post._id} href={postLink} prefetch={false} className="group flex flex-col bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
                   <div className="relative h-48 w-full overflow-hidden bg-gray-100">
                     {post.imageUrl ? (
