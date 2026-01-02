@@ -1,50 +1,75 @@
 // src/sanity/lib/image.ts
-import { createImageUrlBuilder, type SanityImageSource } from '@sanity/image-url'
+import { createImageUrlBuilder } from '@sanity/image-url' 
+import type { SanityImageSource } from '@sanity/image-url'
 
-const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || ''
-const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || ''
+const projectId = process.env.SANITY_PROJECT_ID || ''
+const dataset = process.env.SANITY_DATASET || ''
 
-// 1. Error guard for missing env vars
-if (!projectId || !dataset) {
-  throw new Error(
-    "Missing Sanity configuration. Please check NEXT_PUBLIC_SANITY_PROJECT_ID and NEXT_PUBLIC_SANITY_DATASET in your .env or Cloudflare dashboard."
-  );
+const builder = createImageUrlBuilder({
+  projectId,
+  dataset,
+})
+export const urlFor = (source: SanityImageSource) => {
+  return builder.image(source)
 }
 
-const builder = createImageUrlBuilder({ projectId, dataset })
-
-// 2. Strongly typed urlFor
-export const urlFor = (source: SanityImageSource) => builder.image(source)
-
 // --------------------------------------------------
-// HELPERS FOR COMPONENTS
+// AMAZON + CONVERSION IMAGES (FIXED)
 // --------------------------------------------------
 
-// General Image (Paired with next.config.ts loader)
-export const mainImage = (source: SanityImageSource) => {
-  if (!source) return undefined 
-  // We return the base URL; the global loader adds w, q, and auto=format
-  return urlFor(source).url() 
-}
-
-// SEO & Google Discover (Strict 16:9 ratio)
-export const discoverImage = (source: SanityImageSource) => {
-  if (!source) return undefined
-  return urlFor(source)
-    .width(1200)
-    .height(675) 
-    .fit('crop')
-    .auto('format') // Serves AVIF/WebP
+export const mainImage = (source: any) => {
+  if (!source || !source.asset) return undefined 
+  
+  // FIX: Removed .height() and .fit(). 
+  // We only define width to control file size. 
+  // This guarantees the FULL uncropped aspect ratio is returned.
+  return builder.image(source)
+    .width(1600) 
+    .auto('format')
+    .quality(90)
     .url()
 }
 
-// Sidebar/Thumbnail (Strict 16:9 ratio)
-export const sidebarImage = (source: SanityImageSource) => {
-  if (!source) return undefined
-  return urlFor(source)
+export const listImage = (source: any) => {
+  if (!source || !source.asset) return undefined
+
+  // FIX: Removed .height(). 
+  // This prevents Sanity from forcing it into a square box calculation.
+  return builder.image(source)
+    .width(800)
+    .auto('format')
+    .quality(80)
+    .url()
+}
+
+// --------------------------------------------------
+// SEO + GOOGLE DISCOVER (Keep as is)
+// --------------------------------------------------
+
+export const discoverImage = (source: any) => {
+  if (!source || !source.asset) return undefined
+
+  // Discover REQUIRES 16:9, so we MUST keep the crop here.
+  return builder.image(source)
+    .width(1920)
+    .height(1080)
+    .fit('crop') 
+    .auto('format')
+    .quality(85)
+    .url()
+}
+
+export const sidebarImage = (source: any) => {
+  if (!source || !source.asset) return undefined
+
+  return builder.image(source)
     .width(400)
     .height(225) 
     .fit('crop')
-    .auto('format') // Added for consistency
+    .crop('center')
+    .auto('format')
+    .quality(75)
     .url()
 }
+
+export const urlForImage = urlFor;
