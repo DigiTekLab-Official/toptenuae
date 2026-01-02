@@ -1,3 +1,4 @@
+// src/components/home/HeroSection.tsx
 import Link from 'next/link';
 import Image from 'next/image';
 import { toPlainText } from '@/lib/utils'; 
@@ -8,8 +9,8 @@ export interface TopTenItem {
   slug: string;
   intro: any; 
   imageUrl?: string;
-  category?: string; // Title (e.g., "Tech")
-  categorySlug?: string; // ✅ ADDED: Slug (e.g., "tech")
+  category?: string;      
+  categorySlug?: string;  
   publishedAt?: string;
 }
 
@@ -20,17 +21,14 @@ interface HeroProps {
 
 // 1. The Main "Featured" Card
 const FeaturedCard = ({ post }: { post: TopTenItem }) => {
-  // ✅ FIX: Validate categorySlug
-  if (!post.categorySlug || post.categorySlug === 'null' || post.categorySlug === 'undefined') {
-    console.warn('[HeroSection] Skipping featured post with invalid categorySlug:', post);
-    return null;
-  }
-
-  const postUrl = `/${post.categorySlug}/${post.slug}`;
+  // ✅ DATA IS NOW SAFE: We rely on the query's coalesce, but keep a fallback just in case.
+  const catSlug = post.categorySlug || 'general';
+  const postUrl = `/${catSlug}/${post.slug}`;
+  
+  const introText = typeof post.intro === 'string' ? post.intro : (post.intro ? toPlainText(post.intro) : '');
 
   return (
     <div className="group relative h-full flex flex-col border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md">
-      
       <div className="relative w-full aspect-video overflow-hidden bg-gray-100">
         {post.imageUrl ? (
           <Image
@@ -42,9 +40,7 @@ const FeaturedCard = ({ post }: { post: TopTenItem }) => {
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 800px"
           />
         ) : (
-          <div className="h-full w-full flex items-center justify-center text-gray-400">
-            No Image
-          </div>
+          <div className="h-full w-full flex items-center justify-center text-gray-400 text-sm">No Image</div>
         )}
         
         {post.category && (
@@ -57,14 +53,13 @@ const FeaturedCard = ({ post }: { post: TopTenItem }) => {
       <div className="flex flex-1 flex-col justify-between p-6 md:p-8">
         <div>
           <h2 className="mb-4 text-2xl font-black leading-tight text-gray-900 group-hover:text-blue-600 md:text-3xl lg:text-4xl">
-            {/* ✅ FIX: Disable Prefetch */}
+            {/* ✅ PREFETCH FALSE: Keeps console clean */}
             <Link href={postUrl} prefetch={false}>
               {post.title}
             </Link>
           </h2>
-          
           <p className="line-clamp-3 text-base text-gray-600 leading-relaxed md:text-lg">
-            {toPlainText(post.intro)}
+            {introText}
           </p>
         </div>
         
@@ -73,7 +68,6 @@ const FeaturedCard = ({ post }: { post: TopTenItem }) => {
             {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : 'Recently Updated'}
           </time>
           <span className="mx-2 text-gray-300">•</span>
-          {/* ✅ FIX: Disable Prefetch */}
           <Link href={postUrl} prefetch={false} className="text-blue-600 hover:underline">
             Read Guide →
           </Link>
@@ -85,13 +79,8 @@ const FeaturedCard = ({ post }: { post: TopTenItem }) => {
 
 // 2. The Side List Items
 const SideListItem = ({ post }: { post: TopTenItem }) => {
-  // ✅ FIX: Validate categorySlug
-  if (!post.categorySlug || post.categorySlug === 'null' || post.categorySlug === 'undefined') {
-    console.warn('[HeroSection] Skipping side post with invalid categorySlug:', post);
-    return null;
-  }
-
-  const postUrl = `/${post.categorySlug}/${post.slug}`;
+  const catSlug = post.categorySlug || 'general';
+  const postUrl = `/${catSlug}/${post.slug}`;
 
   return (
     <article className="group flex gap-4 items-start p-3 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0">
@@ -118,7 +107,6 @@ const SideListItem = ({ post }: { post: TopTenItem }) => {
           )}
         </div>
         <h3 className="text-sm font-bold leading-snug text-gray-900 group-hover:text-blue-600 line-clamp-2">
-          {/* ✅ FIX: Disable Prefetch */}
           <Link href={postUrl} prefetch={false}>
             {post.title}
           </Link>
@@ -134,16 +122,7 @@ const SideListItem = ({ post }: { post: TopTenItem }) => {
 };
 
 export default function HeroSection({ featuredPost, sidePosts }: HeroProps) {
-  // ✅ FIX: Validate featured post before rendering
-  if (!featuredPost || !featuredPost.categorySlug || featuredPost.categorySlug === 'null') {
-    console.warn('[HeroSection] Invalid featured post, skipping hero section');
-    return null;
-  }
-
-  // ✅ FIX: Filter out invalid side posts
-  const validSidePosts = sidePosts.filter(post => 
-    post.categorySlug && post.categorySlug !== 'null' && post.categorySlug !== 'undefined'
-  );
+  if (!featuredPost) return null;
 
   return (
     <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
@@ -152,7 +131,6 @@ export default function HeroSection({ featuredPost, sidePosts }: HeroProps) {
           <span className="w-2 h-6 bg-blue-600"></span>
           Trending Now
         </h2>
-        {/* ✅ FIX: Disable Prefetch */}
         <Link href="/latest" prefetch={false} className="text-xs font-bold text-gray-500 hover:text-blue-600 transition-colors">
           View All
         </Link>
@@ -168,7 +146,7 @@ export default function HeroSection({ featuredPost, sidePosts }: HeroProps) {
               Latest Guides
             </h3>
             <div className="flex flex-col">
-              {validSidePosts.map((post) => (
+              {sidePosts.map((post) => (
                 <SideListItem key={post._id} post={post} />
               ))}
             </div>
