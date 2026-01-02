@@ -20,8 +20,13 @@ interface HeroProps {
 
 // 1. The Main "Featured" Card
 const FeaturedCard = ({ post }: { post: TopTenItem }) => {
-  // ✅ FIX: Safe URL construction
-  const postUrl = `/${post.categorySlug || 'general'}/${post.slug}`;
+  // ✅ FIX: Validate categorySlug
+  if (!post.categorySlug || post.categorySlug === 'null' || post.categorySlug === 'undefined') {
+    console.warn('[HeroSection] Skipping featured post with invalid categorySlug:', post);
+    return null;
+  }
+
+  const postUrl = `/${post.categorySlug}/${post.slug}`;
 
   return (
     <div className="group relative h-full flex flex-col border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md">
@@ -80,8 +85,13 @@ const FeaturedCard = ({ post }: { post: TopTenItem }) => {
 
 // 2. The Side List Items
 const SideListItem = ({ post }: { post: TopTenItem }) => {
-  // ✅ FIX: Safe URL construction
-  const postUrl = `/${post.categorySlug || 'general'}/${post.slug}`;
+  // ✅ FIX: Validate categorySlug
+  if (!post.categorySlug || post.categorySlug === 'null' || post.categorySlug === 'undefined') {
+    console.warn('[HeroSection] Skipping side post with invalid categorySlug:', post);
+    return null;
+  }
+
+  const postUrl = `/${post.categorySlug}/${post.slug}`;
 
   return (
     <article className="group flex gap-4 items-start p-3 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0">
@@ -124,7 +134,16 @@ const SideListItem = ({ post }: { post: TopTenItem }) => {
 };
 
 export default function HeroSection({ featuredPost, sidePosts }: HeroProps) {
-  if (!featuredPost) return null;
+  // ✅ FIX: Validate featured post before rendering
+  if (!featuredPost || !featuredPost.categorySlug || featuredPost.categorySlug === 'null') {
+    console.warn('[HeroSection] Invalid featured post, skipping hero section');
+    return null;
+  }
+
+  // ✅ FIX: Filter out invalid side posts
+  const validSidePosts = sidePosts.filter(post => 
+    post.categorySlug && post.categorySlug !== 'null' && post.categorySlug !== 'undefined'
+  );
 
   return (
     <section className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
@@ -149,7 +168,7 @@ export default function HeroSection({ featuredPost, sidePosts }: HeroProps) {
               Latest Guides
             </h3>
             <div className="flex flex-col">
-              {sidePosts.map((post) => (
+              {validSidePosts.map((post) => (
                 <SideListItem key={post._id} post={post} />
               ))}
             </div>
