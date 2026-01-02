@@ -85,7 +85,7 @@ const QUERY = `*[slug.current == $slug][0]{
   availability,
   priceTier, 
   customerRating, 
-  reviewCount, // Updated from ratingCount to match Schema 
+  reviewCount,
   realComplaint, 
   verdict, 
   keyFeatures, 
@@ -93,7 +93,7 @@ const QUERY = `*[slug.current == $slug][0]{
   cons, 
   itemDescription,
 
-  // Deal Specifics (✅ NEW)
+  // Deal Specifics
   dealPrice, 
   originalPrice, 
   discountPercentage, 
@@ -335,6 +335,12 @@ export default async function Page({ params }: PageProps) {
               {data.relatedTools && data.relatedTools.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {data.relatedTools.map((tool: any) => {
+                    // ✅ FIX: Skip tools with invalid slugs
+                    if (!tool.slug || tool.slug === 'null' || tool.slug === 'undefined') {
+                      console.warn(`[Slug Page] Skipping related tool with invalid slug:`, tool);
+                      return null;
+                    }
+                    
                     const config = getToolConfig(tool.slug);
                     const ToolIcon = config.icon;
 
@@ -342,6 +348,7 @@ export default async function Page({ params }: PageProps) {
                       <Link
                         key={tool.slug}
                         href={`/${category}/${tool.slug}`}
+                        prefetch={false}
                         className="group relative block h-full focus:outline-none focus:ring-2 focus:ring-[#4b0082] rounded-2xl"
                         aria-label={`Go to ${tool.title}`}
                       >

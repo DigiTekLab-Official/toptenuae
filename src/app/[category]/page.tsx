@@ -178,9 +178,14 @@ export default async function CategoryPage({ params }: PageProps) {
 
   if (!data) return notFound();
 
-  // ✅ FIX 1: Robust Category Slug
-  // Ensure we never use "null" in the URL. Use data.slug from DB, or fallback to the URL param.
+  // ✅ FIX 1: Robust Category Slug with null-safety
   const categorySlug = data.slug || category;
+  
+  // ✅ FIX 2: Validation - log warning if slug is missing
+  if (!categorySlug || categorySlug === 'null' || categorySlug === 'undefined') {
+    console.error(`[Category Page] Invalid category slug: ${categorySlug}`);
+    return notFound();
+  }
 
   // --- SEO: Generate Collection Schema ---
   const jsonLd = {
@@ -244,15 +249,20 @@ export default async function CategoryPage({ params }: PageProps) {
           {data.items && data.items.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {data.items.map((item: any) => {
+                // ✅ FIX 3: Skip items with invalid slugs
+                if (!item.slug || item.slug === 'null' || item.slug === 'undefined') {
+                  console.warn(`[Category Page] Skipping item with invalid slug:`, item);
+                  return null;
+                }
+                
                 const config = getToolConfig(item.slug);
                 const ToolIcon = config.icon;
 
                 return (
-                  // ✅ FIX 2: Added prefetch={false} and Safe Slug
                   <Link 
                     key={item.slug} 
                     href={`/${categorySlug}/${item.slug}`} 
-                    prefetch={false} // Prevents RSC 404 console errors
+                    prefetch={false}
                     className="group relative block h-full"
                   >
                     <div className="bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl border border-slate-300 hover:border-[#4b0082]/30 transition-all h-full flex flex-col overflow-hidden">
@@ -347,58 +357,66 @@ export default async function CategoryPage({ params }: PageProps) {
           <main className="flex-1">
             {data.items && data.items.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {data.items.map((post: any) => (
-                  // ✅ FIX 2: Added prefetch={false} and Safe Slug
-                  <Link 
-                    key={post.slug} 
-                    href={`/${categorySlug}/${post.slug}`} 
-                    prefetch={false} // Prevents RSC 404 console errors
-                    className="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-xl transition-all overflow-hidden flex flex-col h-full"
-                  >
-                    {/* Image Section */}
-                    <div className="h-52 relative bg-gray-100 shrink-0">
-                      {post.imageUrl ? (
-                        <Image 
-                          src={post.imageUrl} 
-                          alt={post.title} 
-                          fill 
-                          className="object-cover transition-transform duration-500 group-hover:scale-105" 
-                        />
-                      ) : (
+                {data.items.map((post: any) => {
+                  // ✅ FIX 3: Skip items with invalid slugs
+                  if (!post.slug || post.slug === 'null' || post.slug === 'undefined') {
+                    console.warn(`[Category Page] Skipping post with invalid slug:`, post);
+                    return null;
+                  }
+                  
+                  return (
+                    <Link 
+                      key={post.slug} 
+                      href={`/${categorySlug}/${post.slug}`} 
+                      prefetch={false}
+                      className="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-xl transition-all overflow-hidden flex flex-col h-full"
+                    >
+                      {/* Image Section */}
+                      <div className="h-52 relative bg-gray-100 shrink-0">
+                        {post.imageUrl ? (
+                          <Image 
+                            src={post.imageUrl} 
+                            alt={post.title} 
+                            fill 
+                            className="object-cover transition-transform duration-500 group-hover:scale-105" 
+                          />
+                        ) : (
                          <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-300">
                            <span className="text-sm uppercase tracking-widest font-bold">TopTenUAE</span>
                          </div>
-                      )}
-                      
-                      {/* Type Badge */}
-                      <div className="absolute top-3 left-3">
-                         <span className="bg-white/90 backdrop-blur-md text-[#4b0082] text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-sm">
-                           {post._type === 'topTenList' ? 'Review' : post._type}
-                         </span>
+                        )} 
+                        
+                        {/* ✅ FIXED: Type Badge was outside the image container in previous version if logic was wrong. 
+                            It is now correctly placed inside the relative container. */}
+                        <div className="absolute top-3 left-3">
+                           <span className="bg-white/90 backdrop-blur-md text-[#4b0082] text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-sm">
+                             {post._type === 'topTenList' ? 'Review' : post._type}
+                           </span>
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Content Section */}
-                    <div className="p-6 flex flex-col flex-1">
-                      <h2 className="text-xl font-bold mb-3 text-gray-900 group-hover:text-[#4b0082] transition-colors leading-tight">
-                        {post.title}
-                      </h2>
-                      
-                      <p className="text-gray-600 text-sm line-clamp-3 mb-5 flex-1 leading-relaxed">
-                        {safeExcerpt(post.rawExcerpt)}
-                      </p>
-                      
-                      <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
-                        <span className="text-xs font-medium text-gray-400">
-                          {new Date(post.publishedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-                        </span>
-                        <span className="text-sm font-bold text-[#4b0082] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                          Read More <ArrowRight className="w-4 h-4" />
-                        </span>
+                      {/* Content Section */}
+                      <div className="p-6 flex flex-col flex-1">
+                        <h2 className="text-xl font-bold mb-3 text-gray-900 group-hover:text-[#4b0082] transition-colors leading-tight">
+                          {post.title}
+                        </h2>
+                        
+                        <p className="text-gray-600 text-sm line-clamp-3 mb-5 flex-1 leading-relaxed">
+                          {safeExcerpt(post.rawExcerpt)}
+                        </p>
+                        
+                        <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
+                          <span className="text-xs font-medium text-gray-400">
+                            {new Date(post.publishedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                          </span>
+                          <span className="text-sm font-bold text-[#4b0082] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                            Read More <ArrowRight className="w-4 h-4" />
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  </Link>
-                ))}
+                    </Link>
+                  );
+                })}
               </div>
             ) : (
               <div className="text-center py-24 bg-white rounded-2xl border border-dashed border-gray-300">
