@@ -43,26 +43,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // 3. Dynamic Posts (Articles, Tools, Deals)
-  // Fetch slug AND category to build the correct NEW URL: /category/slug
+  // ✅ FIX 1: Added "post" to the list of types to ensure we catch standard blog posts
+  // ✅ FIX 2: Changed "category" to "categories[0]" to match your schema (Arrays)
   const posts = await client.fetch(`
-    *[_type in ["topTenList", "howTo", "tool", "holiday", "deal", "article"] && defined(slug.current)] {
+    *[_type in ["topTenList", "howTo", "tool", "holiday", "deal", "article", "post"] && defined(slug.current)] {
       "slug": slug.current,
-      "category": category->slug.current,
+      "category": categories[0]->slug.current,
       _updatedAt
     }
   `);
 
   const postRoutes = posts.map((post: any) => {
-    // If a post doesn't have a category in Sanity, we skip it to avoid broken links
-    if (!post.category) return null;
+    // Safety Check: If category is missing, fallback to 'reviews' or log it
+    // This prevents pages from disappearing if they have no category assigned
+    const categorySlug = post.category || 'reviews'; 
 
     return {
-      url: `${baseUrl}/${post.category}/${post.slug}`,
+      url: `${baseUrl}/${categorySlug}/${post.slug}`,
       lastModified: new Date(post._updatedAt),
       changeFrequency: 'weekly' as const,
       priority: 0.9,
     };
-  }).filter((route: any) => route !== null);
+  });
 
   return [...staticRoutes, ...categoryRoutes, ...postRoutes];
 }
