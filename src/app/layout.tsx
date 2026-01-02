@@ -59,11 +59,11 @@ export const metadata: Metadata = {
   },
 };
 
+// ✅ FIX: Removed maximumScale to allow zooming
 export const viewport: Viewport = {
   themeColor: '#4b0082',
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
 };
 
 export default function RootLayout({
@@ -74,7 +74,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        // ✅ FIXED: Added 'text-slate-900 bg-slate-50' for High Contrast Score
+        // ✅ High Contrast Fix included here
         className={`${ibmPlexSans.className} ${ibmPlexSans.variable} font-sans text-slate-900 bg-slate-50 antialiased min-h-screen flex flex-col overflow-x-hidden`}
         suppressHydrationWarning={true}
       >
