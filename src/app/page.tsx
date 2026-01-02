@@ -29,11 +29,16 @@ const SELECTED_CATEGORIES = ["tech", "reviews", "events-holidays", "parenting-ki
 // --- SEO ---
 export async function generateMetadata(): Promise<Metadata> {
   return generateSeoMetadata({
-    title: "TopTenUAE: Best Reviews, Deals & Government Tools 2026",
-    description: "Your trusted guide for the best products, government services, and financial tools in Dubai and UAE. Calculate VAT, Gratuity, and find top deals.",
+    // Updated Title with high-value keywords
+    title: "TopTenUAE – Best Reviews, Deals & Free Finance Calculators (2026)",
+    
+    // Updated Description to match the "Free" and "Calculator" intent
+    description:
+      "Compare the best products in the UAE and find verified deals. Access free finance calculators for VAT, Gratuity, and Salary. Your trusted guide for Dubai & UAE living.",
+    
     url: "https://toptenuae.com",
     _type: "website",
-    imageUrl: "https://toptenuae.com/images/brand/og-home.jpg" 
+    imageUrl: "https://toptenuae.com/images/brand/og-home.jpg"
   });
 }
 
