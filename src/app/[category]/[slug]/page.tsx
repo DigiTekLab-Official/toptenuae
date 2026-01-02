@@ -207,7 +207,7 @@ export default async function Page({ params }: PageProps) {
   if (!data) notFound();
 
   // 🛑 SEO GUARD: Redirects
-  // 1. Products must be in /products/ OR /reviews/ (depending on your preference, sticking to logic)
+  // 1. Products must be in /products/ OR /reviews/
   if (data._type === 'product' && category !== 'products' && category !== 'reviews') {
     // Optional: permanentRedirect(`/reviews/${slug}`); 
   }
@@ -348,7 +348,7 @@ export default async function Page({ params }: PageProps) {
                       <Link
                         key={tool.slug}
                         href={`/${category}/${tool.slug}`}
-                        prefetch={false}
+                        prefetch={false} // ✅ FIX: Disable prefetch
                         className="group relative block h-full focus:outline-none focus:ring-2 focus:ring-[#4b0082] rounded-2xl"
                         aria-label={`Go to ${tool.title}`}
                       >

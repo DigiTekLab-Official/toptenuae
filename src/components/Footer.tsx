@@ -1,4 +1,3 @@
-// src/components/Footer.tsx
 import Link from 'next/link';
 import { Facebook, Twitter, Instagram, Mail, ShieldCheck } from 'lucide-react';
 import TopTenUAELogo from "./icons/TopTenUAELogo"; 
@@ -15,7 +14,7 @@ export default function Footer() {
           
           {/* Column 1: Brand & Trust */}
           <div className="space-y-4">
-            <Link href="/" className="inline-block" aria-label="TopTenUAE Home">
+            <Link href="/" prefetch={false} className="inline-block" aria-label="TopTenUAE Home">
               <div className="bg-white p-2 rounded-lg shadow-sm inline-block">
                 <TopTenUAELogo className="h-8 w-auto" />
               </div>
@@ -35,15 +34,14 @@ export default function Footer() {
           <div>
             <h2 className="text-white font-bold text-base uppercase tracking-wider mb-4">Discover</h2>
             <ul className="space-y-2.5 text-sm">
-              {/* ✅ UPDATED: Removed /category/ prefix for Clean URLs */}
-              <li><Link href="/events-holidays" className="hover:text-[#8B5CF6] transition-colors">Events & Holidays</Link></li>
-              <li><Link href="/tech" className="hover:text-[#8B5CF6] transition-colors">Tech & AI</Link></li>
-              <li><Link href="/lifestyle" className="hover:text-[#8B5CF6] transition-colors">Lifestyle</Link></li>
-              <li><Link href="/parenting-kids" className="hover:text-[#8B5CF6] transition-colors">Parenting & Kids</Link></li>
-              <li><Link href="/smart-home" className="hover:text-[#8B5CF6] transition-colors">Smart Home</Link></li>
-              <li><Link href="/reviews" className="hover:text-[#8B5CF6] transition-colors">Reviews</Link></li>
+              <li><Link href="/events-holidays" prefetch={false} className="hover:text-[#8B5CF6] transition-colors">Events & Holidays</Link></li>
+              <li><Link href="/tech" prefetch={false} className="hover:text-[#8B5CF6] transition-colors">Tech & AI</Link></li>
+              <li><Link href="/lifestyle" prefetch={false} className="hover:text-[#8B5CF6] transition-colors">Lifestyle</Link></li>
+              <li><Link href="/parenting-kids" prefetch={false} className="hover:text-[#8B5CF6] transition-colors">Parenting & Kids</Link></li>
+              <li><Link href="/smart-home" prefetch={false} className="hover:text-[#8B5CF6] transition-colors">Smart Home</Link></li>
+              <li><Link href="/reviews" prefetch={false} className="hover:text-[#8B5CF6] transition-colors">Reviews</Link></li>
                            
-              <li><Link href="/deals" className="hover:text-[#8B5CF6] transition-colors text-amber-400 font-medium">Deals & Offers 🔥</Link></li>
+              <li><Link href="/deals" prefetch={false} className="hover:text-[#8B5CF6] transition-colors text-amber-400 font-medium">Deals & Offers 🔥</Link></li>
             </ul>
           </div>
 
@@ -51,17 +49,17 @@ export default function Footer() {
           <div>
             <h2 className="text-white font-bold text-base uppercase tracking-wider mb-4">Tools & Money</h2>
             <ul className="space-y-2.5 text-sm">
-                         
               {/* Tool Badge */}
               <li className="pt-0">
-                <Link href="/finance-tools" className="group flex items-center gap-2 hover:text-white transition-colors">
+                <Link href="/finance-tools" prefetch={false} className="group flex items-center gap-2 hover:text-white transition-colors">
                    <span className=" group-hover:text-[#8B5CF6] transition-colors text-amber-400 text-base">Financial Calculators</span>
                    <span className="bg-violet-300 text-[#4b0082] text-[12px] font-bold px-1.5 py-0.5 rounded animate-pulse">NEW</span>
                 </Link>
               </li>
-              <li><Link href="/gratuity-calculator-uae" className="hover:text-[#8B5CF6] transition-colors">Gratuity Calculator</Link></li>
-              <li><Link href="/uae-vat-calculator" className="hover:text-[#8B5CF6] transition-colors">UAE VAT Calculator</Link></li>
-              <li><Link href="/zakat-calculator" className="hover:text-[#8B5CF6] transition-colors">Zakat Calculator</Link></li>
+              {/* ✅ FIXED: Corrected paths to match Next.js redirects (/finance-tools/...) */}
+              <li><Link href="/finance-tools/gratuity-calculator-uae" prefetch={false} className="hover:text-[#8B5CF6] transition-colors">Gratuity Calculator</Link></li>
+              <li><Link href="/finance-tools/uae-vat-calculator" prefetch={false} className="hover:text-[#8B5CF6] transition-colors">UAE VAT Calculator</Link></li>
+              <li><Link href="/finance-tools/zakat-calculator" prefetch={false} className="hover:text-[#8B5CF6] transition-colors">Zakat Calculator</Link></li>
             </ul>
           </div>
 
@@ -69,15 +67,15 @@ export default function Footer() {
           <div>
             <h2 className="text-white font-bold text-base uppercase tracking-wider mb-4">Company</h2>
             <ul className="space-y-2.5 text-sm">
-              <li><Link href="/about-us" className="hover:text-[#8B5CF6] transition-colors">About Us</Link></li>
+              <li><Link href="/about-us" prefetch={false} className="hover:text-[#8B5CF6] transition-colors">About Us</Link></li>
               
               <li className="h-px bg-slate-800 my-2 w-2/3"></li> {/* Separator */}
               
-              <li><Link href="/privacy-policy" className="hover:text-white transition-colors text-slate-400">Privacy Policy</Link></li>
-              <li><Link href="/terms-and-conditions" className="hover:text-white transition-colors text-slate-400">Terms of Service</Link></li>
-              <li><Link href="/cookies-policy" className="hover:text-white transition-colors text-slate-400">Cookies Policy</Link></li>
-              <li><Link href="/disclaimer" className="hover:text-white transition-colors text-slate-400">Disclaimer</Link></li>
-              <li><Link href="/affiliate-disclosure" className="hover:text-white transition-colors text-slate-400">Affiliate Disclosure</Link></li>
+              <li><Link href="/privacy-policy" prefetch={false} className="hover:text-white transition-colors text-slate-400">Privacy Policy</Link></li>
+              <li><Link href="/terms-and-conditions" prefetch={false} className="hover:text-white transition-colors text-slate-400">Terms of Service</Link></li>
+              <li><Link href="/cookies-policy" prefetch={false} className="hover:text-white transition-colors text-slate-400">Cookies Policy</Link></li>
+              <li><Link href="/disclaimer" prefetch={false} className="hover:text-white transition-colors text-slate-400">Disclaimer</Link></li>
+              <li><Link href="/affiliate-disclosure" prefetch={false} className="hover:text-white transition-colors text-slate-400">Affiliate Disclosure</Link></li>
             </ul>
           </div>
 
@@ -85,18 +83,18 @@ export default function Footer() {
           <div>
             <h2 className="text-white font-bold text-base uppercase tracking-wider mb-4">Connect</h2>
             <div className="flex gap-3 mb-6">
-              <Link href="https://www.facebook.com/TopTenUAEofficial" aria-label="Facebook" className="bg-slate-800 p-2 rounded-full hover:bg-[#1877F2] hover:text-white transition-all">
+              <Link href="https://www.facebook.com/TopTenUAEofficial" prefetch={false} aria-label="Facebook" className="bg-slate-800 p-2 rounded-full hover:bg-[#1877F2] hover:text-white transition-all">
                 <Facebook className="w-4 h-4" />
               </Link>
-              <Link href="https://x.com/top10_uae" aria-label="Twitter" className="bg-slate-800 p-2 rounded-full hover:bg-[#1DA1F2] hover:text-white transition-all">
+              <Link href="https://x.com/top10_uae" prefetch={false} aria-label="Twitter" className="bg-slate-800 p-2 rounded-full hover:bg-[#1DA1F2] hover:text-white transition-all">
                 <Twitter className="w-4 h-4" />
               </Link>
-              <Link href="https://www.instagram.com/toptenuae_/" aria-label="Instagram" className="bg-slate-800 p-2 rounded-full hover:bg-[#E4405F] hover:text-white transition-all">
+              <Link href="https://www.instagram.com/toptenuae_/" prefetch={false} aria-label="Instagram" className="bg-slate-800 p-2 rounded-full hover:bg-[#E4405F] hover:text-white transition-all">
                 <Instagram className="w-4 h-4" />
               </Link>
             </div>
             
-            <Link href="/contact-us" className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors border border-slate-700 rounded-lg px-4 py-2 hover:bg-slate-800">
+            <Link href="/contact-us" prefetch={false} className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors border border-slate-700 rounded-lg px-4 py-2 hover:bg-slate-800">
               <Mail className="w-4 h-4" /> 
               <span>Contact Team</span>
             </Link>
