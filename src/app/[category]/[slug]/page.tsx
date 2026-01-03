@@ -34,7 +34,7 @@ import RelatedTools from "@/components/tools/RelatedTools";
 import FAQAccordion from "@/components/FAQAccordion"; 
 
 // --- CONFIGURATION ---
-export const revalidate = 60; 
+export const revalidate = 61; 
 
 // --- UTILS ---
 // 🗑️ DELETED: safeJsonLdString (Replaced by cleanText inside generateSchema)
