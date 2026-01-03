@@ -123,7 +123,7 @@ const nextConfig: NextConfig = {
       { source: "/gratuity-calculator-uae", destination: "/finance-tools/gratuity-calculator-uae", permanent: true },
       { source: "/uae-vat-calculator", destination: "/finance-tools/uae-vat-calculator", permanent: true },
       { source: "/zakat-calculator", destination: "/finance-tools/zakat-calculator", permanent: true },
-      { source: "/how-to-pay-zakat-in-uae-online", destination: "/finance-tools/how-to-pay-zakat-in-uae-online", permanent: true },
+      { source: "/how-to-pay-zakat-in-uae-online", destination: "/lifestyle/how-to-pay-zakat-in-uae-online", permanent: true },
 
       // -----------------------------------------------------------
       // 5. EVENTS & HOLIDAYS (Map old flat URLs to /events-holidays/)
@@ -136,7 +136,7 @@ const nextConfig: NextConfig = {
       // 6. PARENTING & KIDS (Map old flat URLs to /parenting-kids/)
       // -----------------------------------------------------------
       { source: "/where-to-donate-used-toys-uae", destination: "/parenting-kids/where-to-donate-used-toys-uae", permanent: true },
-      { source: "/charity-organizations-uae-donations", destination: "/parenting-kids/charity-organizations-uae-donations", permanent: true },
+      { source: "/charity-organizations-uae-donations", destination: "/lifestyle/charity-organizations-uae-donations", permanent: true },
 
       // -----------------------------------------------------------
       // 7. SMART HOME (Map old flat URLs to /smart-home/)
