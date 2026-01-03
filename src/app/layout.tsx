@@ -1,16 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-
-// 1. Import Fonts
 import { IBM_Plex_Sans } from "next/font/google";
-
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import GTM from "@/components/analytics/GTM";
 import Clarity from "@/components/analytics/Clarity";
 import { Suspense } from "react";
 
-// 2. Configure Font
+// Configure Font
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
   weight: ['300', '400', '500', '600', '700'],
@@ -19,7 +16,6 @@ const ibmPlexSans = IBM_Plex_Sans({
 });
 
 export const metadata: Metadata = {
-  // CRITICAL: Base URL resolves all your image links
   metadataBase: new URL('https://toptenuae.com'), 
   
   title: {
@@ -29,13 +25,22 @@ export const metadata: Metadata = {
   description: "Discover the top 10 best places, services, and experiences in the UAE.",
   keywords: ["Top 10 UAE", "Best in Dubai", "Abu Dhabi Guide"],
   
+  // ✅ FIX 1: Explicitly point to the V2 file in public/
+  // This overrides src/app/icon.svg if it exists, ensuring the new file is used.
+  icons: {
+    icon: '/icon-v2.svg', 
+    shortcut: '/icon-v2.svg',
+    apple: '/apple-icon.png', // Ensure this file exists in public/ or remove this line
+  },
+
   openGraph: {
     title: 'TopTenUAE',
     description: 'Discover the top 10 best places, services, and experiences in the UAE.',
     url: 'https://toptenuae.com',
-    siteName: 'TopTenUAE',
+    siteName: 'TopTenUAE', // This sets the OG name
     images: [
       {
+        // ✅ FIX 2: Using your existing file path
         url: '/images/brand/og-default.png', 
         width: 1200,
         height: 630,
@@ -45,7 +50,7 @@ export const metadata: Metadata = {
     locale: 'en_AE',
     type: 'website',
   },
-
+  
   robots: {
     index: true,
     follow: true,
@@ -59,9 +64,8 @@ export const metadata: Metadata = {
   },
 };
 
-// ✅ FIX: Removed maximumScale to allow zooming
 export const viewport: Viewport = {
-  themeColor: '#4b0082',
+  themeColor: '#4b0082', // Purple theme color matches your new branding
   width: 'device-width',
   initialScale: 1,
 };
@@ -71,13 +75,28 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  
+  // ✅ FIX 3: JSON-LD to force Google to read "TopTenUAE" as the brand name
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'TopTenUAE',
+    alternateName: ['TopTenUAE.com'],
+    url: 'https://toptenuae.com',
+  };
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        // ✅ High Contrast Fix included here
         className={`${ibmPlexSans.className} ${ibmPlexSans.variable} font-sans text-slate-900 bg-slate-50 antialiased min-h-screen flex flex-col overflow-x-hidden`}
         suppressHydrationWarning={true}
       >
+        {/* Inject JSON-LD Script */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+
         <Suspense fallback={null}>
           <GTM />
           <Clarity />
