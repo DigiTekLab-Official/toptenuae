@@ -1,9 +1,10 @@
-// src/lib/schemaGenerator.ts
 import { cleanText } from '@/utils/sanity-text'; // ✅ Import your new helper
 
 // --- CONFIGURATION ---
 const baseUrl = process.env.baseUrl || 'https://toptenuae.com';
 const ORGANIZATION_LOGO = `${baseUrl}/images/brand/logoIcon.svg`;
+// ✅ NEW: Default image to prevent Google Warnings
+const DEFAULT_IMAGE = `${baseUrl}/images/brand/og-default.jpg`; 
 
 // --- HELPER: DATE FORMATTING ---
 const formatIsoDate = (dateStr?: string, isAllDay?: boolean) => {
@@ -55,12 +56,15 @@ export const generateEventSchema = (data: any, imageUrl: string | null = null) =
     rescheduled: "https://schema.org/EventRescheduled",
   };
 
+  // ✅ FIX: Ensure image is always an array
+  const images = imageUrl ? [imageUrl] : (data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE]);
+
   const schema: any = {
     '@context': 'https://schema.org',
     '@type': 'Event',
     name: cleanText(data.title),
-    description: cleanText(data.intro || data.description), // ✅ Safe
-    image: imageUrl ? [imageUrl] : (data.mainImage?.url ? [data.mainImage.url] : []),
+    description: cleanText(data.intro || data.description),
+    image: images, // ✅ Fixed
     startDate: formatIsoDate(data.startDate || data.date, data.isAllDay),
     endDate: formatIsoDate(data.endDate, data.isAllDay),
     eventStatus: statusMap[data.status] || "https://schema.org/EventScheduled",
@@ -75,6 +79,12 @@ export const generateEventSchema = (data: any, imageUrl: string | null = null) =
         addressRegion: data.address?.state,
         addressCountry: 'AE'
       }
+    },
+    // ✅ FIX: Google requires an Organizer
+    organizer: {
+      '@type': 'Organization',
+      name: 'TopTenUAE',
+      url: baseUrl
     }
   };
 
@@ -102,8 +112,8 @@ export const generateProductSchema = (data: any) => {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: cleanText(data.title || data.itemName),
-    image: data.mainImage?.url ? [data.mainImage.url] : undefined,
-    description: cleanText(data.verdict || data.intro || data.description), // ✅ Safe
+    image: data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE], // ✅ Fixed fallback
+    description: cleanText(data.verdict || data.intro || data.description), 
     brand: {
       '@type': 'Brand',
       name: cleanText(data.brand || 'Generic')
@@ -130,7 +140,7 @@ export const generateProductSchema = (data: any) => {
       '@type': 'Review',
       author: { '@type': 'Organization', name: 'TopTenUAE' },
       reviewRating: { '@type': 'Rating', ratingValue: 4.5, bestRating: 5 },
-      reviewBody: cleanText(data.verdict) // ✅ Safe
+      reviewBody: cleanText(data.verdict)
     };
   }
 
@@ -143,7 +153,7 @@ export const generateToolSchema = (data: any) => {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
     name: cleanText(data.title),
-    description: cleanText(data.seo?.metaDescription || data.description), // ✅ Safe
+    description: cleanText(data.seo?.metaDescription || data.description),
     url: `${baseUrl}/${data.slug}`,
     applicationCategory: 'FinanceApplication',
     operatingSystem: 'Web',
@@ -152,6 +162,7 @@ export const generateToolSchema = (data: any) => {
       price: '0',
       priceCurrency: 'AED',
     },
+    image: data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE] // ✅ Added Image
   };
   
   return toolSchema;
@@ -162,21 +173,26 @@ export const generateDealSchema = (data: any) => ({
   '@context': 'https://schema.org',
   '@type': 'Offer',
   name: cleanText(data.title),
-  description: cleanText(data.description), // ✅ Safe
+  description: cleanText(data.description),
   price: data.dealPrice,
   priceCurrency: 'AED',
   priceValidUntil: data.dealEndDate,
   url: data.affiliateLink,
-  availability: 'https://schema.org/InStock'
+  availability: 'https://schema.org/InStock',
+  image: data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE] // ✅ Added Image
 });
 
 // --- 7. ARTICLE SCHEMA (With FAQ Fix) ---
 export const generateArticleSchema = (data: any) => {
+  // ✅ FIX: Ensure Headline and Image are never empty
+  const headline = cleanText(data.title) || "TopTenUAE Article";
+  const images = data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE];
+
   const articleSchema: any = {
     '@context': 'https://schema.org',
     '@type': 'NewsArticle',
-    headline: cleanText(data.title),
-    image: data.mainImage?.url ? [data.mainImage.url] : [],
+    headline: headline, // ✅ Safe
+    image: images,      // ✅ Safe
     datePublished: data.publishedAt,
     dateModified: data._updatedAt || data.publishedAt,
     author: {
@@ -184,12 +200,19 @@ export const generateArticleSchema = (data: any) => {
       name: data.author?.name || 'TopTenUAE Editor',
       url: baseUrl
     },
-    publisher: generateOrganizationSchema()
+    publisher: {
+        '@type': 'Organization',
+        name: 'TopTenUAE',
+        url: baseUrl,
+        logo: {
+            '@type': 'ImageObject',
+            url: ORGANIZATION_LOGO
+        }
+    }
   };
 
   const schemas = [articleSchema];
 
-  // ✅ THIS FIXES YOUR GOOGLE ERROR
   if (data.faqs && data.faqs.length > 0) {
     schemas.push({
       '@context': 'https://schema.org',
@@ -199,7 +222,7 @@ export const generateArticleSchema = (data: any) => {
         name: cleanText(faq.question),
         acceptedAnswer: {
           '@type': 'Answer',
-          text: cleanText(faq.answer) // ✅ Convert Blocks to String!
+          text: cleanText(faq.answer) 
         }
       }))
     });
@@ -212,7 +235,6 @@ export const generateArticleSchema = (data: any) => {
 export function generateSchema(data: any) {
   if (!data) return generateOrganizationSchema();
 
-  // If you pass "category/slug", normalize it or use logic as needed
   const targetType = data.schemaType || data._type;
 
   switch (targetType) {
@@ -232,7 +254,7 @@ export function generateSchema(data: any) {
              acceptedAnswer: { '@type': 'Answer', text: cleanText(f.answer) }
            }))
         };
-        return [tool, faqs]; // Return array
+        return [tool, faqs]; 
       }
       return tool;
 
@@ -256,7 +278,8 @@ export function generateSchema(data: any) {
             '@type': 'Product',
             name: cleanText(item.product?.title || item.itemName || 'Product'),
             url: item.product?.slug ? `${baseUrl}/${item.product.slug}` : undefined,
-            description: cleanText(item.customVerdict || item.product?.verdict)
+            description: cleanText(item.customVerdict || item.product?.verdict),
+            image: item.product?.mainImage?.url ? [item.product.mainImage.url] : undefined // ✅ Image for list items
           }
         }))
       };
