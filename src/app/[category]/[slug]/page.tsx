@@ -1,61 +1,23 @@
 // src/app/[category]/[slug]/page.tsx
 
 // ⚠️ Commented out 'edge' to prevent timeouts with complex queries/ISR
-export const runtime = 'edge';
+// export const runtime = 'edge';
 
 import { client } from "@/sanity/lib/client";
 import { notFound, permanentRedirect } from "next/navigation";
 import { Metadata } from "next";
-import Link from "next/link";
-import Image from "next/image";
 import { generateSeoMetadata } from "@/utils/seo-manager"; 
-import { generateSchema } from "@/lib/schemaGenerator"; // ✅ NEW: Centralized Schema Generator
-
-// Dynamic Components
-import ClientToolRenderer from "@/components/tools/ClientToolRenderer"; 
-
-// Icons
-import {
-  Calculator, Percent, ArrowRight, Coins, HeartHandshake, Car, Plane, TrendingUp
-} from "lucide-react";
-
-// Templates
-import TopTenTemplate from "@/components/templates/TopTenTemplate";
-import ArticleTemplate from "@/components/templates/ArticleTemplate";
-import EventTemplate from "@/components/templates/EventTemplate";
-import ProductTemplate from "@/components/templates/ProductTemplate";
-
-// Components
-import Breadcrumb from "@/components/Breadcrumb";
-import Sidebar from "@/components/Sidebar";
+import { generateSchema } from "@/lib/schemaGenerator"; 
 import JsonLd from '@/components/JsonLd';
-import PortableText from "@/components/PortableText";
-import RelatedTools from "@/components/tools/RelatedTools";
-import FAQAccordion from "@/components/FAQAccordion"; 
+
+// IMPORT THE NEW VIEWS
+import ToolView from "@/components/views/ToolView";
+import ProductView from "@/components/views/ProductView";
+import ArticleView from "@/components/views/ArticleView";
 
 // --- CONFIGURATION ---
+// Changed to 61 to bust cache from previous fixes
 export const revalidate = 61; 
-
-// --- UTILS ---
-// 🗑️ DELETED: safeJsonLdString (Replaced by cleanText inside generateSchema)
-
-const formatDate = (dateString: string) => {
-  if (!dateString) return "";
-  return new Intl.DateTimeFormat("en-AE", {
-    day: "numeric", month: "long", year: "numeric", timeZone: "Asia/Dubai",
-  }).format(new Date(dateString));
-};
-
-const getToolConfig = (slug: string) => {
-  if (!slug) return { icon: Calculator, iconColor: '', iconBg: '', ctaLabel: 'View' };
-  if (slug.includes('vat')) return { icon: Percent, iconColor: 'text-[#4b0082] group-hover:text-white', iconBg: 'bg-blue-50 group-hover:bg-[#4b0082]', ctaLabel: 'Calculate VAT' };
-  if (slug.includes('zakat')) return { icon: HeartHandshake, iconColor: 'text-indigo-500 group-hover:text-white', iconBg: 'bg-indigo-50 group-hover:bg-indigo-500', ctaLabel: 'Calculate Zakat' };
-  if (slug.includes('gratuity')) return { icon: Coins, iconColor: 'text-amber-500 group-hover:text-white', iconBg: 'bg-amber-50 group-hover:bg-amber-500', ctaLabel: 'Calculate Benefits' };
-  if (slug.includes('loan') || slug.includes('car')) return { icon: Car, iconColor: 'text-sky-500 group-hover:text-white', iconBg: 'bg-sky-50 group-hover:bg-sky-600', ctaLabel: 'Estimate EMI' };
-  if (slug.includes('visa') || slug.includes('freelance')) return { icon: Plane, iconColor: 'text-violet-500 group-hover:text-white', iconBg: 'bg-violet-50 group-hover:bg-violet-500', ctaLabel: 'Compare Costs' };
-  if (slug.includes('roi')) return { icon: TrendingUp, iconColor: 'text-emerald-500 group-hover:text-white', iconBg: 'bg-emerald-50 group-hover:bg-emerald-500', ctaLabel: 'Check ROI' };
-  return { icon: Calculator, iconColor: 'text-purple-600 group-hover:text-white', iconBg: 'bg-purple-50 group-hover:bg-purple-600', ctaLabel: 'Calculate Now' };
-};
 
 // --- QUERY ---
 const QUERY = `*[slug.current == $slug][0]{
@@ -92,7 +54,6 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { category, slug } = await params;
   
-  // Lightweight query for SEO
   const data = await client.fetch(
     `*[slug.current == $slug][0]{ 
       title, description, seo, "imageUrl": mainImage.asset->url, _type,
@@ -102,7 +63,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   );
 
   if (!data) return { title: "Page Not Found" };
-
   return generateSeoMetadata(data, { category, slug });
 }
 
@@ -115,159 +75,47 @@ export default async function Page({ params }: PageProps) {
 
   // 🛑 SEO GUARD: Redirects
   if (data._type === 'product' && category !== 'products' && category !== 'reviews') {
-    // Optional: permanentRedirect(`/reviews/${slug}`); 
+     // Optional: permanentRedirect(`/reviews/${slug}`); 
   }
   if (data._type === 'deal' && category !== 'deals') permanentRedirect(`/deals/${slug}`);
   if (data.category && data.category.slug && data.category.slug !== category && category !== 'deals' && category !== 'reviews') {
     permanentRedirect(`/${data.category.slug}/${slug}`);
   }
 
-  // ✅ GLOBAL SCHEMA GENERATION
-  // This replaces all the manual if/else schema objects below.
-  // It handles Products, Tools, Articles, and automatically processes FAQs.
+  // ✅ GLOBAL SCHEMA GENERATION (Keep this here for Green Score!)
   const schemaData = generateSchema(data);
 
-  // ---------------------------------------------------------------------------
-  // 1. RENDER STRATEGY: TOOL
-  // ---------------------------------------------------------------------------
-  if (data._type === "tool") {
-    // We keep BreadcrumbSchema separate as it's not in the generator yet
-    const breadcrumbSchema = {
-      "@context": "https://schema.org", "@type": "BreadcrumbList",
-      "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://toptenuae.com" },
-        { "@type": "ListItem", "position": 2, "name": data.category?.title || "Tools", "item": `https://toptenuae.com/${category}` },
-        { "@type": "ListItem", "position": 3, "name": data.title, "item": `https://toptenuae.com/${category}/${slug}` }
-      ]
-    };
-
-    return (
-      <main className="min-h-screen bg-slate-50 font-sans">
-        {/* ✅ Primary Schema (Tool + FAQ) */}
-        <JsonLd data={schemaData} />
-        {/* Breadcrumb Schema */}
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
-
-        {/* HERO */}
-        <section className="bg-[#4b0082] relative overflow-hidden">
-          <div aria-hidden="true" className="absolute top-0 right-0 w-1/2 h-full bg-white/10 blur-3xl rounded-full translate-x-1/3"></div>
-          <div aria-hidden="true" className="absolute bottom-0 left-0 w-1/3 h-full bg-amber-500/20 blur-3xl rounded-full -translate-x-1/3"></div>
-          <div className="container mx-auto px-4 pt-12 pb-24 lg:pt-10 lg:pb-14 relative z-10">
-            <div className="mb-4">
-              <Breadcrumb categoryName={data.category?.menuLabel || "Tools"} categorySlug={data.category?.slug || "tools"} postTitle={data.title} postSlug={slug} isDarkBackground={true} />
-            </div>
-            <div className="flex flex-col-reverse md:flex-col lg:flex-row items-start gap-12 lg:gap-16">
-              <div className="flex-1 text-center lg:text-left mt-4 text-white">
-                {data.heroBadge && (
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/10 backdrop-blur-md mb-6">
-                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-                    <span className="text-sm font-semibold uppercase tracking-wide">{data.heroBadge}</span>
-                  </div>
-                )}
-                <h1 className="text-4xl lg:text-5xl font-black leading-tight mb-6">
-                  {data.title} <br />
-                  {data.heroTitleSuffix && <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-amber-500">{data.heroTitleSuffix}</span>}
-                </h1>
-                <div className="text-lg text-purple-100 mb-8 leading-relaxed opacity-90 max-w-2xl mx-auto lg:mx-0">{data.intro || data.description}</div>
-              </div>
-              <div className="w-full max-w-lg shrink-0 mx-auto lg:mx-0"><ClientToolRenderer id={data.componentId} /></div>
-            </div>
-          </div>
-        </section>
-
-        {/* CONTENT */}
-        <section className="max-w-6xl mx-auto px-4 py-16 relative z-20">
-          <div id="tool-portal-root" className="mb-12 font-sans"></div>
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 lg:p-12">
-            {data.content && <div className="prose prose-slate prose-lg max-w-none font-sans mb-12"><PortableText value={data.content} /></div>}
-            {data.faqs && <div className="mt-12 pt-8 border-t border-gray-100"><FAQAccordion faqs={data.faqs} /></div>}
-            <div className="mt-16 pt-8 border-t border-gray-100">
-              <h3 className="text-xl font-bold text-gray-900 mb-6">Explore Other Tools</h3>
-              {data.relatedTools?.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {data.relatedTools.map((tool: any) => {
-                    if (!tool.slug) return null;
-                    const config = getToolConfig(tool.slug);
-                    const ToolIcon = config.icon;
-                    return (
-                      <Link key={tool.slug} href={`/${category}/${tool.slug}`} className="group relative block h-full focus:outline-none focus:ring-2 focus:ring-[#4b0082] rounded-2xl">
-                        <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl border border-slate-300 hover:border-[#4b0082]/30 transition-all h-full flex flex-col overflow-hidden">
-                          <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-6 transition-colors duration-300 ${config.iconBg}`}>
-                            <ToolIcon className={`w-7 h-7 transition-colors duration-300 ${config.iconColor}`} />
-                          </div>
-                          <h4 className="text-lg font-bold text-slate-900 mb-auto group-hover:text-[#4b0082] transition-colors">{tool.title}</h4>
-                        </div>
-                      </Link>
-                    );
-                  })}
-                </div>
-              ) : <RelatedTools currentTool={slug.includes('zakat') ? 'zakat' : slug.includes('vat') ? 'vat' : 'gratuity'} />}
-            </div>
-          </div>
-        </section>
-      </main>
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // 2. RENDER STRATEGY: PRODUCT & DEALS
-  // ---------------------------------------------------------------------------
-  if (data._type === "product" || data._type === "deal") {
-    const displayPrice = data._type === 'deal' ? data.dealPrice : data.price;
-    const displayAffiliate = data._type === 'deal' ? (data.affiliateLink || data.linkedProduct?.affiliateLink) : data.affiliateLink;
-    const displayTitle = data.title || data.linkedProduct?.title;
-    
-    return (
-      <>
-        {/* ✅ Primary Schema (Product/Deal) */}
-        <JsonLd data={schemaData} />
-        <ProductTemplate data={{ ...data, title: displayTitle, price: displayPrice, affiliateLink: displayAffiliate }} />
-      </>
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // 3. RENDER STRATEGY: ARTICLES / LISTS / EVENTS
-  // ---------------------------------------------------------------------------
-  const templateData = { ...data, category: data.category || undefined, listItems: data.listItems };
-  const displayDate = data._updatedAt || data.publishedAt;
-
+  // --- RENDER STRATEGY ---
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
-      {/* ✅ Primary Schema (Article/Event/List) */}
+    <>
+      {/* 1. Global Schema (Always Present) */}
       <JsonLd data={schemaData} />
       
-      <Breadcrumb categoryName={data.category?.menuLabel || data.category?.title || category} categorySlug={data.category?.slug || category} postTitle={data.title} postSlug={slug} />
+      {/* 2. Breadcrumb Schema (Specific for Tools) */}
+      {data._type === "tool" && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org", "@type": "BreadcrumbList",
+              "itemListElement": [
+                { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://toptenuae.com" },
+                { "@type": "ListItem", "position": 2, "name": data.category?.title || "Tools", "item": `https://toptenuae.com/${category}` },
+                { "@type": "ListItem", "position": 3, "name": data.title, "item": `https://toptenuae.com/${category}/${slug}` }
+              ]
+            })
+          }}
+        />
+      )}
 
-      <div className="flex flex-col lg:flex-row gap-8 lg:gap-5">
-        <main className="flex-1 min-w-0 bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-8">
-          <header className="border-b border-gray-100 pb-6">
-            <h1 className="text-3xl md:text-4xl lg:text-4xl font-black text-gray-900 mb-6 leading-tight tracking-tight">{data.title}</h1>
-            <div className="flex items-center text-sm text-gray-500 gap-4">
-              {data.author && <div className="flex items-center gap-2"><span className="font-semibold text-gray-900">By {data.author.name}</span><span className="text-gray-300">•</span></div>}
-              <div className="flex items-center gap-2"><span className="font-semibold text-gray-900">Last Updated:</span><time dateTime={displayDate}>{formatDate(displayDate)}</time></div>
-            </div>
-            {/* ✅ OPTIMIZED IMAGE SECTION */}
-            {data.mainImage?.url && (data._type === "article" || data._type === "news") && (
-               <div className="mt-6 relative w-full h-[auto] aspect-video rounded-xl overflow-hidden bg-gray-100">
-                 <Image 
-                   src={data.mainImage.url} 
-                   alt={data.mainImage.alt || data.title}
-                   fill
-                   className="object-cover"
-                   priority={true}
-                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 850px"
-                   quality={85}
-                 />
-               </div>
-            )}
-          </header>
-          {data._type === "topTenList" ? <TopTenTemplate data={templateData} /> :
-            (data._type === "event" || data._type === "holiday") ? <EventTemplate data={templateData} /> :
-              <ArticleTemplate data={templateData} />}
-        </main>
-        <Sidebar currentSlug={slug} categorySlug={data.category?.slug} />
-      </div>
-    </div>
+      {/* 3. View Switcher */}
+      {data._type === "tool" ? (
+        <ToolView data={data} category={category} slug={slug} />
+      ) : data._type === "product" || data._type === "deal" ? (
+        <ProductView data={data} />
+      ) : (
+        <ArticleView data={data} category={category} slug={slug} />
+      )}
+    </>
   );
 }
