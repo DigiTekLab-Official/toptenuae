@@ -11,7 +11,7 @@ const formatIsoDate = (dateStr?: string, isAllDay?: boolean) => {
   return isAllDay ? dateStr.split("T")[0] : dateStr;
 };
 
-// Helper: Get Next Year for Price Validity (Required for Products)
+// Helper: Get Next Year for Price Validity
 const getNextYearDate = () => {
   const date = new Date();
   date.setFullYear(date.getFullYear() + 1);
@@ -285,7 +285,7 @@ export function generateSchema(data: any) {
     case 'holiday': 
       return generateEventSchema(data, data.mainImage?.url);
 
-    // ✅ UPDATED: TOP 10 LIST (Fixes "Missing offers" error)
+    // ✅ UPDATED: Added Shipping & Returns to Top 10 List
     case 'toptenlist': 
     case 'topTenList':
       return {
@@ -302,22 +302,37 @@ export function generateSchema(data: any) {
             position: index + 1,
             item: {
               '@type': 'Product',
-              name: cleanText(product.title || item.itemName || 'Product'),
+              name: cleanText(item.product?.title || item.itemName || 'Product'),
               url: product.slug ? `${baseUrl}/${product.slug}` : undefined,
-              description: cleanText(item.customVerdict || product.verdict),
+              description: cleanText(item.customVerdict || item.product?.verdict),
               image: product.mainImage?.url ? [product.mainImage.url] : [DEFAULT_IMAGE],
               
-              // ✅ ADDED: Required Offers Schema
+              // ✅ MERCHANT FIX: Added Shipping/Returns here
               offers: {
                 '@type': 'Offer',
                 price: typeof priceValue === 'string' ? priceValue.replace(/[^0-9.]/g, "") : priceValue,
                 priceCurrency: product.currency || 'AED',
                 availability: product.availability || 'https://schema.org/InStock',
                 url: product.affiliateLink,
-                priceValidUntil: product.priceValidUntil || getNextYearDate()
+                priceValidUntil: product.priceValidUntil || getNextYearDate(),
+                shippingDetails: {
+                  '@type': 'OfferShippingDetails',
+                  shippingRate: { '@type': 'MonetaryAmount', value: 0, currency: 'AED' },
+                  deliveryTime: {
+                      '@type': 'ShippingDeliveryTime',
+                      handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
+                      transitTime: { '@type': 'QuantitativeValue', minValue: 1, maxValue: 3, unitCode: 'DAY' }
+                  }
+                },
+                hasMerchantReturnPolicy: {
+                  '@type': 'MerchantReturnPolicy',
+                  applicableCountry: 'AE',
+                  returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+                  merchantReturnDays: 15,
+                  returnMethod: 'https://schema.org/ReturnByMail'
+                }
               },
               
-              // ✅ ADDED: Recommended Rating Schema
               aggregateRating: product.customerRating ? {
                  '@type': 'AggregateRating',
                  ratingValue: product.customerRating,
