@@ -1,17 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
 import { listImage } from "@/sanity/lib/image"; 
-import PortableText from "@/components/PortableText";
 import LogoIcon from "@/components/icons/LogoIcon"; 
 import { 
   CheckCircle2, 
   XCircle, 
   Info, 
   Star, 
-  ChevronDown, 
-  ChevronUp, 
   ExternalLink, 
   Shield,
   Tag,
@@ -52,10 +49,9 @@ const getFeatureIcon = (feature: string) => {
 };
 
 // --- 2. HELPER FUNCTION: PRICING ---
-// ✅ FIX: Removed "Approx." text. Now it just formats the number.
 const getPriceLabel = (price: number | undefined, currency: string = 'AED') => {
   if (!price || isNaN(price)) return "Check Price";
-  return `${currency} ${price.toLocaleString()}`; // e.g. "AED 1,655"
+  return `${currency} ${price.toLocaleString()}`; 
 };
 
 interface ProductCardProps {
@@ -64,29 +60,13 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ item, index = 0 }: ProductCardProps) {
-  const [isDescExpanded, setIsDescExpanded] = useState(false);
-  
   const product = item.product || {};
   const imageUrl = product.mainImage ? listImage(product.mainImage) : null;
   const displayName = product.title || "Product Name Unavailable";
-  
   const finalVerdict = item.customVerdict || product.verdict; 
 
-  // SEO SCHEMA
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    "name": displayName,
-    "image": imageUrl || "",
-    "description": finalVerdict || `Review of ${displayName}`,
-    "offers": {
-      "@type": "Offer",
-      "priceCurrency": product.currency || "AED", // ✅ Use new field
-      "availability": product.availability || "https://schema.org/InStock", // ✅ Use new field
-      "url": product.affiliateLink,
-      ...(product.price ? { "price": product.price } : {}) // ✅ Use new field
-    }
-  };
+  // 🛑 REMOVED LOCAL SCHEMA (jsonLd) TO FIX GOOGLE DUPLICATE ERROR
+  // The Schema is now handled globally in page.tsx
 
   // Define Brand Colors
   const brandColorClass = "text-[#4b0082]";
@@ -99,11 +79,6 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
       id={`item-${item.rank}`}
       className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden scroll-mt-32 mb-8"
     >
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-
       <div className="p-5 md:p-6 pb-0">
         
         {/* --- HEADER --- */}
@@ -179,8 +154,6 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
           </div>
         )}
 
-
-
         {/* --- KEY FEATURES --- */}
         {product.keyFeatures && product.keyFeatures.length > 0 && (
           <div className="mb-6 bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50 p-4 rounded-xl shadow-sm border border-amber-100">
@@ -254,12 +227,10 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
         <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-t border-amber-200 p-5">
            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex flex-col gap-0.5 w-full sm:w-auto text-center sm:text-left">
-                  {/* ✅ FIX: Changed label to "Approx. Price:" */}
                   <span className="text-[14px] font-black text-gray-800 uppercase tracking-tight flex items-center justify-center sm:justify-start gap-1">
                     <Tag className="w-4 h-4" />
                     {product.price ? "Approx. Price:" : "Price Level:"}
                   </span>
-                  {/* ✅ FIX: Value is now clean "AED 1,655" */}
                   <span className="text-2xl font-black text-emerald-700 tracking-tight">
                     {getPriceLabel(product.price, product.currency)}
                   </span>
@@ -280,34 +251,7 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
                     </div>
                   )}
               </div>
-              
            </div>
-                   {/* --- EXPANDABLE REVIEW --- */}
-        {/* {product.itemDescription && (
-          <div className="mb-6 border-t border-gray-100 pt-4">
-             <div className="flex items-center gap-2 mb-3">
-              <div className="bg-blue-50 p-1.5 rounded-full">
-                <Monitor className="w-4 h-4 text-blue-600" />
-              </div>
-              <h3 className="text-sm font-black text-gray-800 uppercase tracking-widest">
-                Our Expert Take
-              </h3>
-            </div>
-            <div className={`prose prose-sm max-w-none text-gray-700 transition-all ${isDescExpanded ? "" : "line-clamp-3 overflow-hidden"}`}>
-               <PortableText value={product.itemDescription} />
-            </div>
-            <button
-              onClick={() => setIsDescExpanded(!isDescExpanded)}
-              className="mt-2 flex items-center gap-1 text-sm font-bold text-blue-600 hover:underline"
-            >
-              {isDescExpanded ? (
-                  <>Show Less <ChevronUp className="w-3 h-3" /></>
-                ) : (
-                  <>Read Full Review <ChevronDown className="w-3 h-3" /></>
-                )}
-            </button>
-          </div>
-        )} */}
         </div>
       )}
     </article>

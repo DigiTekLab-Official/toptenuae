@@ -1,11 +1,11 @@
-// src/components/tools/PriceWidget.tsx
 'use client';
 
 import { ExternalLink } from 'lucide-react';
 
 interface PriceWidgetProps {
   title?: string;
-  price: number;
+  // ✅ FIX: Allow null/undefined to prevent TypeScript errors with loose Sanity data
+  price: number | null | undefined; 
   currency?: string;
   merchant?: 'Amazon' | 'Noon' | 'General';
   link: string;
@@ -21,7 +21,7 @@ export default function PriceWidget({
   badge 
 }: PriceWidgetProps) {
 
-// ✅ SAFETY CHECK: Prevent crash if price is missing
+  // ✅ SAFETY CHECK: Only call toLocaleString if price is strictly a number
   const safePrice = (typeof price === 'number') ? price.toLocaleString() : '---';  
   
   const isAmazon = merchant === 'Amazon';
@@ -54,7 +54,6 @@ export default function PriceWidget({
         <div className="p-4 sm:p-5 flex items-center justify-between sm:justify-end gap-4 sm:gap-6 min-w-[200px]">
           <div className="text-right">
             <span className="block text-2xl font-black text-slate-900 whitespace-nowrap">
-              {/* ✅ FORMATTED PRICE WITH COMMA */}
               {currency} {safePrice}
             </span>
           </div>
