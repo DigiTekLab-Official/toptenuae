@@ -34,7 +34,7 @@ const QUERY = `*[slug.current == $slug][0]{
   "introContent": select( _type != "topTenList" && _type != "tool" => intro[] { ..., _type == "image" => { ..., asset, alt, caption, display }, _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current } }, _type == "navigationGrid" => { _type, title, items[] { label, description, "imageUrl": image.asset->url, "targetSlug": targetPost->slug.current } } }, null ),
   body[] { ..., _type == "image" => { ..., asset, alt, caption, display }, _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current } }, _type == "navigationGrid" => { _type, title, items[] { label, description, "imageUrl": image.asset->url, "targetSlug": targetPost->slug.current } }, _type == "table" => { ... } },
   closingContent[] { ..., _type == "image" => { ..., asset, alt, caption }, _type == "table" => { ... }, _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current } } },  
-  "mainImage": coalesce(mainImage, product->mainImage) { ..., "url": asset->url, alt },
+  "mainImage": coalesce(image, mainImage, product->mainImage) { ..., "url": asset->url, alt },
   "category": coalesce(categories[0], category)->{ "title": title, "slug": slug.current, "menuLabel": menuLabel },
   "publishedAt": _createdAt, "_updatedAt": _updatedAt, 
   faqs[] { _key, question, answer },
