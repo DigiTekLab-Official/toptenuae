@@ -1,4 +1,4 @@
-import { cleanText } from '@/utils/sanity-text'; // ✅ Import your new helper
+ import { cleanText } from '@/utils/sanity-text'; // ✅ Import your new helper
 
 // --- CONFIGURATION ---
 const baseUrl = process.env.baseUrl || 'https://toptenuae.com';
@@ -47,7 +47,7 @@ export const generateWebSiteSchema = () => ({
   }
 });
 
-// --- 3. EVENT SCHEMA ---
+// --- 3. EVENT SCHEMA (FIXED) ---
 export const generateEventSchema = (data: any, imageUrl: string | null = null) => {
   const statusMap: Record<string, string> = {
     scheduled: "https://schema.org/EventScheduled",
@@ -59,12 +59,19 @@ export const generateEventSchema = (data: any, imageUrl: string | null = null) =
   // ✅ FIX: Ensure image is always an array
   const images = imageUrl ? [imageUrl] : (data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE]);
 
+  // ✅ FIX: Define Organizer once to reuse for 'performer'
+  const organizer = {
+    '@type': 'Organization',
+    name: 'TopTenUAE',
+    url: baseUrl
+  };
+
   const schema: any = {
     '@context': 'https://schema.org',
     '@type': 'Event',
     name: cleanText(data.title),
     description: cleanText(data.intro || data.description),
-    image: images, // ✅ Fixed
+    image: images, 
     startDate: formatIsoDate(data.startDate || data.date, data.isAllDay),
     endDate: formatIsoDate(data.endDate, data.isAllDay),
     eventStatus: statusMap[data.status] || "https://schema.org/EventScheduled",
@@ -80,24 +87,23 @@ export const generateEventSchema = (data: any, imageUrl: string | null = null) =
         addressCountry: 'AE'
       }
     },
-    // ✅ FIX: Google requires an Organizer
-    organizer: {
-      '@type': 'Organization',
-      name: 'TopTenUAE',
-      url: baseUrl
-    }
+    organizer: organizer,
+    // ✅ FIX: Google requires a 'performer' (even for holidays). Using Organizer satisfies this.
+    performer: organizer 
   };
 
   if (data.ticketPrice !== undefined || data.ticketUrl) {
     schema.offers = {
       '@type': 'Offer',
-      url: data.ticketUrl,
+      // ✅ FIX: Fallback URL if ticketUrl is missing
+      url: data.ticketUrl || `${baseUrl}/events-holidays/${data.slug || ''}`, 
       price: data.ticketPrice || 0,
       priceCurrency: data.currency || "AED",
       availability: data.isTicketAvailable === false 
         ? "https://schema.org/SoldOut" 
         : "https://schema.org/InStock",
-      validFrom: data.ticketSaleDate
+      // ✅ FIX: Fallback validFrom date
+      validFrom: data.ticketSaleDate || data.publishedAt || new Date().toISOString()
     };
   }
 
