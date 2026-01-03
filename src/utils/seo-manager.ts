@@ -19,6 +19,7 @@ export interface SanitySeoSource {
   _type: string;
   _updatedAt?: string;
   publishedAt?: string;
+  categorySlug?: string; // ✅ ADDED: To build the correct canonical path
   
   // The Custom SEO Object from Sanity
   seo?: {
@@ -36,7 +37,6 @@ export interface SanitySeoSource {
   itemDescription?: any;   
   imageUrl?: string;       
 }
-
 /**
  * Helper to determine OpenGraph Type
  */
@@ -50,6 +50,7 @@ function getOgType(docType: string): 'website' | 'article' | 'book' | 'profile' 
     default:
       return 'website'; 
   }
+  
 }
 
 /**
@@ -88,10 +89,19 @@ export function generateSeoMetadata(
   // 4. Resolve Canonical URL
   let canonical = data.url || data.seo?.canonicalUrl; // ✅ Check 'url' first for homepage
   
-  if (!canonical && pathContext?.category && pathContext?.slug) {
-    canonical = `${SITE_URL}/${pathContext.category}/${pathContext.slug}`;
-  } else if (!canonical && data.slug?.current) {
-    canonical = `${SITE_URL}/${data.slug.current}`;
+  // LOGIC UPDATE: Use Sanity data (categorySlug) as the source of truth
+  if (!canonical) {
+    // Prefer the category stored in DB; fallback to URL param
+    const activeCategory = data.categorySlug || pathContext?.category;
+    const activeSlug = data.slug?.current || pathContext?.slug;
+
+    if (activeCategory && activeSlug) {
+      // e.g. https://toptenuae.com/reviews/best-beard-trimmers-uae
+      canonical = `${SITE_URL}/${activeCategory}/${activeSlug}`;
+    } else if (activeSlug) {
+      // e.g. https://toptenuae.com/some-root-page
+      canonical = `${SITE_URL}/${activeSlug}`;
+    }
   }
 
   // 5. Robots Control

@@ -53,15 +53,26 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { category, slug } = await params;
   
+  // ✅ UPDATED QUERY: Fetch "categorySlug" to fix canonical tags
   const data = await client.fetch(
     `*[slug.current == $slug][0]{ 
-      title, description, seo, "imageUrl": mainImage.asset->url, _type,
-      dealPrice, price, linkedProduct->{mainImage} 
+      title, 
+      description, 
+      seo, 
+      "imageUrl": mainImage.asset->url, 
+      _type,
+      "slug": slug,
+      dealPrice, 
+      price, 
+      linkedProduct->{mainImage},
+      "categorySlug": coalesce(categories[0]->slug.current, category->slug.current)
     }`,
     { slug }
   );
 
   if (!data) return { title: "Page Not Found" };
+  
+  // Pass the data (including the new categorySlug) to the manager
   return generateSeoMetadata(data, { category, slug });
 }
 
