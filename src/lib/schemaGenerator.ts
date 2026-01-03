@@ -1,15 +1,21 @@
- import { cleanText } from '@/utils/sanity-text'; // ✅ Import your new helper
+import { cleanText } from '@/utils/sanity-text'; 
 
 // --- CONFIGURATION ---
 const baseUrl = process.env.baseUrl || 'https://toptenuae.com';
 const ORGANIZATION_LOGO = `${baseUrl}/images/brand/logoIcon.svg`;
-// ✅ NEW: Default image to prevent Google Warnings
 const DEFAULT_IMAGE = `${baseUrl}/images/brand/og-default.jpg`; 
 
-// --- HELPER: DATE FORMATTING ---
+// --- HELPER: DATES ---
 const formatIsoDate = (dateStr?: string, isAllDay?: boolean) => {
   if (!dateStr) return undefined;
   return isAllDay ? dateStr.split("T")[0] : dateStr;
+};
+
+// Helper: Get Next Year for Price Validity (Required for Products)
+const getNextYearDate = () => {
+  const date = new Date();
+  date.setFullYear(date.getFullYear() + 1);
+  return date.toISOString().split('T')[0];
 };
 
 // --- 1. GLOBAL ORGANIZATION SCHEMA ---
@@ -47,7 +53,7 @@ export const generateWebSiteSchema = () => ({
   }
 });
 
-// --- 3. EVENT SCHEMA (FIXED) ---
+// --- 3. EVENT SCHEMA ---
 export const generateEventSchema = (data: any, imageUrl: string | null = null) => {
   const statusMap: Record<string, string> = {
     scheduled: "https://schema.org/EventScheduled",
@@ -56,22 +62,15 @@ export const generateEventSchema = (data: any, imageUrl: string | null = null) =
     rescheduled: "https://schema.org/EventRescheduled",
   };
 
-  // ✅ FIX: Ensure image is always an array
   const images = imageUrl ? [imageUrl] : (data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE]);
-
-  // ✅ FIX: Define Organizer once to reuse for 'performer'
-  const organizer = {
-    '@type': 'Organization',
-    name: 'TopTenUAE',
-    url: baseUrl
-  };
+  const organizer = { '@type': 'Organization', name: 'TopTenUAE', url: baseUrl };
 
   const schema: any = {
     '@context': 'https://schema.org',
     '@type': 'Event',
     name: cleanText(data.title),
     description: cleanText(data.intro || data.description),
-    image: images, 
+    image: images,
     startDate: formatIsoDate(data.startDate || data.date, data.isAllDay),
     endDate: formatIsoDate(data.endDate, data.isAllDay),
     eventStatus: statusMap[data.status] || "https://schema.org/EventScheduled",
@@ -88,25 +87,19 @@ export const generateEventSchema = (data: any, imageUrl: string | null = null) =
       }
     },
     organizer: organizer,
-    // ✅ FIX: Google requires a 'performer' (even for holidays). Using Organizer satisfies this.
     performer: organizer 
   };
 
   if (data.ticketPrice !== undefined || data.ticketUrl) {
     schema.offers = {
       '@type': 'Offer',
-      // ✅ FIX: Fallback URL if ticketUrl is missing
       url: data.ticketUrl || `${baseUrl}/events-holidays/${data.slug || ''}`, 
       price: data.ticketPrice || 0,
       priceCurrency: data.currency || "AED",
-      availability: data.isTicketAvailable === false 
-        ? "https://schema.org/SoldOut" 
-        : "https://schema.org/InStock",
-      // ✅ FIX: Fallback validFrom date
+      availability: data.isTicketAvailable === false ? "https://schema.org/SoldOut" : "https://schema.org/InStock",
       validFrom: data.ticketSaleDate || data.publishedAt || new Date().toISOString()
     };
   }
-
   return schema;
 };
 
@@ -118,18 +111,32 @@ export const generateProductSchema = (data: any) => {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: cleanText(data.title || data.itemName),
-    image: data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE], // ✅ Fixed fallback
+    image: data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE],
     description: cleanText(data.verdict || data.intro || data.description), 
-    brand: {
-      '@type': 'Brand',
-      name: cleanText(data.brand || 'Generic')
-    },
+    brand: { '@type': 'Brand', name: cleanText(data.brand || 'Generic') },
     offers: {
       '@type': 'Offer',
       price: typeof priceValue === 'string' ? priceValue.replace(/[^0-9.]/g, "") : priceValue,
       priceCurrency: data.currency || 'AED',
       availability: data.availability || 'https://schema.org/InStock',
-      url: data.affiliateLink
+      url: data.affiliateLink,
+      priceValidUntil: data.priceValidUntil || getNextYearDate(),
+      shippingDetails: {
+        '@type': 'OfferShippingDetails',
+        shippingRate: { '@type': 'MonetaryAmount', value: 0, currency: 'AED' },
+        deliveryTime: {
+            '@type': 'ShippingDeliveryTime',
+            handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
+            transitTime: { '@type': 'QuantitativeValue', minValue: 1, maxValue: 3, unitCode: 'DAY' }
+        }
+      },
+      hasMerchantReturnPolicy: {
+        '@type': 'MerchantReturnPolicy',
+        applicableCountry: 'AE',
+        returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+        merchantReturnDays: 15,
+        returnMethod: 'https://schema.org/ReturnByMail'
+      }
     }
   };
 
@@ -137,7 +144,7 @@ export const generateProductSchema = (data: any) => {
     schema.aggregateRating = {
       '@type': 'AggregateRating',
       ratingValue: data.customerRating,
-      reviewCount: data.ratingCount || 1
+      reviewCount: data.reviewCount || 1
     };
   }
 
@@ -149,30 +156,21 @@ export const generateProductSchema = (data: any) => {
       reviewBody: cleanText(data.verdict)
     };
   }
-
   return schema;
 };
 
 // --- 5. TOOL / CALCULATOR SCHEMA ---
-export const generateToolSchema = (data: any) => {
-  const toolSchema: any = {
-    '@context': 'https://schema.org',
-    '@type': 'SoftwareApplication',
-    name: cleanText(data.title),
-    description: cleanText(data.seo?.metaDescription || data.description),
-    url: `${baseUrl}/${data.slug}`,
-    applicationCategory: 'FinanceApplication',
-    operatingSystem: 'Web',
-    offers: {
-      '@type': 'Offer',
-      price: '0',
-      priceCurrency: 'AED',
-    },
-    image: data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE] // ✅ Added Image
-  };
-  
-  return toolSchema;
-};
+export const generateToolSchema = (data: any) => ({
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: cleanText(data.title),
+  description: cleanText(data.seo?.metaDescription || data.description),
+  url: `${baseUrl}/${data.slug}`,
+  applicationCategory: 'FinanceApplication',
+  operatingSystem: 'Web',
+  offers: { '@type': 'Offer', 'price': '0', 'priceCurrency': 'AED' },
+  image: data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE]
+});
 
 // --- 6. DEAL SCHEMA ---
 export const generateDealSchema = (data: any) => ({
@@ -182,39 +180,59 @@ export const generateDealSchema = (data: any) => ({
   description: cleanText(data.description),
   price: data.dealPrice,
   priceCurrency: 'AED',
-  priceValidUntil: data.dealEndDate,
+  priceValidUntil: data.dealEndDate || getNextYearDate(),
   url: data.affiliateLink,
   availability: 'https://schema.org/InStock',
-  image: data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE] // ✅ Added Image
+  image: data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE]
 });
 
-// --- 7. ARTICLE SCHEMA (With FAQ Fix) ---
+// --- 7. HOW-TO SCHEMA ---
+export const generateHowToSchema = (data: any) => {
+  const images = data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE];
+  
+  const steps = data.steps && Array.isArray(data.steps) 
+    ? data.steps.map((step: any, index: number) => ({
+        '@type': 'HowToStep',
+        position: index + 1,
+        name: cleanText(step.title || `Step ${index + 1}`),
+        text: cleanText(step.description || step.text || "Follow instructions"),
+        url: `${baseUrl}/${data.slug}#step-${index + 1}`
+      })) 
+    : [
+        {
+          '@type': 'HowToStep',
+          position: 1,
+          name: "Read Full Guide",
+          text: cleanText(data.intro || data.description || "Follow the detailed steps in the guide."),
+          url: `${baseUrl}/${data.slug}`
+        }
+      ];
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: cleanText(data.title),
+    description: cleanText(data.intro || data.description),
+    image: images,
+    totalTime: data.totalTime || "PT10M",
+    step: steps
+  };
+};
+
+// --- 8. ARTICLE SCHEMA ---
 export const generateArticleSchema = (data: any) => {
-  // ✅ FIX: Ensure Headline and Image are never empty
   const headline = cleanText(data.title) || "TopTenUAE Article";
   const images = data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE];
 
   const articleSchema: any = {
     '@context': 'https://schema.org',
     '@type': 'NewsArticle',
-    headline: headline, // ✅ Safe
-    image: images,      // ✅ Safe
+    headline: headline,
+    image: images,
     datePublished: data.publishedAt,
     dateModified: data._updatedAt || data.publishedAt,
-    author: {
-      '@type': 'Organization',
-      name: data.author?.name || 'TopTenUAE Editor',
-      url: baseUrl
-    },
-    publisher: {
-        '@type': 'Organization',
-        name: 'TopTenUAE',
-        url: baseUrl,
-        logo: {
-            '@type': 'ImageObject',
-            url: ORGANIZATION_LOGO
-        }
-    }
+    author: { '@type': 'Organization', name: data.author?.name || 'TopTenUAE Editor', url: baseUrl },
+    publisher: { '@type': 'Organization', name: 'TopTenUAE', url: baseUrl, logo: { '@type': 'ImageObject', url: ORGANIZATION_LOGO } }
   };
 
   const schemas = [articleSchema];
@@ -226,29 +244,26 @@ export const generateArticleSchema = (data: any) => {
       mainEntity: data.faqs.map((faq: any) => ({
         '@type': 'Question',
         name: cleanText(faq.question),
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: cleanText(faq.answer) 
-        }
+        acceptedAnswer: { '@type': 'Answer', text: cleanText(faq.answer) }
       }))
     });
   }
-
   return schemas;
 };
 
-// --- 8. MASTER DISPATCHER ---
+// --- 9. MASTER DISPATCHER ---
 export function generateSchema(data: any) {
   if (!data) return generateOrganizationSchema();
 
-  const targetType = data.schemaType || data._type;
+  // ✅ ROBUST: Force lowercase for reliable matching
+  const rawType = data.schemaType || data._type;
+  const targetType = rawType ? rawType.toLowerCase() : 'article';
 
   switch (targetType) {
     case 'product': 
       return generateProductSchema(data);
 
     case 'tool':
-      // Combine Tool + FAQ if FAQs exist
       const tool = generateToolSchema(data);
       if (data.faqs) {
         const faqs = {
@@ -260,17 +275,18 @@ export function generateSchema(data: any) {
              acceptedAnswer: { '@type': 'Answer', text: cleanText(f.answer) }
            }))
         };
-        return [tool, faqs]; 
+        return [tool, faqs];
       }
       return tool;
 
-    case 'deal':
+    case 'deal': 
       return generateDealSchema(data);
 
     case 'event':
-    case 'holiday':
+    case 'holiday': 
       return generateEventSchema(data, data.mainImage?.url);
 
+    case 'toptenlist': 
     case 'topTenList':
       return {
         '@context': 'https://schema.org',
@@ -285,12 +301,29 @@ export function generateSchema(data: any) {
             name: cleanText(item.product?.title || item.itemName || 'Product'),
             url: item.product?.slug ? `${baseUrl}/${item.product.slug}` : undefined,
             description: cleanText(item.customVerdict || item.product?.verdict),
-            image: item.product?.mainImage?.url ? [item.product.mainImage.url] : undefined // ✅ Image for list items
+            image: item.product?.mainImage?.url ? [item.product.mainImage.url] : undefined
           }
         }))
       };
 
-    case 'NewsArticle':
+    case 'howto':
+    case 'howTo':
+      const howTo = generateHowToSchema(data);
+      if (data.faqs) {
+         const faqs = {
+           '@context': 'https://schema.org',
+           '@type': 'FAQPage',
+           mainEntity: data.faqs.map((f:any) => ({
+             '@type': 'Question',
+             name: cleanText(f.question),
+             acceptedAnswer: { '@type': 'Answer', text: cleanText(f.answer) }
+           }))
+        };
+        return [howTo, faqs];
+      }
+      return howTo;
+
+    case 'newsarticle':
     case 'article':
     default:
       return generateArticleSchema(data); 
