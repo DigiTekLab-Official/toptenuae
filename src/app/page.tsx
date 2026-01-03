@@ -126,17 +126,7 @@ export default async function Home() {
           "url": "https://toptenuae.com/images/brand/logoIcon.svg"
         },
         "sameAs": ["https://facebook.com/toptenuae", "https://x.com/toptenuae"]
-      },
-      {
-        "@type": "WebSite",
-        "name": "TopTenUAE",
-        "url": "https://toptenuae.com",
-        "potentialAction": {
-          "@type": "SearchAction",
-          "target": "https://toptenuae.com/search?q={search_term_string}",
-          "query-input": "required name=search_term_string"
         }
-      }
     ]
   };
 

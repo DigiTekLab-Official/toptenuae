@@ -70,6 +70,7 @@ export function generateSeoMetadata(
     data.seo?.metaDescription || 
     data.description || 
     data.intro || 
+    data.itemDescription ||
     data.verdict;
 
   // ✅ Clean it before assigning. Handles both Strings and Blocks.
