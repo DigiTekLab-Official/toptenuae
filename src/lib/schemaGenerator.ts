@@ -124,6 +124,11 @@ export const generateProductSchema = (data: any) => {
       shippingDetails: {
         '@type': 'OfferShippingDetails',
         shippingRate: { '@type': 'MonetaryAmount', value: 0, currency: 'AED' },
+        // ✅ FIX 1: Explicitly define shipping destination
+        shippingDestination: {
+          '@type': 'DefinedRegion',
+          addressCountry: 'AE' 
+        },
         deliveryTime: {
             '@type': 'ShippingDeliveryTime',
             handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
@@ -135,7 +140,9 @@ export const generateProductSchema = (data: any) => {
         applicableCountry: 'AE',
         returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
         merchantReturnDays: 15,
-        returnMethod: 'https://schema.org/ReturnByMail'
+        returnMethod: 'https://schema.org/ReturnByMail',
+        // ✅ FIX 2: Explicitly define return fees
+        returnFees: 'https://schema.org/FreeReturn' 
       }
     }
   };
@@ -285,7 +292,6 @@ export function generateSchema(data: any) {
     case 'holiday': 
       return generateEventSchema(data, data.mainImage?.url);
 
-    // ✅ UPDATED: Added Shipping & Returns to Top 10 List
     case 'toptenlist': 
     case 'topTenList':
       return {
@@ -304,10 +310,9 @@ export function generateSchema(data: any) {
               '@type': 'Product',
               name: cleanText(item.product?.title || item.itemName || 'Product'),
               url: product.slug ? `${baseUrl}/${product.slug}` : undefined,
-              description: cleanText(item.customVerdict || item.product?.verdict),
+              description: cleanText(item.customVerdict || product.verdict),
               image: product.mainImage?.url ? [product.mainImage.url] : [DEFAULT_IMAGE],
               
-              // ✅ MERCHANT FIX: Added Shipping/Returns here
               offers: {
                 '@type': 'Offer',
                 price: typeof priceValue === 'string' ? priceValue.replace(/[^0-9.]/g, "") : priceValue,
@@ -315,9 +320,16 @@ export function generateSchema(data: any) {
                 availability: product.availability || 'https://schema.org/InStock',
                 url: product.affiliateLink,
                 priceValidUntil: product.priceValidUntil || getNextYearDate(),
+                
+                // ✅ ADDED TO LIST: Complete Merchant Data
                 shippingDetails: {
                   '@type': 'OfferShippingDetails',
                   shippingRate: { '@type': 'MonetaryAmount', value: 0, currency: 'AED' },
+                  // ✅ FIX 3: Shipping Destination in Lists
+                  shippingDestination: {
+                    '@type': 'DefinedRegion',
+                    addressCountry: 'AE' 
+                  },
                   deliveryTime: {
                       '@type': 'ShippingDeliveryTime',
                       handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
@@ -329,7 +341,9 @@ export function generateSchema(data: any) {
                   applicableCountry: 'AE',
                   returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
                   merchantReturnDays: 15,
-                  returnMethod: 'https://schema.org/ReturnByMail'
+                  returnMethod: 'https://schema.org/ReturnByMail',
+                  // ✅ FIX 4: Return Fees in Lists
+                  returnFees: 'https://schema.org/FreeReturn'
                 }
               },
               
