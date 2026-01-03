@@ -1,7 +1,7 @@
 // src/app/[category]/[slug]/page.tsx
 
-// ⚠️ Commented out 'edge' to prevent timeouts with complex queries/ISR
-// export const runtime = 'edge';
+// ✅ REQUIRED: Cloudflare needs this for dynamic routes
+export const runtime = 'edge';
 
 import { client } from "@/sanity/lib/client";
 import { notFound, permanentRedirect } from "next/navigation";
@@ -16,7 +16,6 @@ import ProductView from "@/components/views/ProductView";
 import ArticleView from "@/components/views/ArticleView";
 
 // --- CONFIGURATION ---
-// Changed to 61 to bust cache from previous fixes
 export const revalidate = 61; 
 
 // --- QUERY ---
@@ -82,16 +81,14 @@ export default async function Page({ params }: PageProps) {
     permanentRedirect(`/${data.category.slug}/${slug}`);
   }
 
-  // ✅ GLOBAL SCHEMA GENERATION (Keep this here for Green Score!)
+  // ✅ GLOBAL SCHEMA GENERATION
   const schemaData = generateSchema(data);
 
   // --- RENDER STRATEGY ---
   return (
     <>
-      {/* 1. Global Schema (Always Present) */}
       <JsonLd data={schemaData} />
       
-      {/* 2. Breadcrumb Schema (Specific for Tools) */}
       {data._type === "tool" && (
         <script
           type="application/ld+json"
@@ -108,7 +105,6 @@ export default async function Page({ params }: PageProps) {
         />
       )}
 
-      {/* 3. View Switcher */}
       {data._type === "tool" ? (
         <ToolView data={data} category={category} slug={slug} />
       ) : data._type === "product" || data._type === "deal" ? (

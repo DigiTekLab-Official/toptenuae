@@ -1,4 +1,5 @@
 
+// src/components/views/ArticleView.tsx
 import Image from "next/image";
 import Breadcrumb from "@/components/Breadcrumb";
 import Sidebar from "@/components/Sidebar";
