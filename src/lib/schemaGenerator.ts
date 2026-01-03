@@ -1,4 +1,3 @@
-// src/lib/schemaGenerator.ts
 import { cleanText } from '@/utils/sanity-text'; 
 
 // --- CONFIGURATION ---
@@ -256,7 +255,6 @@ export const generateArticleSchema = (data: any) => {
 export function generateSchema(data: any) {
   if (!data) return generateOrganizationSchema();
 
-  // ✅ ROBUST: Force lowercase for reliable matching
   const rawType = data.schemaType || data._type;
   const targetType = rawType ? rawType.toLowerCase() : 'article';
 
@@ -287,6 +285,7 @@ export function generateSchema(data: any) {
     case 'holiday': 
       return generateEventSchema(data, data.mainImage?.url);
 
+    // ✅ UPDATED: TOP 10 LIST (Fixes "Missing offers" error)
     case 'toptenlist': 
     case 'topTenList':
       return {
@@ -294,17 +293,39 @@ export function generateSchema(data: any) {
         '@type': 'ItemList',
         itemListOrder: 'https://schema.org/ItemListOrderDescending',
         numberOfItems: data.listItems?.length || 0,
-        itemListElement: data.listItems?.map((item: any, index: number) => ({
-          '@type': 'ListItem',
-          position: index + 1,
-          item: {
-            '@type': 'Product',
-            name: cleanText(item.product?.title || item.itemName || 'Product'),
-            url: item.product?.slug ? `${baseUrl}/${item.product.slug}` : undefined,
-            description: cleanText(item.customVerdict || item.product?.verdict),
-            image: item.product?.mainImage?.url ? [item.product.mainImage.url] : undefined
-          }
-        }))
+        itemListElement: data.listItems?.map((item: any, index: number) => {
+          const product = item.product || {};
+          const priceValue = product.price || product.livePrice || 0;
+          
+          return {
+            '@type': 'ListItem',
+            position: index + 1,
+            item: {
+              '@type': 'Product',
+              name: cleanText(product.title || item.itemName || 'Product'),
+              url: product.slug ? `${baseUrl}/${product.slug}` : undefined,
+              description: cleanText(item.customVerdict || product.verdict),
+              image: product.mainImage?.url ? [product.mainImage.url] : [DEFAULT_IMAGE],
+              
+              // ✅ ADDED: Required Offers Schema
+              offers: {
+                '@type': 'Offer',
+                price: typeof priceValue === 'string' ? priceValue.replace(/[^0-9.]/g, "") : priceValue,
+                priceCurrency: product.currency || 'AED',
+                availability: product.availability || 'https://schema.org/InStock',
+                url: product.affiliateLink,
+                priceValidUntil: product.priceValidUntil || getNextYearDate()
+              },
+              
+              // ✅ ADDED: Recommended Rating Schema
+              aggregateRating: product.customerRating ? {
+                 '@type': 'AggregateRating',
+                 ratingValue: product.customerRating,
+                 reviewCount: product.reviewCount || 1
+              } : undefined
+            }
+          };
+        })
       };
 
     case 'howto':
