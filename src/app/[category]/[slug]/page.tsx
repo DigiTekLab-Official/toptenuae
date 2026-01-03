@@ -1,7 +1,7 @@
 // src/app/[category]/[slug]/page.tsx
 
 // ⚠️ Commented out 'edge' to prevent timeouts with complex queries/ISR
-// export const runtime = 'edge';
+export const runtime = 'edge';
 
 import { client } from "@/sanity/lib/client";
 import { notFound, permanentRedirect } from "next/navigation";

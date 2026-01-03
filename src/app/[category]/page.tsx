@@ -1,4 +1,7 @@
 // src/app/[category]/page.tsx
+export const runtime = 'edge';
+export const revalidate = 60; 
+
 
 import { client } from "@/sanity/lib/client";
 import { notFound } from "next/navigation";
@@ -14,8 +17,7 @@ import {
   Car, Plane, TrendingUp, HeartHandshake, LayoutGrid
 } from "lucide-react"; 
 
-// --- CONFIGURATION ---
-export const revalidate = 60; 
+
 
 // --- QUERY ---
 const categoryQuery = `*[_type == "category" && slug.current == $slug][0]{
