@@ -20,7 +20,7 @@ export const revalidate = 61;
 
 // --- QUERY ---
 const QUERY = `*[slug.current == $slug][0]{
-  _id, _type, title, description, seo, showAffiliateDisclosure,
+  "slug": slug.current, _id, _type, title, description, seo, showAffiliateDisclosure,
   brand, affiliateLink, retailer, price, currency, availability,
   priceTier, customerRating, reviewCount, realComplaint, verdict, 
   keyFeatures, pros, cons, itemDescription,
