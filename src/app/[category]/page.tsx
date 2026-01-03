@@ -1,3 +1,5 @@
+// src/app/[category]/page.tsx
+
 import { client } from "@/sanity/lib/client";
 import { notFound } from "next/navigation";
 import Image from "next/image";
@@ -5,13 +7,14 @@ import Link from "next/link";
 import { Metadata } from "next";
 import Sidebar from "@/components/Sidebar";
 import { generateSeoMetadata } from "@/utils/seo-manager"; 
+import { cleanText } from "@/utils/sanity-text"; // ✅ NEW: Import helper
+
 import { 
   Sparkles, ArrowRight, Calculator, Percent, Coins, 
   Car, Plane, TrendingUp, HeartHandshake, LayoutGrid
 } from "lucide-react"; 
 
 // --- CONFIGURATION ---
-// removed 'edge' runtime for better stability with ISR
 export const revalidate = 60; 
 
 // --- QUERY ---
@@ -65,14 +68,7 @@ const getToolConfig = (slug: string) => {
   return { icon: Calculator, iconColor: 'text-purple-600 group-hover:text-white', iconBg: 'bg-purple-50 group-hover:bg-purple-600', ctaLabel: 'Calculate Now' };
 };
 
-function safeExcerpt(value: any) {
-  if (!value) return "";
-  if (typeof value === "string") return value;
-  if (Array.isArray(value)) {
-    return value.map((block: any) => block._type === 'block' && block.children ? block.children.map((child: any) => child.text).join("") : "").join(" ");
-  }
-  return "";
-}
+// 🗑️ DELETED: safeExcerpt (Replaced by cleanText)
 
 // --- MAIN PAGE ---
 export default async function CategoryPage({ params }: PageProps) {
@@ -88,8 +84,8 @@ export default async function CategoryPage({ params }: PageProps) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": data.title,
-    "description": data.description || `Collection of ${data.title}`,
+    "name": cleanText(data.title), // ✅ Safe
+    "description": cleanText(data.description) || `Collection of ${data.title}`, // ✅ Safe
     "url": `https://toptenuae.com/${categorySlug}`,
     "mainEntity": {
       "@type": "ItemList",
@@ -97,7 +93,7 @@ export default async function CategoryPage({ params }: PageProps) {
         "@type": "ListItem",
         "position": index + 1,
         "url": `https://toptenuae.com/${categorySlug}/${item.slug}`,
-        "name": item.title
+        "name": cleanText(item.title) // ✅ Safe
       })) || []
     }
   };
@@ -121,7 +117,7 @@ export default async function CategoryPage({ params }: PageProps) {
           </div>
           <h1 className="text-3xl md:text-5xl font-black mb-4 tracking-tight">{data.title}</h1>
           <p className="text-indigo-100 text-lg md:text-xl max-w-2xl mx-auto font-medium leading-relaxed">
-            {data.description || `Explore the best content in ${data.title}.`}
+            {cleanText(data.description) || `Explore the best content in ${data.title}.`} {/* ✅ Safe */}
           </p>
         </div>
       </div>
@@ -141,7 +137,8 @@ export default async function CategoryPage({ params }: PageProps) {
                         <ToolIcon className={`w-7 h-7 ${config.iconColor} transition-colors duration-300`} />
                       </div>
                       <h2 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-[#4b0082] transition-colors">{item.title}</h2>
-                      <p className="text-slate-500 text-sm leading-relaxed mb-6 flex-grow line-clamp-3">{safeExcerpt(item.rawExcerpt)}</p>
+                      {/* ✅ UPDATED: Uses cleanText now */}
+                      <p className="text-slate-500 text-sm leading-relaxed mb-6 flex-grow line-clamp-3">{cleanText(item.rawExcerpt)}</p>
                       <div className="mt-auto pt-2 border-t border-slate-100 flex items-center text-[#4b0082] font-bold text-sm">
                         {config.ctaLabel} <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                       </div>
@@ -172,7 +169,8 @@ export default async function CategoryPage({ params }: PageProps) {
                       </div>
                       <div className="p-6 flex flex-col flex-1">
                         <h2 className="text-xl font-bold mb-3 text-gray-900 group-hover:text-[#4b0082] transition-colors leading-tight">{post.title}</h2>
-                        <p className="text-gray-600 text-sm line-clamp-3 mb-5 flex-1 leading-relaxed">{safeExcerpt(post.rawExcerpt)}</p>
+                        {/* ✅ UPDATED: Uses cleanText now */}
+                        <p className="text-gray-600 text-sm line-clamp-3 mb-5 flex-1 leading-relaxed">{cleanText(post.rawExcerpt)}</p>
                         <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
                           <span className="text-xs font-medium text-gray-400">{post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : ''}</span>
                           <span className="text-sm font-bold text-[#4b0082] flex items-center gap-1 group-hover:translate-x-1 transition-transform">Read <ArrowRight className="w-4 h-4" /></span>

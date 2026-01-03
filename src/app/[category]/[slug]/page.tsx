@@ -8,7 +8,8 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { generateSeoMetadata } from "@/utils/seo-manager"; // ✅ Use your new Manager
+import { generateSeoMetadata } from "@/utils/seo-manager"; 
+import { generateSchema } from "@/lib/schemaGenerator"; // ✅ NEW: Centralized Schema Generator
 
 // Dynamic Components
 import ClientToolRenderer from "@/components/tools/ClientToolRenderer"; 
@@ -36,10 +37,7 @@ import FAQAccordion from "@/components/FAQAccordion";
 export const revalidate = 60; 
 
 // --- UTILS ---
-const safeJsonLdString = (value: unknown) => {
-  if (!value) return '';
-  return String(value).replace(/[\u2028\u2029"<>&]/g, ''); 
-};
+// 🗑️ DELETED: safeJsonLdString (Replaced by cleanText inside generateSchema)
 
 const formatDate = (dateString: string) => {
   if (!dateString) return "";
@@ -105,7 +103,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!data) return { title: "Page Not Found" };
 
-  // ✅ USES YOUR MANAGER (Cleaner & consistent)
   return generateSeoMetadata(data, { category, slug });
 }
 
@@ -125,21 +122,16 @@ export default async function Page({ params }: PageProps) {
     permanentRedirect(`/${data.category.slug}/${slug}`);
   }
 
+  // ✅ GLOBAL SCHEMA GENERATION
+  // This replaces all the manual if/else schema objects below.
+  // It handles Products, Tools, Articles, and automatically processes FAQs.
+  const schemaData = generateSchema(data);
+
   // ---------------------------------------------------------------------------
   // 1. RENDER STRATEGY: TOOL
   // ---------------------------------------------------------------------------
   if (data._type === "tool") {
-    const toolSchema = {
-      "@context": "https://schema.org", "@type": "SoftwareApplication",
-      "name": safeJsonLdString(data.title), "description": safeJsonLdString(data.description),
-      "applicationCategory": "FinanceApplication", "operatingSystem": "Web",
-      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "AED" },
-      "url": `https://toptenuae.com/${category}/${slug}`
-    };
-    const faqSchema = data.faqs ? {
-      "@context": "https://schema.org", "@type": "FAQPage",
-      "mainEntity": data.faqs.map((f: any) => ({ "@type": "Question", "name": f.question, "acceptedAnswer": { "@type": "Answer", "text": f.answer } }))
-    } : null;
+    // We keep BreadcrumbSchema separate as it's not in the generator yet
     const breadcrumbSchema = {
       "@context": "https://schema.org", "@type": "BreadcrumbList",
       "itemListElement": [
@@ -151,8 +143,9 @@ export default async function Page({ params }: PageProps) {
 
     return (
       <main className="min-h-screen bg-slate-50 font-sans">
-        <JsonLd data={toolSchema} />
-        {faqSchema && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />}
+        {/* ✅ Primary Schema (Tool + FAQ) */}
+        <JsonLd data={schemaData} />
+        {/* Breadcrumb Schema */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
 
         {/* HERO */}
@@ -221,28 +214,13 @@ export default async function Page({ params }: PageProps) {
   // ---------------------------------------------------------------------------
   if (data._type === "product" || data._type === "deal") {
     const displayPrice = data._type === 'deal' ? data.dealPrice : data.price;
-    const displayCurrency = data.currency || "AED";
     const displayAffiliate = data._type === 'deal' ? (data.affiliateLink || data.linkedProduct?.affiliateLink) : data.affiliateLink;
     const displayTitle = data.title || data.linkedProduct?.title;
     
-    const productSchema = {
-      "@context": "https://schema.org/", "@type": "Product",
-      "name": safeJsonLdString(displayTitle),
-      "image": data.mainImage?.url ? [data.mainImage.url] : [],
-      "description": safeJsonLdString(data.description || data.verdict || displayTitle),
-      "brand": { "@type": "Brand", "name": safeJsonLdString(data.brand || data.linkedProduct?.brand || "Brand") },
-      "offers": {
-        "@type": "Offer", "url": displayAffiliate, "priceCurrency": displayCurrency, "price": displayPrice,
-        "availability": data.availability || "https://schema.org/InStock",
-        "priceValidUntil": data.dealEndDate,
-        "seller": { "@type": "Organization", "name": safeJsonLdString(data.retailer || "Amazon.ae") }
-      },
-      ...(data.customerRating && { "aggregateRating": { "@type": "AggregateRating", "ratingValue": data.customerRating, "reviewCount": data.reviewCount || "1" } })
-    };
-
     return (
       <>
-        <JsonLd data={productSchema} />
+        {/* ✅ Primary Schema (Product/Deal) */}
+        <JsonLd data={schemaData} />
         <ProductTemplate data={{ ...data, title: displayTitle, price: displayPrice, affiliateLink: displayAffiliate }} />
       </>
     );
@@ -252,31 +230,18 @@ export default async function Page({ params }: PageProps) {
   // 3. RENDER STRATEGY: ARTICLES / LISTS / EVENTS
   // ---------------------------------------------------------------------------
   const templateData = { ...data, category: data.category || undefined, listItems: data.listItems };
-  const schemaData = {
-    ...data,
-    schemaType: (data._type === 'event' || data._type === 'holiday') ? 'event' : data._type,
-    url: `https://toptenuae.com/${category}/${slug}`, 
-    products: data.listItems?.map((item: any) => ({
-      name: safeJsonLdString(item.product?.title || "Product"),
-      slug: item.product?.affiliateLink,
-      image: { url: item.product?.mainImage?.url },
-      ...item
-    }))
-  };
-
   const displayDate = data._updatedAt || data.publishedAt;
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
+      {/* ✅ Primary Schema (Article/Event/List) */}
       <JsonLd data={schemaData} />
+      
       <Breadcrumb categoryName={data.category?.menuLabel || data.category?.title || category} categorySlug={data.category?.slug || category} postTitle={data.title} postSlug={slug} />
 
       <div className="flex flex-col lg:flex-row gap-8 lg:gap-5">
         <main className="flex-1 min-w-0 bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-8">
           <header className="border-b border-gray-100 pb-6">
-            
-            {/* 🗑️ "TOP 10 REVIEW" BADGE REMOVED FROM HERE */}
-            
             <h1 className="text-3xl md:text-4xl lg:text-4xl font-black text-gray-900 mb-6 leading-tight tracking-tight">{data.title}</h1>
             <div className="flex items-center text-sm text-gray-500 gap-4">
               {data.author && <div className="flex items-center gap-2"><span className="font-semibold text-gray-900">By {data.author.name}</span><span className="text-gray-300">•</span></div>}

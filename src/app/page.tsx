@@ -9,6 +9,7 @@ import { Metadata } from "next";
 import { generateSeoMetadata } from "@/utils/seo-manager";
 import JsonLd from "@/components/JsonLd"; 
 import HomeNewsletter from "@/components/HomeNewsletter";
+import { cleanText } from "@/utils/sanity-text";
 
 // Icons
 import { 
@@ -22,6 +23,7 @@ import {
   CreditCard, 
   PieChart 
 } from "lucide-react";
+import { text } from "stream/consumers";
 
 // --- CONFIGURATION ---
 const SELECTED_CATEGORIES = ["tech", "reviews", "events-holidays", "parenting-kids", "finance-tools"]; 
@@ -109,7 +111,7 @@ export default async function Home() {
     .filter(Boolean);
 
   const heroDescription = 
-    heroPost.intro?.[0]?.children?.[0]?.text || 
+    cleanText(heroPost?.intro) || 
     "Read our latest comprehensive review for the UAE market.";
 
   const homeSchema = {

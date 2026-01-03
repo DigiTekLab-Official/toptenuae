@@ -1,4 +1,5 @@
 // src/lib/schemaGenerator.ts
+import { cleanText } from '@/utils/sanity-text'; // ✅ Import your new helper
 
 // --- CONFIGURATION ---
 const baseUrl = process.env.baseUrl || 'https://toptenuae.com';
@@ -9,9 +10,6 @@ const formatIsoDate = (dateStr?: string, isAllDay?: boolean) => {
   if (!dateStr) return undefined;
   return isAllDay ? dateStr.split("T")[0] : dateStr;
 };
-
-// --- HELPER: SAFE STRING ---
-const safeString = (str: any) => (str ? String(str).trim() : "");
 
 // --- 1. GLOBAL ORGANIZATION SCHEMA ---
 export const generateOrganizationSchema = () => ({
@@ -60,8 +58,8 @@ export const generateEventSchema = (data: any, imageUrl: string | null = null) =
   const schema: any = {
     '@context': 'https://schema.org',
     '@type': 'Event',
-    name: data.title,
-    description: data.intro || data.description,
+    name: cleanText(data.title),
+    description: cleanText(data.intro || data.description), // ✅ Safe
     image: imageUrl ? [imageUrl] : (data.mainImage?.url ? [data.mainImage.url] : []),
     startDate: formatIsoDate(data.startDate || data.date, data.isAllDay),
     endDate: formatIsoDate(data.endDate, data.isAllDay),
@@ -96,20 +94,19 @@ export const generateEventSchema = (data: any, imageUrl: string | null = null) =
   return schema;
 };
 
-// --- 4. PRODUCT SCHEMA (Updated for 'price' field) ---
+// --- 4. PRODUCT SCHEMA ---
 export const generateProductSchema = (data: any) => {
-  // Fix: Check for 'price' (new) or 'livePrice' (old)
   const priceValue = data.price || data.livePrice || data.priceEstimate || 0;
   
   const schema: any = {
     '@context': 'https://schema.org',
     '@type': 'Product',
-    name: data.title || data.itemName,
+    name: cleanText(data.title || data.itemName),
     image: data.mainImage?.url ? [data.mainImage.url] : undefined,
-    description: data.verdict || data.intro || data.description,
+    description: cleanText(data.verdict || data.intro || data.description), // ✅ Safe
     brand: {
       '@type': 'Brand',
-      name: data.brand || 'Generic'
+      name: cleanText(data.brand || 'Generic')
     },
     offers: {
       '@type': 'Offer',
@@ -120,7 +117,6 @@ export const generateProductSchema = (data: any) => {
     }
   };
 
-  // Aggregate Rating (New)
   if (data.customerRating) {
     schema.aggregateRating = {
       '@type': 'AggregateRating',
@@ -129,26 +125,25 @@ export const generateProductSchema = (data: any) => {
     };
   }
 
-  // Editorial Review
   if (data.verdict) {
     schema.review = {
       '@type': 'Review',
       author: { '@type': 'Organization', name: 'TopTenUAE' },
       reviewRating: { '@type': 'Rating', ratingValue: 4.5, bestRating: 5 },
-      reviewBody: data.verdict
+      reviewBody: cleanText(data.verdict) // ✅ Safe
     };
   }
 
   return schema;
 };
 
-// --- 5. TOOL / CALCULATOR SCHEMA (Updated to SoftwareApplication) ---
+// --- 5. TOOL / CALCULATOR SCHEMA ---
 export const generateToolSchema = (data: any) => {
   const toolSchema: any = {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
-    name: data.title,
-    description: data.seo?.metaDescription || data.description,
+    name: cleanText(data.title),
+    description: cleanText(data.seo?.metaDescription || data.description), // ✅ Safe
     url: `${baseUrl}/${data.slug}`,
     applicationCategory: 'FinanceApplication',
     operatingSystem: 'Web',
@@ -158,20 +153,16 @@ export const generateToolSchema = (data: any) => {
       priceCurrency: 'AED',
     },
   };
-
-  // If FAQs exist, we merge FAQPage schema into this (Advanced Graph)
-  // Note: Google prefers separate nodes, but for simple tools, this object is primary.
-  // The Page component usually handles the separate FAQPage injection.
   
   return toolSchema;
 };
 
-// --- 6. DEAL SCHEMA (New) ---
+// --- 6. DEAL SCHEMA ---
 export const generateDealSchema = (data: any) => ({
   '@context': 'https://schema.org',
   '@type': 'Offer',
-  name: data.title,
-  description: data.description,
+  name: cleanText(data.title),
+  description: cleanText(data.description), // ✅ Safe
   price: data.dealPrice,
   priceCurrency: 'AED',
   priceValidUntil: data.dealEndDate,
@@ -179,12 +170,12 @@ export const generateDealSchema = (data: any) => ({
   availability: 'https://schema.org/InStock'
 });
 
-// --- 7. ARTICLE SCHEMA (With FAQ Support) ---
+// --- 7. ARTICLE SCHEMA (With FAQ Fix) ---
 export const generateArticleSchema = (data: any) => {
   const articleSchema: any = {
     '@context': 'https://schema.org',
     '@type': 'NewsArticle',
-    headline: data.title,
+    headline: cleanText(data.title),
     image: data.mainImage?.url ? [data.mainImage.url] : [],
     datePublished: data.publishedAt,
     dateModified: data._updatedAt || data.publishedAt,
@@ -196,19 +187,19 @@ export const generateArticleSchema = (data: any) => {
     publisher: generateOrganizationSchema()
   };
 
-  // Return Array to allow multiple schemas (Article + FAQ)
   const schemas = [articleSchema];
 
+  // ✅ THIS FIXES YOUR GOOGLE ERROR
   if (data.faqs && data.faqs.length > 0) {
     schemas.push({
       '@context': 'https://schema.org',
       '@type': 'FAQPage',
       mainEntity: data.faqs.map((faq: any) => ({
         '@type': 'Question',
-        name: faq.question,
+        name: cleanText(faq.question),
         acceptedAnswer: {
           '@type': 'Answer',
-          text: faq.answer
+          text: cleanText(faq.answer) // ✅ Convert Blocks to String!
         }
       }))
     });
@@ -221,6 +212,7 @@ export const generateArticleSchema = (data: any) => {
 export function generateSchema(data: any) {
   if (!data) return generateOrganizationSchema();
 
+  // If you pass "category/slug", normalize it or use logic as needed
   const targetType = data.schemaType || data._type;
 
   switch (targetType) {
@@ -228,7 +220,21 @@ export function generateSchema(data: any) {
       return generateProductSchema(data);
 
     case 'tool':
-      return generateToolSchema(data);
+      // Combine Tool + FAQ if FAQs exist
+      const tool = generateToolSchema(data);
+      if (data.faqs) {
+        const faqs = {
+           '@context': 'https://schema.org',
+           '@type': 'FAQPage',
+           mainEntity: data.faqs.map((f:any) => ({
+             '@type': 'Question',
+             name: cleanText(f.question),
+             acceptedAnswer: { '@type': 'Answer', text: cleanText(f.answer) }
+           }))
+        };
+        return [tool, faqs]; // Return array
+      }
+      return tool;
 
     case 'deal':
       return generateDealSchema(data);
@@ -238,7 +244,6 @@ export function generateSchema(data: any) {
       return generateEventSchema(data, data.mainImage?.url);
 
     case 'topTenList':
-      // Updated to match your List structure (product->)
       return {
         '@context': 'https://schema.org',
         '@type': 'ItemList',
@@ -249,9 +254,9 @@ export function generateSchema(data: any) {
           position: index + 1,
           item: {
             '@type': 'Product',
-            name: item.product?.title || item.itemName || 'Product',
+            name: cleanText(item.product?.title || item.itemName || 'Product'),
             url: item.product?.slug ? `${baseUrl}/${item.product.slug}` : undefined,
-            description: item.customVerdict || item.product?.verdict
+            description: cleanText(item.customVerdict || item.product?.verdict)
           }
         }))
       };
@@ -259,8 +264,6 @@ export function generateSchema(data: any) {
     case 'NewsArticle':
     case 'article':
     default:
-      // Return the primary article schema (index 0)
-      // Note: If you want both Article + FAQ, you should handle array returns in your Page component
-      return generateArticleSchema(data)[0]; 
+      return generateArticleSchema(data); 
   }
 };

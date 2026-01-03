@@ -1,5 +1,6 @@
 // src/utils/seo-manager.ts
 import { Metadata } from 'next';
+import { cleanText } from '@/utils/sanity-text'; // ✅ Import the helper
 
 // --- CONFIGURATION ---
 const SITE_URL = process.env.baseUrl || 'https://toptenuae.com';
@@ -64,13 +65,17 @@ export function generateSeoMetadata(
   // 1. Resolve Title
   const title = data.seo?.metaTitle || data.title || 'TopTenUAE';
 
-  // 2. Resolve Description (Cascade Priority)
-  const description = 
+  // 2. Resolve Description (Safe version)
+  const rawDescription = 
     data.seo?.metaDescription || 
     data.description || 
     data.intro || 
-    data.verdict || 
-    "Discover the best products, deals, and government tools in the UAE.";
+    data.verdict;
+
+  // ✅ Clean it before assigning. Handles both Strings and Blocks.
+  const description = rawDescription 
+    ? cleanText(rawDescription) 
+    : "Discover the best products, deals, and government tools in the UAE.";
 
   // 3. Resolve Image
   const ogImage = 
