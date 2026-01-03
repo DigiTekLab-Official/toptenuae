@@ -1,3 +1,4 @@
+// src/lib/schemaGenerator.ts
 import { cleanText } from '@/utils/sanity-text'; 
 
 // --- CONFIGURATION ---

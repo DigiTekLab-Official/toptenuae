@@ -46,10 +46,10 @@ interface Product {
   pros?: string[];
   cons?: string[];
   customerRating?: number;
-  ratingCount?: number;   // Updated to number
+  ratingCount?: number;   
   heroFeature?: string; 
   
-  // 🔥 NEW FIELDS (Replaces priceEstimate)
+  // 🔥 NEW FIELDS
   price?: number;         
   currency?: string;      
   availability?: string;  
@@ -63,22 +63,6 @@ interface ListItem {
   customVerdict?: string;
   product: Product;
 }
-
-// --- 2. HELPER: GENERATE FAQ SCHEMA (SEO BOOSTER) ---
-const generateFAQSchema = (faqs: { question: string; answer: string }[]) => {
-  return {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": faqs.map(faq => ({
-      "@type": "Question",
-      "name": faq.question,
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": faq.answer
-      }
-    }))
-  };
-};
 
 // --- MAIN TEMPLATE ---
 export default function TopTenTemplate({ data }: { data: TopTenData }) {
@@ -104,21 +88,10 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
 
   const isMedicalPost = hasMedicalKeywords && !isElectronicDevice;
 
-  // ✅ GENERATE FAQ SCHEMA IF DATA EXISTS
-  const faqSchema = (data.faqs && data.faqs.length > 0) 
-    ? generateFAQSchema(data.faqs) 
-    : null;
-
   return (
     <div className="w-full">
       
-      {/* ✅ INJECT FAQ SCHEMA INTO HEAD */}
-      {faqSchema && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-        />
-      )}
+      {/* 🗑️ REMOVED DUPLICATE SCHEMA: Handled globally in page.tsx now */}
       
       {/* TOP DISCLAIMER */}
       {showDisclaimer && (

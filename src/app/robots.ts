@@ -2,26 +2,38 @@
 import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
-  // ✅ 1. Match the variable name used in sitemap.ts
   const baseUrl = process.env.baseUrl || 'https://toptenuae.com';
+
+  // Shared blocked paths (SEO + Security)
+  const sharedDisallow = [
+    '/studio',
+    '/studio/',
+    '/api/',
+    '/search',
+    '/search/',
+    // Add if present:
+    // '/preview',
+    // '/draft',
+  ];
 
   return {
     rules: [
+      // Default rule for all bots (Google, Bing, etc.)
       {
         userAgent: '*',
         allow: '/',
-        disallow: [
-          '/studio/', // Block Sanity Studio (Admin Panel)
-          '/api/',    // Block backend API routes (Security/SEO best practice)
-          '/search',  // Block ALL internal search results (Prevents "Spider Traps" and budget waste)
-        ],
+        disallow: sharedDisallow,
       },
-      // ✅ 2. Optional: Explicitly Allow AI Bots (Strategy: Get featured in AI answers)
+
+      // AI & Apple Bots (explicitly allowed, but still restricted)
       {
-        userAgent: ['GPTBot', 'Google-Extended', 'Bingbot'],
+        userAgent: ['GPTBot', 'Google-Extended', 'Applebot'],
         allow: '/',
-      }
+        disallow: sharedDisallow,
+      },
     ],
+
+    // Sitemap location
     sitemap: `${baseUrl}/sitemap.xml`,
   };
 }

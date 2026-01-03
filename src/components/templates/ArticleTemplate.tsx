@@ -4,7 +4,7 @@ import PortableText from "@/components/PortableText";
 import FAQAccordion from "@/components/FAQAccordion";
 import { discoverImage } from "@/sanity/lib/image";
 
-// --- 1. DEFINE INTERFACE (Fixes 'implicitly has any' error) ---
+// --- 1. DEFINE INTERFACE ---
 interface ArticleData {
   title: string;
   publishedAt?: string;
@@ -20,69 +20,14 @@ interface ArticleData {
   }[];
 }
 
-// --- 2. GENERATE JSON-LD (Google SEO) ---
-const generateArticleSchema = (data: ArticleData, imageUrl: string | null): any[] => {
-  const schema: any[] = [];
-
-  // A. Article Schema
-  schema.push({
-    "@context": "https://schema.org",
-    "@type": "Article", // Or "NewsArticle" for government updates
-    "headline": data.title,
-    "image": imageUrl ? [imageUrl] : [],
-    "datePublished": data.publishedAt,
-    "dateModified": data.modifiedAt || data.publishedAt,
-    "author": {
-      "@type": "Organization", // Or "Person" if you have specific authors
-      "name": data.author?.name || "GovtJobsNet Team",
-      "url": "https://govtjobsnet.com"
-    },
-    "publisher": {
-      "@type": "Organization",
-      "name": "GovtJobsNet",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "https://govtjobsnet.com/logo.png" // Replace with your actual logo URL
-      }
-    }
-  });
-
-  // B. FAQ Schema (Only if FAQs exist)
-  if (data.faqs && data.faqs.length > 0) {
-    schema.push({
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": data.faqs.map((faq) => ({
-        "@type": "Question",
-        "name": faq.question,
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": faq.answer
-        }
-      }))
-    });
-  }
-
-  return schema;
-};
-
 export default function ArticleTemplate({ data }: { data: ArticleData }) {
   const heroImageUrl = (data.mainImage ? discoverImage(data.mainImage) : null) ?? null;
   
-  // Generate SEO Schema
-  const jsonLdData = generateArticleSchema(data, heroImageUrl);
+  // 🗑️ REMOVED: Local Schema Generation (Handled globally in page.tsx)
 
   return (
     <article className="w-full bg-white">
-      {/* 🟢 INJECT JSON-LD */}
-      {jsonLdData.map((schema, index) => (
-        <script
-          key={index}
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-        />
-      ))}
-
+      
       {/* NOTE: Title, Date, and Breadcrumbs removed to prevent duplication. */}
 
       <div className="max-w-none pb-12">
@@ -111,7 +56,6 @@ export default function ArticleTemplate({ data }: { data: ArticleData }) {
         {data.faqs && data.faqs.length > 0 && (
           <div className="mt-16 pt-10 border-t border-gray-100">
              {/* Header for accessibility/SEO */}
-            
             <FAQAccordion faqs={data.faqs} />
           </div>
         )}

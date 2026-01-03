@@ -4,7 +4,7 @@
 import React from "react";
 import Image from "next/image";
 import { discoverImage } from "@/sanity/lib/image";
-import { generateEventSchema } from "@/lib/schemaGenerator";
+// 🗑️ REMOVED: import { generateEventSchema } from "@/lib/schemaGenerator";
 import { Calendar, MapPin, Ticket } from "lucide-react";
 import PortableText from "@/components/PortableText";
 import FAQAccordion from "@/components/FAQAccordion";
@@ -40,26 +40,18 @@ export interface EventSanityData {
 
 export default function EventTemplate({ data }: { data: EventSanityData }) {
   const heroImageUrl = data.mainImage ? discoverImage(data.mainImage) : null;
-  const jsonLd = generateEventSchema(data, heroImageUrl);
+  // 🗑️ REMOVED: Local Schema (Handled globally)
 
   // --- LOGIC ---
   const hasVenue = !!data.locationName;
-  // Strict Ticket Check: Only show if URL exists OR Price is explicitly not null
   const hasTickets = !!data.ticketUrl || (data.ticketPrice !== null && data.ticketPrice !== undefined);
   
-  // 🟢 SMART HIDE: 
-  // If it's an "All Day" event starting on Jan 1st, it's likely a "Yearly List". 
-  // In that case, we HIDE the specific date block to avoid confusion.
   const isYearlyList = data.isAllDay && new Date(data.startDate).getMonth() === 0 && new Date(data.startDate).getDate() === 1;
   const showKeyDetails = !isYearlyList && (!!data.startDate || hasVenue);
 
   return (
     <div className="max-w-4xl mx-auto"> 
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-
+      
       {/* 1. Header Image */}
       {heroImageUrl && (
         <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden shadow-md mb-8">
@@ -91,7 +83,7 @@ export default function EventTemplate({ data }: { data: EventSanityData }) {
         )}
       </div>
 
-      {/* 3. Key Details Grid (HIDDEN for Yearly Lists) */}
+      {/* 3. Key Details Grid */}
       {showKeyDetails && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-6 rounded-2xl border border-gray-100 mb-8">
           
@@ -106,7 +98,6 @@ export default function EventTemplate({ data }: { data: EventSanityData }) {
                     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
                   })}
                   
-                  {/* Only show time if "All Day" is explicitly FALSE */}
                   {data.isAllDay === false && (
                     <>
                       <br />
@@ -182,7 +173,6 @@ export default function EventTemplate({ data }: { data: EventSanityData }) {
 
       {/* 6. FAQ SECTION */}
       {data.faqs && data.faqs.length > 0 && <FAQAccordion faqs={data.faqs} />}
-        
      
     </div>
   );

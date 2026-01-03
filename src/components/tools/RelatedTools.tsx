@@ -1,3 +1,4 @@
+// src/components/tools/RelatedTools.tsx
 import Link from 'next/link';
 
 interface RelatedToolsProps {
