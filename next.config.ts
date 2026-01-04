@@ -163,7 +163,8 @@ const nextConfig: NextConfig = {
       { source: "/best-diaper-bags-in-uae", destination: "/parenting-kids", permanent: true },
       { source: "/10-best-baby-skin-care-products-in-the-uae-for-2025", destination: "/reviews/best-baby-skincare-uae", permanent: true },
       { source: "/best-baby-skincare-products-uae", destination: "/reviews/best-baby-skincare-uae", permanent: true },
-
+      { source: "/best-baby-skincare-products-2025-uae", destination: "/reviews/best-baby-skincare-uae", permanent: true },
+      { source: "/best-baby-white-noise-machines", destination: "/parenting-kids", permanent: true },
       // -----------------------------------------------------------
       // 7. SMART HOME
       // -----------------------------------------------------------
