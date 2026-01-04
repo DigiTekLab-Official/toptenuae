@@ -1,6 +1,6 @@
 import React from 'react';
 import { Metadata } from 'next'; 
-import { notFound } from 'next/navigation'; // Import this
+import { notFound } from 'next/navigation';
 
 // Components
 import MarketHeader from '../../components/money/MarketHeader';
@@ -14,29 +14,36 @@ import { getMoneyPageData, getLiveRates } from '../../sanity/lib/money';
 import { RatesProvider } from '../../contexts/RatesContext';
 
 export const revalidate = 60; 
-export const runtime = 'edge'; // Crucial for your Cloudflare build
+export const runtime = 'edge'; 
 
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getMoneyPageData();
-
-  // 1. If no data (unpublished in Sanity), return empty metadata
-  if (!data) return {};
+  if (!data) return { title: 'Page Not Found' }; // Better for SEO than empty object
 
   return {
     title: data.title,
     description: data.description,
-    // ... existing metadata logic
+    alternates: {
+      canonical: 'https://toptenuae.com/money',
+    }
   };
 }
 
 export default async function MoneyPage() {
-  const [pageData, initialRates] = await Promise.all([
-    getMoneyPageData(),
-    getLiveRates()
-  ]);
+  // 1. Fetch Page Data First to check if the page is "Drafted/Unpublished"
+  const pageData = await getMoneyPageData();
 
-  // 2. THE KILL SWITCH: If Sanity document is unpublished, show 404
   if (!pageData) {
+    notFound(); 
+  }
+
+  // 2. Fetch rates only if the page exists, wrapped in a safety catch
+  let initialRates;
+  try {
+    initialRates = await getLiveRates();
+  } catch (error) {
+    console.error("Rates fetch failed:", error);
+    // Provide a fallback or trigger 404 if data is essential
     notFound(); 
   }
 
@@ -46,7 +53,7 @@ export default async function MoneyPage() {
         <MarketHeader 
           title={pageData.title}
           description={pageData.description}
-          lastUpdated={initialRates.timestamp}
+          lastUpdated={initialRates?.timestamp}
         />
         
         <main className="container mx-auto px-4 py-6 md:py-10">
@@ -58,7 +65,7 @@ export default async function MoneyPage() {
               
               <section id="calculator" aria-label="Gold Calculator">
                 <GoldCalculator 
-                  goldRate24K={initialRates.metals.gold_24k_per_gram_aed}
+                  goldRate24K={initialRates?.metals?.gold_24k_per_gram_aed || 0}
                   title={pageData.goldCalculatorText} 
                 />
               </section>
@@ -66,9 +73,7 @@ export default async function MoneyPage() {
             
             <div className="lg:col-span-1 space-y-6">
               <section aria-label="Forex Rates">
-                <ForexRates 
-                  featuredPairs={pageData.featuredCurrencies}
-                />
+                <ForexRates featuredPairs={pageData.featuredCurrencies} />
               </section>
             </div>
           </div>
@@ -76,7 +81,7 @@ export default async function MoneyPage() {
           <DataDisclaimer 
             disclaimer={pageData.disclaimer}
             sources={pageData.dataSources}
-            lastUpdated={initialRates.timestamp}
+            lastUpdated={initialRates?.timestamp}
           />
         </main>
       </div>
