@@ -1,4 +1,4 @@
-import { client } from '@/sanity/client';
+import { client } from '@/sanity/lib/client';
 import Link from 'next/link';
 
 export const runtime = 'edge';

@@ -1,3 +1,4 @@
+// src/sanity/lib/client.ts
 import { createClient } from 'next-sanity'
 
 // --- CONFIGURATION ---
