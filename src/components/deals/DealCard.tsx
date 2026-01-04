@@ -3,27 +3,31 @@
 import Image from 'next/image';
 import { useState } from 'react';
 import CountdownTimer from './CountdownTimer';
-import { Deal } from '@/types/sanity';
-import { ArrowRight, ShoppingCart, Copy, Check } from 'lucide-react';
+// Ensure this path matches where you keep your type definitions
+// If you don't have this file, just remove the type import and use 'any' for now
+import { Deal } from '@/types/sanity'; 
+import { ArrowRight, ShoppingCart, Copy, Check, ExternalLink } from 'lucide-react';
 
 interface DealCardProps {
-  deal: Deal;
+  deal: any; // Using 'any' to be safe, or use your Deal interface
 }
 
 export default function DealCard({ deal }: DealCardProps) {
   const [imageError, setImageError] = useState(false);
   const [copied, setCopied] = useState(false);
   
-  // --- 1. FIX: Resolve the Category Name safely ---
+  // 1. SAFE CATEGORY LABEL
   const categoryLabel = typeof deal.category === 'object' && deal.category !== null
-    ? deal.category.title || 'Deal'  // If object, grab the title
-    : (deal.category as string) || 'Deal'; // If string, use it directly
+    ? deal.category.title || 'Deal'
+    : (deal.category as string) || 'Deal';
 
+  // 2. DISCOUNT CALCULATION
   const discount = deal.discountPercentage ||
     (typeof deal.originalPrice === 'number' && typeof deal.dealPrice === 'number' && deal.originalPrice > 0
       ? Math.round(((deal.originalPrice - deal.dealPrice) / deal.originalPrice) * 100)
       : 0);
 
+  // 3. COPY COUPON LOGIC
   const handleCopy = (e: React.MouseEvent) => {
     e.preventDefault(); 
     if (deal.couponCode) {
@@ -32,6 +36,36 @@ export default function DealCard({ deal }: DealCardProps) {
       setTimeout(() => setCopied(false), 2000);
     }
   };
+
+  // 4. SMART BUTTON TEXT LOGIC (UPDATED)
+  const getButtonText = (url: string) => {
+    if (!url) return 'View Deal';
+    const lowerUrl = url.toLowerCase();
+
+    // ✅ Amazon: Catch full URL and "amzn.to" shortlinks
+    if (lowerUrl.includes('amazon') || lowerUrl.includes('amzn')) {
+      return 'View on Amazon';
+    }
+
+    // ✅ Noon
+    if (lowerUrl.includes('noon')) {
+      return 'View on Noon';
+    }
+
+    // ✅ Other Common UAE Stores (Optional)
+    if (lowerUrl.includes('sharaf')) return 'View on Sharaf DG';
+    if (lowerUrl.includes('carrefour')) return 'View on Carrefour';
+    if (lowerUrl.includes('jumbo')) return 'View on Jumbo';
+
+    // ✅ Events & Booking
+    if (lowerUrl.includes('ticket') || lowerUrl.includes('booking') || lowerUrl.includes('platinumlist')) {
+      return 'Book Now';
+    }
+
+    return 'View Offer'; // Generic fallback
+  };
+
+  const buttonText = getButtonText(deal.affiliateLink);
 
   return (
     <article className="group relative block h-full">
@@ -44,6 +78,15 @@ export default function DealCard({ deal }: DealCardProps) {
                <span className="text-[#4b0082] font-black text-lg">-{discount}%</span>
             </div>
           </div>
+        )}
+
+        {/* RAMADAN BADGE (If tagged) */}
+        {deal.tags?.includes('ramadan-2026') && (
+           <div className="absolute top-0 left-0 z-20">
+             <div className="bg-green-700 text-white text-[10px] font-bold px-3 py-1 rounded-br-lg shadow-sm flex items-center gap-1">
+               🌙 RAMADAN DEAL
+             </div>
+           </div>
         )}
 
         {/* Image Area */}
@@ -64,7 +107,7 @@ export default function DealCard({ deal }: DealCardProps) {
           )}
           
           {deal.isPrimeExclusive && (
-            <div className="absolute top-2 left-2 bg-[#00A8E1] text-white text-[10px] font-bold py-1 px-2 rounded shadow-sm">
+            <div className="absolute bottom-2 left-2 bg-[#00A8E1] text-white text-[10px] font-bold py-1 px-2 rounded shadow-sm">
               Prime Only
             </div>
           )}
@@ -73,7 +116,6 @@ export default function DealCard({ deal }: DealCardProps) {
         {/* Content */}
         <div className="flex-grow flex flex-col">
           <div className="mb-2">
-             {/* --- 2. USE THE FIXED LABEL HERE --- */}
              <span className="text-[11px] font-bold uppercase tracking-wider text-[#4b0082] bg-purple-50 px-2 py-1 rounded-md">
               {categoryLabel}
             </span>
@@ -90,7 +132,7 @@ export default function DealCard({ deal }: DealCardProps) {
                 {typeof deal.dealPrice === 'number'
                   ? <>
                       AED {Math.floor(deal.dealPrice)}
-                      <span className="text-sm align-top">.{deal.dealPrice.toFixed(2).split('.')[1]}</span>
+                      <span className="text-sm align-top">.{deal.dealPrice.toFixed(2).split('.')[1] || '00'}</span>
                     </>
                   : 'AED --'}
               </span>
@@ -138,15 +180,16 @@ export default function DealCard({ deal }: DealCardProps) {
           </div>
         )}
 
-        {/* CTA Footer */}
+        {/* CTA Footer (FIXED) */}
         <div className="mt-4 pt-4 border-t border-slate-100">
           <a
-            href={deal.affiliateLink as string} // Explicit cast for safety
+            href={deal.affiliateLink || '#'}
             target="_blank"
             rel="nofollow sponsored noopener noreferrer"
             className="flex items-center justify-between w-full text-slate-600 font-bold text-sm group-hover:text-[#4b0082] transition-colors"
           >
-            <span>View Deal on Amazon</span>
+            {/* Dynamic Text Here */}
+            <span>{buttonText}</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </a>
         </div>

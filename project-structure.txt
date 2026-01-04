@@ -1,0 +1,171 @@
+.
+├── .DS_Store
+├── .env.local
+├── .gitignore
+├── README.md
+├── eslint.config.mjs
+├── next-env.d.ts
+├── next.config.ts
+├── package.json
+├── pnpm-lock.yaml
+├── postcss.config.mjs
+├── project-structure.txt
+├── public
+│   ├── .DS_Store
+│   ├── _routes.json
+│   ├── about-og.webp
+│   ├── contact-og.webp
+│   ├── icon-v2.svg
+│   └── images
+│       ├── .DS_Store
+│       └── brand
+│           ├── .DS_Store
+│           ├── logoIcon.svg
+│           └── og-default.png
+├── scripts
+├── src
+│   ├── .DS_Store
+│   ├── app
+│   │   ├── [category]
+│   │   │   ├── .DS_Store
+│   │   │   ├── [slug]
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   ├── about-us
+│   │   │   └── page.tsx
+│   │   ├── affiliate-disclosure
+│   │   │   └── page.tsx
+│   │   ├── api
+│   │   │   ├── rates
+│   │   │   │   └── route.ts
+│   │   │   └── subscribe
+│   │   │       └── route.ts
+│   │   ├── contact-us
+│   │   │   └── page.tsx
+│   │   ├── cookies-policy
+│   │   │   └── page.tsx
+│   │   ├── deals
+│   │   │   └── page.tsx
+│   │   ├── disclaimer
+│   │   │   └── page.tsx
+│   │   ├── globals.css
+│   │   ├── icon.svg
+│   │   ├── layout.tsx
+│   │   ├── money
+│   │   │   └── page.tsx
+│   │   ├── not-found.tsx
+│   │   ├── page.tsx
+│   │   ├── privacy-policy
+│   │   │   └── page.tsx
+│   │   ├── ramadan-2026
+│   │   │   └── page.tsx
+│   │   ├── report
+│   │   │   └── page.tsx
+│   │   ├── robots.ts
+│   │   ├── search
+│   │   │   └── page.tsx
+│   │   ├── sitemap.ts
+│   │   ├── subscribe
+│   │   │   └── page.tsx
+│   │   ├── terms-and-conditions
+│   │   │   └── page.tsx
+│   │   └── thank-you
+│   │       └── page.tsx
+│   ├── components
+│   │   ├── ArticleHero.tsx
+│   │   ├── ArticleSchema.tsx
+│   │   ├── Breadcrumb.tsx
+│   │   ├── CharityCard.tsx
+│   │   ├── ContactForm.tsx
+│   │   ├── FAQAccordion.tsx
+│   │   ├── FilterBar.tsx
+│   │   ├── Footer.tsx
+│   │   ├── Header.tsx
+│   │   ├── HomeNewsletter.tsx
+│   │   ├── JsonLd.tsx
+│   │   ├── NewsletterForm.tsx
+│   │   ├── PortableText.tsx
+│   │   ├── Sidebar.tsx
+│   │   ├── analytics
+│   │   │   ├── Clarity.tsx
+│   │   │   └── GTM.tsx
+│   │   ├── cards
+│   │   │   ├── ArticleCard.tsx
+│   │   │   └── FinanceCard.tsx
+│   │   ├── deals
+│   │   │   ├── CountdownTimer.tsx
+│   │   │   ├── DealCard.tsx
+│   │   │   ├── DealsFeed.tsx
+│   │   │   └── FilterBar.tsx
+│   │   ├── home
+│   │   │   ├── CategorySection.tsx
+│   │   │   ├── HeroSection.tsx
+│   │   │   └── LatestPosts.tsx
+│   │   ├── icons
+│   │   │   ├── LogoIcon.tsx
+│   │   │   └── TopTenUAELogo.tsx
+│   │   ├── money
+│   │   │   ├── DataDisclaimer.tsx
+│   │   │   ├── ForexRates.tsx
+│   │   │   ├── GoldCalculator.tsx
+│   │   │   ├── MarketHeader.tsx
+│   │   │   └── PreciousMetals.tsx
+│   │   ├── templates
+│   │   │   ├── ArticleTemplate.tsx
+│   │   │   ├── ComparisonSummaryTable.tsx
+│   │   │   ├── EventTemplate.tsx
+│   │   │   ├── ProductTemplate.tsx
+│   │   │   ├── QuickSummaryTable.tsx
+│   │   │   └── TopTenTemplate.tsx
+│   │   ├── tools
+│   │   │   ├── ClientToolRenderer.tsx
+│   │   │   ├── GratuityCalculator.tsx
+│   │   │   ├── PriceWidget.tsx
+│   │   │   ├── RelatedTools.tsx
+│   │   │   ├── ToolRegistry.tsx
+│   │   │   ├── VatCalculator.tsx
+│   │   │   ├── ZakatCalculator copy.tsx
+│   │   │   └── ZakatCalculator.tsx
+│   │   ├── ui
+│   │   │   ├── Accordion.tsx
+│   │   │   ├── AffiliateDisclosure.tsx
+│   │   │   ├── BuyButton.tsx
+│   │   │   ├── CodeBlock.tsx
+│   │   │   ├── DisclaimerBlock.tsx
+│   │   │   ├── NavigationGrid.tsx
+│   │   │   ├── ProductCard.tsx
+│   │   │   ├── RelatedLinkCard.tsx
+│   │   │   └── SanityTable.tsx
+│   │   └── views
+│   │       ├── ArticleView.tsx
+│   │       ├── ProductView.tsx
+│   │       └── ToolView.tsx
+│   ├── contexts
+│   │   └── RatesContext.tsx
+│   ├── lib
+│   │   ├── amazon.ts
+│   │   ├── amazon‑paapi
+│   │   │   └── fetchDeals.js
+│   │   ├── gtm.ts
+│   │   ├── sanityLoader.ts
+│   │   ├── schemaGenerator.ts
+│   │   └── utils.ts
+│   ├── middleware.ts
+│   ├── sanity
+│   │   ├── env.ts
+│   │   └── lib
+│   │       ├── client.ts
+│   │       ├── image.ts
+│   │       ├── money.ts
+│   │       └── queries.ts
+│   ├── types
+│   │   ├── event.ts
+│   │   └── sanity.ts
+│   └── utils
+│       ├── sanity-text.ts
+│       ├── seo-manager.ts
+│       └── tool-helpers.ts
+├── tailwind.config.ts
+└── tsconfig.json
+
+44 directories, 125 files

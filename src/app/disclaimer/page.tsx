@@ -1,3 +1,4 @@
+// src/app/disclaimer/page.tsx
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AlertTriangle, Info, ExternalLink, ShieldAlert, MessageSquare, DollarSign, Mail, ArrowRight } from "lucide-react";

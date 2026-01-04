@@ -1,24 +1,33 @@
-// src/sanity/lib/client.ts
 import { createClient } from 'next-sanity'
 
-export const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
-export const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET
+// --- CONFIGURATION ---
+// We use your specific ID as the default fallback so the app works 
+// even if .env.local is missing during the build.
+export const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'kxdjzy8e'
+export const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production'
 export const apiVersion = process.env.NEXT_PUBLIC_SANITY_API_VERSION || '2024-01-01'
 
-// ✅ 1. ADD VALIDATION TO PREVENT BUILD CRASHES
-if (!projectId || !dataset) {
-  console.warn(
-    "Missing Sanity configuration. Check your Environment Variables in Cloudflare."
-  );
+// --- SAFETY CHECK ---
+if (!projectId) {
+  console.error("❌ Sanity Project ID is missing. Please check .env.local or client.ts");
 }
 
+// --- CLIENT CREATION ---
 export const client = createClient({
-  projectId: projectId || 'missing-id', // Prevents the client from throwing a fatal error
-  dataset: dataset || 'production',
+  projectId,
+  dataset,
   apiVersion,
-  // ✅ 2. FORCE 'false' FOR CLOUDFLARE EDGE
-  // Cloudflare Workers sometimes have issues with the global CDN cache during builds
+  
+  // ✅ IMPORTANT: Set to FALSE for the Money Page
+  // This forces Next.js to fetch fresh data every time revalidate triggers (60s),
+  // instead of getting stuck with stale data from the Sanity CDN.
   useCdn: false, 
-  // ✅ 3. ADD PERSPECTIVE FOR NEXT.JS 16
+  
   perspective: 'published',
+  
+  // Optional: optimized for Vercel visual editing
+  stega: {
+    enabled: false,
+    studioUrl: '/studio',
+  },
 })
