@@ -1,7 +1,9 @@
 // src/app/[category]/[slug]/page.tsx
 
 // ✅ REQUIRED: Cloudflare needs this for dynamic routes
-// export const runtime = 'edge';
+export const runtime = 'edge';
+
+
 
 import { client } from "@/sanity/lib/client";
 import { notFound, permanentRedirect } from "next/navigation";
