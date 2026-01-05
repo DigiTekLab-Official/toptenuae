@@ -1,4 +1,3 @@
-// src/components/Header.tsx
 "use client";
 
 import { useState } from "react";
@@ -75,7 +74,6 @@ export default function Header() {
                   <Link
                     key={link.name}
                     href={link.href}
-                    // ✅ FIX: Disable Prefetch for Menu Items
                     prefetch={false}
                     className={`
                       text-sm font-bold uppercase tracking-wide transition-colors whitespace-nowrap flex items-center gap-1
@@ -137,39 +135,41 @@ export default function Header() {
       {/* Mobile Menu Drawer */}
       {isMobileMenuOpen && !isSearchOpen && (
         <div className="xl:hidden border-t border-gray-100 bg-white">
-          <div className="space-y-1 px-4 pb-3 pt-2">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                // ✅ FIX: Disable Prefetch for Mobile Menu
-                prefetch={false}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`
-                  flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium w-full
-                  ${link.isHighlight 
-                    ? "text-red-700 bg-red-50 hover:bg-red-100" 
-                    : "text-gray-700 hover:bg-primary-50 hover:text-primary"
-                  }
-                `}
-              >
-                {link.isHighlight && <Flame className="w-4 h-4 fill-red-600" />}
-                {link.name}
-              </Link>
-            ))}
-             <div className="mt-4 border-t border-gray-100 pt-4 pb-4">
-              <Link
-                href="/subscribe"
-                prefetch={false}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block w-full rounded-md bg-primary px-3 py-3 text-center text-sm font-bold uppercase text-white hover:bg-primary-800"
-              >
-                Subscribe to Newsletter
-              </Link>
+          {/* FIX: Added proper container constraints and scrolling for small screens */}
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl pb-6 pt-2 max-h-[80vh] overflow-y-auto">
+            <div className="space-y-1">
+              {NAV_LINKS.map((link) => (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  prefetch={false}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`
+                    flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium w-full
+                    ${link.isHighlight 
+                      ? "text-red-700 bg-red-50 hover:bg-red-100" 
+                      : "text-gray-700 hover:bg-primary-50 hover:text-primary"
+                    }
+                  `}
+                >
+                  {link.isHighlight && <Flame className="w-4 h-4 fill-red-600" />}
+                  {link.name}
+                </Link>
+              ))}
+               <div className="mt-4 border-t border-gray-100 pt-4">
+                <Link
+                  href="/subscribe"
+                  prefetch={false}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block w-full rounded-md bg-primary px-3 py-3 text-center text-sm font-bold uppercase text-white hover:bg-primary-800"
+                >
+                  Subscribe to Newsletter
+                </Link>
+              </div>
             </div>
           </div>
         </div>
       )}
     </header>
   );
-} 
+}

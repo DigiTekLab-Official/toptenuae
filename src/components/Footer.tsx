@@ -10,8 +10,10 @@ export default function Footer() {
     <footer className="bg-slate-950 text-slate-200 font-sans border-t-4 border-[#8B5CF6]">
       
       {/* 1. TOP SECTION (Links) */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-8">
+      {/* FIX: Added 'max-w-7xl' to match Header alignment */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl py-12 lg:py-16">
+        {/* Changed md:grid-cols-2 to md:grid-cols-3 for better balance (3 top, 2 bottom) */}
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8 lg:gap-8">
           
           {/* Column 1: Brand & Trust */}
           <div className="space-y-4">
@@ -57,7 +59,6 @@ export default function Footer() {
                    <span className="bg-violet-300 text-[#34005b] text-[12px] font-bold px-1.5 py-0.5 rounded animate-pulse">NEW</span>
                 </Link>
               </li>
-              {/* ✅ FIXED: Corrected paths to match Next.js redirects (/finance-tools/...) */}
               <li><Link href="/finance-tools/gratuity-calculator-uae" prefetch={false} className="hover:text-[#8B5CF6] transition-colors">Gratuity Calculator</Link></li>
               <li><Link href="/finance-tools/uae-vat-calculator" prefetch={false} className="hover:text-[#8B5CF6] transition-colors">UAE VAT Calculator</Link></li>
               <li><Link href="/finance-tools/zakat-calculator" prefetch={false} className="hover:text-[#8B5CF6] transition-colors">Zakat Calculator</Link></li>
@@ -105,7 +106,8 @@ export default function Footer() {
 
       {/* 2. BOTTOM BAR (Compliance & Copyright) */}
       <div className="bg-slate-950 border-t border-slate-800 py-8">
-        <div className="container mx-auto px-4">
+        {/* FIX: Added 'max-w-7xl' and updated padding to match Header alignment */}
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           
           {/* AMAZON DISCLAIMER */}
           <div className="mb-6 pb-6 border-b border-slate-950">
