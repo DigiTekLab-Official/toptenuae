@@ -2,7 +2,9 @@
 
 // ✅ REQUIRED: Cloudflare needs this for dynamic routes
 export const runtime = 'edge';
+// export const revalidate = 61; 
 
+export const dynamic = 'force-dynamic';
 
 
 import { client } from "@/sanity/lib/client";
@@ -17,8 +19,7 @@ import ToolView from "@/components/views/ToolView";
 import ProductView from "@/components/views/ProductView";
 import ArticleView from "@/components/views/ArticleView";
 
-// --- CONFIGURATION ---
-export const revalidate = 61; 
+
 
 // --- UPDATED MASTER QUERY ---
 // I have added the "Shaver Boost" SEO fields and "Related Content" sections below.
