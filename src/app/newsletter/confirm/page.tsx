@@ -1,10 +1,11 @@
-// src/app/newsletter/confirm/page.tsx
 import { jwtVerify } from 'jose';
 import { Resend } from 'resend';
 import Link from 'next/link';
 import { CheckCircle, XCircle, ArrowRight } from 'lucide-react';
 
+// ✅ THESE LINES ARE CRITICAL FOR CLOUDFLARE
 export const dynamic = 'force-dynamic';
+export const runtime = 'edge';
 
 const SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 const AUDIENCE_ID = process.env.RESEND_AUDIENCE_ID;
