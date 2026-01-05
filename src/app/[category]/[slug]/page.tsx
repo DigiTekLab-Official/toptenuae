@@ -18,30 +18,97 @@ import ArticleView from "@/components/views/ArticleView";
 // --- CONFIGURATION ---
 export const revalidate = 61; 
 
-// --- QUERY ---
+// --- UPDATED MASTER QUERY ---
+// I have added the "Shaver Boost" SEO fields and "Related Content" sections below.
 const QUERY = `*[slug.current == $slug][0]{
   "slug": slug.current, _id, _type, title, description, seo, showAffiliateDisclosure,
   brand, affiliateLink, retailer, price, currency, availability,
   priceTier, customerRating, reviewCount, realComplaint, verdict, 
   keyFeatures, pros, cons, itemDescription,
   dealPrice, originalPrice, discountPercentage, couponCode, couponNote, dealEndDate, isPrimeExclusive,
+  
+  // --- 1. SEO OVERRIDES (The Shaver Boost) ---
+  "seoTitle": coalesce(seo.metaTitle, title),
+  "seoDescription": coalesce(seo.metaDescription, intro, description),
+  "socialShareImage": seo.shareGraphic.asset->url,
+
   "linkedProduct": product->{ title, brand, mainImage{asset, alt}, affiliateLink, retailer },
   componentId, heroBadge, heroTitleSuffix, heroTags,
   relatedTools[]->{ title, "slug": slug.current, componentId },
-  content[] { ..., _type == "image" => { ..., asset, alt, caption, display }, _type == "table" => { ... }, _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current } } },
+  
+  content[] { 
+    ..., 
+    _type == "image" => { ..., asset, alt, caption, display }, 
+    _type == "table" => { ... }, 
+    _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current } } 
+  },
+  
   author->{name, "slug": slug.current}, 
   intro,
-  "introContent": select( _type != "topTenList" && _type != "tool" => intro[] { ..., _type == "image" => { ..., asset, alt, caption, display }, _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current } }, _type == "navigationGrid" => { _type, title, items[] { label, description, "imageUrl": image.asset->url, "targetSlug": targetPost->slug.current } } }, null ),
-  body[] { ..., _type == "image" => { ..., asset, alt, caption, display }, _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current } }, _type == "navigationGrid" => { _type, title, items[] { label, description, "imageUrl": image.asset->url, "targetSlug": targetPost->slug.current } }, _type == "table" => { ... } },
-  closingContent[] { ..., _type == "image" => { ..., asset, alt, caption }, _type == "table" => { ... }, _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current } } },  
+  
+  "introContent": select( 
+    _type != "topTenList" && _type != "tool" => intro[] { 
+      ..., 
+      _type == "image" => { ..., asset, alt, caption, display }, 
+      _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current } }, 
+      _type == "navigationGrid" => { _type, title, items[] { label, description, "imageUrl": image.asset->url, "targetSlug": targetPost->slug.current } } 
+    }, 
+    null 
+  ),
+  
+  body[] { 
+    ..., 
+    _type == "image" => { ..., asset, alt, caption, display }, 
+    _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current } }, 
+    _type == "navigationGrid" => { _type, title, items[] { label, description, "imageUrl": image.asset->url, "targetSlug": targetPost->slug.current } }, 
+    _type == "table" => { ... } 
+  },
+  
+  closingContent[] { 
+    ..., 
+    _type == "image" => { ..., asset, alt, caption }, 
+    _type == "table" => { ... }, 
+    _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current } } 
+  },  
+  
   "mainImage": coalesce(image, mainImage, product->mainImage) { ..., "url": asset->url, alt },
   "category": coalesce(categories[0], category)->{ "title": title, "slug": slug.current, "menuLabel": menuLabel },
   "publishedAt": _createdAt, "_updatedAt": _updatedAt, 
   faqs[] { _key, question, answer },
   startDate, endDate, locationName, address, ticketPrice,
+  
   listItems[] { 
     _key, rank, badgeLabel, whySelected, customVerdict, 
     product->{ title, "slug": slug.current, mainImage { asset, alt, "url": asset->url }, affiliateLink, retailer, priceTier, price, currency, availability, realComplaint, customerRating, reviewCount, verdict, keyFeatures, pros, cons, itemDescription } 
+  },
+
+  // --- 2. RELATED CONTENT (Topic Clusters) ---
+  // Only runs if the document has categories
+  "relatedLists": *[
+    _type == "topTenList" 
+    && _id != ^._id 
+    && count((categories[]->slug.current)[@ in ^.categories[]->slug.current]) > 0
+  ] | order(publishedAt desc)[0...3] {
+    title,
+    "slug": slug.current,
+    "category": coalesce(categories[0]->slug.current, "reviews"),
+    intro,
+    mainImage { asset, alt }
+  },
+
+  "relatedProducts": *[
+    _type == "product" 
+    && count((categories[]->slug.current)[@ in ^.categories[]->slug.current]) > 0
+    && customerRating >= 4.5
+  ] | order(reviewCount desc)[0...4] {
+    title,
+    brand,
+    "slug": slug.current,
+    "category": coalesce(categories[0]->slug.current, "products"),
+    price,
+    currency,
+    customerRating,
+    mainImage { asset, alt }
   }
 }`;
 
@@ -72,7 +139,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!data) return { title: "Page Not Found" };
   
-  // Pass the data (including the new categorySlug) to the manager
   return generateSeoMetadata(data, { category, slug });
 }
 
