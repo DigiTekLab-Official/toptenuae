@@ -1,4 +1,3 @@
-// next.config.ts
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -15,6 +14,7 @@ const nextConfig: NextConfig = {
   // -----------------------------------------------------------------------------
   images: {
     // We set 'unoptimized: true' to force the browser to load images directly from Sanity's CDN.
+    // This prevents 404/500 errors on the Cloudflare Free Tier.
     unoptimized: true,
     
     dangerouslyAllowSVG: true,
