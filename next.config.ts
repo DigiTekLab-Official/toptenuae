@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
   // ✅ CRITICAL FIX for Cloudflare Pages "Redirect Loop"
   // Cloudflare enforces trailing slashes. Next.js must match this behavior
   // to avoid the infinite 308 redirect error you saw in GSC.
-  trailingSlash: true, 
+  trailingSlash: false, 
 
   // -----------------------------------------------------------------------------
   // IMAGE OPTIMIZATION (Cloudflare Pages Fix)
