@@ -5,13 +5,15 @@ const nextConfig: NextConfig = {
   // -----------------------------------------------------------------------------
   // GENERAL CONFIG
   // -----------------------------------------------------------------------------
-  trailingSlash: false,
+  // ✅ CRITICAL FIX for Cloudflare Pages "Redirect Loop"
+  // Cloudflare enforces trailing slashes. Next.js must match this behavior
+  // to avoid the infinite 308 redirect error you saw in GSC.
+  trailingSlash: true, 
 
   // -----------------------------------------------------------------------------
   // IMAGE OPTIMIZATION (Cloudflare Pages Fix)
   // -----------------------------------------------------------------------------
   images: {
-    // ✅ CRITICAL FIX: Cloudflare Pages does not support Next.js Image Optimization API.
     // We set 'unoptimized: true' to force the browser to load images directly from Sanity's CDN.
     unoptimized: true,
     
@@ -60,7 +62,6 @@ const nextConfig: NextConfig = {
         ],
       },
       // ✅ FIX: RSC Prefetch - Prevent caching 404s
-      // When Next.js prefetches pages on hover, it requests /?_rsc=xxxxx payloads.
       {
         source: "/:path*",
         has: [
@@ -155,7 +156,7 @@ const nextConfig: NextConfig = {
       // 6. PARENTING & KIDS
       // -----------------------------------------------------------
       { source: "/where-to-donate-used-toys-uae", destination: "/parenting-kids/where-to-donate-used-toys-uae", permanent: true },
-      // New from GSC Logs (Consolidating "Best X" posts to the main category if the post doesn't exist yet)
+      // New from GSC Logs:
       { source: "/best-baby-monitor", destination: "/parenting-kids", permanent: true },
       { source: "/best-baby-monitors-uae", destination: "/parenting-kids", permanent: true },
       { source: "/best-baby-toys", destination: "/parenting-kids", permanent: true },
@@ -165,6 +166,7 @@ const nextConfig: NextConfig = {
       { source: "/best-baby-skincare-products-uae", destination: "/reviews/best-baby-skincare-uae", permanent: true },
       { source: "/best-baby-skincare-products-2025-uae", destination: "/reviews/best-baby-skincare-uae", permanent: true },
       { source: "/best-baby-white-noise-machines", destination: "/parenting-kids", permanent: true },
+
       // -----------------------------------------------------------
       // 7. SMART HOME
       // -----------------------------------------------------------
@@ -177,14 +179,18 @@ const nextConfig: NextConfig = {
       { source: "/terms-conditions", destination: "/terms-and-conditions", permanent: true },
       { source: "/contact", destination: "/contact-us", permanent: true },
 
+      /// -----------------------------------------------------------
+      // 9. DEALS & EXPIRED CONTENT
       // -----------------------------------------------------------
-      // 9. DEALS & EXPIRED CONTENT (New from GSC Logs)
-      // -----------------------------------------------------------
-      { source: "/ramadan-deals-uae", destination: "/deals", permanent: true },
-      { source: "/ramadan-shopping-guide", destination: "/deals", permanent: true },
+      // 🌟 UPDATE: Send old Ramadan traffic to the new 2026 page!
+      { source: "/ramadan-deals-uae", destination: "/ramadan-2026", permanent: true },
+      { source: "/ramadan-shopping-guide", destination: "/ramadan-2026", permanent: true },
+      
+      // Keep these as is:
       { source: "/best-budget-buys-uae-amazon-deals-march-2025", destination: "/deals", permanent: true },
       { source: "/charity-organizations-uae-donations", destination: "/lifestyle/charity-organizations-uae-donations", permanent: true },
     ];
   },
 };
+
 export default nextConfig;
