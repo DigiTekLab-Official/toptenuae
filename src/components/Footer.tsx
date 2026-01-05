@@ -1,3 +1,4 @@
+// src/components/Footer.tsx
 import Link from 'next/link';
 import { Facebook, Twitter, Instagram, Mail, ShieldCheck } from 'lucide-react';
 import TopTenUAELogo from "./icons/TopTenUAELogo"; 

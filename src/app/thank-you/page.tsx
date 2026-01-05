@@ -1,3 +1,4 @@
+// src/app/thank-you/page.tsx
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CheckCircle, Mail, ArrowRight, Star } from "lucide-react";
