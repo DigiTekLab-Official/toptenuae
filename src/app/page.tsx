@@ -1,5 +1,5 @@
 // src/app/page.tsx
-export const runtime = 'edge'; // ✅ Required for Cloudflare Pages compatibility
+// export const runtime = 'edge'; // ✅ Required for Cloudflare Pages compatibility
 export const revalidate = 60;  // Cache clear every 60 seconds
 
 import { client } from "@/sanity/lib/client";

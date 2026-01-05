@@ -2,3 +2,40 @@ name = "toptenuae"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = ".vercel/output/static"
+
+# ------------------------------------------------------------------------------
+# VARIABLES
+# ------------------------------------------------------------------------------
+[vars]
+# 1. Critical Build Setting
+NODE_VERSION = "20"
+NEXT_PUBLIC_BASE_URL = "https://toptenuae.com"
+
+# 2. Sanity Content
+NEXT_PUBLIC_SANITY_PROJECT_ID = "kxdjzy8e"
+NEXT_PUBLIC_SANITY_DATASET = "production"
+NEXT_PUBLIC_SANITY_API_VERSION = "2024-01-01"
+SANITY_PROJECT_ID = "kxdjzy8e"
+SANITY_DATASET = "production"
+SANITY_API_VERSION = "2024-01-01"
+
+# 3. Analytics & Security
+NEXT_PUBLIC_GA_MEASUREMENT_ID = "G-PQMW1T9DF6"
+NEXT_PUBLIC_GTM_ID = "GTM-N3PB47W"
+NEXT_PUBLIC_TURNSTILE_SITE_KEY = "0x4AAAAAACKjWQd3pTknkISJ"
+
+# 4. Public Service IDs (Safe to be here)
+AMAZON_PARTNER_TAG = "apfunbox06-21"
+AMAZON_REGION = "webservices.amazon.ae"
+RESEND_AUDIENCE_ID = "de69c6ac-8557-485f-8ce5-6db4654b50df"
+
+# 5. SECRETS (Uncomment below ONLY if your Repo is PRIVATE)
+# If Public, add these in Cloudflare Dashboard > Settings > Variables (Encrypt them)
+# ----------------------------------------------------------------------------------
+# AMAZON_ACCESS_KEY = "AKPALL0N8Y1764832589"
+# AMAZON_SECRET_KEY = "oWW1eVdYVQaVEc3t0KGTyx4EDHuRlxVBFeaB7xRe"
+# RESEND_API_KEY = "re_UJrHrT8k_Je4MsuDpDW8Uhpq4Y1s4fje1"
+# METALPRICE_API_KEY = "8dd25df2ce7f05429ed690be344f2167"
+# EXCHANGE_RATE_API_KEY = "a1459f1d896297134cf67916"
+# TURNSTILE_SECRET_KEY = "0x4AAAAAACKjWQ_Ebr6Dmszgt4_6ndIkfE4"
+# JWT_SECRET = "POMJEySsvzlFErt+oVUrgOVRNcovr3PIKtZPoQHeGac="
