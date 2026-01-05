@@ -1,3 +1,4 @@
+// src/lib/schemaGenerator.ts
 import { cleanText } from '@/utils/sanity-text'; 
 
 // --- CONFIGURATION ---
@@ -297,6 +298,8 @@ export function generateSchema(data: any) {
       return {
         '@context': 'https://schema.org',
         '@type': 'ItemList',
+        name: cleanText(data.seo?.metaTitle || data.title), 
+        description: cleanText(data.seo?.metaDescription || data.intro),
         itemListOrder: 'https://schema.org/ItemListOrderDescending',
         numberOfItems: data.listItems?.length || 0,
         itemListElement: data.listItems?.map((item: any, index: number) => {
