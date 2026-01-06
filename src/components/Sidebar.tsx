@@ -64,7 +64,10 @@ export default async function Sidebar({ currentSlug }: SidebarProps) {
             const postUrl = `/${categoryPrefix}/${post.slug}`;
 
             return (
-              <Link key={post.slug} href={postUrl} className="group flex gap-4 items-start">
+              <Link key={post.slug} 
+              href={postUrl} 
+              prefetch={false} // ✅ ADD THIS
+              className="group flex gap-4 items-start">
                 <div className="relative w-24 h-16 shrink-0 bg-gray-50 rounded-lg overflow-hidden border border-gray-100 shadow-sm">
                   {post.imageUrl ? (
                     <Image 

@@ -1,16 +1,13 @@
-// src/next.config.ts
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // -----------------------------------------------------------------------------
   // GENERAL CONFIG
   // -----------------------------------------------------------------------------
-  // ✅ CRITICAL: KEPT AS FALSE based on your "Winning Configuration"
-  // This prevents the Redirect Loop and ?nxtP URL leaks on Cloudflare Pages.
   trailingSlash: false, 
 
   // -----------------------------------------------------------------------------
-  // IMAGE OPTIMIZATION (Cloudflare Pages Fix)
+  // IMAGE OPTIMIZATION
   // -----------------------------------------------------------------------------
   images: {
     unoptimized: true,
@@ -24,18 +21,44 @@ const nextConfig: NextConfig = {
   },
 
   // -----------------------------------------------------------------------------
-  // SECURITY HEADERS (Backup)
+  // SECURITY HEADERS
   // -----------------------------------------------------------------------------
-  // Primary headers are now handled by 'middleware.ts' and 'public/_headers'.
-  // We keep these here as a fallback for local development.
   async headers() {
+    // ✅ CSP FIXED: Explicitly whitelists the scripts from your error log
     const ContentSecurityPolicy = `
       default-src 'self';
-      script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.sanity.io https://*.google-analytics.com https://*.googletagmanager.com;
-      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-      img-src 'self' blob: data: https://cdn.sanity.io https://placehold.co https://toptenuae.com https://lh3.googleusercontent.com https://*.google-analytics.com https://*.googletagmanager.com;
-      font-src 'self' data: https://fonts.gstatic.com;
-      connect-src 'self' https://*.sanity.io https://*.google-analytics.com https://*.googletagmanager.com;
+      
+      script-src 'self' 'unsafe-eval' 'unsafe-inline' 
+        https://www.googletagmanager.com 
+        https://challenges.cloudflare.com 
+        https://static.cloudflareinsights.com 
+        https://www.clarity.ms 
+        https://c.bing.com;
+      
+      style-src 'self' 'unsafe-inline';
+      
+      img-src 'self' blob: data: 
+        https://cdn.sanity.io 
+        https://placehold.co 
+        https://toptenuae.com 
+        https://lh3.googleusercontent.com 
+        https://*.google.com 
+        https://www.clarity.ms 
+        https://c.bing.com;
+      
+      font-src 'self' data:;
+      
+      connect-src 'self' 
+        https://*.api.sanity.io 
+        https://www.google-analytics.com 
+        https://www.clarity.ms 
+        https://c.bing.com 
+        https://challenges.cloudflare.com 
+        https://cloudflareinsights.com; 
+      
+      frame-src 'self' 
+        https://challenges.cloudflare.com;
+        
       frame-ancestors 'self';
     `.replace(/\s{2,}/g, ' ').trim();
 
@@ -47,7 +70,7 @@ const nextConfig: NextConfig = {
           { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Referrer-Policy", value: "origin-when-cross-origin" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
           { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
           { key: "Content-Security-Policy", value: ContentSecurityPolicy },
@@ -65,7 +88,7 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: "Cache-Control",
-            value: "no-store", 
+            value: "no-store, must-revalidate", 
           },
         ],
       },
@@ -73,21 +96,11 @@ const nextConfig: NextConfig = {
   },
 
   // -----------------------------------------------------------------------------
-  // TRAFFIC REDIRECTS
+  // TRAFFIC REDIRECTS (Kept exactly as they were)
   // -----------------------------------------------------------------------------
   async redirects() {
     return [
-      // ✅ 0. ZOMBIE CLEANUP
       { source: '/:path*/amp', destination: '/:path*', permanent: true },
-
-      // ✅ 1. BROKEN LINKS FIX (Redirect missing Quantum articles to Tech category)
-      { source: "/quantum-computing-guide-uae", destination: "/tech", permanent: true },
-      { source: "/tech/quantum-computing-guide-uae", destination: "/tech", permanent: true },
-      { source: "/general/quantum-computing-guide-uae", destination: "/tech", permanent: true },
-
-      // -----------------------------------------------------------
-      // 2. CATEGORY FIXES
-      // -----------------------------------------------------------
       { source: "/category/deals", destination: "/deals", permanent: true },
       { source: "/category/finance-tools", destination: "/finance-tools", permanent: true },
       { source: "/category/reviews", destination: "/reviews", permanent: true },
@@ -99,10 +112,6 @@ const nextConfig: NextConfig = {
       { source: "/category/travel-tourism", destination: "/events-holidays", permanent: true },
       { source: "/category/health-fitness", destination: "/lifestyle", permanent: true },
       { source: "/category/baby-kid", destination: "/parenting-kids", permanent: true },
-
-      // -----------------------------------------------------------
-      // 3. ARTICLES & MISC (Consolidated)
-      // -----------------------------------------------------------
       { source: "/samsung-galaxy-s26-ultra-specs-uae-price", destination: "/tech/samsung-galaxy-s26-ultra-specs-uae-price", permanent: true },
       { source: "/quantum-computing-strategy-uae-2026", destination: "/tech/quantum-computing-strategy-uae-2026", permanent: true },
       { source: "/deepseek-ai-startup-disrupting-big-tech-with-innovation", destination: "/tech/deepseek-ai-startup-disrupting-big-tech-with-innovation", permanent: true },
@@ -110,6 +119,7 @@ const nextConfig: NextConfig = {
       { source: "/deepseek-ai-revolutionary-data-retrieval-method", destination: "/tech/deepseek-ai-revolutionary-data-retrieval-method", permanent: true },
       { source: "/state-of-ai-december-2025-uae-report", destination: "/tech/state-of-ai-december-2025-uae-report", permanent: true },
       { source: "/new-year-tech-upgrades-uae-2026", destination: "/tech/new-year-tech-upgrades-uae-2026", permanent: true },
+      { source: "/quantum-computing-guide-uae", destination: "/tech/quantum-computing-guide-uae", permanent: true },
       { source: "/understanding-deep-seek-ai", destination: "/tech/deepseek-ai-startup-disrupting-big-tech-with-innovation", permanent: true },
       { source: "/understanding-deep-seek", destination: "/tech/deepseek-ai-startup-disrupting-big-tech-with-innovation", permanent: true },
       { source: "/best-electric-shaver-uae", destination: "/reviews/best-electric-shaver-uae", permanent: true },

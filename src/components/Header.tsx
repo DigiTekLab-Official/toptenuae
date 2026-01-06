@@ -74,6 +74,7 @@ export default function Header() {
                   <Link
                     key={link.name}
                     href={link.href} // ✅ Correct: Uses simple string URL
+                    prefetch={false} // ✅ ADD THIS: Stops the 404 RSC Error
                     className={`
                       text-sm font-bold uppercase tracking-wide transition-colors whitespace-nowrap flex items-center gap-1
                       ${link.isHighlight 
