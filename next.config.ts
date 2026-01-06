@@ -125,8 +125,10 @@ const nextConfig: NextConfig = {
       { source: "/state-of-ai-december-2025-uae-report", destination: "/tech/state-of-ai-december-2025-uae-report", permanent: true },
       { source: "/new-year-tech-upgrades-uae-2026", destination: "/tech/new-year-tech-upgrades-uae-2026", permanent: true },
       // ✅ 404 FIX: Ensure this destination exists in Sanity or redirect to /tech if deleted
-      { source: "/quantum-computing-guide-uae", destination: "/tech/quantum-computing-guide-uae", permanent: true },
-      
+      { source: "/quantum-computing-guide-uae", destination: "/tech", permanent: true },
+      { source: "/tech/quantum-computing-guide-uae", destination: "/tech", permanent: true },
+      { source: "/general/quantum-computing-guide-uae", destination: "/tech", permanent: true },
+
       // New from GSC Logs:
       { source: "/understanding-deep-seek-ai", destination: "/tech/deepseek-ai-startup-disrupting-big-tech-with-innovation", permanent: true },
       { source: "/understanding-deep-seek", destination: "/tech/deepseek-ai-startup-disrupting-big-tech-with-innovation", permanent: true },
