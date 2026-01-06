@@ -6,16 +6,11 @@ import Image from "next/image";
 import ComparisonSummaryTable from "./ComparisonSummaryTable";
 import DisclaimerBlock from "../ui/DisclaimerBlock"; 
 import PortableText from "@/components/PortableText";
-import {
-  ArrowDown,
-  Shield,
-} from "lucide-react";
+import { ArrowDown, Shield } from "lucide-react";
 import FAQAccordion from "@/components/FAQAccordion";
 import AffiliateDisclosure from "../ui/AffiliateDisclosure";
 import LogoIcon from "@/components/icons/LogoIcon";
 import { discoverImage } from "@/sanity/lib/image";
-
-// ✅ IMPORT THE NEW SAFE PRODUCT CARD
 import ProductCard from "../ui/ProductCard"; 
 
 // --- 1. INTERFACES ---
@@ -32,7 +27,6 @@ interface TopTenData {
   showAffiliateDisclosure?: boolean;
 }
 
-// ✅ UPDATED: Matches your new 'product.ts' schema exactly
 interface Product {
   title: string;
   slug?: string;
@@ -48,8 +42,6 @@ interface Product {
   customerRating?: number;
   ratingCount?: number;   
   heroFeature?: string; 
-  
-  // 🔥 NEW FIELDS
   price?: number;         
   currency?: string;      
   availability?: string;  
@@ -89,9 +81,9 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
   const isMedicalPost = hasMedicalKeywords && !isElectronicDevice;
 
   return (
-    <div className="w-full">
-      
-      {/* 🗑️ REMOVED DUPLICATE SCHEMA: Handled globally in page.tsx now */}
+    // ✅ CRITICAL FIX 1: 'min-w-0'
+    // This allows the container to shrink in a Flex layout (solving the sidebar collision)
+    <div className="w-full min-w-0">
       
       {/* TOP DISCLAIMER */}
       {showDisclaimer && (
@@ -121,7 +113,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
           </h2>
           <nav className="flex flex-wrap gap-2">
             {data.listItems
-              .filter((item) => item.product?.title) // Safety check
+              .filter((item) => item.product?.title)
               .map((item) => (
                 <a
                   key={item._key}
@@ -161,10 +153,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
             <div className="flex flex-col gap-8">
               {data.listItems.map((item) => (
                 <React.Fragment key={item._key}>
-                  {/* ✅ USES THE NEW IMPORTED PRODUCT CARD */}
                   <ProductCard item={item} />
-                  
-                  {/* Visual Divider */}
                   <div className="flex items-center justify-center py-2 opacity-40">
                     <div className="w-12 h-1 bg-gray-200 rounded-full"></div>
                   </div>
@@ -176,7 +165,13 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
 
         {/* COMPARISON TABLE */}
         {data.listItems && data.listItems.length > 0 && (
-          <ComparisonSummaryTable items={data.listItems} />
+          // ✅ CRITICAL FIX 2: Wrapper for Table Overflow
+          // This forces the table to scroll internally on Tablet/Mobile
+          <div className="w-full overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0">
+             <div className="min-w-[600px]"> {/* Ensures table doesn't get squished too small */}
+               <ComparisonSummaryTable items={data.listItems} />
+             </div>
+          </div>
         )}
 
         {/* CLOSING CONTENT */}

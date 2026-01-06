@@ -1,3 +1,4 @@
+// src/app/layout.tsx
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { IBM_Plex_Sans } from "next/font/google";

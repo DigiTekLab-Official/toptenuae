@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Clock, TrendingUp, ShieldCheck } from "lucide-react";
 
-// ✅ UPDATED QUERY: Fetches category slug for correct link building
+// Query remains the same...
 const SIDEBAR_QUERY = `
   *[_type in ["topTenList", "howTo", "post"] && slug.current != $currentSlug]
   | order(publishedAt desc)[0...5] {
@@ -21,11 +21,15 @@ interface SidebarProps {
   categorySlug?: string;
 }
 
-export default async function Sidebar({ currentSlug, categorySlug }: SidebarProps) {
+export default async function Sidebar({ currentSlug }: SidebarProps) {
   const recentPosts = await client.fetch(SIDEBAR_QUERY, { currentSlug });
 
   return (
-    <aside className="w-full lg:w-80 shrink-0 space-y-8 mt-8 lg:mt-0">
+    // FIX: 
+    // 1. 'w-full': Full width on mobile/tablet (stacks at bottom)
+    // 2. 'lg:w-80': Fixed width ONLY on Large Screens (1024px+)
+    // 3. 'shrink-0': Prevents it from shrinking if content is wide
+    <aside className="w-full lg:w-80 shrink-0 space-y-8 mt-12 lg:mt-0">
       
       {/* WIDGET 1: TRUST SIGNAL */}
       <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm relative overflow-hidden">
@@ -33,7 +37,7 @@ export default async function Sidebar({ currentSlug, categorySlug }: SidebarProp
         
         <div className="flex items-center gap-4 mb-4 relative z-10">
            <div className="w-14 h-14 bg-gray-50 rounded-full flex items-center justify-center overflow-hidden border-2 border-white shadow-md">
-              <ShieldCheck className="w-7 h-7 text-primary" />
+              <ShieldCheck className="w-7 h-7 text-[#4b0082]" />
            </div>
            <div>
               <h3 className="font-bold text-gray-900 leading-tight">Editorial Team</h3>
@@ -47,7 +51,8 @@ export default async function Sidebar({ currentSlug, categorySlug }: SidebarProp
       </div>
 
       {/* WIDGET 2: TRENDING POSTS */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm sticky top-24">
+      {/* Sticky only on Desktop (lg) */}
+      <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm lg:sticky lg:top-24">
         <div className="flex items-center gap-2 mb-6 border-b border-gray-100 pb-3">
           <TrendingUp className="w-5 h-5 text-[#4b0082]" />
           <h3 className="font-bold text-gray-900 uppercase tracking-widest text-sm">Trending Now</h3>
@@ -55,14 +60,11 @@ export default async function Sidebar({ currentSlug, categorySlug }: SidebarProp
         
         <div className="flex flex-col gap-6">
           {recentPosts.map((post: any) => {
-            // ✅ LOGIC FIX: Determine the correct folder path
             const categoryPrefix = post.category ? post.category : 'reviews';
             const postUrl = `/${categoryPrefix}/${post.slug}`;
 
             return (
               <Link key={post.slug} href={postUrl} className="group flex gap-4 items-start">
-                
-                {/* Thumbnail */}
                 <div className="relative w-24 h-16 shrink-0 bg-gray-50 rounded-lg overflow-hidden border border-gray-100 shadow-sm">
                   {post.imageUrl ? (
                     <Image 
@@ -70,7 +72,7 @@ export default async function Sidebar({ currentSlug, categorySlug }: SidebarProp
                       alt={post.title} 
                       fill 
                       className="object-cover group-hover:scale-110 transition-transform duration-500"
-                      sizes="100px"
+                      sizes="(max-width: 768px) 100px, 200px"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-gray-300">
@@ -79,18 +81,16 @@ export default async function Sidebar({ currentSlug, categorySlug }: SidebarProp
                   )}
                 </div>
                 
-                {/* Text */}
                 <div className="flex flex-col py-0.5">
-                  <h4 className="text-sm font-bold text-gray-800 group-hover:text-primary transition-colors line-clamp-2 leading-snug mb-1.5">
+                  <h4 className="text-sm font-bold text-gray-800 group-hover:text-[#4b0082] transition-colors line-clamp-2 leading-snug mb-1.5">
                     {post.title}
                   </h4>
                   {post.publishedAt && (
                      <div className="flex items-center gap-1.5 text-[12px] text-gray-500 uppercase tracking-wider font-bold">
                         <Clock className="w-4 h-4" />
-                        {/* ✅ HYDRATION FIX: Use <time> tag with suppressHydrationWarning to stop image crashes */}
                         <time suppressHydrationWarning>
                           {new Date(post.publishedAt).toLocaleDateString("en-AE", { 
-                            timeZone: "Asia/Dubai", // Forces consistent timezone (Server vs Client)
+                            timeZone: "Asia/Dubai",
                             month: 'short', 
                             day: 'numeric', 
                             year: 'numeric' 
@@ -104,7 +104,6 @@ export default async function Sidebar({ currentSlug, categorySlug }: SidebarProp
           })}
         </div>
       </div>
-
     </aside>
   );
 }

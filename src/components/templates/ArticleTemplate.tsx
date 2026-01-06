@@ -22,14 +22,13 @@ interface ArticleData {
 
 export default function ArticleTemplate({ data }: { data: ArticleData }) {
   const heroImageUrl = (data.mainImage ? discoverImage(data.mainImage) : null) ?? null;
-  
-  // 🗑️ REMOVED: Local Schema Generation (Handled globally in page.tsx)
 
   return (
-    <article className="w-full bg-white">
+    // ✅ FIX: Added 'min-w-0'. 
+    // This allows the flex item to shrink properly, preventing it from 
+    // breaking the Sidebar layout on Tablet screens.
+    <article className="w-full bg-white min-w-0">
       
-      {/* NOTE: Title, Date, and Breadcrumbs removed to prevent duplication. */}
-
       <div className="max-w-none pb-12">
         
         {/* Main Image */}
@@ -47,15 +46,14 @@ export default function ArticleTemplate({ data }: { data: ArticleData }) {
         )}
 
         {/* Body Content */}
-        {/* Handles both 'body' (for articles) and 'intro' (fallback) */}
-        <div className="prose prose-lg prose-headings:text-primary prose-a:text-primary max-w-none text-gray-700 leading-relaxed">
+        {/* Added 'break-words' to ensure long URLs don't break layout */}
+        <div className="prose prose-lg prose-headings:text-primary prose-a:text-primary max-w-none text-gray-700 leading-relaxed break-words">
           <PortableText value={data.body || data.intro} />
         </div>
 
         {/* --- 2. FAQ SECTION --- */}
         {data.faqs && data.faqs.length > 0 && (
           <div className="mt-16 pt-10 border-t border-gray-100">
-             {/* Header for accessibility/SEO */}
             <FAQAccordion faqs={data.faqs} />
           </div>
         )}
