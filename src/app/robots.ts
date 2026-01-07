@@ -3,14 +3,19 @@ import { MetadataRoute } from 'next';
 export default function robots(): MetadataRoute.Robots {
   const baseUrl = process.env.baseUrl || 'https://toptenuae.com';
 
-  // 1. Consolidated Block List (Security & Admin)
-  // Removed duplicates like '/studio/' vs '/studio' as crawlers handle both.
+  // 1. Consolidated Block List (Security, Admin & Junk)
+  // We added blocks for feeds and query parameters to save crawl budget.
   const sharedDisallow = [
     '/studio',        // Sanity Studio
     '/api/',          // API Routes
-    '/search',        // Internal Search to prevent infinite loops
+    '/search',        // Internal Search (infinite loops)
     '/admin',         // Admin areas
     '/private',       // Protected content
+    '/webmail',       // Block subfolder access if it exists
+    '/feed/',         // Block RSS feeds (duplicate content)
+    '/rss/',          // Block RSS
+    '/comments/feed/',// Block comment feeds
+    '/*?',            // CRITICAL: Block all query parameters (filtering/sorting) to prevent duplicate URLs
   ];
 
   return {
@@ -26,7 +31,6 @@ export default function robots(): MetadataRoute.Robots {
 
       // ---------------------------------------------------------------------------
       // RULE 2: The "AI VIP List" (Explicitly Authorized)
-      // We list these separately to ensure they know they are welcome.
       // ---------------------------------------------------------------------------
       
       // --- OpenAI (ChatGPT) ---

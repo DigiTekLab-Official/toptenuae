@@ -1,13 +1,26 @@
-// src/app/sitemap.ts
 import { MetadataRoute } from 'next';
 import { client } from '@/sanity/lib/client';
 
+// Helper to map old Sanity categories to your new Next.js structure
+// This ensures the sitemap points to the FINAL URL, not a redirect.
+const normalizeCategory = (slug: string) => {
+  const map: Record<string, string> = {
+    'travel-tourism': 'events-holidays',
+    'health-fitness': 'lifestyle',
+    'baby-kid': 'parenting-kids',
+    'buyers-guide': 'reviews',
+    'deals': 'deals', // ensure these exist
+    'tech': 'tech',
+  };
+  return map[slug] || slug;
+};
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // Ensure no trailing slash in base URL to avoid double slashes at the start
+  // Ensure no trailing slash in base URL
   const baseUrl = (process.env.baseUrl || 'https://toptenuae.com').replace(/\/$/, '');
 
   // 🔹 1. Static Core Pages
-  // STRATEGY: I removed '/thank-you' because we do NOT want Google to index that page.
+  // FIX: Removed logic for adding trailing slashes to match trailingSlash: false
   const staticRoutes = [
     '', // Homepage
     '/ramadan-2026',
@@ -19,11 +32,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/disclaimer',
     '/cookies-policy',
   ].map((route) => ({
-    // ✅ Note: It will automatically get the trailing slash: /ramadan-2026/
-    url: `${baseUrl}${route}/`, 
+    url: `${baseUrl}${route}`, // ✅ No slash at end
     lastModified: new Date(),
     changeFrequency: route === '/ramadan-2026' ? 'daily' as const : 'monthly' as const,
-    priority: route === '/ramadan-2026' ? 1.0 : (route === '' ? 1.0 : 0.4), // 🌟 Give it max priority
+    priority: route === '/ramadan-2026' ? 1.0 : (route === '' ? 1.0 : 0.4),
   }));
 
   // 🔹 2. Category Hub Pages
@@ -39,36 +51,37 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   const categoryRoutes = categorySlugs.map((slug) => ({
-    // ✅ FIX: Added trailing slash
-    url: `${baseUrl}/${slug}/`,
+    url: `${baseUrl}/${slug}`, // ✅ No slash at end
     lastModified: new Date(),
     changeFrequency: 'daily' as const,
     priority: 0.8, // High priority (Hubs)
   }));
 
   // 🔹 3. Dynamic Content (Posts, Tools, Deals)
+  // Fetching all content types
   const posts = await client.fetch(`
     *[
-      _type in ["topTenList", "howTo", "tool", "holiday", "deal", "article", "post"]
+      _type in ["topTenList", "howTo", "tool", "holiday", "deal", "article", "post", "product"]
       && defined(slug.current)
     ]{
       "slug": slug.current,
-      "category": categories[0]->slug.current,
+      "category": coalesce(categories[0]->slug.current, category->slug.current),
       _updatedAt
     }
   `);
 
   const postRoutes = posts.map((post: any) => {
-    // STRATEGY: "reviews" is a better fallback keyword than "uncategorized".
-    // It keeps the URL looking authoritative even if a category is missing.
-    const categorySlug = post.category || 'reviews';
+    // 1. Get raw category from Sanity
+    const rawCategory = post.category || 'reviews';
+    
+    // 2. Normalize it (fix old categories like 'travel-tourism' -> 'events-holidays')
+    const categorySlug = normalizeCategory(rawCategory);
 
     return {
-      // ✅ FIX: Added trailing slash
-      url: `${baseUrl}/${categorySlug}/${post.slug}/`,
+      url: `${baseUrl}/${categorySlug}/${post.slug}`, // ✅ No slash at end
       lastModified: new Date(post._updatedAt),
       changeFrequency: 'weekly' as const,
-      priority: 0.9, // Very High priority (This is your money content)
+      priority: 0.9, 
     };
   });
 
