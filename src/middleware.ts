@@ -6,8 +6,7 @@ import type { NextRequest } from 'next/server';
 // -----------------------------------------------------------------------------
 export const config = {
   matcher: [
-    // Standard exclusions + your custom files (icons, robots, sitemap)
-    // ADDED: apple-icon.png to prevent unnecessary processing
+    // Standard exclusions + your custom files
     '/((?!api|_next/static|_next/image|favicon.ico|icon.svg|icon-v2.svg|apple-icon.png|robots.txt|sitemap.xml).*)',
   ],
 };
@@ -16,9 +15,8 @@ export const config = {
 // MIDDLEWARE LOGIC
 // -----------------------------------------------------------------------------
 export function middleware(request: NextRequest) {
-  // 1. CRITICAL FIX: Bypass middleware for Next.js internal RSC requests
-  // This "Guard Clause" stops the middleware from processing or blocking 
-  // the prefetch requests, which is the root cause of the 404 errors.
+  // 1. FIX: Bypass middleware for Next.js internal RSC requests
+  // This prevents the 404 errors for internal fetches
   if (request.nextUrl.searchParams.has('_rsc')) {
     return NextResponse.next();
   }
@@ -26,7 +24,7 @@ export function middleware(request: NextRequest) {
   const response = NextResponse.next();
   
   // 2. DEFINE CSP (Content Security Policy)
-  // "unsafe-inline" is included to prevent breaking Sanity images or Google Tools.
+  // UPDATED: Used "*.clarity.ms" to prevent (blocked:csp) errors
   const csp = `
     default-src 'self';
 
@@ -36,8 +34,7 @@ export function middleware(request: NextRequest) {
       https://www.google-analytics.com
       https://static.cloudflareinsights.com
       https://challenges.cloudflare.com
-      https://www.clarity.ms
-      https://c.clarity.ms;
+      https://*.clarity.ms;
 
     style-src 'self' 'unsafe-inline'
       https://fonts.googleapis.com;
@@ -48,7 +45,7 @@ export function middleware(request: NextRequest) {
       https://toptenuae.com
       https://lh3.googleusercontent.com
       https://www.google-analytics.com
-      https://c.clarity.ms;
+      https://*.clarity.ms;
 
     font-src 'self' data:
       https://fonts.gstatic.com;
@@ -57,8 +54,7 @@ export function middleware(request: NextRequest) {
       https://*.sanity.io
       https://www.google-analytics.com
       https://www.googletagmanager.com
-      https://www.clarity.ms
-      https://c.clarity.ms
+      https://*.clarity.ms
       https://cloudflareinsights.com;
 
     frame-src 'self'
@@ -68,7 +64,7 @@ export function middleware(request: NextRequest) {
   `.replace(/\s{2,}/g, ' ').trim();
 
 
-  // 3. SET SECURITY HEADERS (Forces "Best Practices" Score to 100)
+  // 3. SET SECURITY HEADERS
   response.headers.set('X-DNS-Prefetch-Control', 'on');
   response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
   response.headers.set('X-Frame-Options', 'SAMEORIGIN');
