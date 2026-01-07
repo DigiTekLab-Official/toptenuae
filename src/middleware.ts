@@ -28,14 +28,43 @@ export function middleware(request: NextRequest) {
   // 2. DEFINE CSP (Content Security Policy)
   // "unsafe-inline" is included to prevent breaking Sanity images or Google Tools.
   const csp = `
-    default-src 'self';
-    script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.sanity.io https://*.google-analytics.com https://*.googletagmanager.com;
-    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-    img-src 'self' blob: data: https://cdn.sanity.io https://placehold.co https://toptenuae.com https://lh3.googleusercontent.com https://*.google-analytics.com https://*.googletagmanager.com;
-    font-src 'self' data: https://fonts.gstatic.com;
-    connect-src 'self' https://*.sanity.io https://*.google-analytics.com https://*.googletagmanager.com;
-    frame-ancestors 'self';
-  `.replace(/\s{2,}/g, ' ').trim();
+  default-src 'self';
+
+  script-src 'self' 'unsafe-eval' 'unsafe-inline'
+    https://cdn.sanity.io
+    https://www.googletagmanager.com
+    https://www.google-analytics.com
+    https://static.cloudflareinsights.com
+    https://challenges.cloudflare.com
+    https://www.clarity.ms;
+
+  style-src 'self' 'unsafe-inline'
+    https://fonts.googleapis.com;
+
+  img-src 'self' blob: data:
+    https://cdn.sanity.io
+    https://placehold.co
+    https://toptenuae.com
+    https://lh3.googleusercontent.com
+    https://www.google-analytics.com
+    https://c.clarity.ms;
+
+  font-src 'self' data:
+    https://fonts.gstatic.com;
+
+  connect-src 'self'
+    https://*.sanity.io
+    https://www.google-analytics.com
+    https://www.googletagmanager.com
+    https://c.clarity.ms
+    https://www.clarity.ms
+    https://cloudflareinsights.com;
+
+  frame-src 'self'
+    https://challenges.cloudflare.com;
+
+  frame-ancestors 'self';
+`.replace(/\s{2,}/g, ' ').trim();
 
   // 3. SET SECURITY HEADERS (Forces "Best Practices" Score to 100)
   response.headers.set('X-DNS-Prefetch-Control', 'on');

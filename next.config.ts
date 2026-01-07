@@ -1,3 +1,4 @@
+// next.config.ts
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -21,10 +22,10 @@ const nextConfig: NextConfig = {
   },
 
   // -----------------------------------------------------------------------------
-  // SECURITY HEADERS
+  // SECURITY HEADERS (CSP)
   // -----------------------------------------------------------------------------
   async headers() {
-    // ✅ CSP FIXED: Explicitly whitelists the scripts from your error log
+    // ✅ CSP FIXED: Whitelists Clarity, GTM, Sanity, and Cloudflare
     const ContentSecurityPolicy = `
       default-src 'self';
       
@@ -33,7 +34,8 @@ const nextConfig: NextConfig = {
         https://challenges.cloudflare.com 
         https://static.cloudflareinsights.com 
         https://www.clarity.ms 
-        https://c.bing.com;
+        https://c.bing.com
+        https://c.clarity.ms;
       
       style-src 'self' 'unsafe-inline';
       
@@ -44,7 +46,9 @@ const nextConfig: NextConfig = {
         https://lh3.googleusercontent.com 
         https://*.google.com 
         https://www.clarity.ms 
-        https://c.bing.com;
+        https://c.bing.com
+        https://c.clarity.ms
+        https://www.google-analytics.com;
       
       font-src 'self' data:;
       
@@ -53,8 +57,10 @@ const nextConfig: NextConfig = {
         https://www.google-analytics.com 
         https://www.clarity.ms 
         https://c.bing.com 
+        https://c.clarity.ms
         https://challenges.cloudflare.com 
-        https://cloudflareinsights.com; 
+        https://cloudflareinsights.com
+        https://www.googletagmanager.com; 
       
       frame-src 'self' 
         https://challenges.cloudflare.com;
