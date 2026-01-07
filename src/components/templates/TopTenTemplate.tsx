@@ -10,7 +10,7 @@ import { ArrowDown, Shield } from "lucide-react";
 import FAQAccordion from "@/components/FAQAccordion";
 import AffiliateDisclosure from "../ui/AffiliateDisclosure";
 import LogoIcon from "@/components/icons/LogoIcon";
-import { discoverImage } from "@/sanity/lib/image";
+// 🗑️ DELETED: discoverImage (We use direct URL from query)
 import ProductCard from "../ui/ProductCard"; 
 
 // --- 1. INTERFACES ---
@@ -19,7 +19,8 @@ interface TopTenData {
   intro: any; 
   body: any; 
   closingContent?: any;
-  mainImage?: any;
+  // ✅ UPDATE: Matches the GROQ query structure
+  mainImage?: { url: string; alt?: string }; 
   category?: string;
   publishedAt?: string;
   faqs?: { _key: string; question: string; answer: string }[];
@@ -58,10 +59,11 @@ interface ListItem {
 
 // --- MAIN TEMPLATE ---
 export default function TopTenTemplate({ data }: { data: TopTenData }) {
-  const heroImageUrl = data.mainImage ? discoverImage(data.mainImage) : null;
+  // ✅ FIX: Use direct URL to prevent helper function crashes
+  const heroImageUrl = data.mainImage?.url || null;
   const showDisclaimer = (data.showAffiliateDisclosure ?? true);
 
-  // SMART DETECTION LOGIC
+  // SMART DETECTION LOGIC (Medical vs General)
   const checkText = (data.title + " " + (data.category || "")).toLowerCase();
 
   const hasMedicalKeywords = 
@@ -81,8 +83,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
   const isMedicalPost = hasMedicalKeywords && !isElectronicDevice;
 
   return (
-    // ✅ CRITICAL FIX 1: 'min-w-0'
-    // This allows the container to shrink in a Flex layout (solving the sidebar collision)
+    // ✅ CRITICAL FIX: 'min-w-0' prevents flexbox overflow
     <div className="w-full min-w-0">
       
       {/* TOP DISCLAIMER */}
@@ -92,11 +93,14 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
         </div>
       )}
 
+      {/* HERO IMAGE */}
+      {/* Note: This renders ONLY if ArticleView didn't already render it. 
+          If you want to enforce it here, ensure ArticleView excludes topTenList from its header logic. */}
       {heroImageUrl && (
         <div className="relative w-full aspect-[3/2] lg:aspect-[16/9] overflow-hidden rounded-xl shadow-lg mb-8">
           <Image
             src={heroImageUrl}
-            alt={data.title}
+            alt={data.mainImage?.alt || data.title}
             fill
             priority
             className="object-cover hover:scale-105 transition-transform duration-700"
@@ -105,7 +109,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
         </div>
       )}
 
-      {/* QUICK NAVIGATION */}
+      {/* QUICK NAVIGATION (Jump Links) */}
       {data.listItems && data.listItems.length > 0 && (
         <div className="mb-8 p-4 bg-gray-50/50 border border-gray-100 rounded-2xl">
           <h2 className="text-sm font-bold text-gray-800 uppercase tracking-widest mb-2 flex items-center gap-2 ml-1">
@@ -117,10 +121,10 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
               .map((item) => (
                 <a
                   key={item._key}
-                  href={`#item-${item.rank}`}
-                  className="group flex items-center gap-2 pl-2 pr-3 py-1.5 bg-violet-200 border border-gray-200 rounded-full shadow-sm hover:shadow-md hover:border-primary/30 transition-all duration-200"
+                  href={`#item-${item.rank}`} // ⚠️ REQUIREMENT: ProductCard must have id={`item-${item.rank}`}
+                  className="group flex items-center gap-2 pl-2 pr-3 py-1.5 bg-primary-100 border border-primary-200 rounded-full shadow-sm hover:shadow-md hover:bg-primary-50 transition-all duration-200"
                 >
-                  <span className="bg-primary/10 text-primary text-sm font-black w-5 h-5 flex items-center justify-center rounded-full group-hover:bg-primary group-hover:text-white transition-colors">
+                  <span className="bg-primary text-white text-xs font-black w-5 h-5 flex items-center justify-center rounded-full">
                     {item.rank}
                   </span>
                   <span className="text-sm font-bold text-gray-700 group-hover:text-primary transition-colors line-clamp-1 max-w-[150px]">
@@ -153,6 +157,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
             <div className="flex flex-col gap-8">
               {data.listItems.map((item) => (
                 <React.Fragment key={item._key}>
+                  {/* Pass rank to ProductCard for ID generation */}
                   <ProductCard item={item} />
                   <div className="flex items-center justify-center py-2 opacity-40">
                     <div className="w-12 h-1 bg-gray-200 rounded-full"></div>
@@ -165,10 +170,9 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
 
         {/* COMPARISON TABLE */}
         {data.listItems && data.listItems.length > 0 && (
-          // ✅ CRITICAL FIX 2: Wrapper for Table Overflow
-          // This forces the table to scroll internally on Tablet/Mobile
+          // ✅ FIX: Overflow wrapper handles tables on mobile nicely
           <div className="w-full overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0">
-             <div className="min-w-[600px]"> {/* Ensures table doesn't get squished too small */}
+             <div className="min-w-[600px]"> 
                <ComparisonSummaryTable items={data.listItems} />
              </div>
           </div>

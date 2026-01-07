@@ -92,6 +92,16 @@ export default function RootLayout({
         className={`${ibmPlexSans.className} ${ibmPlexSans.variable} font-sans text-slate-900 bg-slate-50 antialiased min-h-screen flex flex-col overflow-x-hidden`}
         suppressHydrationWarning={true}
       >
+        {/* ✅ ADDED: GTM NoScript Fallback (Standard Implementation) */}
+        <noscript>
+          <iframe 
+            src="https://www.googletagmanager.com/ns.html?id=GTM-N3PB47W"
+            height="0" 
+            width="0" 
+            style={{ display: 'none', visibility: 'hidden' }}
+          />
+        </noscript>
+
         {/* Inject JSON-LD Script */}
         <script
           type="application/ld+json"

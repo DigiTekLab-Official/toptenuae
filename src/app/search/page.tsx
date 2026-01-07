@@ -1,3 +1,4 @@
+// src/app/search/page.tsx
 import { client } from "@/sanity/lib/client";
 import Link from "next/link";
 import Image from "next/image";
@@ -8,16 +9,26 @@ import { Metadata } from "next";
 export const runtime = 'edge';
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({
-  searchParams,
-}: {
-  searchParams: Promise<{ q: string }>;
-}): Promise<Metadata> {
+// ✅ Define a proper type for your Search Results
+interface SearchResult {
+  title: string;
+  slug: string;
+  imageUrl: string | null;
+  publishedAt: string | null;
+  categories: string[] | null;
+  intro: any; // Can be string or Portable Text array
+}
+
+type Props = {
+  searchParams: Promise<{ q?: string }>;
+};
+
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const { q } = await searchParams;
   return {
     title: `Search Results for "${q || ""}" | Top Ten UAE`,
     description: `Search results for ${q} on TopTenUAE.`,
-    robots: "noindex, follow",
+    robots: "noindex, follow", // Good practice for internal search pages
   };
 }
 
@@ -32,8 +43,6 @@ const SEARCH_QUERY = `
       title match ["* " + $term + " *", $term + " *", "* " + $term, $term] ||
       pt::text(intro) match ["* " + $term + " *", $term + " *", "* " + $term, $term] ||
       pt::text(body) match ["* " + $term + " *", $term + " *", "* " + $term, $term] ||
-      
-      // ✅ Check inside the 'categories' array with word boundaries
       categories[]->title match ["* " + $term + " *", $term + " *", "* " + $term, $term]
     )
   ] {
@@ -41,18 +50,13 @@ const SEARCH_QUERY = `
     "slug": slug.current,
     "imageUrl": mainImage.asset->url,
     publishedAt,
-    
-    // ✅ FIX 2: Fetch array of titles
     "categories": categories[]->title,
-    
     intro,
     _type,
     "score": (
       select(title match ["* " + $term + " *", $term + " *", "* " + $term, $term] => 4, 0) +
       select(pt::text(intro) match ["* " + $term + " *", $term + " *", "* " + $term, $term] => 3, 0) +
       select(pt::text(body) match ["* " + $term + " *", $term + " *", "* " + $term, $term] => 2, 0) +
-      
-      // ✅ Score boost if category matches with word boundaries
       select(categories[]->title match ["* " + $term + " *", $term + " *", "* " + $term, $term] => 1, 0)
     )
   } | order(score desc, publishedAt desc)
@@ -66,23 +70,20 @@ const formatDate = (date: string) =>
     year: "numeric",
   });
 
-type Props = {
-  searchParams: Promise<{ q?: string }>;
-};
-
 export default async function SearchPage({ searchParams }: Props) {
   const resolvedParams = await searchParams;
   const query = (resolvedParams.q || "").trim();
 
-  // Wildcards handled in GROQ, so we pass raw query
-  // We use $term in query, Sanity's 'match' operator is case-insensitive by default
-  const posts = query.length > 1 ? await client.fetch(SEARCH_QUERY, { term: query }) : [];
+  // Fetch results if query exists
+  const posts: SearchResult[] = query.length > 1 
+    ? await client.fetch(SEARCH_QUERY, { term: query }) 
+    : [];
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans pb-20">
-      {/* HERO */}
+      {/* HERO SECTION */}
       <div className="bg-primary text-white py-12 px-4 text-center relative overflow-hidden">
-        {/* Abstract Background */}
+        {/* Abstract Background Decoration */}
         <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
           <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
             <path d="M0 100 C 20 0 50 0 100 100 Z" fill="white" />
@@ -102,7 +103,7 @@ export default async function SearchPage({ searchParams }: Props) {
         </div>
       </div>
 
-      {/* RESULTS */}
+      {/* MAIN CONTENT */}
       <div className="container mx-auto px-4 py-12 max-w-7xl">
         <Link
           href="/"
@@ -111,7 +112,7 @@ export default async function SearchPage({ searchParams }: Props) {
           <ArrowLeft className="w-4 h-4 mr-1" /> Back to Home
         </Link>
 
-        {/* No results */}
+        {/* STATE: NO RESULTS */}
         {posts.length === 0 && (
           <div className="max-w-xl mx-auto text-center py-16 bg-white rounded-3xl border border-gray-200 shadow-sm px-6">
             <div className="w-20 h-20 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -142,19 +143,20 @@ export default async function SearchPage({ searchParams }: Props) {
           </div>
         )}
 
-        {/* Results grid */}
+        {/* STATE: RESULTS GRID */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {posts.map((post: any) => (
+          {posts.map((post) => (
             <Link
-              key={post.slug || post._id}
-              href={`/${post.slug || ""}`}
+              key={post.slug}
+              href={`/${post.slug}`}
               className="group flex flex-col bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300"
             >
+              {/* Card Image */}
               <div className="relative h-56 w-full overflow-hidden bg-gray-100">
                 {post.imageUrl ? (
                   <Image
                     src={post.imageUrl}
-                    alt={post.title || "Article image"}
+                    alt={post.title} // Accessibility: Use title as fallback alt
                     fill
                     className="object-cover group-hover:scale-110 transition-transform duration-500"
                   />
@@ -164,7 +166,7 @@ export default async function SearchPage({ searchParams }: Props) {
                   </div>
                 )}
 
-                {/* Categories Badge (Updated to handle array) */}
+                {/* Categories Badge */}
                 {post.categories && post.categories.length > 0 && (
                   <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md text-xs font-bold text-gray-800 px-3 py-1 rounded-full shadow-sm">
                     {post.categories[0]} 
@@ -172,6 +174,7 @@ export default async function SearchPage({ searchParams }: Props) {
                 )}
               </div>
 
+              {/* Card Content */}
               <div className="p-6 flex flex-col flex-1">
                 <div className="flex items-center gap-2 text-xs text-gray-400 font-bold uppercase tracking-wider mb-3">
                   <Clock className="w-3 h-3" />
@@ -183,7 +186,7 @@ export default async function SearchPage({ searchParams }: Props) {
                 </h3>
 
                 <p className="text-sm text-gray-500 line-clamp-2 mb-4">
-                  {/* Handle portable text or string intro */}
+                  {/* Robust handling for Portable Text vs String */}
                   {Array.isArray(post.intro) 
                     ? post.intro[0]?.children?.[0]?.text 
                     : post.intro || "Read full details in the article..."}

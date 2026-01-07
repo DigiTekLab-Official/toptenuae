@@ -40,8 +40,8 @@ const config: Config = {
           '50%': { transform: 'translateY(-20px)' },
         },
         glow: {
-          'from': { dropShadow: '0 0 10px rgba(255, 215, 0, 0.5)' },
-          'to': { dropShadow: '0 0 20px rgba(255, 215, 0, 0.8)' },
+          'from': { filter: 'drop-shadow(0 0 10px rgba(255, 215, 0, 0.5))' },
+          'to': { filter: 'drop-shadow(0 0 20px rgba(255, 215, 0, 0.8))' },
         },
       },
     },

@@ -1,29 +1,14 @@
+// src/components/ui/ProductCard.tsx
 "use client";
 
 import React from "react";
 import Image from "next/image";
-import { listImage } from "@/sanity/lib/image"; 
+// 🗑️ DELETED: listImage import (Not needed, we have the URL directly)
 import LogoIcon from "@/components/icons/LogoIcon"; 
 import { 
-  CheckCircle2, 
-  XCircle, 
-  Info, 
-  Star, 
-  ExternalLink, 
-  Shield,
-  Tag,
-  BatteryMedium,
-  Wifi,
-  Zap,
-  Monitor,
-  Camera,
-  Headphones,
-  Droplets,
-  Clock,
-  Box,
-  Award,
-  Layers,
-  Truck
+  CheckCircle2, XCircle, Info, Star, ExternalLink, Shield, Tag,
+  BatteryMedium, Wifi, Zap, Monitor, Camera, Headphones, Droplets,
+  Clock, Box, Award, Layers, Truck
 } from "lucide-react";
 
 // --- 1. HELPER FUNCTION: ICONS ---
@@ -61,21 +46,14 @@ interface ProductCardProps {
 
 export default function ProductCard({ item, index = 0 }: ProductCardProps) {
   const product = item.product || {};
-  const imageUrl = product.mainImage ? listImage(product.mainImage) : null;
+  // ✅ FIX: Use direct URL from query (matches page.tsx structure)
+  const imageUrl = product.mainImage?.url || null;
   const displayName = product.title || "Product Name Unavailable";
   const finalVerdict = item.customVerdict || product.verdict; 
 
-  // 🛑 REMOVED LOCAL SCHEMA (jsonLd) TO FIX GOOGLE DUPLICATE ERROR
-  // The Schema is now handled globally in page.tsx
-
-  // Define Brand Colors
-  const brandColorClass = "text-[#4b0082]";
-  const brandBgClass = "bg-[#4b0082]";
-  const brandBorderClass = "border-[#4b0082]";
-  const brandLightBgClass = "bg-[#ECE4FD]"; 
-
   return (
     <article
+      // ✅ CRITICAL: This ID enables the "Quick Jump" buttons in TopTenTemplate
       id={`item-${item.rank}`}
       className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden scroll-mt-32 mb-8"
     >
@@ -84,7 +62,8 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
         {/* --- HEADER --- */}
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-3 mb-4">
           <div className="flex items-start gap-3">
-            <span className={`flex-shrink-0 ${brandLightBgClass} ${brandColorClass} text-xl font-black px-3 py-1 rounded-lg border-2 ${brandBorderClass} shadow-sm`}>
+            {/* ✅ UPDATED: Used Tailwind classes for consistency */}
+            <span className="flex-shrink-0 bg-primary-50 text-primary text-xl font-black px-3 py-1 rounded-lg border-2 border-primary-100 shadow-sm">
               #{item.rank}
             </span>
             <div>
@@ -92,8 +71,8 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
                  {displayName}
                </h2>
                {product.heroFeature && (
-                 <p className={`text-sm font-medium ${brandColorClass} mt-1 flex items-center gap-1`}>
-                   <Star className={`w-3 h-3 fill-current`} /> Best For: {product.heroFeature}
+                 <p className="text-sm font-medium text-primary mt-1 flex items-center gap-1">
+                   <Star className="w-3 h-3 fill-current" /> Best For: {product.heroFeature}
                  </p>
                )}
             </div>
@@ -115,9 +94,10 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
         {/* --- BADGE (EMBOSSED 3D LOOK) --- */}
         {item.badgeLabel && (
           <div className="mb-6 flex">
-            <div className={`relative ${brandBgClass} text-white px-5 py-1.5 rounded-lg shadow-lg overflow-hidden border-t border-white/20 border-b border-black/20`}>
+            {/* ✅ UPDATED: bg-primary */}
+            <div className="relative bg-primary text-white px-5 py-1.5 rounded-lg shadow-lg overflow-hidden border-t border-white/20 border-b border-black/20">
               <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/30 to-transparent pointer-events-none"></div>
-              <div className={`relative flex items-center gap-2 font-black tracking-wide uppercase text-sm`}>
+              <div className="relative flex items-center gap-2 font-black tracking-wide uppercase text-sm">
                 <LogoIcon className="w-5 h-5" /> 
                 <span className="drop-shadow-sm">{item.badgeLabel}</span>
               </div>
@@ -134,7 +114,7 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
                 alt={displayName}
                 fill
                 className="object-contain p-3 hover:scale-105 transition-transform duration-500"
-                priority={index === 0}
+                priority={index === 0} // LCP Optimization for rank #1
                 sizes="(max-width: 768px) 100vw, 400px"
               />
             </div>
@@ -143,10 +123,10 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
 
         {/* --- VERDICT --- */}
         {finalVerdict && (
-          <div className={`mb-6 ${brandLightBgClass} border-l-4 ${brandBorderClass} p-4 md:p-5 rounded-r-xl shadow-sm`}>
+          <div className="mb-6 bg-primary-50 border-l-4 border-primary p-4 md:p-5 rounded-r-xl shadow-sm">
             <div className="flex items-center gap-2 mb-2">
-              <Info className={`w-4 h-4 ${brandColorClass}`} />
-              <h3 className={`text-sm font-black ${brandColorClass} uppercase tracking-wider`}>The Verdict</h3>
+              <Info className="w-4 h-4 text-primary" />
+              <h3 className="text-sm font-black text-primary uppercase tracking-wider">The Verdict</h3>
             </div>
             <p className="text-gray-900 leading-relaxed font-medium text-sm md:text-base">
               {finalVerdict}
@@ -214,8 +194,8 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
         {item.whySelected && (
           <div className="mb-4 p-4 bg-slate-100 rounded-xl border border-slate-300 border-l-4 border-l-slate-600">
             <div className="flex items-center gap-2 mb-1">
-              <Info className={`w-3 h-3 ${brandColorClass}`} />
-              <h3 className={`text-sm font-bold ${brandColorClass} uppercase tracking-widest`}>Why we picked this</h3>
+              <Info className="w-3 h-3 text-primary" />
+              <h3 className="text-sm font-bold text-primary uppercase tracking-widest">Why we picked this</h3>
             </div>
             <p className="text-sm text-slate-900 font-semibold leading-relaxed italic">"{item.whySelected}"</p>
           </div>

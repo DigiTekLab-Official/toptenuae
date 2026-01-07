@@ -2,17 +2,21 @@
 import Image from "next/image";
 import PortableText from "@/components/PortableText";
 import FAQAccordion from "@/components/FAQAccordion";
-import { discoverImage } from "@/sanity/lib/image";
+// 🗑️ DELETED: discoverImage import (Not needed, we have the URL directly)
 
 // --- 1. DEFINE INTERFACE ---
 interface ArticleData {
+  _type: string; // ✅ REQUIRED: To prevent double-image rendering
   title: string;
   publishedAt?: string;
   modifiedAt?: string;
   author?: { name: string };
-  mainImage?: any;
+  mainImage?: {
+    url: string; // ✅ MATCHES QUERY: Your GROQ returns a direct URL
+    alt?: string;
+  };
   body?: any; 
-  intro?: any; // Fallback content
+  intro?: any; 
   faqs?: { 
     _key: string; 
     question: string; 
@@ -21,21 +25,24 @@ interface ArticleData {
 }
 
 export default function ArticleTemplate({ data }: { data: ArticleData }) {
-  const heroImageUrl = (data.mainImage ? discoverImage(data.mainImage) : null) ?? null;
+  // ✅ LOGIC FIX: Use the direct URL from your query
+  const heroImageUrl = data.mainImage?.url || null;
+
+  // ✅ SMART GUARD: Prevent Double Images
+  // ArticleView.tsx already renders the image for "article" and "news".
+  // We only show it here for other types (like 'howTo', 'charity') that fall through to this template.
+  const shouldRenderImage = heroImageUrl && data._type !== 'article' && data._type !== 'news';
 
   return (
-    // ✅ FIX: Added 'min-w-0'. 
-    // This allows the flex item to shrink properly, preventing it from 
-    // breaking the Sidebar layout on Tablet screens.
     <article className="w-full bg-white min-w-0">
       
       <div className="max-w-none pb-12">
         
-        {/* Main Image */}
-        {heroImageUrl && (
+        {/* Main Image (Only if not already shown in Header) */}
+        {shouldRenderImage && (
           <div className="relative w-full aspect-video overflow-hidden mb-10 shadow-sm border border-gray-100 rounded-xl">
             <Image
-              src={heroImageUrl}
+              src={heroImageUrl!}
               alt={data.mainImage?.alt || data.title}
               fill
               className="object-cover"
@@ -46,7 +53,7 @@ export default function ArticleTemplate({ data }: { data: ArticleData }) {
         )}
 
         {/* Body Content */}
-        {/* Added 'break-words' to ensure long URLs don't break layout */}
+        {/* 'break-words' prevents long URLs from breaking mobile layout */}
         <div className="prose prose-lg prose-headings:text-primary prose-a:text-primary max-w-none text-gray-700 leading-relaxed break-words">
           <PortableText value={data.body || data.intro} />
         </div>

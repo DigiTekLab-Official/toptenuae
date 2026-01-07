@@ -2,10 +2,7 @@
 
 // ✅ REQUIRED: Cloudflare needs this for dynamic routes
 export const runtime = 'edge';
-// export const revalidate = 61; 
-
 export const dynamic = 'force-dynamic';
-
 
 import { client } from "@/sanity/lib/client";
 import { notFound, permanentRedirect } from "next/navigation";
@@ -19,10 +16,7 @@ import ToolView from "@/components/views/ToolView";
 import ProductView from "@/components/views/ProductView";
 import ArticleView from "@/components/views/ArticleView";
 
-
-
 // --- UPDATED MASTER QUERY ---
-// I have added the "Shaver Boost" SEO fields and "Related Content" sections below.
 const QUERY = `*[slug.current == $slug][0]{
   "slug": slug.current, _id, _type, title, description, seo, showAffiliateDisclosure,
   brand, affiliateLink, retailer, price, currency, availability,
@@ -30,7 +24,7 @@ const QUERY = `*[slug.current == $slug][0]{
   keyFeatures, pros, cons, itemDescription,
   dealPrice, originalPrice, discountPercentage, couponCode, couponNote, dealEndDate, isPrimeExclusive,
   
-  // --- 1. SEO OVERRIDES (The Shaver Boost) ---
+  // --- SEO OVERRIDES ---
   "seoTitle": coalesce(seo.metaTitle, title),
   "seoDescription": coalesce(seo.metaDescription, intro, description),
   "socialShareImage": seo.shareGraphic.asset->url,
@@ -80,13 +74,13 @@ const QUERY = `*[slug.current == $slug][0]{
   faqs[] { _key, question, answer },
   startDate, endDate, locationName, address, ticketPrice,
   
+  // ✅ VERIFIED: This fetches 'whySelected' correctly for ProductCard
   listItems[] { 
     _key, rank, badgeLabel, whySelected, customVerdict, 
     product->{ title, "slug": slug.current, mainImage { asset, alt, "url": asset->url }, affiliateLink, retailer, priceTier, price, currency, availability, realComplaint, customerRating, reviewCount, verdict, keyFeatures, pros, cons, itemDescription } 
   },
 
-  // --- 2. RELATED CONTENT (Topic Clusters) ---
-  // Only runs if the document has categories
+  // --- RELATED CONTENT (Topic Clusters) ---
   "relatedLists": *[
     _type == "topTenList" 
     && _id != ^._id 
@@ -123,7 +117,7 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { category, slug } = await params;
   
-  // ✅ UPDATED QUERY: Fetch "categorySlug" to fix canonical tags
+  // ✅ FIX APPLIED: "slug": slug.current returns a STRING, preventing Object Errors
   const data = await client.fetch(
     `*[slug.current == $slug][0]{ 
       title, 
@@ -131,7 +125,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       seo, 
       "imageUrl": mainImage.asset->url, 
       _type,
-      "slug": slug,
+      "slug": slug.current, 
       dealPrice, 
       price, 
       linkedProduct->{mainImage},
@@ -164,7 +158,6 @@ export default async function Page({ params }: PageProps) {
   // ✅ GLOBAL SCHEMA GENERATION
   const schemaData = generateSchema(data);
 
-  // --- RENDER STRATEGY ---
   return (
     <>
       <JsonLd data={schemaData} />

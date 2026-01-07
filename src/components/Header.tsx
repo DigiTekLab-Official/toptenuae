@@ -1,12 +1,13 @@
+// src/components/Header.tsx
 "use client";
 
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Menu, X, Search, Flame } from "lucide-react";
-import TopTenUAELogo from "./icons/TopTenUAELogo";
+// Ensure this path matches where you saved your SVG/Logo component
+import TopTenUAELogo from "./icons/TopTenUAELogo"; 
 
-// ✅ VERIFIED: These are simple strings. They will NOT cause the [category] error.
 const NAV_LINKS = [
   { name: "Holidays", href: "/events-holidays" },
   { name: "Tech & AI", href: "/tech" },
@@ -28,6 +29,7 @@ export default function Header() {
     e.preventDefault();
     if (searchQuery.trim()) {
       setIsSearchOpen(false);
+      // Ensure you have a page at /src/app/search/page.tsx to handle this
       router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
     }
   };
@@ -40,13 +42,14 @@ export default function Header() {
         <div className="flex h-16 items-center justify-between">
           
           {/* --- LOGO --- */}
+          {/* Hidden on mobile when search is open to give space to input */}
           <div className={`flex-shrink-0 ${isSearchOpen ? 'hidden xl:block' : 'block'}`}>
             <Link href="/" className="flex items-center" aria-label="TopTenUAE Homepage">
               <TopTenUAELogo className="h-8 w-auto md:h-10" />
             </Link>
           </div>
 
-          {/* --- SEARCH BAR --- */}
+          {/* --- SEARCH BAR OVERLAY (Desktop & Mobile) --- */}
           {isSearchOpen ? (
             <form onSubmit={handleSearch} className="flex-1 max-w-2xl mx-auto px-4 relative flex items-center animate-in fade-in zoom-in duration-200">
                <input
@@ -73,8 +76,8 @@ export default function Header() {
                 {NAV_LINKS.map((link) => (
                   <Link
                     key={link.name}
-                    href={link.href} // ✅ Correct: Uses simple string URL
-                    prefetch={false} // ✅ ADD THIS: Stops the 404 RSC Error
+                    href={link.href}
+                    prefetch={false} // Keeps the network tab clean in Dev mode
                     className={`
                       text-sm font-bold uppercase tracking-wide transition-colors whitespace-nowrap flex items-center gap-1
                       ${link.isHighlight 
@@ -89,7 +92,7 @@ export default function Header() {
                 ))}
               </nav>
 
-              {/* --- RIGHT ICONS --- */}
+              {/* --- RIGHT ICONS (Search Trigger & Subscribe) --- */}
               <div className="hidden items-center gap-3 lg:gap-4 xl:flex">
                 <button 
                   onClick={() => setIsSearchOpen(true)}
@@ -133,13 +136,13 @@ export default function Header() {
 
       {/* --- MOBILE MENU DRAWER --- */}
       {isMobileMenuOpen && !isSearchOpen && (
-        <div className="xl:hidden border-t border-gray-100 bg-white">
+        <div className="xl:hidden border-t border-gray-100 bg-white shadow-lg">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl pb-6 pt-2 max-h-[80vh] overflow-y-auto">
             <div className="space-y-1">
               {NAV_LINKS.map((link) => (
                 <Link
                   key={link.name}
-                  href={link.href} // ✅ Correct: Uses simple string URL
+                  href={link.href}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={`
                     flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium w-full
