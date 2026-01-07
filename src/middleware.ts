@@ -36,7 +36,8 @@ export function middleware(request: NextRequest) {
     https://www.google-analytics.com
     https://static.cloudflareinsights.com
     https://challenges.cloudflare.com
-    https://www.clarity.ms;
+    https://www.clarity.ms
+    https://c.clarity.ms;
 
   style-src 'self' 'unsafe-inline'
     https://fonts.googleapis.com;
@@ -56,8 +57,8 @@ export function middleware(request: NextRequest) {
     https://*.sanity.io
     https://www.google-analytics.com
     https://www.googletagmanager.com
-    https://c.clarity.ms
     https://www.clarity.ms
+    https://c.clarity.ms
     https://cloudflareinsights.com;
 
   frame-src 'self'
@@ -65,6 +66,7 @@ export function middleware(request: NextRequest) {
 
   frame-ancestors 'self';
 `.replace(/\s{2,}/g, ' ').trim();
+
 
   // 3. SET SECURITY HEADERS (Forces "Best Practices" Score to 100)
   response.headers.set('X-DNS-Prefetch-Control', 'on');
