@@ -1,4 +1,4 @@
-// src/proxy.ts
+// src/middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
@@ -13,14 +13,16 @@ export const config = {
 };
 
 // -----------------------------------------------------------------------------
-// PROXY LOGIC (Renamed from 'middleware')
+// MIDDLEWARE LOGIC
 // -----------------------------------------------------------------------------
-export function proxy(request: NextRequest) {
+// Cloudflare currently REQUIRES this function to be named 'middleware' 
+// and the file to be 'middleware.ts', even if Next.js 16 warns about it.
+export function middleware(request: NextRequest) {
   const response = NextResponse.next();
   const url = request.nextUrl;
 
   // 1. FIX: RSC Prefetch Errors
-  // We don't "return" early; we just ensure the browser doesn't cache 404s for these.
+  // Prevents browser from caching 404s for internal Next.js prefetches
   if (url.searchParams.has('_rsc')) {
     response.headers.set('Cache-Control', 'no-store, must-revalidate');
   }
