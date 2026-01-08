@@ -10,6 +10,11 @@ import { generateSeoMetadata } from "@/utils/seo-manager";
 import JsonLd from "@/components/JsonLd"; 
 import HomeNewsletter from "@/components/HomeNewsletter";
 import { cleanText } from "@/utils/sanity-text";
+import { 
+  generateOrganizationSchema, 
+  generateWebSiteSchema 
+} from "@/lib/schemaGenerator";
+
 
 // Icons
 import { 
@@ -23,7 +28,7 @@ import {
   CreditCard, 
   PieChart 
 } from "lucide-react";
-import { text } from "stream/consumers";
+
 
 // --- CONFIGURATION ---
 const SELECTED_CATEGORIES = ["tech", "reviews", "events-holidays", "parenting-kids", "finance-tools"]; 
@@ -32,15 +37,15 @@ const SELECTED_CATEGORIES = ["tech", "reviews", "events-holidays", "parenting-ki
 export async function generateMetadata(): Promise<Metadata> {
   return generateSeoMetadata({
     // Updated Title with high-value keywords
-    title: "TopTenUAE – Best Reviews, Deals & Free Finance Calculators (2026)",
+    title: "TopTenUAE - Trending Tech, Reviews, Deals & Smart UAE Tools",
     
     // Updated Description to match the "Free" and "Calculator" intent
     description:
-      "Compare the best products in the UAE and find verified deals. Access free finance calculators for VAT, Gratuity, and Salary. Your trusted guide for Dubai & UAE living.",
+      "Discover trending products, smart deals, and useful tools for UAE life — from tech and reviews to VAT & gratuity calculators.",
     
     url: "https://toptenuae.com",
     _type: "website",
-    imageUrl: "https://toptenuae.com/images/brand/og-home.jpg"
+    imageUrl: "https://toptenuae.com/images/brand/og-home.png"
   });
 }
 
@@ -114,39 +119,35 @@ export default async function Home() {
     cleanText(heroPost?.intro) || 
     "Read our latest comprehensive review for the UAE market.";
 
-  const homeSchema = {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "Organization",
-        "name": "TopTenUAE",
-        "url": "https://toptenuae.com",
-        "logo": {
-          "@type": "ImageObject",
-          "url": "https://toptenuae.com/images/brand/logoIcon.svg"
-        },
-        "sameAs": ["https://facebook.com/toptenuae", "https://x.com/toptenuae"]
-        }
-    ]
-  };
-
+  
   return (
-    <main className="font-sans">
-      <JsonLd data={homeSchema} />
-      
+    <>
+      <JsonLd
+        data={[
+          generateOrganizationSchema(),
+          generateWebSiteSchema()
+        ]}
+      />
+      <main className="font-sans">
+    {/* SEO H1 (first element INSIDE main) */}
+    <h1 className="sr-only">
+      Trending Tech, Reviews, Deals & Smart Tools for UAE Life
+    </h1>
+   
       {/* 1. HERO SECTION */}
       <section className="relative bg-slate-900 text-white overflow-hidden">
         <div className="absolute inset-0 z-0">
           {heroPost.imageUrl && (
             <Image 
               src={heroPost.imageUrl}
-              alt={heroPost.title}
+              alt=""
               fill
               className="object-cover opacity-40 blur-sm scale-105"
               priority
+              aria-hidden="true"
             />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
+          <div className="absolute inset-0 bg-linear-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
         </div>
 
         <div className="container mx-auto px-4 py-16 lg:py-24 relative z-10 max-w-7xl">
@@ -156,9 +157,9 @@ export default async function Home() {
                 {heroPost.categoryTitle}
               </span>
             )}
-            <h1 className="text-4xl md:text-6xl font-black leading-tight mb-6 text-shadow-sm">
+            <h2 className="text-4xl md:text-6xl font-black leading-tight mb-6 text-shadow-sm" aria-label={heroPost.title}>
               {heroPost.title}
-            </h1>
+            </h2>
             <p className="text-lg md:text-xl text-slate-200 mb-8 line-clamp-2 max-w-2xl leading-relaxed">
               {heroDescription}
             </p>
@@ -220,7 +221,7 @@ export default async function Home() {
                       {post.imageUrl ? (
                         <Image
                           src={post.imageUrl}
-                          alt={post.title}
+                          alt=""
                           fill
                           className="object-cover group-hover:scale-110 transition-transform duration-500"
                           sizes="(max-width: 768px) 100vw, 25vw"
@@ -264,6 +265,7 @@ export default async function Home() {
            <p className="text-sm text-gray-500 mt-4">Unsubscribe at any time. No spam, guaranteed.</p>
         </div>
       </section>
-    </main>
+      </main>
+    </>
   );
 }

@@ -4,7 +4,7 @@ import { cleanText } from '@/utils/sanity-text';
 // --- CONFIGURATION ---
 const baseUrl = process.env.baseUrl || 'https://toptenuae.com';
 const ORGANIZATION_LOGO = `${baseUrl}/images/brand/logoIcon.svg`;
-const DEFAULT_IMAGE = `${baseUrl}/images/brand/og-default.jpg`; 
+const DEFAULT_IMAGE = `${baseUrl}/images/brand/og-default.png`; 
 
 // --- HELPER: DATES ---
 const formatIsoDate = (dateStr?: string, isAllDay?: boolean) => {
@@ -23,14 +23,25 @@ const getNextYearDate = () => {
 export const generateOrganizationSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'Organization',
+  '@id': `${baseUrl}/#organization`,
   name: 'TopTenUAE',
   url: baseUrl,
-  logo: {
+  inLanguage: 'en-AE',
+  logo: [
+    {
     '@type': 'ImageObject',
-    url: ORGANIZATION_LOGO,
-    width: '512',
-    height: '512'
+    url: `${baseUrl}/images/brand/logoIcon.svg`,
+    width: 512,
+    height: 512
   },
+  {
+    '@type': 'ImageObject',
+    url: `${baseUrl}/images/brand/logoIcon-1200.png`,
+    width: 1200,
+    height: 1200,
+     inLanguage: 'en-AE'
+  }
+],
   sameAs: [
     'https://facebook.com/toptenuae',
     'https://twitter.com/toptenuae'
@@ -41,9 +52,14 @@ export const generateOrganizationSchema = () => ({
 export const generateWebSiteSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'WebSite',
+  '@id': `${baseUrl}/#website`,
   name: 'TopTenUAE',
   alternateName: ['Top Ten UAE', 'TopTen UAE', 'toptenuae.com'],
   url: `${baseUrl}/`,
+  inLanguage: 'en-AE',
+  publisher: {
+    '@id': `${baseUrl}/#organization`
+  },
   potentialAction: {
     '@type': 'SearchAction',
     target: {

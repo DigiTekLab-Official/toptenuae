@@ -121,7 +121,7 @@ export default function DealCard({ deal }: DealCardProps) {
             </span>
           </div>
 
-          <h2 className="text-lg font-bold text-slate-900 mb-2 group-hover:text-[#4b0082] transition-colors line-clamp-2" title={deal.title}>
+          <h2 className="text-lg font-bold text-slate-900 mb-2 group-hover:text-[#4b0082] transition-colors line-clamp-2">
             {deal.title}
           </h2>
 

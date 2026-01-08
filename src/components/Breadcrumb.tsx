@@ -104,7 +104,7 @@ export default function Breadcrumb({
 
         {/* Current Post Title (Truncated) */}
         <li className="flex items-center min-w-0" aria-current="page">
-          <span className={`truncate max-w-[150px] md:max-w-md ${activeColor} font-medium block`} title={postTitle}>
+          <span className={`truncate max-w-[150px] md:max-w-md ${activeColor} font-medium block`}>
             {postTitle}
           </span>
         </li>

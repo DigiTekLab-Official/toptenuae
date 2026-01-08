@@ -13,6 +13,7 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
     dangerouslyAllowSVG: true,
+    qualities: [75, 85],
     remotePatterns: [
       { protocol: "https", hostname: "cdn.sanity.io" },
       { protocol: "https", hostname: "placehold.co" },

@@ -24,7 +24,7 @@ export default function RelatedContent({ lists, products }: RelatedProps) {
                     {item.mainImage && (
                       <Image 
                         src={item.mainImage.asset.url} 
-                        alt={item.mainImage.alt || item.title}
+                        alt=""
                         fill
                         className="object-cover transition-transform group-hover:scale-105"
                       />
@@ -48,7 +48,7 @@ export default function RelatedContent({ lists, products }: RelatedProps) {
                     {product.mainImage && (
                        <Image 
                          src={product.mainImage.asset.url} 
-                         alt={product.title} 
+                         alt=""
                          fill 
                          className="object-contain" 
                        />

@@ -58,14 +58,30 @@ export default function HomeNewsletter() {
         
         <div className="flex flex-col sm:flex-row gap-3">
             {/* Honeypot */}
-            <input type="text" name="fax" style={{ display: 'none' }} tabIndex={-1} autoComplete="off" value={honeypot} onChange={(e) => setHoneypot(e.target.value)} />
+            <label htmlFor="fax-input" className="sr-only">
+              Fax
+            </label>
+            <input
+              type="text"
+              name="fax"
+              id="fax-input"
+              tabIndex={-1}
+              autoComplete="off"
+              value={honeypot}
+              onChange={(e) => setHoneypot(e.target.value)}
+              aria-hidden="true"
+              role="presentation"
+              style={{ display: 'none' }}
+            />
 
-            <div className="relative flex-grow">
+            <div className="relative grow">
+              <label htmlFor="email-input" className="sr-only">
+                Email address
+              </label>
               <input 
                 type="email" 
                 name="email"
                 id="email-input"
-                aria-label="Email address"
                 required
                 autoComplete="email"
                 value={email}
@@ -87,7 +103,7 @@ export default function HomeNewsletter() {
               type="submit"
               disabled={status === 'loading' || status === 'success'}
               aria-label="Subscribe to newsletter"
-              className="bg-[#4b0082] text-white font-bold px-8 py-3 rounded-full hover:bg-[#3b0066] shadow-md transition-all hover:scale-105 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center min-w-[140px]"
+              className="bg-[#4b0082] text-white font-bold px-8 py-3 rounded-full hover:bg-[#3b0066] shadow-md transition-all hover:scale-105 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center min-w-35"
             >
               {status === 'loading' ? (
                 <Loader2 className="w-5 h-5 animate-spin" />

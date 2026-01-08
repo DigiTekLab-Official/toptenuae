@@ -100,7 +100,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
         <div className="relative w-full aspect-[3/2] lg:aspect-[16/9] overflow-hidden rounded-xl shadow-lg mb-8">
           <Image
             src={heroImageUrl}
-            alt={data.mainImage?.alt || data.title}
+            alt=""
             fill
             priority
             className="object-cover hover:scale-105 transition-transform duration-700"
@@ -121,10 +121,11 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
               .map((item) => (
                 <a
                   key={item._key}
-                  href={`#item-${item.rank}`} // ⚠️ REQUIREMENT: ProductCard must have id={`item-${item.rank}`}
+                  href={`#item-${item.rank}`}
+                  aria-label={`Jump to ${item.product.title}`}
                   className="group flex items-center gap-2 pl-2 pr-3 py-1.5 bg-primary-100 border border-primary-200 rounded-full shadow-sm hover:shadow-md hover:bg-primary-50 transition-all duration-200"
                 >
-                  <span className="bg-primary text-white text-xs font-black w-5 h-5 flex items-center justify-center rounded-full">
+                  <span className="bg-primary text-white text-xs font-black w-5 h-5 flex items-center justify-center rounded-full" aria-hidden="true">
                     {item.rank}
                   </span>
                   <span className="text-sm font-bold text-gray-700 group-hover:text-primary transition-colors line-clamp-1 max-w-[150px]">

@@ -71,12 +71,12 @@ export default function ComparisonSummaryTable({ items }: { items: ListItem[] })
                       {imageUrl ? (
                         <Image 
                           src={imageUrl} 
-                          alt={title} 
+                          alt="" 
                           fill 
                           className="object-contain p-1"
                         />
                       ) : (
-                        <span className="text-[10px] text-gray-400 text-center">No Image</span>
+                        <span className="text-xs text-gray-400 text-center">No Image</span>
                       )}
                     </div>
                   </td>
@@ -158,12 +158,12 @@ export default function ComparisonSummaryTable({ items }: { items: ListItem[] })
                    {imageUrl ? (
                       <Image 
                         src={imageUrl} 
-                        alt={title} 
+                        alt="" 
                         fill 
                         className="object-contain p-2"
                       />
                    ) : (
-                      <span className="text-[10px] text-gray-400 text-center">No Image</span>
+                      <span className="text-xs text-gray-400 text-center">No Image</span>
                    )}
                  </div>
                  

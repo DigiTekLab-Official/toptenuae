@@ -72,7 +72,7 @@ export default async function Sidebar({ currentSlug }: SidebarProps) {
                   {post.imageUrl ? (
                     <Image 
                       src={post.imageUrl} 
-                      alt={post.title} 
+                      alt=""
                       fill 
                       className="object-cover group-hover:scale-110 transition-transform duration-500"
                       sizes="(max-width: 768px) 100px, 200px"
@@ -89,7 +89,7 @@ export default async function Sidebar({ currentSlug }: SidebarProps) {
                     {post.title}
                   </h4>
                   {post.publishedAt && (
-                     <div className="flex items-center gap-1.5 text-[12px] text-gray-500 uppercase tracking-wider font-bold">
+                     <div className="flex items-center gap-1.5 text-xs text-gray-500 uppercase tracking-wider font-bold">
                         <Clock className="w-4 h-4" />
                         <time suppressHydrationWarning>
                           {new Date(post.publishedAt).toLocaleDateString("en-AE", { 

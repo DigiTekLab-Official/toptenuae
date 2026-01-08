@@ -94,7 +94,7 @@ export default function ProductTemplate({ data }: ProductTemplateProps) {
                 {mainImage?.url ? (
                   <Image
                     src={mainImage.url}
-                    alt={mainImage.alt || title}
+                    alt=""
                     fill
                     className="object-contain hover:scale-105 transition-transform duration-700"
                     priority
@@ -251,7 +251,7 @@ export default function ProductTemplate({ data }: ProductTemplateProps) {
       {affiliateLink && price && (
         <div className="container mx-auto max-w-4xl mt-16 px-4">
            <PriceWidget 
-             title={title}
+             title=""
              price={price}
              currency={displayCurrency}
              merchant={retailer === 'Noon' ? 'Noon' : 'Amazon'}

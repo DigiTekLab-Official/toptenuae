@@ -57,7 +57,7 @@ export default function EventTemplate({ data }: { data: EventSanityData }) {
         <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden shadow-md mb-8">
           <Image
             src={heroImageUrl}
-            alt={data.title}
+            alt=""
             fill
             className="object-cover"
             priority

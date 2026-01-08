@@ -77,18 +77,6 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
                )}
             </div>
           </div>
-          
-          {/* DESKTOP CTA */}
-          {product.affiliateLink && (
-            <a
-              href={product.affiliateLink}
-              target="_blank"
-              rel="nofollow noopener"
-              className="hidden md:flex items-center gap-1 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 px-5 py-2.5 rounded-lg shadow-sm transition-colors whitespace-nowrap"
-            >
-              Check Price <ExternalLink className="w-3 h-3" />
-            </a>
-          )}
         </div>
 
         {/* --- BADGE (EMBOSSED 3D LOOK) --- */}
@@ -226,7 +214,7 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
                     Check Price on {product.retailer || 'Amazon'} <ExternalLink className="w-4 h-4" />
                  </a>
                  {product.retailer && (
-                    <div className="text-center mt-1 text-[10px] text-gray-500 uppercase tracking-widest font-semibold flex items-center justify-center gap-1">
+                    <div className="text-center mt-1 text-xs text-gray-500 uppercase tracking-widest font-semibold flex items-center justify-center gap-1">
                       <Shield className="w-3 h-3 text-gray-400" /> via {product.retailer}
                     </div>
                   )}

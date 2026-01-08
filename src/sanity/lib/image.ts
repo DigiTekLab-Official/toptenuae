@@ -1,5 +1,5 @@
 // 1. FIX LIBRARY IMPORT (Standard Usage)
-import createImageUrlBuilder from '@sanity/image-url'
+import { createImageUrlBuilder } from '@sanity/image-url'
 import type { SanityImageSource } from '@sanity/image-url'
 
 // 2. IMPORT CONFIG FROM CLIENT

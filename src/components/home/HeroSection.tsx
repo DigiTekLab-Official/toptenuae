@@ -33,7 +33,7 @@ const FeaturedCard = ({ post }: { post: TopTenItem }) => {
         {post.imageUrl ? (
           <Image
             src={post.imageUrl}
-            alt={post.title}
+            alt=""
             fill
             className="object-cover transition-transform duration-700 group-hover:scale-105"
             priority
@@ -53,10 +53,7 @@ const FeaturedCard = ({ post }: { post: TopTenItem }) => {
       <div className="flex flex-1 flex-col justify-between p-6 md:p-8">
         <div>
           <h2 className="mb-4 text-2xl font-black leading-tight text-gray-900 group-hover:text-blue-600 md:text-3xl lg:text-4xl">
-            {/* ✅ PREFETCH FALSE: Keeps console clean */}
-            <Link href={postUrl} prefetch={false}>
-              {post.title}
-            </Link>
+            {post.title}
           </h2>
           <p className="line-clamp-3 text-base text-gray-600 leading-relaxed md:text-lg">
             {introText}
@@ -68,9 +65,9 @@ const FeaturedCard = ({ post }: { post: TopTenItem }) => {
             {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : 'Recently Updated'}
           </time>
           <span className="mx-2 text-gray-300">•</span>
-          <Link href={postUrl} prefetch={false} className="text-blue-600 hover:underline">
+          <span className="text-blue-600">
             Read Guide →
-          </Link>
+          </span>
         </div>
       </div>
     </div>
@@ -88,7 +85,7 @@ const SideListItem = ({ post }: { post: TopTenItem }) => {
         {post.imageUrl ? (
           <Image
             src={post.imageUrl}
-            alt={post.title}
+            alt=""
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-105"
             sizes="100px"
@@ -101,7 +98,7 @@ const SideListItem = ({ post }: { post: TopTenItem }) => {
       <div className="flex flex-col min-w-0">
         <div className="flex items-center gap-2 mb-1.5">
           {post.category && (
-            <span className="text-[10px] font-bold uppercase tracking-wide text-blue-600">
+            <span className="text-xs font-bold uppercase tracking-wide text-blue-600">
               {post.category}
             </span>
           )}

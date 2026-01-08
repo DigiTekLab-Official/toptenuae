@@ -1,3 +1,4 @@
+// src/proxy.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
@@ -12,19 +13,19 @@ export const config = {
 };
 
 // -----------------------------------------------------------------------------
-// MIDDLEWARE LOGIC
+// PROXY LOGIC (Renamed from 'middleware')
 // -----------------------------------------------------------------------------
-export function middleware(request: NextRequest) {
-  // 1. FIX: Bypass middleware for Next.js internal RSC requests
-  // This prevents the 404 errors for internal fetches
-  if (request.nextUrl.searchParams.has('_rsc')) {
-    return NextResponse.next();
+export function proxy(request: NextRequest) {
+  const response = NextResponse.next();
+  const url = request.nextUrl;
+
+  // 1. FIX: RSC Prefetch Errors
+  // We don't "return" early; we just ensure the browser doesn't cache 404s for these.
+  if (url.searchParams.has('_rsc')) {
+    response.headers.set('Cache-Control', 'no-store, must-revalidate');
   }
 
-  const response = NextResponse.next();
-  
   // 2. DEFINE CSP (Content Security Policy)
-  // UPDATED: Used "*.clarity.ms" to prevent (blocked:csp) errors
   const csp = `
     default-src 'self';
 
@@ -62,7 +63,6 @@ export function middleware(request: NextRequest) {
 
     frame-ancestors 'self';
   `.replace(/\s{2,}/g, ' ').trim();
-
 
   // 3. SET SECURITY HEADERS
   response.headers.set('X-DNS-Prefetch-Control', 'on');

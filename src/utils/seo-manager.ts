@@ -4,7 +4,7 @@ import { cleanText } from '@/utils/sanity-text'; // ✅ Import the helper
 
 // --- CONFIGURATION ---
 const SITE_URL = process.env.baseUrl || 'https://toptenuae.com';
-const DEFAULT_OG_IMAGE = `${SITE_URL}/images/brand/og-default.jpg`;
+const DEFAULT_OG_IMAGE = `${SITE_URL}/images/brand/og-default.png`;
 
 /**
  * Interface representing the data coming from Sanity
@@ -141,6 +141,7 @@ export function generateSeoMetadata(
           width: 1200,
           height: 630,
           alt: title,
+          type: 'image/png'
         },
       ],
       ...(data.publishedAt && { publishedTime: data.publishedAt }),

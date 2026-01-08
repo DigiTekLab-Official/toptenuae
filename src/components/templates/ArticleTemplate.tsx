@@ -43,7 +43,7 @@ export default function ArticleTemplate({ data }: { data: ArticleData }) {
           <div className="relative w-full aspect-video overflow-hidden mb-10 shadow-sm border border-gray-100 rounded-xl">
             <Image
               src={heroImageUrl!}
-              alt={data.mainImage?.alt || data.title}
+              alt=""
               fill
               className="object-cover"
               priority
@@ -53,8 +53,8 @@ export default function ArticleTemplate({ data }: { data: ArticleData }) {
         )}
 
         {/* Body Content */}
-        {/* 'break-words' prevents long URLs from breaking mobile layout */}
-        <div className="prose prose-lg prose-headings:text-primary prose-a:text-primary max-w-none text-gray-700 leading-relaxed break-words">
+        {/* 'wrap-break-word' prevents long URLs from breaking mobile layout */}
+        <div className="prose prose-lg prose-headings:text-primary prose-a:text-primary max-w-none text-gray-700 leading-relaxed wrap-break-word">
           <PortableText value={data.body || data.intro} />
         </div>
 
