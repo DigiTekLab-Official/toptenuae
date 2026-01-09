@@ -61,7 +61,7 @@ const getToolConfig = (slug: string) => {
 // --- QUERY ---
 const HOME_QUERY = `
 {
-  "heroPost": *[_type == "topTenList" && defined(slug.current)] | order(publishedAt desc)[0] {
+  "heroPost": *[_type in ["topTenList", "howTo", "article", "news"] && defined(slug.current)] | order(publishedAt desc)[0] {
     title,
     "slug": slug.current,
     "categorySlug": coalesce(category->slug.current, "general"), 
