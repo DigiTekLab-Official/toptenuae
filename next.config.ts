@@ -163,7 +163,8 @@ const nextConfig: NextConfig = {
       { source: "/best-baby-skincare-uae", destination: "/parenting-kids/best-baby-skincare-uae", permanent: true },
       { source: "/10-best-baby-skin-care-products-in-the-uae-for-2025", destination: "/parenting-kids/best-baby-skincare-uae", permanent: true },
       { source: "/best-baby-skincare-products-uae", destination: "/parenting-kids/best-baby-skincare-uae", permanent: true },
-      { source: "/best-baby-skincare-products-2025-uae", destination: "/parenting-kids/best-baby-skincare-uae", permanent: true },
+      { source: "/best-baby-monitors-uae", destination: "/parenting-kids/best-baby-monitors-uae", permanent: true },
+      
       
       { source: "/where-to-donate-used-toys-uae", destination: "/parenting-kids/where-to-donate-used-toys-uae", permanent: true },
       
@@ -172,8 +173,6 @@ const nextConfig: NextConfig = {
       { source: "/best-educational-toys-in-uae", destination: "/parenting-kids", permanent: true },
       
       // Catch-all parenting fallbacks
-      { source: "/best-baby-monitor", destination: "/parenting-kids", permanent: true },
-      { source: "/best-baby-monitors-uae", destination: "/parenting-kids", permanent: true },
       { source: "/best-baby-toys", destination: "/parenting-kids", permanent: true },
       { source: "/best-diaper-bags-in-uae", destination: "/parenting-kids", permanent: true },
 
