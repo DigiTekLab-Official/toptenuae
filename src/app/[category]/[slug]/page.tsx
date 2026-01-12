@@ -1,10 +1,8 @@
 // src/app/[category]/[slug]/page.tsx
 
 // 1. SETTINGS FOR SEO STABILITY (ISR)
-// We remove 'edge' and 'force-dynamic'.
-// This tells Next.js: "Cache this page for 1 hour (3600s), then update in background."
 export const revalidate = 3600; 
-export const dynamicParams = true; // Allow new pages not yet built to be generated on demand
+export const dynamicParams = true; 
 
 import { client } from "@/sanity/lib/client";
 import { notFound, permanentRedirect } from "next/navigation";
@@ -18,8 +16,20 @@ import ToolView from "@/components/views/ToolView";
 import ProductView from "@/components/views/ProductView";
 import ArticleView from "@/components/views/ArticleView";
 
+// --- HELPER: Normalize Old Categories (Matches Sitemap Logic) ---
+const normalizeCategory = (slug: string) => {
+  const map: Record<string, string> = {
+    'travel-tourism': 'events-holidays',
+    'health-fitness': 'lifestyle',
+    'baby-kid': 'parenting-kids',
+    'buyers-guide': 'reviews',
+    'deals': 'deals',
+    'tech': 'tech',
+  };
+  return map[slug] || slug;
+};
+
 // --- UPDATED MASTER QUERY ---
-// (Kept exactly as you provided)
 const QUERY = `*[slug.current == $slug][0]{
   "slug": slug.current, _id, _type, title, description, seo, showAffiliateDisclosure,
   brand, affiliateLink, retailer, price, currency, availability,
@@ -113,19 +123,18 @@ interface PageProps {
   params: Promise<{ category: string; slug: string }>;
 }
 
-// 2. CRITICAL ADDITION: GENERATE STATIC PARAMS
-// This tells Next.js exactly which pages to build at build time.
-// Without this, pages are "Discovered - currently not indexed" until a user visits them.
+// 2. CRITICAL FIX: Add 'holiday', 'event', 'howTo', 'charity' to static params
+// Previously, these types were missing, so Next.js didn't know they existed.
 export async function generateStaticParams() {
   const slugs = await client.fetch(
-    `*[_type in ["tool", "product", "article", "deal", "topTenList"] && defined(slug.current)]{
+    `*[_type in ["tool", "product", "article", "deal", "topTenList", "holiday", "event", "howTo", "charity"] && defined(slug.current)]{
       "slug": slug.current,
       "category": coalesce(categories[0]->slug.current, category->slug.current, "reviews")
     }`
   );
 
   return slugs.map((doc: any) => ({
-    category: doc.category,
+    category: normalizeCategory(doc.category), // Normalize here too
     slug: doc.slug,
   }));
 }
@@ -160,10 +169,14 @@ export default async function Page({ params }: PageProps) {
   }
   if (data._type === 'deal' && category !== 'deals') permanentRedirect(`/deals/${slug}`);
   
-  // Strict Category Check
-  const correctCategory = data.category?.slug || 'reviews'; // Fallback to reviews if null
+  // 3. FIX: Normalize the database category before checking mismatch
+  // If Sanity says 'travel-tourism', we convert it to 'events-holidays'
+  // This prevents the page from redirecting you endlessly or 404ing.
+  const rawCategory = data.category?.slug || 'reviews';
+  const correctCategory = normalizeCategory(rawCategory);
+
   if (correctCategory !== category && category !== 'deals' && category !== 'reviews') {
-    // Only redirect if it's a genuine mismatch, avoiding infinite loops
+    // Only redirect if the NORMALIZED category doesn't match the URL
     permanentRedirect(`/${correctCategory}/${slug}`);
   }
 
