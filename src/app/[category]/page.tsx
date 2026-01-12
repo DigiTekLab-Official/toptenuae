@@ -1,8 +1,10 @@
 // src/app/[category]/page.tsx
-export const runtime = 'edge';
-// export const revalidate = 60; 
-export const dynamic = 'force-dynamic'; 
 
+// 1. CRITICAL SEO FIX: Stable Indexing
+// We remove 'edge' and 'force-dynamic'.
+// We set revalidate to 24 hours (86400 seconds) for stable snapshots.
+export const revalidate = 86400; 
+export const dynamicParams = true; // Allow new categories to be found if added after build
 
 import { client } from "@/sanity/lib/client";
 import { notFound } from "next/navigation";
@@ -11,14 +13,27 @@ import Link from "next/link";
 import { Metadata } from "next";
 import Sidebar from "@/components/Sidebar";
 import { generateSeoMetadata } from "@/utils/seo-manager"; 
-import { cleanText } from "@/utils/sanity-text"; // ✅ NEW: Import helper
+import { cleanText } from "@/utils/sanity-text"; 
 
 import { 
   Sparkles, ArrowRight, Calculator, Percent, Coins, 
-  Car, Plane, TrendingUp, HeartHandshake, LayoutGrid
+  Car, Plane, TrendingUp, HeartHandshake
 } from "lucide-react"; 
 
+// 2. CRITICAL ADDITION: Generate Static Params
+// This tells Next.js to pre-build these pages. 
+// Without this, Google finds "empty" slots first, delaying indexing.
+export async function generateStaticParams() {
+  const categories = await client.fetch(`
+    *[_type == "category" && defined(slug.current)]{
+      "category": slug.current
+    }
+  `);
 
+  return categories.map((c: any) => ({
+    category: c.category,
+  }));
+}
 
 // --- QUERY ---
 const categoryQuery = `*[_type == "category" && slug.current == $slug][0]{
@@ -71,8 +86,6 @@ const getToolConfig = (slug: string) => {
   return { icon: Calculator, iconColor: 'text-purple-600 group-hover:text-white', iconBg: 'bg-purple-50 group-hover:bg-purple-600', ctaLabel: 'Calculate Now' };
 };
 
-// 🗑️ DELETED: safeExcerpt (Replaced by cleanText)
-
 // --- MAIN PAGE ---
 export default async function CategoryPage({ params }: PageProps) {
   const { category } = await params;
@@ -87,8 +100,8 @@ export default async function CategoryPage({ params }: PageProps) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": cleanText(data.title), // ✅ Safe
-    "description": cleanText(data.description) || `Collection of ${data.title}`, // ✅ Safe
+    "name": cleanText(data.title),
+    "description": cleanText(data.description) || `Collection of ${data.title}`,
     "url": `https://toptenuae.com/${categorySlug}`,
     "mainEntity": {
       "@type": "ItemList",
@@ -96,7 +109,7 @@ export default async function CategoryPage({ params }: PageProps) {
         "@type": "ListItem",
         "position": index + 1,
         "url": `https://toptenuae.com/${categorySlug}/${item.slug}`,
-        "name": cleanText(item.title) // ✅ Safe
+        "name": cleanText(item.title)
       })) || []
     }
   };
@@ -120,7 +133,7 @@ export default async function CategoryPage({ params }: PageProps) {
           </div>
           <h1 className="text-3xl md:text-5xl font-black mb-4 tracking-tight">{data.title}</h1>
           <p className="text-indigo-100 text-lg md:text-xl max-w-2xl mx-auto font-medium leading-relaxed">
-            {cleanText(data.description) || `Explore the best content in ${data.title}.`} {/* ✅ Safe */}
+            {cleanText(data.description) || `Explore the best content in ${data.title}.`}
           </p>
         </div>
       </div>
@@ -140,7 +153,6 @@ export default async function CategoryPage({ params }: PageProps) {
                         <ToolIcon className={`w-7 h-7 ${config.iconColor} transition-colors duration-300`} />
                       </div>
                       <h2 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-[#4b0082] transition-colors">{item.title}</h2>
-                      {/* ✅ UPDATED: Uses cleanText now */}
                       <p className="text-slate-500 text-sm leading-relaxed mb-6 flex-grow line-clamp-3">{cleanText(item.rawExcerpt)}</p>
                       <div className="mt-auto pt-2 border-t border-slate-100 flex items-center text-[#4b0082] font-bold text-sm">
                         {config.ctaLabel} <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
@@ -172,7 +184,6 @@ export default async function CategoryPage({ params }: PageProps) {
                       </div>
                       <div className="p-6 flex flex-col flex-1">
                         <h2 className="text-xl font-bold mb-3 text-gray-900 group-hover:text-[#4b0082] transition-colors leading-tight">{post.title}</h2>
-                        {/* ✅ UPDATED: Uses cleanText now */}
                         <p className="text-gray-600 text-sm line-clamp-3 mb-5 flex-1 leading-relaxed">{cleanText(post.rawExcerpt)}</p>
                         <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
                           <span className="text-xs font-medium text-gray-400">{post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : ''}</span>

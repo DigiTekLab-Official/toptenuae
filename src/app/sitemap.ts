@@ -1,15 +1,20 @@
+// src/app/sitemap.ts
+
+// 1. CRITICAL: Cache the sitemap itself for 24 hours
+// This prevents the sitemap from regenerating on every single visit.
+export const revalidate = 86400; 
+
 import { MetadataRoute } from 'next';
 import { client } from '@/sanity/lib/client';
 
 // Helper to map old Sanity categories to your new Next.js structure
-// This ensures the sitemap points to the FINAL URL, not a redirect.
 const normalizeCategory = (slug: string) => {
   const map: Record<string, string> = {
     'travel-tourism': 'events-holidays',
     'health-fitness': 'lifestyle',
     'baby-kid': 'parenting-kids',
     'buyers-guide': 'reviews',
-    'deals': 'deals', // ensure these exist
+    'deals': 'deals',
     'tech': 'tech',
   };
   return map[slug] || slug;
@@ -17,10 +22,14 @@ const normalizeCategory = (slug: string) => {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Ensure no trailing slash in base URL
-  const baseUrl = (process.env.baseUrl || 'https://toptenuae.com').replace(/\/$/, '');
+  const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'https://toptenuae.com').replace(/\/$/, '');
+  
+  // 2. STABILITY FIX: Use a fixed date for static pages instead of new Date()
+  // This prevents Google from thinking your "About Us" page changes every second.
+  // Update this date manually only when you make major structural changes.
+  const staticLastModified = new Date('2025-01-01');
 
   // 🔹 1. Static Core Pages
-  // FIX: Removed logic for adding trailing slashes to match trailingSlash: false
   const staticRoutes = [
     '', // Homepage
     '/ramadan-2026',
@@ -32,8 +41,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/disclaimer',
     '/cookies-policy',
   ].map((route) => ({
-    url: `${baseUrl}${route}`, // ✅ No slash at end
-    lastModified: new Date(),
+    url: `${baseUrl}${route}`,
+    lastModified: staticLastModified,
     changeFrequency: route === '/ramadan-2026' ? 'daily' as const : 'monthly' as const,
     priority: route === '/ramadan-2026' ? 1.0 : (route === '' ? 1.0 : 0.4),
   }));
@@ -51,19 +60,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   const categoryRoutes = categorySlugs.map((slug) => ({
-    url: `${baseUrl}/${slug}`, // ✅ No slash at end
-    lastModified: new Date(),
+    url: `${baseUrl}/${slug}`,
+    lastModified: staticLastModified, // Kept stable to prevent crawl churn
     changeFrequency: 'daily' as const,
     priority: 0.8, // High priority (Hubs)
   }));
 
   // 🔹 3. Dynamic Content (Posts, Tools, Deals)
-  // Fetching all content types
+  // We fetch everything but assign different priorities based on value
   const posts = await client.fetch(`
     *[
       _type in ["topTenList", "howTo", "tool", "holiday", "deal", "article", "post", "product"]
       && defined(slug.current)
     ]{
+      _type,
       "slug": slug.current,
       "category": coalesce(categories[0]->slug.current, category->slug.current),
       _updatedAt
@@ -71,17 +81,39 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   `);
 
   const postRoutes = posts.map((post: any) => {
-    // 1. Get raw category from Sanity
+    // 1. Get raw category and normalize it
     const rawCategory = post.category || 'reviews';
-    
-    // 2. Normalize it (fix old categories like 'travel-tourism' -> 'events-holidays')
     const categorySlug = normalizeCategory(rawCategory);
 
+    // 3. PRIORITY TIERING (SEO Best Practice)
+    // Give higher priority to your "Money Pages" (Reviews) and lower to Tools/Deals
+    let priority = 0.6; // Default
+    let freq: 'daily' | 'weekly' | 'monthly' = 'weekly';
+
+    switch (post._type) {
+        case 'topTenList': // High Value
+            priority = 0.9;
+            freq = 'weekly';
+            break;
+        case 'howTo':      // High Value (Evergreen)
+        case 'holiday':    // Seasonal
+            priority = 0.7;
+            freq = 'monthly';
+            break;
+        case 'tool':       // Functional
+        case 'deal':       // Time-sensitive
+            priority = 0.6;
+            freq = 'daily';
+            break;
+        default:
+            priority = 0.6;
+    }
+
     return {
-      url: `${baseUrl}/${categorySlug}/${post.slug}`, // ✅ No slash at end
-      lastModified: new Date(post._updatedAt),
-      changeFrequency: 'weekly' as const,
-      priority: 0.9, 
+      url: `${baseUrl}/${categorySlug}/${post.slug}`,
+      lastModified: new Date(post._updatedAt), // Real update time from Sanity
+      changeFrequency: freq,
+      priority: priority, 
     };
   });
 

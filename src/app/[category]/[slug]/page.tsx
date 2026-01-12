@@ -1,8 +1,10 @@
 // src/app/[category]/[slug]/page.tsx
 
-// ✅ REQUIRED: Cloudflare needs this for dynamic routes
-export const runtime = 'edge';
-export const dynamic = 'force-dynamic';
+// 1. SETTINGS FOR SEO STABILITY (ISR)
+// We remove 'edge' and 'force-dynamic'.
+// This tells Next.js: "Cache this page for 1 hour (3600s), then update in background."
+export const revalidate = 3600; 
+export const dynamicParams = true; // Allow new pages not yet built to be generated on demand
 
 import { client } from "@/sanity/lib/client";
 import { notFound, permanentRedirect } from "next/navigation";
@@ -11,12 +13,13 @@ import { generateSeoMetadata } from "@/utils/seo-manager";
 import { generateSchema } from "@/lib/schemaGenerator"; 
 import JsonLd from '@/components/JsonLd';
 
-// IMPORT THE NEW VIEWS
+// IMPORT VIEWS
 import ToolView from "@/components/views/ToolView";
 import ProductView from "@/components/views/ProductView";
 import ArticleView from "@/components/views/ArticleView";
 
 // --- UPDATED MASTER QUERY ---
+// (Kept exactly as you provided)
 const QUERY = `*[slug.current == $slug][0]{
   "slug": slug.current, _id, _type, title, description, seo, showAffiliateDisclosure,
   brand, affiliateLink, retailer, price, currency, availability,
@@ -24,7 +27,6 @@ const QUERY = `*[slug.current == $slug][0]{
   keyFeatures, pros, cons, itemDescription,
   dealPrice, originalPrice, discountPercentage, couponCode, couponNote, dealEndDate, isPrimeExclusive,
   
-  // --- SEO OVERRIDES ---
   "seoTitle": coalesce(seo.metaTitle, title),
   "seoDescription": coalesce(seo.metaDescription, intro, description),
   "socialShareImage": seo.shareGraphic.asset->url,
@@ -74,13 +76,11 @@ const QUERY = `*[slug.current == $slug][0]{
   faqs[] { _key, question, answer },
   startDate, endDate, locationName, address, ticketPrice,
   
-  // ✅ VERIFIED: This fetches 'whySelected' correctly for ProductCard
   listItems[] { 
     _key, rank, badgeLabel, whySelected, customVerdict, 
     product->{ title, "slug": slug.current, mainImage { asset, alt, "url": asset->url }, affiliateLink, retailer, priceTier, price, currency, availability, realComplaint, customerRating, reviewCount, verdict, keyFeatures, pros, cons, itemDescription } 
   },
 
-  // --- RELATED CONTENT (Topic Clusters) ---
   "relatedLists": *[
     _type == "topTenList" 
     && _id != ^._id 
@@ -113,29 +113,37 @@ interface PageProps {
   params: Promise<{ category: string; slug: string }>;
 }
 
+// 2. CRITICAL ADDITION: GENERATE STATIC PARAMS
+// This tells Next.js exactly which pages to build at build time.
+// Without this, pages are "Discovered - currently not indexed" until a user visits them.
+export async function generateStaticParams() {
+  const slugs = await client.fetch(
+    `*[_type in ["tool", "product", "article", "deal", "topTenList"] && defined(slug.current)]{
+      "slug": slug.current,
+      "category": coalesce(categories[0]->slug.current, category->slug.current, "reviews")
+    }`
+  );
+
+  return slugs.map((doc: any) => ({
+    category: doc.category,
+    slug: doc.slug,
+  }));
+}
+
 // --- SEO: Metadata Generation ---
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { category, slug } = await params;
   
-  // ✅ FIX APPLIED: "slug": slug.current returns a STRING, preventing Object Errors
   const data = await client.fetch(
     `*[slug.current == $slug][0]{ 
-      title, 
-      description, 
-      seo, 
-      "imageUrl": mainImage.asset->url, 
-      _type,
-      "slug": slug.current, 
-      dealPrice, 
-      price, 
-      linkedProduct->{mainImage},
+      title, description, seo, "imageUrl": mainImage.asset->url, 
+      _type, "slug": slug.current, dealPrice, price, linkedProduct->{mainImage},
       "categorySlug": coalesce(categories[0]->slug.current, category->slug.current)
     }`,
     { slug }
   );
 
   if (!data) return { title: "Page Not Found" };
-  
   return generateSeoMetadata(data, { category, slug });
 }
 
@@ -151,11 +159,14 @@ export default async function Page({ params }: PageProps) {
      // Optional: permanentRedirect(`/reviews/${slug}`); 
   }
   if (data._type === 'deal' && category !== 'deals') permanentRedirect(`/deals/${slug}`);
-  if (data.category && data.category.slug && data.category.slug !== category && category !== 'deals' && category !== 'reviews') {
-    permanentRedirect(`/${data.category.slug}/${slug}`);
+  
+  // Strict Category Check
+  const correctCategory = data.category?.slug || 'reviews'; // Fallback to reviews if null
+  if (correctCategory !== category && category !== 'deals' && category !== 'reviews') {
+    // Only redirect if it's a genuine mismatch, avoiding infinite loops
+    permanentRedirect(`/${correctCategory}/${slug}`);
   }
 
-  // ✅ GLOBAL SCHEMA GENERATION
   const schemaData = generateSchema(data);
 
   return (

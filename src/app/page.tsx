@@ -1,6 +1,9 @@
 // src/app/page.tsx
-// export const runtime = 'edge'; // ✅ Required for Cloudflare Pages compatibility
-export const revalidate = 60;  // Cache clear every 60 seconds
+
+// 1. CRITICAL SEO FIX: Stable Indexing
+// We change this from 60 to 86400 (24 hours). 
+// This gives Google a stable version of your homepage to index.
+export const revalidate = 86400; 
 
 import { client } from "@/sanity/lib/client";
 import Link from "next/link";
@@ -15,7 +18,6 @@ import {
   generateWebSiteSchema 
 } from "@/lib/schemaGenerator";
 
-
 // Icons
 import { 
   ArrowRight, 
@@ -29,7 +31,6 @@ import {
   PieChart 
 } from "lucide-react";
 
-
 // --- CONFIGURATION ---
 const SELECTED_CATEGORIES = ["tech", "reviews", "events-holidays", "parenting-kids", "finance-tools"]; 
 
@@ -38,11 +39,8 @@ export async function generateMetadata(): Promise<Metadata> {
   return generateSeoMetadata({
     // Updated Title with high-value keywords
     title: "TopTenUAE - Trending Tech, Reviews, Deals & Smart UAE Tools",
-    
     // Updated Description to match the "Free" and "Calculator" intent
-    description:
-      "Discover trending products, smart deals, and useful tools for UAE life — from tech and reviews to VAT & gratuity calculators.",
-    
+    description: "Discover trending products, smart deals, and useful tools for UAE life — from tech and reviews to VAT & gratuity calculators.",
     url: "https://toptenuae.com",
     _type: "website",
     imageUrl: "https://toptenuae.com/images/brand/og-home.png"
@@ -119,7 +117,6 @@ export default async function Home() {
     cleanText(heroPost?.intro) || 
     "Read our latest comprehensive review for the UAE market.";
 
-  
   return (
     <>
       <JsonLd
@@ -129,10 +126,11 @@ export default async function Home() {
         ]}
       />
       <main className="font-sans">
-    {/* SEO H1 (first element INSIDE main) */}
-    <h1 className="sr-only">
-      Trending Tech, Reviews, Deals & Smart Tools for UAE Life
-    </h1>
+      
+      {/* SEO H1: Hidden but semantic for Google */}
+      <h1 className="sr-only">
+        TopTenUAE - Trending Tech, Reviews, Deals & Smart Tools for UAE Life
+      </h1>
    
       {/* 1. HERO SECTION */}
       <section className="relative bg-slate-900 text-white overflow-hidden">
@@ -140,14 +138,15 @@ export default async function Home() {
           {heroPost.imageUrl && (
             <Image 
               src={heroPost.imageUrl}
-              alt=""
+              // ✅ FIXED: Added proper Alt text for SEO
+              alt={heroPost.title}
               fill
               className="object-cover opacity-40 blur-sm scale-105"
               priority
               aria-hidden="true"
             />
           )}
-          <div className="absolute inset-0 bg-linear-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
         </div>
 
         <div className="container mx-auto px-4 py-16 lg:py-24 relative z-10 max-w-7xl">
@@ -221,7 +220,8 @@ export default async function Home() {
                       {post.imageUrl ? (
                         <Image
                           src={post.imageUrl}
-                          alt=""
+                          // ✅ FIXED: Added proper Alt text for SEO
+                          alt={post.title}
                           fill
                           className="object-cover group-hover:scale-110 transition-transform duration-500"
                           sizes="(max-width: 768px) 100vw, 25vw"
