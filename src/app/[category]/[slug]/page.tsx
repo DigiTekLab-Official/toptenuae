@@ -194,7 +194,7 @@ export default async function Page({ params }: PageProps) {
               "@context": "https://schema.org", "@type": "BreadcrumbList",
               "itemListElement": [
                 { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://toptenuae.com" },
-                { "@type": "ListItem", "position": 2, "name": data.category?.title || "Tools", "item": `https://toptenuae.com/${category}` },
+                { "@type": "ListItem", "position": 2, "name": data.category?.title === "Finance Tools" ? "Finance Tools" : (data.category?.title || "Calculators"), "item": `https://toptenuae.com/${category}` },
                 { "@type": "ListItem", "position": 3, "name": data.title, "item": `https://toptenuae.com/${category}/${slug}` }
               ]
             })

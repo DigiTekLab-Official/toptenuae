@@ -1,19 +1,14 @@
 // src/components/tools/ClientToolRenderer.tsx
 "use client";
-
 import dynamic from "next/dynamic";
 import React from "react";
 
-// ✅ This logic is allowed here because of the "use client" directive above
+// ✅ FIX: Allow SSR so Google sees the tool immediately
 const ToolRegistry = dynamic(() => import("@/components/tools/ToolRegistry"), {
-  ssr: false, // Prevents hydration mismatches for calculators/tools
-  loading: () => <div className="h-96 w-full animate-pulse bg-white/10 rounded-xl" />
+  // ssr: false, <--- DELETE THIS LINE
+  loading: () => <div className="h-96 w-full bg-slate-50 rounded-xl animate-pulse" />
 });
 
-interface ClientToolRendererProps {
-  id: string;
-}
-
-export default function ClientToolRenderer({ id }: ClientToolRendererProps) {
+export default function ClientToolRenderer({ id }: { id: string }) {
   return <ToolRegistry id={id} />;
 }

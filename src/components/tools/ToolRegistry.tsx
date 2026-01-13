@@ -4,22 +4,17 @@
 import dynamic from 'next/dynamic';
 import { Loader2 } from 'lucide-react';
 
-// ⚡ PERFORMANCE: Lazy load these heavy components
-// They are only downloaded when the user actually visits the tool page.
-const GratuityCalculator = dynamic(() => import('./GratuityCalculator'), {
-  loading: () => <LoadingSpinner />,
-});
-const ZakatCalculator = dynamic(() => import('./ZakatCalculator'), {
-  loading: () => <LoadingSpinner />,
-});
-const VatCalculator = dynamic(() => import('./VatCalculator'), {
-  loading: () => <LoadingSpinner />,
-});
+// ✅ FIX: Import VAT Calculator directly so it renders on the Server
+import VatCalculator from './VatCalculator';
+
+// Keep other heavy tools lazy if you prefer
+const GratuityCalculator = dynamic(() => import('./GratuityCalculator'), { loading: () => <LoadingSpinner /> });
+const ZakatCalculator = dynamic(() => import('./ZakatCalculator'), { loading: () => <LoadingSpinner /> });
 
 const TOOLS_MAP: Record<string, React.ComponentType<any>> = {
   'gratuity-uae': GratuityCalculator,
   'zakat-uae': ZakatCalculator,
-  'vat-uae': VatCalculator,
+  'vat-uae': VatCalculator, // ✅ Now SSR Compatible
 };
 
 function LoadingSpinner() {
