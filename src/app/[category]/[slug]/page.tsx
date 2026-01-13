@@ -1,8 +1,12 @@
 // src/app/[category]/[slug]/page.tsx
 
-// 1. SETTINGS FOR SEO STABILITY (ISR)
+// 1. FORCE NODE.JS RUNTIME (The Fix)
+// This ensures Sanity fetches complete and HTML is fully generated for Bing.
+export const runtime = 'nodejs'; 
+
+// 2. KEEP YOUR EXISTING SETTINGS
 export const revalidate = 3600; 
-export const dynamicParams = true; 
+export const dynamicParams = true;
 
 import { client } from "@/sanity/lib/client";
 import { notFound, permanentRedirect } from "next/navigation";
