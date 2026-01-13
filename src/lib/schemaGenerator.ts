@@ -26,8 +26,6 @@ export const generateOrganizationSchema = () => ({
   '@id': `${baseUrl}/#organization`,
   name: 'TopTenUAE',
   url: baseUrl,
-  inLanguage: 'en-AE',
-  // ✅ OPTIMIZATION: Google prefers a single ImageObject for the logo
   logo: {
     '@type': 'ImageObject',
     url: `${baseUrl}/images/brand/logoIcon.svg`,
@@ -68,7 +66,7 @@ export const generateHomePageSchema = () => ({
   '@type': 'CollectionPage',
   '@id': `${baseUrl}/#homepage`,
   url: `${baseUrl}/`,
-  name: 'TopTenUAE – Trending Tech, Reviews & Smart UAE Tools',
+  name: 'TopTenUAE - Trending Tech, Reviews & Smart UAE Tools',
   description: 'Discover trending products, expert reviews, and free UAE tools including VAT and gratuity calculators.',
   isPartOf: {
     '@id': `${baseUrl}/#website`
