@@ -1,27 +1,32 @@
 // src/utils/seo-manager.ts
 import { Metadata } from 'next';
-import { cleanText } from '@/utils/sanity-text'; // ✅ Import the helper
+import { cleanText } from '@/utils/sanity-text';
 
 // --- CONFIGURATION ---
 const SITE_URL = process.env.baseUrl || 'https://toptenuae.com';
 const DEFAULT_OG_IMAGE = `${SITE_URL}/images/brand/og-default.png`;
 
-/**
- * Interface representing the data coming from Sanity
- * MATCHES: 'seo' object in Sanity Schema + Manual Overrides
- */
+// ✅ NEW: Safety Limits for Bing/Google
+const MAX_TITLE_LENGTH = 60;
+const MAX_DESC_LENGTH = 160;
+
+// ✅ NEW: Helper to cut text cleanly without cutting words in half
+const truncate = (text: string, limit: number) => {
+  if (!text || text.length <= limit) return text;
+  return text.substring(0, limit).trim() + '...';
+};
+
 export interface SanitySeoSource {
   title: string;
   description?: string;
   slug?: { current: string };
-  url?: string; // ✅ ADDED THIS TO FIX THE ERROR
+  url?: string;
   mainImage?: { url: string };
   _type: string;
   _updatedAt?: string;
   publishedAt?: string;
-  categorySlug?: string; // ✅ ADDED: To build the correct canonical path
+  categorySlug?: string;
   
-  // The Custom SEO Object from Sanity
   seo?: {
     metaTitle?: string;
     metaDescription?: string;
@@ -31,16 +36,13 @@ export interface SanitySeoSource {
     ogImage?: { url: string };
   };
 
-  // Specific fields for Fallbacks
   intro?: string;          
   verdict?: string;        
   itemDescription?: any;   
   imageUrl?: string;       
 }
-/**
- * Helper to determine OpenGraph Type
- */
-function getOgType(docType: string): 'website' | 'article' | 'book' | 'profile' {
+
+function getOgType(docType: string): 'website' | 'article' {
   switch (docType) {
     case 'article':
     case 'news':
@@ -50,12 +52,8 @@ function getOgType(docType: string): 'website' | 'article' | 'book' | 'profile' 
     default:
       return 'website'; 
   }
-  
 }
 
-/**
- * THE FACTORY: Generates Next.js Metadata Object
- */
 export function generateSeoMetadata(
   data: SanitySeoSource, 
   pathContext?: { category?: string; slug?: string }
@@ -63,10 +61,11 @@ export function generateSeoMetadata(
   
   if (!data) return { title: 'Page Not Found' };
 
-  // 1. Resolve Title
-  const title = data.seo?.metaTitle || data.title || 'TopTenUAE';
+  // 1. Resolve & Truncate Title (Fixes "Title too long")
+  const rawTitle = data.seo?.metaTitle || data.title || 'TopTenUAE';
+  const title = truncate(rawTitle, MAX_TITLE_LENGTH);
 
-  // 2. Resolve Description (Safe version)
+  // 2. Resolve & Truncate Description (Fixes "Description missing")
   const rawDescription = 
     data.seo?.metaDescription || 
     data.description || 
@@ -74,10 +73,12 @@ export function generateSeoMetadata(
     data.itemDescription ||
     data.verdict;
 
-  // ✅ Clean it before assigning. Handles both Strings and Blocks.
-  const description = rawDescription 
-    ? cleanText(rawDescription) 
-    : "Discover the best products, deals, and government tools in the UAE.";
+  // ✅ FIX: Force a fallback if everything else is empty
+  const cleanDesc = rawDescription ? cleanText(rawDescription) : "";
+  const description = truncate(
+    cleanDesc || `Discover the best ${data.title || 'products'} in the UAE with expert reviews and pricing on TopTenUAE.`,
+    MAX_DESC_LENGTH
+  );
 
   // 3. Resolve Image
   const ogImage = 
@@ -87,24 +88,21 @@ export function generateSeoMetadata(
     DEFAULT_OG_IMAGE;
 
   // 4. Resolve Canonical URL
-  let canonical = data.url || data.seo?.canonicalUrl; // ✅ Check 'url' first for homepage
+  let canonical = data.url || data.seo?.canonicalUrl; 
   
-  // LOGIC UPDATE: Use Sanity data (categorySlug) as the source of truth
   if (!canonical) {
-    // Prefer the category stored in DB; fallback to URL param
     const activeCategory = data.categorySlug || pathContext?.category;
     const activeSlug = data.slug?.current || pathContext?.slug;
 
     if (activeCategory && activeSlug) {
-      // e.g. https://toptenuae.com/reviews/best-beard-trimmers-uae
       canonical = `${SITE_URL}/${activeCategory}/${activeSlug}`;
     } else if (activeSlug) {
-      // e.g. https://toptenuae.com/some-root-page
       canonical = `${SITE_URL}/${activeSlug}`;
+    } else {
+      canonical = SITE_URL;
     }
   }
 
-  // 5. Robots Control
   const noIndex = data.seo?.noIndex || false;
 
   return {
@@ -114,7 +112,6 @@ export function generateSeoMetadata(
     keywords: data.seo?.keywords,
     applicationName: 'TopTenUAE',
     
-    // Robots
     robots: {
       index: !noIndex,
       follow: !noIndex,
@@ -127,7 +124,6 @@ export function generateSeoMetadata(
       },
     },
 
-    // OpenGraph
     openGraph: {
       title: title,
       description: description,
@@ -148,7 +144,6 @@ export function generateSeoMetadata(
       ...(data._updatedAt && { modifiedTime: data._updatedAt }),
     },
 
-    // Twitter
     twitter: {
       card: 'summary_large_image',
       title: title,
@@ -156,7 +151,6 @@ export function generateSeoMetadata(
       images: [ogImage],
     },
 
-    // Canonical
     alternates: {
       canonical: canonical,
     },

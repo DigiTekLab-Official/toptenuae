@@ -1,10 +1,11 @@
 // src/app/[category]/[slug]/page.tsx
 
-// 1. FORCE NODE.JS RUNTIME (The Fix)
-// This ensures Sanity fetches complete and HTML is fully generated for Bing.
+// 1. FORCE NODE.JS RUNTIME
+// Ensures stable HTML generation for Bing/Google bots
 export const runtime = 'nodejs'; 
 
-// 2. KEEP YOUR EXISTING SETTINGS
+// 2. PERFORMANCE SETTINGS (Keep these!)
+// We use 1-hour caching. Do NOT set to 0 unless you want a slow site.
 export const revalidate = 3600; 
 export const dynamicParams = true;
 
@@ -20,7 +21,7 @@ import ToolView from "@/components/views/ToolView";
 import ProductView from "@/components/views/ProductView";
 import ArticleView from "@/components/views/ArticleView";
 
-// --- HELPER: Normalize Old Categories (Matches Sitemap Logic) ---
+// --- HELPER: Normalize Categories ---
 const normalizeCategory = (slug: string) => {
   const map: Record<string, string> = {
     'travel-tourism': 'events-holidays',
@@ -33,7 +34,7 @@ const normalizeCategory = (slug: string) => {
   return map[slug] || slug;
 };
 
-// --- UPDATED MASTER QUERY ---
+// --- MASTER QUERY (Kept Full to protect UI) ---
 const QUERY = `*[slug.current == $slug][0]{
   "slug": slug.current, _id, _type, title, description, seo, showAffiliateDisclosure,
   brand, affiliateLink, retailer, price, currency, availability,
@@ -123,12 +124,11 @@ const QUERY = `*[slug.current == $slug][0]{
   }
 }`;
 
+// Maintain Promise type for Next.js 15 compatibility
 interface PageProps {
   params: Promise<{ category: string; slug: string }>;
 }
 
-// 2. CRITICAL FIX: Add 'holiday', 'event', 'howTo', 'charity' to static params
-// Previously, these types were missing, so Next.js didn't know they existed.
 export async function generateStaticParams() {
   const slugs = await client.fetch(
     `*[_type in ["tool", "product", "article", "deal", "topTenList", "holiday", "event", "howTo", "charity"] && defined(slug.current)]{
@@ -138,25 +138,34 @@ export async function generateStaticParams() {
   );
 
   return slugs.map((doc: any) => ({
-    category: normalizeCategory(doc.category), // Normalize here too
+    category: normalizeCategory(doc.category), 
     slug: doc.slug,
   }));
 }
 
-// --- SEO: Metadata Generation ---
+// --- SEO: Metadata Generation (Optimized) ---
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { category, slug } = await params;
   
+  // ✅ FETCH EXTRA FIELDS: We added intro, verdict, itemDescription for better fallbacks
   const data = await client.fetch(
     `*[slug.current == $slug][0]{ 
-      title, description, seo, "imageUrl": mainImage.asset->url, 
+      title, description, intro, verdict, itemDescription,
+      seo, "imageUrl": mainImage.asset->url, 
       _type, "slug": slug.current, dealPrice, price, linkedProduct->{mainImage},
       "categorySlug": coalesce(categories[0]->slug.current, category->slug.current)
     }`,
     { slug }
   );
 
-  if (!data) return { title: "Page Not Found" };
+  // ✅ SAFE FALLBACK: If Sanity fails, return 404 Metadata instead of undefined
+  if (!data) {
+    return { 
+      title: "Page Not Found | TopTenUAE",
+      description: "The requested content could not be found."
+    };
+  }
+
   return generateSeoMetadata(data, { category, slug });
 }
 
@@ -169,18 +178,14 @@ export default async function Page({ params }: PageProps) {
 
   // 🛑 SEO GUARD: Redirects
   if (data._type === 'product' && category !== 'products' && category !== 'reviews') {
-     // Optional: permanentRedirect(`/reviews/${slug}`); 
+     // Optional logic
   }
   if (data._type === 'deal' && category !== 'deals') permanentRedirect(`/deals/${slug}`);
   
-  // 3. FIX: Normalize the database category before checking mismatch
-  // If Sanity says 'travel-tourism', we convert it to 'events-holidays'
-  // This prevents the page from redirecting you endlessly or 404ing.
   const rawCategory = data.category?.slug || 'reviews';
   const correctCategory = normalizeCategory(rawCategory);
 
   if (correctCategory !== category && category !== 'deals' && category !== 'reviews') {
-    // Only redirect if the NORMALIZED category doesn't match the URL
     permanentRedirect(`/${correctCategory}/${slug}`);
   }
 

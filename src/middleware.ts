@@ -2,27 +2,17 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// -----------------------------------------------------------------------------
-// CONFIGURATION
-// -----------------------------------------------------------------------------
 export const config = {
   matcher: [
-    // Standard exclusions + your custom files
     '/((?!api|_next/static|_next/image|favicon.ico|icon.svg|icon-v2.svg|apple-icon.png|robots.txt|sitemap.xml).*)',
   ],
 };
 
-// -----------------------------------------------------------------------------
-// MIDDLEWARE LOGIC
-// -----------------------------------------------------------------------------
-// Cloudflare currently REQUIRES this function to be named 'middleware' 
-// and the file to be 'middleware.ts', even if Next.js 16 warns about it.
 export function middleware(request: NextRequest) {
   const response = NextResponse.next();
   const url = request.nextUrl;
 
   // 1. FIX: RSC Prefetch Errors
-  // Prevents browser from caching 404s for internal Next.js prefetches
   if (url.searchParams.has('_rsc')) {
     response.headers.set('Cache-Control', 'no-store, must-revalidate');
   }
@@ -30,6 +20,7 @@ export function middleware(request: NextRequest) {
   // 2. DEFINE CSP (Content Security Policy)
   const csp = `
     default-src 'self';
+    base-uri 'self';
 
     script-src 'self' 'unsafe-eval' 'unsafe-inline'
       https://cdn.sanity.io
@@ -48,7 +39,8 @@ export function middleware(request: NextRequest) {
       https://toptenuae.com
       https://lh3.googleusercontent.com
       https://www.google-analytics.com
-      https://*.clarity.ms;
+      https://*.clarity.ms
+      https://c.clarity.ms;  
 
     font-src 'self' data:
       https://fonts.gstatic.com;
@@ -58,7 +50,9 @@ export function middleware(request: NextRequest) {
       https://www.google-analytics.com
       https://www.googletagmanager.com
       https://*.clarity.ms
-      https://cloudflareinsights.com;
+      https://c.clarity.ms 
+      https://cloudflareinsights.com
+      https://challenges.cloudflare.com;
 
     frame-src 'self'
       https://challenges.cloudflare.com;
