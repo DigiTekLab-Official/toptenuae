@@ -56,14 +56,17 @@ const getToolConfig = (slug: string) => {
   return { icon: Calculator, ctaLabel: "Use Tool", iconColor: "text-primary", iconBg: "bg-primary/10" };
 };
 
-// --- QUERY ---
+// --- QUERY (FIXED) ---
 const HOME_QUERY = `
 {
   "heroPost": *[_type in ["topTenList", "howTo", "article", "news"] && defined(slug.current)] | order(publishedAt desc)[0] {
     title,
     "slug": slug.current,
-    "categorySlug": coalesce(category->slug.current, "general"), 
-    "categoryTitle": coalesce(category->title, "Featured"),
+    
+    // ✅ FIX: Check 'categories[0]' (array) first, then 'category' (single ref)
+    "categorySlug": coalesce(categories[0]->slug.current, category->slug.current, "general"), 
+    "categoryTitle": coalesce(categories[0]->title, category->title, "Featured"),
+    
     "imageUrl": mainImage.asset->url,
     intro,
     publishedAt

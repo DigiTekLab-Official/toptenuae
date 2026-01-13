@@ -19,16 +19,18 @@ interface HeroProps {
   sidePosts: TopTenItem[];
 }
 
-// 1. The Main "Featured" Card
+// 1. The Main "Featured" Card (FIXED)
 const FeaturedCard = ({ post }: { post: TopTenItem }) => {
-  // ✅ DATA IS NOW SAFE: We rely on the query's coalesce, but keep a fallback just in case.
+  // ⚠️ If data is missing, this defaults to 'general', which causes your 404.
+  // We will discuss how to fix the data source in Step 2.
   const catSlug = post.categorySlug || 'general';
   const postUrl = `/${catSlug}/${post.slug}`;
   
   const introText = typeof post.intro === 'string' ? post.intro : (post.intro ? toPlainText(post.intro) : '');
 
   return (
-    <div className="group relative h-full flex flex-col border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md">
+    // ✅ ADDED: Link component wrapping the card
+    <Link href={postUrl} className="group relative h-full flex flex-col border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md block">
       <div className="relative w-full aspect-video overflow-hidden bg-gray-100">
         {post.imageUrl ? (
           <Image
@@ -70,7 +72,7 @@ const FeaturedCard = ({ post }: { post: TopTenItem }) => {
           </span>
         </div>
       </div>
-    </div>
+    </Link> // ✅ Close Link
   );
 };
 
