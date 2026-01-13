@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   // -----------------------------------------------------------------------------
   // GENERAL CONFIG
   // -----------------------------------------------------------------------------
-  trailingSlash: false, 
+  trailingSlash: false, // ensure no trailing slashes
 
   // -----------------------------------------------------------------------------
   // IMAGE OPTIMIZATION
@@ -26,10 +26,8 @@ const nextConfig: NextConfig = {
   // SECURITY HEADERS (CSP)
   // -----------------------------------------------------------------------------
   async headers() {
-    // ✅ CSP FIXED: Whitelists Clarity, GTM, Sanity, and Cloudflare
     const ContentSecurityPolicy = `
       default-src 'self';
-      
       script-src 'self' 'unsafe-eval' 'unsafe-inline' 
         https://www.googletagmanager.com 
         https://challenges.cloudflare.com 
@@ -37,9 +35,7 @@ const nextConfig: NextConfig = {
         https://www.clarity.ms 
         https://c.bing.com
         https://c.clarity.ms;
-      
       style-src 'self' 'unsafe-inline';
-      
       img-src 'self' blob: data: 
         https://cdn.sanity.io 
         https://placehold.co 
@@ -50,9 +46,7 @@ const nextConfig: NextConfig = {
         https://c.bing.com
         https://c.clarity.ms
         https://www.google-analytics.com;
-      
       font-src 'self' data:;
-      
       connect-src 'self' 
         https://*.api.sanity.io 
         https://www.google-analytics.com 
@@ -62,10 +56,8 @@ const nextConfig: NextConfig = {
         https://challenges.cloudflare.com 
         https://cloudflareinsights.com
         https://www.googletagmanager.com; 
-      
       frame-src 'self' 
         https://challenges.cloudflare.com;
-        
       frame-ancestors 'self';
     `.replace(/\s{2,}/g, ' ').trim();
 
@@ -83,7 +75,7 @@ const nextConfig: NextConfig = {
           { key: "Content-Security-Policy", value: ContentSecurityPolicy },
         ],
       },
-      // ✅ FIX: RSC Prefetch - Prevent caching 404s
+      // RSC Prefetch - Prevent caching 404s
       {
         source: "/:path*",
         has: [{ type: "query", key: "_rsc" }],
@@ -93,16 +85,15 @@ const nextConfig: NextConfig = {
   },
 
   // -----------------------------------------------------------------------------
-  // TRAFFIC REDIRECTS (Optimized: Direct Hops Only)
+  // REDIRECTS (Optimized for single-hop, canonical URLs)
   // -----------------------------------------------------------------------------
   async redirects() {
     return [
       // --- 1. CLEANUP & UTILITIES ---
       { source: '/:path*/amp', destination: '/:path*', permanent: true },
-      { source: '/:path*/feed', destination: '/:path*', permanent: true }, 
+      { source: '/:path*/feed', destination: '/:path*', permanent: true },
 
-      // --- 2. CATEGORY MIGRATIONS (Legacy /category/ URL removal) ---
-      // These map directly to the new static Hub pages
+      // --- 2. CATEGORY MIGRATIONS ---
       { source: "/category/deals", destination: "/deals", permanent: true },
       { source: "/category/finance-tools", destination: "/finance-tools", permanent: true },
       { source: "/category/reviews", destination: "/reviews", permanent: true },
@@ -111,16 +102,15 @@ const nextConfig: NextConfig = {
       { source: "/category/parenting-kids", destination: "/parenting-kids", permanent: true },
       { source: "/category/events-holidays", destination: "/events-holidays", permanent: true },
       { source: "/category/lifestyle", destination: "/lifestyle", permanent: true },
-      
-      // Merged Categories
+
+      // Merged / legacy categories
       { source: "/category/travel-tourism", destination: "/events-holidays", permanent: true },
       { source: "/category/health-fitness", destination: "/lifestyle", permanent: true },
       { source: "/category/baby-kid", destination: "/parenting-kids", permanent: true },
       { source: "/category/buyers-guide", destination: "/reviews", permanent: true },
       { source: "/category/uncategorized", destination: "/", permanent: true },
 
-      // --- 3. DIRECT ARTICLE REDIRECTS (High Value - Preserve SEO) ---
-      
+      // --- 3. ARTICLE REDIRECTS ---
       // Tech
       { source: "/samsung-galaxy-s26-ultra-specs-uae-price", destination: "/tech/samsung-galaxy-s26-ultra-specs-uae-price", permanent: true },
       { source: "/quantum-computing-strategy-uae-2026", destination: "/tech/quantum-computing-strategy-uae-2026", permanent: true },
@@ -129,11 +119,11 @@ const nextConfig: NextConfig = {
       { source: "/how-to-use-deepseek-ai-data-extraction-analysis", destination: "/tech/how-to-use-deepseek-ai-data-extraction-analysis", permanent: true },
       { source: "/deepseek-ai-revolutionary-data-retrieval-method", destination: "/tech/deepseek-ai-revolutionary-data-retrieval-method", permanent: true },
       { source: "/state-of-ai-december-2025-uae-report", destination: "/tech/state-of-ai-december-2025-uae-report", permanent: true },
-      
-      // Tech Aliases
+
+      // Tech aliases
       { source: "/understanding-deep-seek-ai", destination: "/tech/deepseek-ai-startup-disrupting-big-tech-with-innovation", permanent: true },
       { source: "/understanding-deep-seek", destination: "/tech/deepseek-ai-startup-disrupting-big-tech-with-innovation", permanent: true },
-      { source: "/nasa-astronaut-don-pettit-burj-khalifa-image-from-space", destination: "/tech", permanent: true }, // Fallback
+      { source: "/nasa-astronaut-don-pettit-burj-khalifa-image-from-space", destination: "/tech", permanent: true },
 
       // Reviews
       { source: "/new-year-tech-upgrades-uae-2026", destination: "/reviews/new-year-tech-upgrades-uae-2026", permanent: true },
@@ -141,7 +131,7 @@ const nextConfig: NextConfig = {
       { source: "/best-beard-trimmers-uae", destination: "/reviews/best-beard-trimmers-uae", permanent: true },
       { source: "/best-wireless-earbuds-uae", destination: "/reviews/best-wireless-earbuds-uae", permanent: true },
       { source: "/best-air-fryers-uae-2026", destination: "/reviews/best-air-fryers-uae-2026", permanent: true },
-      { source: "/reviews/sihoo-m18-ergonomic-chair-deal", destination: "/reviews", permanent: true }, // Dead deal -> Hub
+      { source: "/reviews/sihoo-m18-ergonomic-chair-deal", destination: "/reviews", permanent: true },
 
       // Parenting & Kids
       { source: "/best-baby-skincare-uae", destination: "/parenting-kids/best-baby-skincare-uae", permanent: true },
@@ -152,13 +142,13 @@ const nextConfig: NextConfig = {
 
       // Holidays & Events
       { source: "/uae-holidays-2026", destination: "/events-holidays/uae-holidays-2026", permanent: true },
-      { source: "/uae-holidays-2025", destination: "/events-holidays/uae-holidays-2026", permanent: true }, // 2025 -> 2026
+      { source: "/uae-holidays-2025", destination: "/events-holidays/uae-holidays-2026", permanent: true },
       { source: "/eid-al-fitr-uae-prayer-timings-free-events", destination: "/events-holidays/eid-al-fitr-uae-prayer-timings-free-events", permanent: true },
       { source: "/eid-holidays-uae-2026-best-places-to-visit", destination: "/events-holidays/eid-holidays-uae-2026-best-places-to-visit", permanent: true },
       { source: "/best-places-visit-uae-eid-holidays", destination: "/events-holidays/eid-holidays-uae-2026-best-places-to-visit", permanent: true },
       { source: "/uae-eid-holidays-dates-events-travel-tips", destination: "/events-holidays/eid-holidays-uae-2026-best-places-to-visit", permanent: true },
-      
-      // Ramadan Direct Links (Consolidated to one master guide)
+
+      // Ramadan
       { source: "/events-holidays/ramadan-2026", destination: "/events-holidays/ramadan-2026-uae", permanent: true },
       { source: "/ramadan-2026", destination: "/events-holidays/ramadan-2026-uae", permanent: true },
       { source: "/ramadan-deals-uae", destination: "/events-holidays/ramadan-2026-uae", permanent: true },
@@ -174,18 +164,16 @@ const nextConfig: NextConfig = {
 
       // Core Pages
       { source: "/about", destination: "/about-us", permanent: true },
-      { source: "/terms-conditions", destination: "/terms-and-conditions", permanent: true },
       { source: "/contact", destination: "/contact-us", permanent: true },
+      { source: "/terms-conditions", destination: "/terms-and-conditions", permanent: true },
       { source: "/best-budget-buys-uae-amazon-deals-march-2025", destination: "/deals", permanent: true },
 
-      // --- 4. CATEGORY FALLBACKS (Safe Failovers) ---
-      // These URLs likely don't have exact article matches, so we send them to the Category Hub.
-      // GSC may mark these as "Soft 404", which is acceptable for recovering traffic.
+      // --- 4. CATEGORY FALLBACKS ---
       { source: "/best-diaper-bags-uae", destination: "/parenting-kids", permanent: true },
       { source: "/best-diaper-bags-in-uae", destination: "/parenting-kids", permanent: true },
       { source: "/best-baby-white-noise-machines", destination: "/parenting-kids", permanent: true },
       { source: "/best-baby-toys", destination: "/parenting-kids", permanent: true },
-      { source: "/best-educational-toys-uae", destination: "/parenting-kids", permanent: true }, 
+      { source: "/best-educational-toys-uae", destination: "/parenting-kids", permanent: true },
       { source: "/best-educational-toys-in-uae", destination: "/parenting-kids", permanent: true },
     ];
   },
