@@ -1,10 +1,10 @@
 // src/lib/schemaGenerator.ts
-import { cleanText } from '@/utils/sanity-text'; 
+import { cleanText } from '@/utils/sanity-text';
 
 // --- CONFIGURATION ---
 const baseUrl = process.env.baseUrl || 'https://toptenuae.com';
 const ORGANIZATION_LOGO = `${baseUrl}/images/brand/logoIcon.svg`;
-const DEFAULT_IMAGE = `${baseUrl}/images/brand/og-default.png`; 
+const DEFAULT_IMAGE = `${baseUrl}/images/brand/og-default.png`;
 
 // --- HELPER: DATES ---
 const formatIsoDate = (dateStr?: string, isAllDay?: boolean) => {
@@ -29,19 +29,19 @@ export const generateOrganizationSchema = () => ({
   inLanguage: 'en-AE',
   logo: [
     {
-    '@type': 'ImageObject',
-    url: `${baseUrl}/images/brand/logoIcon.svg`,
-    width: 512,
-    height: 512
-  },
-  {
-    '@type': 'ImageObject',
-    url: `${baseUrl}/images/brand/logoIcon-1200.png`,
-    width: 1200,
-    height: 1200,
-     inLanguage: 'en-AE'
-  }
-],
+      '@type': 'ImageObject',
+      url: `${baseUrl}/images/brand/logoIcon.svg`,
+      width: 512,
+      height: 512
+    },
+    {
+      '@type': 'ImageObject',
+      url: `${baseUrl}/images/brand/logoIcon-1200.png`,
+      width: 1200,
+      height: 1200,
+      inLanguage: 'en-AE'
+    }
+  ],
   sameAs: [
     'https://facebook.com/toptenuae',
     'https://twitter.com/toptenuae'
@@ -104,13 +104,13 @@ export const generateEventSchema = (data: any, imageUrl: string | null = null) =
       }
     },
     organizer: organizer,
-    performer: organizer 
+    performer: organizer
   };
 
   if (data.ticketPrice !== undefined || data.ticketUrl) {
     schema.offers = {
       '@type': 'Offer',
-      url: data.ticketUrl || `${baseUrl}/events-holidays/${data.slug || ''}`, 
+      url: data.ticketUrl || `${baseUrl}/events-holidays/${data.slug || ''}`,
       price: data.ticketPrice || 0,
       priceCurrency: data.currency || "AED",
       availability: data.isTicketAvailable === false ? "https://schema.org/SoldOut" : "https://schema.org/InStock",
@@ -123,13 +123,13 @@ export const generateEventSchema = (data: any, imageUrl: string | null = null) =
 // --- 4. PRODUCT SCHEMA ---
 export const generateProductSchema = (data: any) => {
   const priceValue = data.price || data.livePrice || data.priceEstimate || 0;
-  
+
   const schema: any = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: cleanText(data.title || data.itemName),
     image: data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE],
-    description: cleanText(data.verdict || data.intro || data.description), 
+    description: cleanText(data.verdict || data.intro || data.description),
     brand: { '@type': 'Brand', name: cleanText(data.brand || 'Generic') },
     offers: {
       '@type': 'Offer',
@@ -144,12 +144,12 @@ export const generateProductSchema = (data: any) => {
         // ✅ FIX 1: Explicitly define shipping destination
         shippingDestination: {
           '@type': 'DefinedRegion',
-          addressCountry: 'AE' 
+          addressCountry: 'AE'
         },
         deliveryTime: {
-            '@type': 'ShippingDeliveryTime',
-            handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
-            transitTime: { '@type': 'QuantitativeValue', minValue: 1, maxValue: 3, unitCode: 'DAY' }
+          '@type': 'ShippingDeliveryTime',
+          handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
+          transitTime: { '@type': 'QuantitativeValue', minValue: 1, maxValue: 3, unitCode: 'DAY' }
         }
       },
       hasMerchantReturnPolicy: {
@@ -159,7 +159,7 @@ export const generateProductSchema = (data: any) => {
         merchantReturnDays: 15,
         returnMethod: 'https://schema.org/ReturnByMail',
         // ✅ FIX 2: Explicitly define return fees
-        returnFees: 'https://schema.org/FreeReturn' 
+        returnFees: 'https://schema.org/FreeReturn'
       }
     }
   };
@@ -183,18 +183,78 @@ export const generateProductSchema = (data: any) => {
   return schema;
 };
 
-// --- 5. TOOL / CALCULATOR SCHEMA ---
-export const generateToolSchema = (data: any) => ({
-  '@context': 'https://schema.org',
-  '@type': 'SoftwareApplication',
-  name: cleanText(data.title),
-  description: cleanText(data.seo?.metaDescription || data.description),
-  url: `${baseUrl}/${data.slug}`,
-  applicationCategory: 'FinanceApplication',
-  operatingSystem: 'Web',
-  offers: { '@type': 'Offer', 'price': '0', 'priceCurrency': 'AED' },
-  image: data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE]
-});
+// --- 5. TOOL / CALCULATOR SCHEMA (FINAL OPTIMIZED VERSION) ---
+export const generateToolSchema = (data: any) => {
+  const slug = data.slug?.current || data.slug || '';
+
+  // 1. DYNAMIC FEATURE LIST (Matches User Intent)
+  // We customize features so Google knows EXACTLY what this tool does.
+  let features = ['Free Online Tool', 'Instant Calculation', 'Mobile Friendly'];
+
+  if (slug.includes('vat')) {
+    features = [
+      'Add VAT to price',                // Matches "add vat" queries
+      'Remove VAT (Reverse calculation)',// Matches "reverse vat" queries
+      'UAE VAT compliant (5%)',          // Matches "uae vat rate"
+      'Instant VAT calculation',
+      'VAT inclusive & exclusive formulas' // Better than "Excel formulas" (avoids misleading users)
+    ];
+  } else if (slug.includes('gratuity')) {
+    features = [
+      'UAE Labor Law compliant',
+      'Limited & Unlimited contract logic',
+      'Resignation & Termination calculation',
+      'End of Service Benefits calculator'
+    ];
+  } else if (slug.includes('zakat')) {
+    features = [
+      'Gold & Silver Nisab',
+      'Cash & assets calculation',
+      'Islamic Zakat rules',
+      '2.5% Zakat rate'
+    ];
+  }
+
+  // 2. CONSTRUCT THE URL CORRECTLY
+  // We must include the category (e.g., 'finance-tools') or the link is broken.
+  const categorySlug = data.category?.slug || 'finance-tools';
+  const fullUrl = `${baseUrl}/${categorySlug}/${slug}`;
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: cleanText(data.title),
+    description: cleanText(data.seo?.metaDescription || data.description),
+    url: fullUrl, // ✅ CRITICAL FIX: Now matches your actual website structure
+    applicationCategory: 'FinanceApplication',
+    operatingSystem: 'Web, Android, iOS', // ✅ Tells Google it works on phones
+    isAccessibleForFree: true, // ✅ Strong signal for "Free VAT Calculator" queries
+
+    author: {
+      '@type': 'Organization',
+      name: 'TopTenUAE',
+      url: baseUrl
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'TopTenUAE',
+      logo: {
+        '@type': 'ImageObject',
+        url: ORGANIZATION_LOGO
+      }
+    },
+
+    featureList: features,
+
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'AED'
+    },
+
+    image: data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE]
+  };
+};
 
 // --- 6. DEAL SCHEMA ---
 export const generateDealSchema = (data: any) => ({
@@ -213,24 +273,24 @@ export const generateDealSchema = (data: any) => ({
 // --- 7. HOW-TO SCHEMA ---
 export const generateHowToSchema = (data: any) => {
   const images = data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE];
-  
-  const steps = data.steps && Array.isArray(data.steps) 
+
+  const steps = data.steps && Array.isArray(data.steps)
     ? data.steps.map((step: any, index: number) => ({
-        '@type': 'HowToStep',
-        position: index + 1,
-        name: cleanText(step.title || `Step ${index + 1}`),
-        text: cleanText(step.description || step.text || "Follow instructions"),
-        url: `${baseUrl}/${data.slug}#step-${index + 1}`
-      })) 
+      '@type': 'HowToStep',
+      position: index + 1,
+      name: cleanText(step.title || `Step ${index + 1}`),
+      text: cleanText(step.description || step.text || "Follow instructions"),
+      url: `${baseUrl}/${data.slug}#step-${index + 1}`
+    }))
     : [
-        {
-          '@type': 'HowToStep',
-          position: 1,
-          name: "Read Full Guide",
-          text: cleanText(data.intro || data.description || "Follow the detailed steps in the guide."),
-          url: `${baseUrl}/${data.slug}`
-        }
-      ];
+      {
+        '@type': 'HowToStep',
+        position: 1,
+        name: "Read Full Guide",
+        text: cleanText(data.intro || data.description || "Follow the detailed steps in the guide."),
+        url: `${baseUrl}/${data.slug}`
+      }
+    ];
 
   return {
     '@context': 'https://schema.org',
@@ -283,45 +343,45 @@ export function generateSchema(data: any) {
   const targetType = rawType ? rawType.toLowerCase() : 'article';
 
   switch (targetType) {
-    case 'product': 
+    case 'product':
       return generateProductSchema(data);
 
     case 'tool':
       const tool = generateToolSchema(data);
       if (data.faqs) {
         const faqs = {
-           '@context': 'https://schema.org',
-           '@type': 'FAQPage',
-           mainEntity: data.faqs.map((f:any) => ({
-             '@type': 'Question',
-             name: cleanText(f.question),
-             acceptedAnswer: { '@type': 'Answer', text: cleanText(f.answer) }
-           }))
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          mainEntity: data.faqs.map((f: any) => ({
+            '@type': 'Question',
+            name: cleanText(f.question),
+            acceptedAnswer: { '@type': 'Answer', text: cleanText(f.answer) }
+          }))
         };
         return [tool, faqs];
       }
       return tool;
 
-    case 'deal': 
+    case 'deal':
       return generateDealSchema(data);
 
     case 'event':
-    case 'holiday': 
+    case 'holiday':
       return generateEventSchema(data, data.mainImage?.url);
 
-    case 'toptenlist': 
+    case 'toptenlist':
     case 'topTenList':
       return {
         '@context': 'https://schema.org',
         '@type': 'ItemList',
-        name: cleanText(data.seo?.metaTitle || data.title), 
+        name: cleanText(data.seo?.metaTitle || data.title),
         description: cleanText(data.seo?.metaDescription || data.intro),
         itemListOrder: 'https://schema.org/ItemListOrderDescending',
         numberOfItems: data.listItems?.length || 0,
         itemListElement: data.listItems?.map((item: any, index: number) => {
           const product = item.product || {};
           const priceValue = product.price || product.livePrice || 0;
-          
+
           return {
             '@type': 'ListItem',
             position: index + 1,
@@ -331,7 +391,7 @@ export function generateSchema(data: any) {
               url: product.slug ? `${baseUrl}/${product.slug}` : undefined,
               description: cleanText(item.customVerdict || product.verdict),
               image: product.mainImage?.url ? [product.mainImage.url] : [DEFAULT_IMAGE],
-              
+
               offers: {
                 '@type': 'Offer',
                 price: typeof priceValue === 'string' ? priceValue.replace(/[^0-9.]/g, "") : priceValue,
@@ -339,7 +399,7 @@ export function generateSchema(data: any) {
                 availability: product.availability || 'https://schema.org/InStock',
                 url: product.affiliateLink,
                 priceValidUntil: product.priceValidUntil || getNextYearDate(),
-                
+
                 // ✅ ADDED TO LIST: Complete Merchant Data
                 shippingDetails: {
                   '@type': 'OfferShippingDetails',
@@ -347,12 +407,12 @@ export function generateSchema(data: any) {
                   // ✅ FIX 3: Shipping Destination in Lists
                   shippingDestination: {
                     '@type': 'DefinedRegion',
-                    addressCountry: 'AE' 
+                    addressCountry: 'AE'
                   },
                   deliveryTime: {
-                      '@type': 'ShippingDeliveryTime',
-                      handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
-                      transitTime: { '@type': 'QuantitativeValue', minValue: 1, maxValue: 3, unitCode: 'DAY' }
+                    '@type': 'ShippingDeliveryTime',
+                    handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
+                    transitTime: { '@type': 'QuantitativeValue', minValue: 1, maxValue: 3, unitCode: 'DAY' }
                   }
                 },
                 hasMerchantReturnPolicy: {
@@ -365,11 +425,11 @@ export function generateSchema(data: any) {
                   returnFees: 'https://schema.org/FreeReturn'
                 }
               },
-              
+
               aggregateRating: product.customerRating ? {
-                 '@type': 'AggregateRating',
-                 ratingValue: product.customerRating,
-                 reviewCount: product.reviewCount || 1
+                '@type': 'AggregateRating',
+                ratingValue: product.customerRating,
+                reviewCount: product.reviewCount || 1
               } : undefined
             }
           };
@@ -380,14 +440,14 @@ export function generateSchema(data: any) {
     case 'howTo':
       const howTo = generateHowToSchema(data);
       if (data.faqs) {
-         const faqs = {
-           '@context': 'https://schema.org',
-           '@type': 'FAQPage',
-           mainEntity: data.faqs.map((f:any) => ({
-             '@type': 'Question',
-             name: cleanText(f.question),
-             acceptedAnswer: { '@type': 'Answer', text: cleanText(f.answer) }
-           }))
+        const faqs = {
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          mainEntity: data.faqs.map((f: any) => ({
+            '@type': 'Question',
+            name: cleanText(f.question),
+            acceptedAnswer: { '@type': 'Answer', text: cleanText(f.answer) }
+          }))
         };
         return [howTo, faqs];
       }
@@ -396,6 +456,6 @@ export function generateSchema(data: any) {
     case 'newsarticle':
     case 'article':
     default:
-      return generateArticleSchema(data); 
+      return generateArticleSchema(data);
   }
 };
