@@ -27,21 +27,13 @@ export const generateOrganizationSchema = () => ({
   name: 'TopTenUAE',
   url: baseUrl,
   inLanguage: 'en-AE',
-  logo: [
-    {
-      '@type': 'ImageObject',
-      url: `${baseUrl}/images/brand/logoIcon.svg`,
-      width: 512,
-      height: 512
-    },
-    {
-      '@type': 'ImageObject',
-      url: `${baseUrl}/images/brand/logoIcon-1200.png`,
-      width: 1200,
-      height: 1200,
-      inLanguage: 'en-AE'
-    }
-  ],
+  // ✅ OPTIMIZATION: Google prefers a single ImageObject for the logo
+  logo: {
+    '@type': 'ImageObject',
+    url: `${baseUrl}/images/brand/logoIcon.svg`,
+    width: 512,
+    height: 512
+  },
   sameAs: [
     'https://facebook.com/toptenuae',
     'https://twitter.com/toptenuae'
@@ -68,6 +60,27 @@ export const generateWebSiteSchema = () => ({
     },
     'query-input': 'required name=search_term_string'
   }
+});
+
+// --- 2.5 HOMEPAGE COLLECTION SCHEMA (ADDED) ---
+export const generateHomePageSchema = () => ({
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  '@id': `${baseUrl}/#homepage`,
+  url: `${baseUrl}/`,
+  name: 'TopTenUAE – Trending Tech, Reviews & Smart UAE Tools',
+  description: 'Discover trending products, expert reviews, and free UAE tools including VAT and gratuity calculators.',
+  isPartOf: {
+    '@id': `${baseUrl}/#website`
+  },
+  about: {
+    '@type': 'Thing',
+    name: 'UAE Technology, Reviews & Online Tools'
+  },
+  publisher: {
+    '@id': `${baseUrl}/#organization`
+  },
+  inLanguage: 'en-AE'
 });
 
 // --- 3. EVENT SCHEMA ---
@@ -138,29 +151,7 @@ export const generateProductSchema = (data: any) => {
       availability: data.availability || 'https://schema.org/InStock',
       url: data.affiliateLink,
       priceValidUntil: data.priceValidUntil || getNextYearDate(),
-      shippingDetails: {
-        '@type': 'OfferShippingDetails',
-        shippingRate: { '@type': 'MonetaryAmount', value: 0, currency: 'AED' },
-        // ✅ FIX 1: Explicitly define shipping destination
-        shippingDestination: {
-          '@type': 'DefinedRegion',
-          addressCountry: 'AE'
-        },
-        deliveryTime: {
-          '@type': 'ShippingDeliveryTime',
-          handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
-          transitTime: { '@type': 'QuantitativeValue', minValue: 1, maxValue: 3, unitCode: 'DAY' }
-        }
-      },
-      hasMerchantReturnPolicy: {
-        '@type': 'MerchantReturnPolicy',
-        applicableCountry: 'AE',
-        returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
-        merchantReturnDays: 15,
-        returnMethod: 'https://schema.org/ReturnByMail',
-        // ✅ FIX 2: Explicitly define return fees
-        returnFees: 'https://schema.org/FreeReturn'
-      }
+      // ⚠️ SAFETY: Shipping/Returns removed because TopTenUAE is an Affiliate/Publisher.
     }
   };
 
@@ -183,21 +174,20 @@ export const generateProductSchema = (data: any) => {
   return schema;
 };
 
-// --- 5. TOOL / CALCULATOR SCHEMA (FINAL OPTIMIZED VERSION) ---
+// --- 5. TOOL / CALCULATOR SCHEMA ---
 export const generateToolSchema = (data: any) => {
   const slug = data.slug?.current || data.slug || '';
 
   // 1. DYNAMIC FEATURE LIST (Matches User Intent)
-  // We customize features so Google knows EXACTLY what this tool does.
   let features = ['Free Online Tool', 'Instant Calculation', 'Mobile Friendly'];
 
   if (slug.includes('vat')) {
     features = [
-      'Add VAT to price',                // Matches "add vat" queries
-      'Remove VAT (Reverse calculation)',// Matches "reverse vat" queries
-      'UAE VAT compliant (5%)',          // Matches "uae vat rate"
+      'Add VAT to price',
+      'Remove VAT (Reverse calculation)',
+      'UAE VAT compliant (5%)',
       'Instant VAT calculation',
-      'VAT inclusive & exclusive formulas' // Better than "Excel formulas" (avoids misleading users)
+      'VAT inclusive & exclusive formulas'
     ];
   } else if (slug.includes('gratuity')) {
     features = [
@@ -215,8 +205,6 @@ export const generateToolSchema = (data: any) => {
     ];
   }
 
-  // 2. CONSTRUCT THE URL CORRECTLY
-  // We must include the category (e.g., 'finance-tools') or the link is broken.
   const categorySlug = data.category?.slug || 'finance-tools';
   const fullUrl = `${baseUrl}/${categorySlug}/${slug}`;
 
@@ -225,10 +213,10 @@ export const generateToolSchema = (data: any) => {
     '@type': 'SoftwareApplication',
     name: cleanText(data.title),
     description: cleanText(data.seo?.metaDescription || data.description),
-    url: fullUrl, // ✅ CRITICAL FIX: Now matches your actual website structure
+    url: fullUrl,
     applicationCategory: 'FinanceApplication',
-    operatingSystem: 'Web, Android, iOS', // ✅ Tells Google it works on phones
-    isAccessibleForFree: true, // ✅ Strong signal for "Free VAT Calculator" queries
+    operatingSystem: 'Web, Android, iOS',
+    isAccessibleForFree: true,
 
     author: {
       '@type': 'Organization',
@@ -308,9 +296,12 @@ export const generateArticleSchema = (data: any) => {
   const headline = cleanText(data.title) || "TopTenUAE Article";
   const images = data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE];
 
+  // ✅ OPTIMIZATION: Use correct type based on Sanity data
+  const schemaType = (data._type === 'news') ? 'NewsArticle' : 'Article';
+
   const articleSchema: any = {
     '@context': 'https://schema.org',
-    '@type': 'NewsArticle',
+    '@type': schemaType,
     headline: headline,
     image: images,
     datePublished: data.publishedAt,
@@ -340,6 +331,7 @@ export function generateSchema(data: any) {
   if (!data) return generateOrganizationSchema();
 
   const rawType = data.schemaType || data._type;
+  // ✅ CLEANUP: Normalized to lowercase
   const targetType = rawType ? rawType.toLowerCase() : 'article';
 
   switch (targetType) {
@@ -370,7 +362,7 @@ export function generateSchema(data: any) {
       return generateEventSchema(data, data.mainImage?.url);
 
     case 'toptenlist':
-    case 'topTenList':
+    case 'topTenList': // Falls through safely
       return {
         '@context': 'https://schema.org',
         '@type': 'ItemList',
@@ -399,31 +391,7 @@ export function generateSchema(data: any) {
                 availability: product.availability || 'https://schema.org/InStock',
                 url: product.affiliateLink,
                 priceValidUntil: product.priceValidUntil || getNextYearDate(),
-
-                // ✅ ADDED TO LIST: Complete Merchant Data
-                shippingDetails: {
-                  '@type': 'OfferShippingDetails',
-                  shippingRate: { '@type': 'MonetaryAmount', value: 0, currency: 'AED' },
-                  // ✅ FIX 3: Shipping Destination in Lists
-                  shippingDestination: {
-                    '@type': 'DefinedRegion',
-                    addressCountry: 'AE'
-                  },
-                  deliveryTime: {
-                    '@type': 'ShippingDeliveryTime',
-                    handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
-                    transitTime: { '@type': 'QuantitativeValue', minValue: 1, maxValue: 3, unitCode: 'DAY' }
-                  }
-                },
-                hasMerchantReturnPolicy: {
-                  '@type': 'MerchantReturnPolicy',
-                  applicableCountry: 'AE',
-                  returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
-                  merchantReturnDays: 15,
-                  returnMethod: 'https://schema.org/ReturnByMail',
-                  // ✅ FIX 4: Return Fees in Lists
-                  returnFees: 'https://schema.org/FreeReturn'
-                }
+                // ⚠️ SAFETY: Shipping/Returns removed for lists as well.
               },
 
               aggregateRating: product.customerRating ? {
@@ -455,6 +423,7 @@ export function generateSchema(data: any) {
 
     case 'newsarticle':
     case 'article':
+    case 'news': // Added explicit case
     default:
       return generateArticleSchema(data);
   }

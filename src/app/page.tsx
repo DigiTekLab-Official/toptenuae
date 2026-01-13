@@ -1,9 +1,9 @@
 // src/app/page.tsx
 
 // 1. CRITICAL SEO FIX: Stable Indexing
-// We change this from 60 to 86400 (24 hours). 
-// This gives Google a stable version of your homepage to index.
+// This gives Google a stable version of your homepage to index and helps Bingbots.
 export const revalidate = 86400; 
+export const runtime = 'nodejs'; // ✅ ADDED: Ensures stable headers for bots
 
 import { client } from "@/sanity/lib/client";
 import Link from "next/link";
@@ -15,7 +15,8 @@ import HomeNewsletter from "@/components/HomeNewsletter";
 import { cleanText } from "@/utils/sanity-text";
 import { 
   generateOrganizationSchema, 
-  generateWebSiteSchema 
+  generateWebSiteSchema,
+  generateHomePageSchema // ✅ ADDED: Import the new function
 } from "@/lib/schemaGenerator";
 
 // Icons
@@ -125,7 +126,8 @@ export default async function Home() {
       <JsonLd
         data={[
           generateOrganizationSchema(),
-          generateWebSiteSchema()
+          generateWebSiteSchema(),
+          generateHomePageSchema() // ✅ ADDED: Injected the new CollectionPage schema
         ]}
       />
       <main className="font-sans">
