@@ -3,6 +3,10 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // -----------------------------------------------------------------------------
+  // 1. ENABLE SOURCE MAPS (Fixes "Missing source maps" warning)
+  // -----------------------------------------------------------------------------
+  productionBrowserSourceMaps: true,
+  // -----------------------------------------------------------------------------
   // GENERAL CONFIG
   // -----------------------------------------------------------------------------
   trailingSlash: false, 
