@@ -1,3 +1,4 @@
+// src/components/ui/AffiliateDisclosure.tsx
 import { Info } from "lucide-react";
 
 export default function AffiliateDisclosure() {

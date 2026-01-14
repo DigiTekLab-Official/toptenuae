@@ -55,7 +55,7 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
     <article
       // ✅ CRITICAL: This ID enables the "Quick Jump" buttons in TopTenTemplate
       id={`item-${item.rank}`}
-      className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden scroll-mt-32 mb-8"
+      className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden scroll-mt-32 mb-6"
     >
       <div className="p-5 md:p-6 pb-0">
         
@@ -109,7 +109,8 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
           </div>
         )}
 
-        {/* --- VERDICT --- */}
+        
+{/* --- VERDICT --- */}
         {finalVerdict && (
           <div className="mb-6 bg-primary-50 border-l-4 border-primary p-4 md:p-5 rounded-r-xl shadow-sm">
             <div className="flex items-center gap-2 mb-2">
@@ -121,7 +122,6 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
             </p>
           </div>
         )}
-
         {/* --- KEY FEATURES --- */}
         {product.keyFeatures && product.keyFeatures.length > 0 && (
           <div className="mb-6 bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50 p-4 rounded-xl shadow-sm border border-amber-100">

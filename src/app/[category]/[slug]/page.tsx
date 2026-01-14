@@ -93,7 +93,20 @@ const QUERY = `*[slug.current == $slug][0]{
   
   listItems[] { 
     _key, rank, badgeLabel, whySelected, customVerdict, 
-    product->{ title, "slug": slug.current, mainImage { asset, alt, "url": asset->url }, affiliateLink, retailer, priceTier, price, currency, availability, realComplaint, customerRating, reviewCount, verdict, keyFeatures, pros, cons, itemDescription } 
+    product->{ 
+      _type,
+      title, 
+      "slug": slug.current, 
+      mainImage { asset, alt, "url": asset->url }, 
+      
+      // Existing Product Fields
+      affiliateLink, retailer, priceTier, price, currency, availability, 
+      realComplaint, customerRating, reviewCount, verdict, keyFeatures, 
+      pros, cons, itemDescription,
+
+      // New Institution Fields (Will be null for Products)
+      location, address, curriculum, rating, feeRange, realityCheck, website
+    } 
   },
 
   "relatedLists": *[

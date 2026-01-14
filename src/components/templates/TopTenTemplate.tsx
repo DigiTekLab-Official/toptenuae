@@ -3,23 +3,26 @@
 
 import React from "react";
 import Image from "next/image";
+import { ArrowDown, Shield } from "lucide-react";
+
+// --- COMPONENTS ---
 import ComparisonSummaryTable from "./ComparisonSummaryTable";
 import DisclaimerBlock from "../ui/DisclaimerBlock"; 
 import PortableText from "@/components/PortableText";
-import { ArrowDown, Shield } from "lucide-react";
 import FAQAccordion from "@/components/FAQAccordion";
 import AffiliateDisclosure from "../ui/AffiliateDisclosure";
 import LogoIcon from "@/components/icons/LogoIcon";
-// 🗑️ DELETED: discoverImage (We use direct URL from query)
-import ProductCard from "../ui/ProductCard"; 
 
-// --- 1. INTERFACES ---
+// --- CARDS ---
+import ProductCard from "../ui/ProductCard";       
+import InstitutionCard from "../ui/InstitutionCard"; 
+
+// --- INTERFACES ---
 interface TopTenData {
   title: string;
   intro: any; 
   body: any; 
   closingContent?: any;
-  // ✅ UPDATE: Matches the GROQ query structure
   mainImage?: { url: string; alt?: string }; 
   category?: string;
   publishedAt?: string;
@@ -29,13 +32,13 @@ interface TopTenData {
 }
 
 interface Product {
+  _type?: "product" | "institution"; 
   title: string;
   slug?: string;
   mainImage?: any;
   affiliateLink?: string;
   retailer?: string;
   priceTier?: string;  
-  verdict?: string;
   itemDescription?: any;
   keyFeatures?: string[];
   pros?: string[];
@@ -46,6 +49,14 @@ interface Product {
   price?: number;         
   currency?: string;      
   availability?: string;  
+  location?: string;
+  address?: string;      
+  curriculum?: string;    
+  rating?: string;        
+  feeRange?: string;      
+  realityCheck?: string[];
+  website?: string;       
+  verdict?: string;
 }
 
 interface ListItem {
@@ -59,13 +70,21 @@ interface ListItem {
 
 // --- MAIN TEMPLATE ---
 export default function TopTenTemplate({ data }: { data: TopTenData }) {
-  // ✅ FIX: Use direct URL to prevent helper function crashes
   const heroImageUrl = data.mainImage?.url || null;
   const showDisclaimer = (data.showAffiliateDisclosure ?? true);
 
-  // SMART DETECTION LOGIC (Medical vs General)
+  // --- SMART DETECTION LOGIC ---
   const checkText = (data.title + " " + (data.category || "")).toLowerCase();
 
+  // 1. Education Post Detection
+  const isEducationPost = 
+    checkText.includes('parenting') || 
+    checkText.includes('education') ||
+    checkText.includes('school') ||
+    checkText.includes('university') ||
+    checkText.includes('college');
+
+  // 2. Medical Post Detection
   const hasMedicalKeywords = 
     checkText.includes("skincare") || checkText.includes("skin") ||    
     checkText.includes("lotion") || checkText.includes("cream") || 
@@ -83,24 +102,32 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
   const isMedicalPost = hasMedicalKeywords && !isElectronicDevice;
 
   return (
-    // ✅ CRITICAL FIX: 'min-w-0' prevents flexbox overflow
     <div className="w-full min-w-0">
       
-      {/* TOP DISCLAIMER */}
-      {showDisclaimer && (
+      {/* --- TOP DISCLAIMER LOGIC --- */}
+      {/* 1. PRODUCT: Show Affiliate Disclosure (if toggle ON and NOT Education) */}
+      {showDisclaimer && !isEducationPost && (
         <div className="mb-2 text-sm text-gray-500 text-center md:text-left opacity-90 hover:opacity-100 transition-opacity">
           <AffiliateDisclosure />
         </div>
       )}
 
+      {/* 2. SCHOOL: Show Trust Note (Always for Education, overrides Affiliate) */}
+      {isEducationPost && (
+         <div className="bg-slate-50 border-b border-gray-100 py-2 px-4 mb-6 text-sm text-gray-600 flex items-start gap-2 leading-relaxed">
+           <Shield className="w-4 h-4 mt-0.5 flex-shrink-0 opacity-80" />
+           <p>
+             <strong>Transparency Note:</strong> Our school rankings are based on independent research, KHDA reports, and parent feedback. We do not accept paid placements from schools.
+           </p>
+         </div>
+      )}
+
       {/* HERO IMAGE */}
-      {/* Note: This renders ONLY if ArticleView didn't already render it. 
-          If you want to enforce it here, ensure ArticleView excludes topTenList from its header logic. */}
       {heroImageUrl && (
         <div className="relative w-full aspect-[3/2] lg:aspect-[16/9] overflow-hidden rounded-xl shadow-lg mb-8">
           <Image
             src={heroImageUrl}
-            alt=""
+            alt={data.title}
             fill
             priority
             className="object-cover hover:scale-105 transition-transform duration-700"
@@ -109,7 +136,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
         </div>
       )}
 
-      {/* QUICK NAVIGATION (Jump Links) */}
+      {/* QUICK NAVIGATION */}
       {data.listItems && data.listItems.length > 0 && (
         <div className="mb-8 p-4 bg-gray-50/50 border border-gray-100 rounded-2xl">
           <h2 className="text-sm font-bold text-gray-800 uppercase tracking-widest mb-2 flex items-center gap-2 ml-1">
@@ -158,8 +185,11 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
             <div className="flex flex-col gap-8">
               {data.listItems.map((item) => (
                 <React.Fragment key={item._key}>
-                  {/* Pass rank to ProductCard for ID generation */}
-                  <ProductCard item={item} />
+                  {item.product._type === 'institution' ? (
+                    <InstitutionCard item={item} />
+                  ) : (
+                    <ProductCard item={item} />
+                  )}
                   <div className="flex items-center justify-center py-2 opacity-40">
                     <div className="w-12 h-1 bg-gray-200 rounded-full"></div>
                   </div>
@@ -169,9 +199,8 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
           </div>
         )}
 
-        {/* COMPARISON TABLE */}
-        {data.listItems && data.listItems.length > 0 && (
-          // ✅ FIX: Overflow wrapper handles tables on mobile nicely
+        {/* COMPARISON TABLE - Hide for Schools */}
+        {data.listItems && data.listItems.length > 0 && data.listItems[0].product?._type !== 'institution' && (
           <div className="w-full overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0">
              <div className="min-w-[600px]"> 
                <ComparisonSummaryTable items={data.listItems} />
@@ -184,10 +213,15 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
           <div className="mb-12"> 
             {data.listItems && data.listItems.length > 0 ? (
               <div className="mt-12 prose prose-lg max-w-none text-slate-800 leading-relaxed bg-blue-50/50 p-6 md:p-8 rounded-2xl border border-blue-100 shadow-sm">
+                
+                {/* ✅ DYNAMIC HEADER FIX */}
                 <div className="flex items-center gap-2 mb-4 text-blue-800 border-b border-blue-200 pb-2">
                   <Shield className="w-6 h-6" />
-                  <h2 className="text-xl font-bold m-0! p-0!">Guide & Maintenance</h2>
+                  <h2 className="text-xl font-bold m-0! p-0!">
+                    {isEducationPost ? "Admission & Parents' Guide" : "Guide & Maintenance"}
+                  </h2>
                 </div>
+                
                 <PortableText value={data.closingContent} />
               </div>
             ) : (
@@ -200,8 +234,9 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
 
         {data.faqs && data.faqs.length > 0 && <FAQAccordion faqs={data.faqs} />}
         
-        {/* BOTTOM DISCLAIMER */}
-        {(showDisclaimer || isMedicalPost) && (
+        {/* --- BOTTOM DISCLAIMER LOGIC --- */}
+        {/* Only show 'Product Safety' block if it is NOT Education */}
+        {(showDisclaimer || isMedicalPost) && !isEducationPost && (
           <DisclaimerBlock type={isMedicalPost ? 'medical' : 'general'} />
         )}
 
