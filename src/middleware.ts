@@ -1,4 +1,3 @@
-// src/middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
@@ -10,13 +9,18 @@ export const config = {
 
 export function middleware(request: NextRequest) {
   const response = NextResponse.next();
-  
-  // -----------------------------------------------------------------------------
-  // NOTE: We REMOVED the '_rsc' rewrite logic. 
-  // Letting Next.js handle these requests natively is the correct stable behavior.
-  // -----------------------------------------------------------------------------
+  const url = request.nextUrl;
 
-  // 1. DEFINE CSP (Content Security Policy)
+  // 1. SAFE FIX: Prevent Caching of RSC Data
+  // Instead of Redirecting (which breaks navigation), we force the browser
+  // to always check for the newest version. This reduces "Skew" 404s safely.
+  if (url.searchParams.has('_rsc')) {
+    response.headers.set('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+  }
+
+  // 2. DEFINE CSP (Content Security Policy)
+  // Included: c.bing.com (Clarity) and www.google.com (Analytics/Recaptcha)
   const csp = `
     default-src 'self';
     base-uri 'self';
@@ -64,7 +68,7 @@ export function middleware(request: NextRequest) {
     frame-ancestors 'self';
   `.replace(/\s{2,}/g, ' ').trim();
 
-  // 2. SET SECURITY HEADERS
+  // 3. SET SECURITY HEADERS
   response.headers.set('X-DNS-Prefetch-Control', 'on');
   response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
   response.headers.set('X-Frame-Options', 'SAMEORIGIN');
