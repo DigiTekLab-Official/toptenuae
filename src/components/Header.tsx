@@ -81,12 +81,12 @@ export default function Header() {
                     className={`
                       text-sm font-bold uppercase tracking-wide transition-colors whitespace-nowrap flex items-center gap-1
                       ${link.isHighlight 
-                        ? "text-red-600 hover:text-red-700 animate-pulse" 
+                        ? "text-red-900 hover:text-red-950 animate-pulse" 
                         : "text-gray-700 hover:text-primary"
                       }
                     `}
                   >
-                    {link.isHighlight && <Flame className="w-4 h-4 fill-red-600" />}
+                    {link.isHighlight && <Flame className="w-4 h-4 fill-red-800" />}
                     {link.name}
                   </Link>
                 ))}
@@ -147,12 +147,12 @@ export default function Header() {
                   className={`
                     flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium w-full
                     ${link.isHighlight 
-                      ? "text-red-700 bg-red-50 hover:bg-red-100" 
+                      ? "text-red-900 bg-red-50 hover:bg-red-100" 
                       : "text-gray-700 hover:bg-primary-50 hover:text-primary"
                     }
                   `}
                 >
-                  {link.isHighlight && <Flame className="w-4 h-4 fill-red-600" />}
+                  {link.isHighlight && <Flame className="w-4 h-4 fill-red-900" />}
                   {link.name}
                 </Link>
               ))}
