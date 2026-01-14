@@ -35,6 +35,19 @@ import {
 // --- CONFIGURATION ---
 const SELECTED_CATEGORIES = ["tech", "reviews", "events-holidays", "parenting-kids", "finance-tools"]; 
 
+// --- HELPERS ---
+const normalizeCategory = (slug: string) => {
+  const map: Record<string, string> = {
+    'travel-tourism': 'events-holidays',
+    'health-fitness': 'lifestyle',
+    'baby-kid': 'parenting-kids',
+    'buyers-guide': 'reviews',
+    'deals': 'deals',
+    'tech': 'tech',
+  };
+  return map[slug] || slug;
+};
+
 // --- SEO ---
 export async function generateMetadata(): Promise<Metadata> {
   return generateSeoMetadata({
@@ -75,12 +88,18 @@ const HOME_QUERY = `
   "sections": *[_type == "category" && slug.current in ${JSON.stringify(SELECTED_CATEGORIES)}] {
     title,
     "slug": slug.current,
-    "posts": *[_type in ["holiday", "topTenList", "howTo", "tool", "charity"] && references(^._id)] | order(publishedAt desc)[0...4] {
+    "posts": *[
+      _type in ["holiday", "topTenList", "howTo", "tool", "charity"] 
+      && references(^._id)
+      && defined(slug.current)
+      && count(slug.current) > 0
+    ] | order(publishedAt desc)[0...4] {
       title,
       "slug": slug.current,
       "imageUrl": mainImage.asset->url,
       publishedAt,
-      _type
+      _type,
+      "category": coalesce(categories[0]->slug.current, category->slug.current, "reviews")
     }
   }
 }`;
@@ -201,7 +220,9 @@ export default async function Home() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {section.posts.map((post: any) => {
                 const isTool = post._type === "tool";
-                const postLink = `/${section.slug}/${post.slug}`;
+                // ✅ FIX: Use normalized category from query, not section slug
+                const categorySlug = normalizeCategory(post.category || section.slug);
+                const postLink = `/${categorySlug}/${post.slug}`;
 
                 if (isTool) {
                    const config = getToolConfig(post.slug);
