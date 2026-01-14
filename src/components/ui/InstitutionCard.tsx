@@ -151,21 +151,21 @@ export default function InstitutionCard({ item }: InstitutionCardProps) {
             </div>
           )}
 
-          {/* Row 4: FULL ADDRESS (✅ Updated to use 'address' field) */}
-          {(school.address || school.location) && (
-            <div className="flex items-start p-4 bg-white border border-gray-100 rounded-xl shadow-sm hover:border-purple-200 transition-colors">
-              <div className="w-12 h-10 bg-purple-50 rounded-full flex items-center justify-center text-purple-600 flex-shrink-0 mr-4 mt-1">
-                <MapPin className="w-5 h-5" />
+          {/* Row 4: FULL ADDRESS */}
+            {(school.address || school.location) && (
+              <div className="flex items-start p-4 bg-white border border-gray-100 rounded-xl shadow-sm hover:border-purple-200 transition-colors">
+                {/* CHANGED: w-12 h-10 -> w-10 h-10 (Perfect Circle) */}
+                <div className="w-10 h-10 bg-purple-50 rounded-full flex items-center justify-center text-purple-600 flex-shrink-0 mr-4 mt-1">
+                  <MapPin className="w-5 h-5" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Address</p>
+                  <p className="font-bold text-gray-900 text-sm whitespace-pre-wrap leading-relaxed">
+                    {school.address || school.location}
+                  </p>
+                </div>
               </div>
-              <div className="flex-1">
-                <p className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Address</p>
-                {/* Use pre-wrap to preserve the line breaks from Sanity text field */}
-                <p className="font-bold text-gray-900 text-sm whitespace-pre-wrap leading-relaxed">
-                  {school.address || school.location}
-                </p>
-              </div>
-            </div>
-          )}
+            )}
         </div>
 
         {/* --- WHY SELECTED --- */}

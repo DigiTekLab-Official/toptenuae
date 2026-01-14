@@ -243,11 +243,18 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
             <div className="flex flex-col gap-8">
               {data.listItems.map((item) => (
                 <React.Fragment key={item._key}>
-                  {item.product._type === 'institution' ? (
+                  
+                  {/* --- CONDITIONAL RENDERING LOGIC --- */}
+                  {/* OLD LOGIC (Causing the bug): Only checks _type */}
+                  {/* {item.product._type === 'institution' ? ( ... ) } */}
+
+                  {/* ✅ NEW FIXED LOGIC: Checks type OR category */}
+                  {(item.product._type === 'institution' || isEducationPost) ? (
                     <InstitutionCard item={item} />
                   ) : (
                     <ProductCard item={item} />
                   )}
+
                   <div className="flex items-center justify-center py-2 opacity-40">
                     <div className="w-12 h-1 bg-gray-200 rounded-full"></div>
                   </div>
