@@ -85,8 +85,13 @@ const HOME_QUERY = `
   }
 }`;
 
-const formatDate = (date: string) => 
-  new Date(date).toLocaleDateString("en-AE", { month: "long", day: "numeric", year: "numeric" });
+const formatDate = (date: string) => {
+  const d = new Date(date);
+  const month = d.toLocaleDateString("en-US", { month: "long" });
+  const day = String(d.getDate()).padStart(2, '0');
+  const year = d.getFullYear();
+  return `${month} ${day}, ${year}`;
+};
 
 export default async function Home() {
   // ✅ Robust fetch to prevent build-time crashes if Sanity is unreachable
