@@ -34,7 +34,7 @@ interface TopTenData {
 interface Product {
   _type?: "product" | "institution"; 
   title: string;
-  slug?: string;
+  slug?: { current: string }; // Updated to match typical Sanity slug object
   mainImage?: any;
   affiliateLink?: string;
   retailer?: string;
@@ -50,7 +50,7 @@ interface Product {
   currency?: string;      
   availability?: string;  
   location?: string;
-  address?: string;      
+  address?: string; // Added Address      
   curriculum?: string;    
   rating?: string;        
   feeRange?: string;      
@@ -101,9 +101,67 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
 
   const isMedicalPost = hasMedicalKeywords && !isElectronicDevice;
 
+  // --- SCHEMA.ORG JSON-LD GENERATOR ---
+  // This fixes the Rich Results errors by differentiating Schools from Products
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": data.title,
+    "description": "Top recommendations and independent reviews.",
+    "itemListOrder": "http://schema.org/ItemListOrderDescending",
+    "itemListElement": data.listItems?.map((item) => {
+      const entity = item.product;
+      const isInstitution = entity._type === 'institution' || isEducationPost;
+
+      if (isInstitution) {
+        // ✅ SCHOOL SCHEMA (No Price/Offer fields)
+        return {
+          "@type": "ListItem",
+          "position": item.rank,
+          "item": {
+            "@type": "School", // or 'EducationalOrganization'
+            "name": entity.title,
+            "description": item.customVerdict || entity.verdict,
+            "url": entity.website, // Official School Website
+            "image": entity.mainImage?.url,
+            "address": entity.address || entity.location,
+            "hasCredential": {
+               "@type": "EducationalOccupationalCredential",
+               "credentialCategory": entity.curriculum || "School Curriculum"
+            }
+          }
+        };
+      } else {
+        // ✅ PRODUCT SCHEMA (Standard E-commerce)
+        return {
+          "@type": "ListItem",
+          "position": item.rank,
+          "item": {
+            "@type": "Product",
+            "name": entity.title,
+            "description": item.customVerdict || entity.verdict,
+            "image": entity.mainImage?.url,
+            "offers": {
+              "@type": "Offer",
+              "price": entity.price || "0", 
+              "priceCurrency": entity.currency || "AED",
+              "availability": "http://schema.org/InStock"
+            }
+          }
+        };
+      }
+    })
+  };
+
   return (
     <div className="w-full min-w-0">
       
+      {/* ✅ INJECT JSON-LD FOR GOOGLE */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* --- TOP DISCLAIMER LOGIC --- */}
       {/* 1. PRODUCT: Show Affiliate Disclosure (if toggle ON and NOT Education) */}
       {showDisclaimer && !isEducationPost && (
