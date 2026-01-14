@@ -56,7 +56,7 @@ export default function Footer() {
               <li className="pt-0">
                 <Link href="/finance-tools" prefetch={false} className="group flex items-center gap-2 hover:text-white transition-colors">
                    <span className=" group-hover:text-[#8B5CF6] transition-colors text-amber-400 text-base">Financial Calculators</span>
-                   <span className="bg-violet-300 text-[#34005b] text-[12px] font-bold px-1.5 py-0.5 rounded animate-pulse">NEW</span>
+                   <span className="bg-violet-400 ttext-white text-[12px] font-bold px-1.5 py-0.5 rounded animate-pulse">NEW</span>
                 </Link>
               </li>
               <li><Link href="/finance-tools/gratuity-calculator-uae" prefetch={false} className="hover:text-[#8B5CF6] transition-colors">Gratuity Calculator</Link></li>
@@ -73,11 +73,11 @@ export default function Footer() {
               
               <li className="h-px bg-slate-800 my-2 w-2/3"></li> {/* Separator */}
               
-              <li><Link href="/privacy-policy" prefetch={false} className="hover:text-white transition-colors text-slate-400">Privacy Policy</Link></li>
-              <li><Link href="/terms-and-conditions" prefetch={false} className="hover:text-white transition-colors text-slate-400">Terms of Service</Link></li>
-              <li><Link href="/cookies-policy" prefetch={false} className="hover:text-white transition-colors text-slate-400">Cookies Policy</Link></li>
-              <li><Link href="/disclaimer" prefetch={false} className="hover:text-white transition-colors text-slate-400">Disclaimer</Link></li>
-              <li><Link href="/affiliate-disclosure" prefetch={false} className="hover:text-white transition-colors text-slate-400">Affiliate Disclosure</Link></li>
+              <li><Link href="/privacy-policy" prefetch={false} className="hover:text-white transition-colors text-slate-300">Privacy Policy</Link></li>
+              <li><Link href="/terms-and-conditions" prefetch={false} className="hover:text-white transition-colors text-slate-300">Terms of Service</Link></li>
+              <li><Link href="/cookies-policy" prefetch={false} className="hover:text-white transition-colors text-slate-300">Cookies Policy</Link></li>
+              <li><Link href="/disclaimer" prefetch={false} className="hover:text-white transition-colors text-slate-300">Disclaimer</Link></li>
+              <li><Link href="/affiliate-disclosure" prefetch={false} className="hover:text-white transition-colors text-slate-300">Affiliate Disclosure</Link></li>
             </ul>
           </div>
 
@@ -96,7 +96,7 @@ export default function Footer() {
               </Link>
             </div>
             
-            <Link href="/contact-us" prefetch={false} className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors border border-slate-700 rounded-lg px-4 py-2 hover:bg-slate-800">
+            <Link href="/contact-us" prefetch={false} className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white transition-colors border border-slate-700 rounded-lg px-4 py-2 hover:bg-slate-800">
               <Mail className="w-4 h-4" /> 
               <span>Contact Team</span>
             </Link>
@@ -111,12 +111,12 @@ export default function Footer() {
           
           {/* AMAZON DISCLAIMER */}
           <div className="mb-6 pb-6 border-b border-slate-950">
-            <p className="text-[12px] text-slate-400 leading-relaxed text-justify md:text-left">
+            <p className="text-[12px] text-slate-300 leading-relaxed text-justify md:text-left">
               <strong className="text-slate-300">Affiliate Disclosure:</strong> TopTenUAE is a participant in the Amazon Services LLC Associates Program, an affiliate advertising program designed to provide a means for sites to earn advertising fees by advertising and linking to Amazon.ae and Amazon.com. As an Amazon Associate, we earn from qualifying purchases. We also participate in other affiliate programs and may earn a commission if you purchase through our links, at no extra cost to you.
             </p>
           </div>
 
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-400">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-300">
             <p>&copy; {currentYear} TopTenUAE. All rights reserved.</p>
             <p className="flex items-center gap-1">
               Made with <span className="text-red-500">♥</span> in Dubai <span role="img" aria-label="UAE Flag">🇦🇪</span>

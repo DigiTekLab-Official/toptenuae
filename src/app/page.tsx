@@ -98,7 +98,7 @@ export default async function Home() {
     return (
       <div className="min-h-[50vh] flex flex-col items-center justify-center p-4 text-center">
         <h2 className="text-xl font-bold mb-2">Content Connection Error</h2>
-        <p className="text-gray-500">We're updating our UAE guides. Please refresh in a moment.</p>
+        <p className="text-gray-600">We're updating our UAE guides. Please refresh in a moment.</p>
       </div>
     );
   }
@@ -108,7 +108,7 @@ export default async function Home() {
   if (!heroPost) {
     return (
       <div className="min-h-[50vh] flex items-center justify-center">
-        <p className="text-gray-500">Initializing TopTenUAE engine...</p>
+        <p className="text-gray-600">Initializing TopTenUAE engine...</p>
       </div>
     );
   }
@@ -238,7 +238,7 @@ export default async function Home() {
                       )}
                     </div>
                     <div className="p-5 flex flex-col flex-1">
-                      <div className="flex items-center gap-2 text-xs text-gray-500 font-bold uppercase tracking-wider mb-2">
+                      <div className="flex items-center gap-2 text-xs text-gray-600 font-bold uppercase tracking-wider mb-2">
                         <Clock className="w-3 h-3" />
                         {formatDate(post.publishedAt)}
                       </div>
@@ -258,7 +258,7 @@ export default async function Home() {
       ))}
 
       {/* 3. NEWSLETTER BANNER */}
-      <section className="bg-primary/5 border-y border-primary/10 py-16">
+      <section className="bg-primary/5 border-y border-primary/10 py-16 text-slate-800">
         <div className="container mx-auto px-4 text-center max-w-7xl">
            <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-4">
              Don't Miss the Best UAE Deals
@@ -267,7 +267,7 @@ export default async function Home() {
              Join 15,000+ subscribers getting our weekly "Top 10" digests and exclusive tech discounts.
            </p>
            <HomeNewsletter />
-           <p className="text-sm text-gray-500 mt-4">Unsubscribe at any time. No spam, guaranteed.</p>
+           <p className="text-sm text-gray-700 mt-4">Unsubscribe at any time. No spam, guaranteed.</p>
         </div>
       </section>
       </main>

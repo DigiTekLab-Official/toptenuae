@@ -9,15 +9,23 @@ export const config = {
 };
 
 export function middleware(request: NextRequest) {
-  const response = NextResponse.next();
   const url = request.nextUrl;
 
-  // 1. FIX: RSC Prefetch Errors
+  // 1. FIX: RSC Prefetch Errors (Rewrite to strip _rsc and prevent 404s)
   if (url.searchParams.has('_rsc')) {
+    const cleanUrl = url.clone();
+    cleanUrl.searchParams.delete('_rsc');
+    
+    const response = NextResponse.rewrite(cleanUrl);
     response.headers.set('Cache-Control', 'no-store, must-revalidate');
+    return response;
   }
 
+  // Standard response for non-RSC requests
+  const response = NextResponse.next();
+
   // 2. DEFINE CSP (Content Security Policy)
+  // Updated: Added https://www.google.com to img-src (Fix #1)
   const csp = `
     default-src 'self';
     base-uri 'self';
@@ -28,7 +36,9 @@ export function middleware(request: NextRequest) {
       https://www.google-analytics.com
       https://static.cloudflareinsights.com
       https://challenges.cloudflare.com
-      https://*.clarity.ms;
+      https://*.clarity.ms
+      https://c.clarity.ms
+      https://c.bing.com;
 
     style-src 'self' 'unsafe-inline'
       https://fonts.googleapis.com;
@@ -39,8 +49,10 @@ export function middleware(request: NextRequest) {
       https://toptenuae.com
       https://lh3.googleusercontent.com
       https://www.google-analytics.com
+      https://www.google.com
       https://*.clarity.ms
-      https://c.clarity.ms;  
+      https://c.clarity.ms
+      https://c.bing.com;  
 
     font-src 'self' data:
       https://fonts.gstatic.com;
@@ -51,6 +63,7 @@ export function middleware(request: NextRequest) {
       https://www.googletagmanager.com
       https://*.clarity.ms
       https://c.clarity.ms 
+      https://c.bing.com
       https://cloudflareinsights.com
       https://challenges.cloudflare.com;
 
