@@ -1,4 +1,3 @@
-// src/components/templates/TopTenTemplate.tsx
 "use client";
 
 import React from "react";
@@ -7,6 +6,7 @@ import { ArrowDown, Shield } from "lucide-react";
 
 // --- COMPONENTS ---
 import ComparisonSummaryTable from "./ComparisonSummaryTable";
+import QuickVerdict from "./QuickVerdict"; // <--- 1. NEW IMPORT
 import DisclaimerBlock from "../ui/DisclaimerBlock"; 
 import PortableText from "@/components/PortableText";
 import FAQAccordion from "@/components/FAQAccordion";
@@ -34,7 +34,7 @@ interface TopTenData {
 interface Product {
   _type?: "product" | "institution"; 
   title: string;
-  slug?: { current: string }; // Updated to match typical Sanity slug object
+  slug?: { current: string }; 
   mainImage?: any;
   affiliateLink?: string;
   retailer?: string;
@@ -50,7 +50,7 @@ interface Product {
   currency?: string;      
   availability?: string;  
   location?: string;
-  address?: string; // Added Address      
+  address?: string;      
   curriculum?: string;    
   rating?: string;        
   feeRange?: string;      
@@ -76,7 +76,6 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
   // --- SMART DETECTION LOGIC ---
   const checkText = (data.title + " " + (data.category || "")).toLowerCase();
 
-  // 1. Education Post Detection
   const isEducationPost = 
     checkText.includes('parenting') || 
     checkText.includes('education') ||
@@ -84,7 +83,6 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
     checkText.includes('university') ||
     checkText.includes('college');
 
-  // 2. Medical Post Detection
   const hasMedicalKeywords = 
     checkText.includes("skincare") || checkText.includes("skin") ||    
     checkText.includes("lotion") || checkText.includes("cream") || 
@@ -101,8 +99,18 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
 
   const isMedicalPost = hasMedicalKeywords && !isElectronicDevice;
 
+  // --- 2. DATA TRANSFORMATION FOR QUICK VERDICT ---
+  // We automatically grab the Top 3 items to populate the cheat sheet
+  const quickPicks = data.listItems?.slice(0, 3).map(item => ({
+    tag: item.badgeLabel || (item.rank === 1 ? "Best Overall" : item.rank === 2 ? "Runner Up" : "Great Value"),
+    title: item.product.title,
+    rating: item.product.customerRating || 0,
+    priceEstimate: item.product.price ? `${item.product.currency || 'AED'} ${item.product.price}` : undefined,
+    imageUrl: item.product.mainImage?.url || "",
+    affiliateLink: item.product.affiliateLink
+  })) || [];
+
   // --- SCHEMA.ORG JSON-LD GENERATOR ---
-  // This fixes the Rich Results errors by differentiating Schools from Products
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -114,15 +122,14 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
       const isInstitution = entity._type === 'institution' || isEducationPost;
 
       if (isInstitution) {
-        // ✅ SCHOOL SCHEMA (No Price/Offer fields)
         return {
           "@type": "ListItem",
           "position": item.rank,
           "item": {
-            "@type": "School", // or 'EducationalOrganization'
+            "@type": "School",
             "name": entity.title,
             "description": item.customVerdict || entity.verdict,
-            "url": entity.website, // Official School Website
+            "url": entity.website,
             "image": entity.mainImage?.url,
             "address": entity.address || entity.location,
             "hasCredential": {
@@ -132,7 +139,6 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
           }
         };
       } else {
-        // ✅ PRODUCT SCHEMA (Standard E-commerce)
         return {
           "@type": "ListItem",
           "position": item.rank,
@@ -156,21 +162,18 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
   return (
     <div className="w-full min-w-0">
       
-      {/* ✅ INJECT JSON-LD FOR GOOGLE */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
       {/* --- TOP DISCLAIMER LOGIC --- */}
-      {/* 1. PRODUCT: Show Affiliate Disclosure (if toggle ON and NOT Education) */}
       {showDisclaimer && !isEducationPost && (
         <div className="mb-2 text-sm text-gray-500 text-center md:text-left opacity-90 hover:opacity-100 transition-opacity">
           <AffiliateDisclosure />
         </div>
       )}
 
-      {/* 2. SCHOOL: Show Trust Note (Always for Education, overrides Affiliate) */}
       {isEducationPost && (
          <div className="bg-slate-50 border-b border-gray-100 py-2 px-4 mb-6 text-sm text-gray-600 flex items-start gap-2 leading-relaxed">
            <Shield className="w-4 h-4 mt-0.5 flex-shrink-0 opacity-80" />
@@ -224,9 +227,15 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
 
       <div className="space-y-2">
           {/* INTRO CONTENT */}
-          <div className="prose prose-lg max-w-none text-slate-800 leading-relaxed bg-gradient-to-b from-slate-100 to-white px-6 py-0 rounded-2xl border border-slate-200 shadow-inner mb-2">
+          <div className="prose prose-lg max-w-none text-slate-800 leading-relaxed bg-gradient-to-b from-slate-100 to-white px-6 py-0 rounded-2xl border border-slate-200 shadow-inner mb-6">
              <PortableText value={data.body || data.intro} />
           </div>
+
+          {/* --- 3. QUICK VERDICT COMPONENT (Inject Here) --- */}
+          {/* Only show for Product posts (not schools) */}
+          {!isEducationPost && quickPicks.length > 0 && (
+             <QuickVerdict picks={quickPicks} />
+          )}
    
         {/* RECOMMENDATIONS LOOP */}
         {data.listItems && data.listItems.length > 0 && (
@@ -244,11 +253,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
               {data.listItems.map((item) => (
                 <React.Fragment key={item._key}>
                   
-                  {/* --- CONDITIONAL RENDERING LOGIC --- */}
-                  {/* OLD LOGIC (Causing the bug): Only checks _type */}
-                  {/* {item.product._type === 'institution' ? ( ... ) } */}
-
-                  {/* ✅ NEW FIXED LOGIC: Checks type OR category */}
+                  {/* CARD RENDERING LOGIC */}
                   {(item.product._type === 'institution' || isEducationPost) ? (
                     <InstitutionCard item={item} />
                   ) : (
@@ -265,7 +270,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
         )}
 
         {/* COMPARISON TABLE - Hide for Schools */}
-        {data.listItems && data.listItems.length > 0 && data.listItems[0].product?._type !== 'institution' && (
+        {data.listItems && data.listItems.length > 0 && !isEducationPost && (
           <div className="w-full overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0">
              <div className="min-w-[600px]"> 
                <ComparisonSummaryTable items={data.listItems} />
@@ -279,7 +284,6 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
             {data.listItems && data.listItems.length > 0 ? (
               <div className="mt-12 prose prose-lg max-w-none text-slate-800 leading-relaxed bg-blue-50/50 p-6 md:p-8 rounded-2xl border border-blue-100 shadow-sm">
                 
-                {/* ✅ DYNAMIC HEADER FIX */}
                 <div className="flex items-center gap-2 mb-4 text-blue-800 border-b border-blue-200 pb-2">
                   <Shield className="w-6 h-6" />
                   <h2 className="text-xl font-bold m-0! p-0!">
@@ -299,8 +303,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
 
         {data.faqs && data.faqs.length > 0 && <FAQAccordion faqs={data.faqs} />}
         
-        {/* --- BOTTOM DISCLAIMER LOGIC --- */}
-        {/* Only show 'Product Safety' block if it is NOT Education */}
+        {/* DISCLAIMER FOOTER */}
         {(showDisclaimer || isMedicalPost) && !isEducationPost && (
           <DisclaimerBlock type={isMedicalPost ? 'medical' : 'general'} />
         )}
