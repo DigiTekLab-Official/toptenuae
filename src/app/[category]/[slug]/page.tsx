@@ -24,7 +24,7 @@ import ArticleView from "@/components/views/ArticleView";
 // --- HELPER: Normalize Categories ---
 const normalizeCategory = (slug: string) => {
   const map: Record<string, string> = {
-    'travel-tourism': 'events-holidays',
+    // 'travel-tourism': 'events-holidays',
     'health-fitness': 'lifestyle',
     'baby-kid': 'parenting-kids',
     'buyers-guide': 'reviews',
