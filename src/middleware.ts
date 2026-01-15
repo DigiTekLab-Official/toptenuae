@@ -3,24 +3,86 @@ import type { NextRequest } from 'next/server';
 
 export const config = {
   matcher: [
+    // We keep your existing matcher which excludes static assets and key SEO files
     '/((?!api|_next/static|_next/image|favicon.ico|icon.svg|icon-v2.svg|apple-icon.png|robots.txt|sitemap.xml).*)',
   ],
 };
 
 export function middleware(request: NextRequest) {
-  const response = NextResponse.next();
-  const url = request.nextUrl;
+  const url = request.nextUrl.clone();
+  const { pathname, searchParams } = url;
+  const hostname = request.headers.get('host') || '';
 
-  // 1. SAFE FIX: Prevent Caching of RSC Data
-  // Instead of Redirecting (which breaks navigation), we force the browser
-  // to always check for the newest version. This reduces "Skew" 404s safely.
-  if (url.searchParams.has('_rsc')) {
+  // =========================================================
+  // PHASE 1: SEO GATEKEEPER (Fixes Google Indexing Issues)
+  // =========================================================
+
+  // 1. BLOCK SUBDOMAINS (Fixes webmail.toptenuae.com GSC errors)
+  // If Google tries to crawl webmail/cpanel, we send "410 Gone" instantly.
+  if (
+    hostname.startsWith('webmail.') || 
+    hostname.startsWith('mail.') || 
+    hostname.startsWith('cpanel.')
+  ) {
+    return new NextResponse('Gone', { status: 410 });
+  }
+
+  let hasChanges = false;
+
+  // 2. FORCE NON-WWW (Standard SEO Practice)
+  // Redirects www.toptenuae.com -> toptenuae.com
+  if (hostname.startsWith('www.')) {
+    const newHost = hostname.replace('www.', '');
+    // We construct the full URL manually to ensure protocol match
+    return NextResponse.redirect(
+      new URL(`https://${newHost}${pathname}${url.search}`, request.url),
+      301
+    );
+  }
+
+  // 3. REMOVE 'BAD' PATHS (Fixes /feed/ and /amp/ errors)
+  // Detects and removes trailing /feed or /feed/
+  if (pathname.endsWith('/feed') || pathname.endsWith('/feed/')) {
+    url.pathname = pathname.replace(/\/feed\/?$/, '');
+    hasChanges = true;
+  }
+
+  // Detects and removes trailing /amp or /amp/
+  if (pathname.endsWith('/amp') || pathname.endsWith('/amp/')) {
+    url.pathname = pathname.replace(/\/amp\/?$/, '');
+    hasChanges = true;
+  }
+
+  // 4. CLEAN LEGACY QUERY PARAMETERS
+  // Fixes duplicate content: ?noamp=mobile, ?ref=..., ?m=1
+  const badParams = ['noamp', 'amp', 'm', 'feed', 'cat'];
+  badParams.forEach((param) => {
+    if (searchParams.has(param)) {
+      searchParams.delete(param);
+      hasChanges = true;
+    }
+  });
+
+  // EXECUTE REDIRECT IF SEO CHANGES WERE MADE
+  // Browsers will restart the request with the clean URL
+  if (hasChanges) {
+    return NextResponse.redirect(url, 301);
+  }
+
+  // =========================================================
+  // PHASE 2: SECURITY & HEADERS (Your Original Logic)
+  // =========================================================
+  
+  // If we are here, the URL is clean. We proceed with the response.
+  const response = NextResponse.next();
+
+  // 5. SAFE FIX: Prevent Caching of RSC Data
+  if (request.nextUrl.searchParams.has('_rsc')) {
     response.headers.set('Cache-Control', 'private, no-cache, no-store, must-revalidate');
     response.headers.set('Pragma', 'no-cache');
   }
 
-  // 2. DEFINE CSP (Content Security Policy)
-  // Included: c.bing.com (Clarity) and www.google.com (Analytics/Recaptcha)
+  // 6. DEFINE CSP (Content Security Policy)
   const csp = `
     default-src 'self';
     base-uri 'self';
@@ -68,7 +130,7 @@ export function middleware(request: NextRequest) {
     frame-ancestors 'self';
   `.replace(/\s{2,}/g, ' ').trim();
 
-  // 3. SET SECURITY HEADERS
+  // 7. SET SECURITY HEADERS
   response.headers.set('X-DNS-Prefetch-Control', 'on');
   response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
   response.headers.set('X-Frame-Options', 'SAMEORIGIN');

@@ -1,4 +1,3 @@
-// next.config.ts
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -6,6 +5,7 @@ const nextConfig: NextConfig = {
   // 1. ENABLE SOURCE MAPS (Fixes "Missing source maps" warning)
   // -----------------------------------------------------------------------------
   productionBrowserSourceMaps: true,
+  
   // -----------------------------------------------------------------------------
   // GENERAL CONFIG
   // -----------------------------------------------------------------------------
@@ -33,11 +33,13 @@ const nextConfig: NextConfig = {
   // -----------------------------------------------------------------------------
   async redirects() {
     return [
-      // Utilities
+      // 1. UTILITIES (Kill WordPress Zombie URLs)
       { source: '/:path*/amp', destination: '/:path*', permanent: true },
+      { source: '/:path*/amp/', destination: '/:path*', permanent: true }, // Catch trailing slash
       { source: '/:path*/feed', destination: '/:path*', permanent: true },
+      { source: '/:path*/feed/', destination: '/:path*', permanent: true }, // Catch trailing slash
 
-      // Category Migrations
+      // 2. CATEGORY MIGRATIONS (Old WordPress Categories -> New Structure)
       { source: "/category/deals", destination: "/deals", permanent: true },
       { source: "/category/finance-tools", destination: "/finance-tools", permanent: true },
       { source: "/category/reviews", destination: "/reviews", permanent: true },
@@ -47,14 +49,14 @@ const nextConfig: NextConfig = {
       { source: "/category/events-holidays", destination: "/events-holidays", permanent: true },
       { source: "/category/lifestyle", destination: "/lifestyle", permanent: true },
 
-      // Merged Categories
+      // 3. MERGED CATEGORIES (Consolidating content)
       { source: "/category/travel-tourism", destination: "/events-holidays", permanent: true },
       { source: "/category/health-fitness", destination: "/lifestyle", permanent: true },
       { source: "/category/baby-kid", destination: "/parenting-kids", permanent: true },
       { source: "/category/buyers-guide", destination: "/reviews", permanent: true },
       { source: "/category/uncategorized", destination: "/", permanent: true },
 
-      // Article Redirects (Tech)
+      // 4. ARTICLE REDIRECTS (Tech)
       { source: "/samsung-galaxy-s26-ultra-specs-uae-price", destination: "/tech/samsung-galaxy-s26-ultra-specs-uae-price", permanent: true },
       { source: "/quantum-computing-strategy-uae-2026", destination: "/tech/quantum-computing-strategy-uae-2026", permanent: true },
       { source: "/quantum-computing-guide-uae", destination: "/tech/quantum-computing-guide-uae", permanent: true },
@@ -66,7 +68,7 @@ const nextConfig: NextConfig = {
       { source: "/understanding-deep-seek", destination: "/tech/deepseek-ai-startup-disrupting-big-tech-with-innovation", permanent: true },
       { source: "/nasa-astronaut-don-pettit-burj-khalifa-image-from-space", destination: "/tech", permanent: true },
 
-      // Article Redirects (Reviews)
+      // 5. ARTICLE REDIRECTS (Reviews)
       { source: "/new-year-tech-upgrades-uae-2026", destination: "/reviews/new-year-tech-upgrades-uae-2026", permanent: true },
       { source: "/best-electric-shaver-uae", destination: "/reviews/best-electric-shaver-uae", permanent: true },
       { source: "/best-beard-trimmers-uae", destination: "/reviews/best-beard-trimmers-uae", permanent: true },
@@ -74,14 +76,17 @@ const nextConfig: NextConfig = {
       { source: "/best-air-fryers-uae-2026", destination: "/reviews/best-air-fryers-uae-2026", permanent: true },
       { source: "/reviews/sihoo-m18-ergonomic-chair-deal", destination: "/reviews", permanent: true },
 
-      // Article Redirects (Parenting)
+      // 6. ARTICLE REDIRECTS (Parenting)
+      // ✅ FIX: Force the Duplicate 'Reviews' URL to the 'Parenting' URL
+      { source: "/reviews/best-baby-monitors-uae", destination: "/parenting-kids/best-baby-monitors-uae", permanent: true },
+      
       { source: "/best-baby-skincare-uae", destination: "/parenting-kids/best-baby-skincare-uae", permanent: true },
       { source: "/10-best-baby-skin-care-products-in-the-uae-for-2025", destination: "/parenting-kids/best-baby-skincare-uae", permanent: true },
       { source: "/best-baby-skincare-products-uae", destination: "/parenting-kids/best-baby-skincare-uae", permanent: true },
       { source: "/best-baby-monitors-uae", destination: "/parenting-kids/best-baby-monitors-uae", permanent: true },
       { source: "/where-to-donate-used-toys-uae", destination: "/parenting-kids/where-to-donate-used-toys-uae", permanent: true },
 
-      // Article Redirects (Holidays)
+      // 7. ARTICLE REDIRECTS (Holidays)
       { source: "/uae-holidays-2026", destination: "/events-holidays/uae-holidays-2026", permanent: true },
       { source: "/uae-holidays-2025", destination: "/events-holidays/uae-holidays-2026", permanent: true },
       { source: "/eid-al-fitr-uae-prayer-timings-free-events", destination: "/events-holidays/eid-al-fitr-uae-prayer-timings-free-events", permanent: true },
@@ -93,7 +98,7 @@ const nextConfig: NextConfig = {
       { source: "/ramadan-deals-uae", destination: "/events-holidays/ramadan-2026-uae", permanent: true },
       { source: "/ramadan-shopping-guide", destination: "/events-holidays/ramadan-2026-uae", permanent: true },
 
-      // Article Redirects (Finance/Core)
+      // 8. ARTICLE REDIRECTS (Finance/Core)
       { source: "/gratuity-calculator-uae", destination: "/finance-tools/gratuity-calculator-uae", permanent: true },
       { source: "/uae-vat-calculator", destination: "/finance-tools/uae-vat-calculator", permanent: true },
       { source: "/zakat-calculator", destination: "/finance-tools/zakat-calculator", permanent: true },
@@ -105,7 +110,7 @@ const nextConfig: NextConfig = {
       { source: "/terms-conditions", destination: "/terms-and-conditions", permanent: true },
       { source: "/best-budget-buys-uae-amazon-deals-march-2025", destination: "/deals", permanent: true },
 
-      // Fallbacks
+      // 9. FALLBACKS (Redirect missing old articles to category pages)
       { source: "/best-diaper-bags-uae", destination: "/parenting-kids", permanent: true },
       { source: "/best-diaper-bags-in-uae", destination: "/parenting-kids", permanent: true },
       { source: "/best-baby-white-noise-machines", destination: "/parenting-kids", permanent: true },
