@@ -42,7 +42,12 @@ export default function AviationCard({ item }: AviationCardProps) {
     location: "Home Base",
     rating: isAirport ? "Skytrax" : "Safety Score"
   };
-
+  
+  // ✅ SEO FIX: Robust Alt Text Generation
+  const imageAltText = entity.title 
+    ? `${entity.title} ${isAirport ? 'Airport' : 'Airline'} Official Logo`
+    : "Aviation Entity Logo";
+    
   return (
     <article
       id={`item-${item.rank}`}
@@ -155,36 +160,24 @@ export default function AviationCard({ item }: AviationCardProps) {
                  </div>
               </div>
 
-              {/* ACTION BUTTON */}
-              <div className="hidden md:block">
-                {entity.website ? (
-                  <a 
-                    href={entity.website} 
-                    target="_blank" 
-                    rel="nofollow noopener"
-                    className="h-full w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base rounded-xl flex items-center justify-center gap-2 transition-all shadow-base hover:shadow hover:-translate-y-0.5"
-                  >
-                    Visit Site <ExternalLink className="w-3 h-3" />
-                  </a>
-                ) : (
-                  <div className="h-full w-full bg-slate-100 text-slate-400 font-bold text-xs rounded-xl flex items-center justify-center">
-                    No Link
-                  </div>
-                )}
-              </div>
+              {/* ACTION BUTTON - Single unified link */}
+              {entity.website ? (
+                <a 
+                  href={entity.website} 
+                  target="_blank" 
+                  rel="nofollow noopener"
+                  className="col-span-2 md:col-span-1 bg-blue-600 hover:bg-blue-700 text-white font-bold text-base rounded-xl flex items-center justify-center gap-2 transition-all shadow-base hover:shadow hover:-translate-y-0.5 py-3 md:h-full"
+                >
+                  <span className="md:hidden">Visit Official Website</span>
+                  <span className="hidden md:inline">Visit Site</span>
+                  <ExternalLink className="w-4 h-4 md:w-3 md:h-3" />
+                </a>
+              ) : (
+                <div className="col-span-2 md:col-span-1 bg-slate-100 text-slate-400 font-bold text-xs rounded-xl flex items-center justify-center">
+                  No Link
+                </div>
+              )}
            </div>
-
-           {/* Mobile Button */}
-           {entity.website && (
-             <a 
-               href={entity.website} 
-               target="_blank" 
-               rel="nofollow noopener"
-               className="md:hidden w-full bg-blue-600 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 text-base shadow-base"
-             >
-               Visit Official Website <ExternalLink className="w-4 h-4" />
-             </a>
-           )}
         </div>
       </div>
     </article>

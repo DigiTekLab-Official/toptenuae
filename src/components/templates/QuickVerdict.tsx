@@ -53,25 +53,21 @@ export default function QuickVerdict({ picks }: { picks: QuickPick[] }) {
                 
                 {/* Product Title */}
                 <h3 className="text-lg font-bold text-gray-900 leading-snug mb-4 min-h-[3.5rem] flex-shrink-0">
-                  <Link href={pick.affiliateLink || "#"} className="hover:underline decoration-2 decoration-blue-500">
-                     {pick.title}
-                  </Link>
+                   {pick.title}
                 </h3>
 
                 {/* Clickable Image */}
                 <div className="relative w-full h-40 mb-4 flex items-center justify-center">
-                   <Link href={pick.affiliateLink || "#"} className="relative w-full h-full block">
-                      {pick.imageUrl ? (
-                        <Image 
-                          src={pick.imageUrl} 
-                          alt={pick.title} 
-                          fill 
-                          className="object-contain hover:scale-105 transition-transform duration-300" 
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gray-50 flex items-center justify-center text-gray-300 text-xs">No Image</div>
-                      )}
-                   </Link>
+                   {pick.imageUrl ? (
+                     <Image 
+                       src={pick.imageUrl} 
+                       alt={pick.title} 
+                       fill 
+                       className="object-contain hover:scale-105 transition-transform duration-300" 
+                     />
+                   ) : (
+                     <div className="w-full h-full bg-gray-50 flex items-center justify-center text-gray-300 text-xs">No Image</div>
+                   )}
                 </div>
 
                 {/* Rating & Price */}
