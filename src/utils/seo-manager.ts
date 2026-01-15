@@ -6,21 +6,23 @@ import { cleanText } from '@/utils/sanity-text';
 const SITE_URL = process.env.baseUrl || 'https://toptenuae.com';
 const DEFAULT_OG_IMAGE = `${SITE_URL}/images/brand/og-default.png`;
 
-// ✅ NEW: Safety Limits for Bing/Google
+// SAFETY LIMITS
 const MAX_TITLE_LENGTH = 60;
 const MAX_DESC_LENGTH = 160;
 
-// ✅ NEW: Helper to cut text cleanly without cutting words in half
+// ✅ FIXED: Helper that respects whole words
 const truncate = (text: string, limit: number) => {
   if (!text || text.length <= limit) return text;
-  return text.substring(0, limit).trim() + '...';
+  // Cut at limit, then cut back to the last space to avoid "Best Baby Moni..."
+  const sub = text.substring(0, limit);
+  return sub.substring(0, sub.lastIndexOf(" ")) + "...";
 };
 
 export interface SanitySeoSource {
   title: string;
   description?: string;
   slug?: { current: string };
-  url?: string;
+  url?: string; // ✅ This is the override field we will use
   mainImage?: { url: string };
   _type: string;
   _updatedAt?: string;
@@ -61,11 +63,11 @@ export function generateSeoMetadata(
   
   if (!data) return { title: 'Page Not Found' };
 
-  // 1. Resolve & Truncate Title (Fixes "Title too long")
+  // 1. Resolve & Truncate Title
   const rawTitle = data.seo?.metaTitle || data.title || 'TopTenUAE';
   const title = truncate(rawTitle, MAX_TITLE_LENGTH);
 
-  // 2. Resolve & Truncate Description (Fixes "Description missing")
+  // 2. Resolve & Truncate Description
   const rawDescription = 
     data.seo?.metaDescription || 
     data.description || 
@@ -73,7 +75,6 @@ export function generateSeoMetadata(
     data.itemDescription ||
     data.verdict;
 
-  // ✅ FIX: Force a fallback if everything else is empty
   const cleanDesc = rawDescription ? cleanText(rawDescription) : "";
   const description = truncate(
     cleanDesc || `Discover the best ${data.title || 'products'} in the UAE with expert reviews and pricing on TopTenUAE.`,
@@ -87,11 +88,20 @@ export function generateSeoMetadata(
     data.mainImage?.url || 
     DEFAULT_OG_IMAGE;
 
-  // 4. Resolve Canonical URL
-  let canonical = data.url || data.seo?.canonicalUrl; 
+  // 4. Resolve Canonical URL (CRITICAL FIX)
+  // Priority: 
+  // 1. Manual Override in Sanity (data.seo.canonicalUrl)
+  // 2. Calculated "Master" URL passed from Page (data.url)
+  // 3. Auto-generated (Fallback)
+  
+  let canonical = data.seo?.canonicalUrl || data.url; 
   
   if (!canonical) {
-    const activeCategory = data.categorySlug || pathContext?.category;
+    // ⚠️ DANGER ZONE: This logic relies on "Active Category"
+    // If you visit /reviews/, this sets canonical to /reviews/ (BAD for SEO)
+    // ALWAYS try to pass 'data.url' from the page.tsx to avoid this block.
+    
+    const activeCategory = data.categorySlug || pathContext?.category; // <--- The Risk is here
     const activeSlug = data.slug?.current || pathContext?.slug;
 
     if (activeCategory && activeSlug) {

@@ -1,11 +1,9 @@
 // src/app/[category]/[slug]/page.tsx
 
 // 1. FORCE NODE.JS RUNTIME
-// Ensures stable HTML generation for Bing/Google bots
 export const runtime = 'nodejs'; 
 
-// 2. PERFORMANCE SETTINGS (Keep these!)
-// We use 1-hour caching. Do NOT set to 0 unless you want a slow site.
+// 2. PERFORMANCE SETTINGS
 export const revalidate = 3600; 
 export const dynamicParams = true;
 
@@ -22,6 +20,7 @@ import ProductView from "@/components/views/ProductView";
 import ArticleView from "@/components/views/ArticleView";
 
 // --- HELPER: Normalize Categories ---
+// This ensures that "baby-kid" from DB always becomes "parenting-kids" in URL
 const normalizeCategory = (slug: string) => {
   const map: Record<string, string> = {
     // 'travel-tourism': 'events-holidays',
@@ -34,7 +33,7 @@ const normalizeCategory = (slug: string) => {
   return map[slug] || slug;
 };
 
-// --- MASTER QUERY (Kept Full to protect UI) ---
+// --- MASTER QUERY ---
 const QUERY = `*[slug.current == $slug][0]{
   "slug": slug.current, _id, _type, title, description, seo, showAffiliateDisclosure,
   brand, affiliateLink, retailer, price, currency, availability,
@@ -94,23 +93,13 @@ const QUERY = `*[slug.current == $slug][0]{
   listItems[] { 
     _key, rank, badgeLabel, whySelected, customVerdict, 
     product->{ 
-      _type,
-      title, 
-      "slug": slug.current, 
+      _type, title, "slug": slug.current, 
       mainImage { asset, alt, "url": asset->url }, 
-      
-      // Existing Product Fields
       affiliateLink, retailer, priceTier, price, currency, availability, 
       realComplaint, customerRating, reviewCount, verdict, keyFeatures, 
       pros, cons, itemDescription,
-
-      // Institution Fields
       location, address, curriculum, rating, feeRange, realityCheck, website,
-
-      // ✅ NEW: Aviation Entity Fields (Correctly Integrated)
-      entityType,
-      code,
-      country
+      entityType, code, country
     } 
   },
 
@@ -119,11 +108,9 @@ const QUERY = `*[slug.current == $slug][0]{
     && _id != ^._id 
     && count((categories[]->slug.current)[@ in ^.categories[]->slug.current]) > 0
   ] | order(publishedAt desc)[0...3] {
-    title,
-    "slug": slug.current,
+    title, "slug": slug.current,
     "category": coalesce(categories[0]->slug.current, "reviews"),
-    intro,
-    mainImage { asset, alt }
+    intro, mainImage { asset, alt }
   },
 
   "relatedProducts": *[
@@ -131,18 +118,12 @@ const QUERY = `*[slug.current == $slug][0]{
     && count((categories[]->slug.current)[@ in ^.categories[]->slug.current]) > 0
     && customerRating >= 4.5
   ] | order(reviewCount desc)[0...4] {
-    title,
-    brand,
-    "slug": slug.current,
+    title, brand, "slug": slug.current,
     "category": coalesce(categories[0]->slug.current, "products"),
-    price,
-    currency,
-    customerRating,
-    mainImage { asset, alt }
+    price, currency, customerRating, mainImage { asset, alt }
   }
 }`;
 
-// Maintain Promise type for Next.js 15 compatibility
 interface PageProps {
   params: Promise<{ category: string; slug: string }>;
 }
@@ -165,18 +146,17 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { category, slug } = await params;
   
-  // ✅ FETCH EXTRA FIELDS: We added intro, verdict, itemDescription for better fallbacks
   const data = await client.fetch(
     `*[slug.current == $slug][0]{ 
       title, description, intro, verdict, itemDescription,
       seo, "imageUrl": mainImage.asset->url, 
       _type, "slug": slug.current, dealPrice, price, linkedProduct->{mainImage},
-      "categorySlug": coalesce(categories[0]->slug.current, category->slug.current)
+      // Fetch Primary Category for Canonical Logic
+      "primaryCategory": coalesce(categories[0]->slug.current, category->slug.current)
     }`,
     { slug }
   );
 
-  // ✅ SAFE FALLBACK: If Sanity fails, return 404 Metadata instead of undefined
   if (!data) {
     return { 
       title: "Page Not Found | TopTenUAE",
@@ -184,29 +164,39 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
-  return generateSeoMetadata(data, { category, slug });
+  // --- CRITICAL SEO FIX ---
+  // If user visits /reviews/baby-monitor, we tell Google the MASTER page is /parenting-kids/baby-monitor
+  const masterCategory = normalizeCategory(data.primaryCategory || 'reviews');
+  const masterUrl = `https://toptenuae.com/${masterCategory}/${slug}`;
+
+  // Pass 'url' explicitly to override auto-detection
+  return generateSeoMetadata({ ...data, url: masterUrl }, { category, slug });
 }
 
 // --- MAIN PAGE COMPONENT ---
 export default async function Page({ params }: PageProps) {
   const { category, slug } = await params;
+  
+  // 1. Fetch Data
   const data = await client.fetch(QUERY, { slug });
 
+  // 2. 404 Guard
   if (!data) notFound();
 
-  // 🛑 SEO GUARD: Redirects
-  if (data._type === 'product' && category !== 'products' && category !== 'reviews') {
-     // Optional logic
-  }
-  if (data._type === 'deal' && category !== 'deals') permanentRedirect(`/deals/${slug}`);
-  
+  // 3. Category Redirect Logic (FIXED)
   const rawCategory = data.category?.slug || 'reviews';
   const correctCategory = normalizeCategory(rawCategory);
 
-  if (correctCategory !== category && category !== 'deals' && category !== 'reviews') {
+  // LOGIC: Allow 'reviews' or 'deals' to load content directly (no redirect)
+  // even if the true category is 'parenting-kids'.
+  // Redirect ONLY if the user is on a wrong path that is NOT a valid alias.
+  const isAllowedAlias = category === 'reviews' || category === 'deals';
+
+  if (!isAllowedAlias && correctCategory !== category) {
     permanentRedirect(`/${correctCategory}/${slug}`);
   }
 
+  // 4. Generate Schema
   const schemaData = generateSchema(data);
 
   return (
