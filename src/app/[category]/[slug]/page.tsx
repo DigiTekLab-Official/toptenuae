@@ -141,7 +141,6 @@ export async function generateStaticParams() {
     slug: doc.slug,
   }));
 }
-
 // --- SEO: Metadata Generation (Optimized) ---
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { category, slug } = await params;
