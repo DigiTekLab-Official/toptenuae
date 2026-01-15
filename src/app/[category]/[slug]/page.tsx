@@ -104,8 +104,13 @@ const QUERY = `*[slug.current == $slug][0]{
       realComplaint, customerRating, reviewCount, verdict, keyFeatures, 
       pros, cons, itemDescription,
 
-      // New Institution Fields (Will be null for Products)
-      location, address, curriculum, rating, feeRange, realityCheck, website
+      // Institution Fields
+      location, address, curriculum, rating, feeRange, realityCheck, website,
+
+      // ✅ NEW: Aviation Entity Fields (Correctly Integrated)
+      entityType,
+      code,
+      country
     } 
   },
 

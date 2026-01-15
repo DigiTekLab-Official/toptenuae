@@ -3,7 +3,7 @@
 
 import React from "react";
 import Image from "next/image";
-// 🗑️ DELETED: listImage import (Not needed, we have the URL directly)
+// DELETED: listImage import (Not needed, we have the URL directly)
 import LogoIcon from "@/components/icons/LogoIcon"; 
 import { 
   CheckCircle2, XCircle, Info, Star, ExternalLink, Shield, Tag,

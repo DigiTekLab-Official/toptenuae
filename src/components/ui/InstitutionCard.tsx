@@ -1,4 +1,3 @@
-// src/components/ui/InstitutionCard.tsx
 "use client";
 
 import React from "react";
@@ -13,10 +12,11 @@ import {
 interface SchoolData {
   title: string;
   location?: string;
-  address?: string; // 👈 Add this
+  address?: string;
   curriculum?: string;
   feeRange?: string; 
-  rating?: string;   
+  // 👇 FIX: Allow 'number' here to match the Parent Template
+  rating?: string | number;   
   verdict?: string;
   mainImage?: { url: string };
   realityCheck?: string[];
@@ -59,29 +59,28 @@ export default function InstitutionCard({ item }: InstitutionCardProps) {
               {school.title}
             </h2>
             {/* Short location for subtitle (keeps header clean) */}
-            {school.location && (
+            {(school.location || school.address) && (
               <div className="flex items-center gap-1.5 text-gray-500 mt-2 text-sm font-medium">
                 <MapPin className="w-4 h-4 text-purple-500" />
-                {school.location}
+                {school.location || "Dubai, UAE"}
               </div>
             )}
           </div>
         </div>
 
         {/* --- BADGE (EMBOSSED 3D LOOK) --- */}
-                {item.badgeLabel && (
-                  <div className="mb-6 flex">
-                    {/* ✅ UPDATED: bg-primary */}
-                    <div className="relative bg-primary text-white px-5 py-1.5 rounded-lg shadow-lg overflow-hidden border-t border-white/20 border-b border-black/20">
-                      <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/30 to-transparent pointer-events-none"></div>
-                      <div className="relative flex items-center gap-2 font-black tracking-wide uppercase text-sm">
-                        <LogoIcon className="w-5 h-5" /> 
-                        <span className="drop-shadow-sm">{item.badgeLabel}</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-        
+        {item.badgeLabel && (
+          <div className="mb-6 flex">
+            {/* ✅ UPDATED: bg-primary */}
+            <div className="relative bg-primary text-white px-5 py-1.5 rounded-lg shadow-lg overflow-hidden border-t border-white/20 border-b border-black/20">
+              <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/30 to-transparent pointer-events-none"></div>
+              <div className="relative flex items-center gap-2 font-black tracking-wide uppercase text-sm">
+                <LogoIcon className="w-5 h-5" /> 
+                <span className="drop-shadow-sm">{item.badgeLabel}</span>
+              </div>
+            </div>
+          </div>
+        )}
         
         {/* --- IMAGE --- */}
         {imageUrl && (
@@ -100,13 +99,13 @@ export default function InstitutionCard({ item }: InstitutionCardProps) {
         {/* --- VERDICT --- */}
         {verdictText && (
           <div className="mb-6 bg-primary-50 border-l-4 border-primary p-4 md:p-5 rounded-r-xl shadow-sm">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Info className="w-4 h-4 text-primary" />
-                        <h3 className="text-sm font-black text-primary uppercase tracking-wider">The Verdict</h3>
-                      </div>
-                      <p className="text-gray-900 leading-relaxed font-medium text-sm md:text-base">
-              {verdictText}
-            </p>
+              <div className="flex items-center gap-2 mb-2">
+                <Info className="w-4 h-4 text-primary" />
+                <h3 className="text-sm font-black text-primary uppercase tracking-wider">The Verdict</h3>
+              </div>
+              <p className="text-gray-900 leading-relaxed font-medium text-sm md:text-base">
+                {verdictText}
+              </p>
           </div>
         )}
 
@@ -152,20 +151,19 @@ export default function InstitutionCard({ item }: InstitutionCardProps) {
           )}
 
           {/* Row 4: FULL ADDRESS */}
-            {(school.address || school.location) && (
-              <div className="flex items-start p-4 bg-white border border-gray-100 rounded-xl shadow-sm hover:border-purple-200 transition-colors">
-                {/* CHANGED: w-12 h-10 -> w-10 h-10 (Perfect Circle) */}
-                <div className="w-10 h-10 bg-purple-50 rounded-full flex items-center justify-center text-purple-600 flex-shrink-0 mr-4 mt-1">
-                  <MapPin className="w-5 h-5" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Address</p>
-                  <p className="font-bold text-gray-900 text-sm whitespace-pre-wrap leading-relaxed">
-                    {school.address || school.location}
-                  </p>
-                </div>
+          {(school.address || school.location) && (
+            <div className="flex items-start p-4 bg-white border border-gray-100 rounded-xl shadow-sm hover:border-purple-200 transition-colors">
+              <div className="w-10 h-10 bg-purple-50 rounded-full flex items-center justify-center text-purple-600 flex-shrink-0 mr-4 mt-1">
+                <MapPin className="w-5 h-5" />
               </div>
-            )}
+              <div className="flex-1">
+                <p className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Address</p>
+                <p className="font-bold text-gray-900 text-sm whitespace-pre-wrap leading-relaxed">
+                  {school.address || school.location}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* --- WHY SELECTED --- */}
@@ -207,7 +205,7 @@ export default function InstitutionCard({ item }: InstitutionCardProps) {
               href={school.website}
               target="_blank"
               rel="nofollow noopener"
-              className="flex items-center justify-center w-full md:w-auto px-8 py-3.5 gap-2 text-sm font-bold text-white bg-[#2563EB] hover:bg-blue-700 rounded-xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
+              className="flex items-center justify-center w-full md:w-auto px-8 py-3.5 gap-2 text-base font-bold text-white bg-[#2563EB] hover:bg-blue-700 rounded-xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
             >
               <Globe className="w-4 h-4" /> Visit Official Website <ExternalLink className="w-4 h-4 opacity-80" />
             </a>

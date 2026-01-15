@@ -43,6 +43,7 @@ export default function Footer() {
               <li><Link href="/parenting-kids" prefetch={false} className="hover:text-[#8B5CF6] transition-colors">Parenting & Kids</Link></li>
               <li><Link href="/smart-home" prefetch={false} className="hover:text-[#8B5CF6] transition-colors">Smart Home</Link></li>
               <li><Link href="/reviews" prefetch={false} className="hover:text-[#8B5CF6] transition-colors">Reviews</Link></li>
+              <li><Link href="/travel-tourism" prefetch={false} className="hover:text-[#8B5CF6] transition-colors">Travel & Tourism</Link></li>
                            
               <li><Link href="/deals" prefetch={false} className="hover:text-[#8B5CF6] transition-colors text-amber-400 font-medium">Deals & Offers 🔥</Link></li>
             </ul>

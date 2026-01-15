@@ -1,3 +1,4 @@
+// src/components/templates/TopTenTemplate.tsx
 "use client";
 
 import React from "react";
@@ -6,7 +7,7 @@ import { ArrowDown, Shield } from "lucide-react";
 
 // --- COMPONENTS ---
 import ComparisonSummaryTable from "./ComparisonSummaryTable";
-import QuickVerdict from "./QuickVerdict"; // <--- 1. NEW IMPORT
+import QuickVerdict from "./QuickVerdict"; 
 import DisclaimerBlock from "../ui/DisclaimerBlock"; 
 import PortableText from "@/components/PortableText";
 import FAQAccordion from "@/components/FAQAccordion";
@@ -16,6 +17,7 @@ import LogoIcon from "@/components/icons/LogoIcon";
 // --- CARDS ---
 import ProductCard from "../ui/ProductCard";       
 import InstitutionCard from "../ui/InstitutionCard"; 
+import AviationCard from "../ui/AviationCard"; 
 
 // --- INTERFACES ---
 interface TopTenData {
@@ -32,7 +34,14 @@ interface TopTenData {
 }
 
 interface Product {
-  _type?: "product" | "institution"; 
+  _type?: "product" | "institution" | "aviationEntity";
+  
+  // Aviation fields
+  entityType?: "airline" | "airport"; 
+  code?: string;     
+  country?: string; 
+  
+  // Common fields
   title: string;
   slug?: { current: string }; 
   mainImage?: any;
@@ -52,7 +61,7 @@ interface Product {
   location?: string;
   address?: string;      
   curriculum?: string;    
-  rating?: string;        
+  rating?: string | number;        
   feeRange?: string;      
   realityCheck?: string[];
   website?: string;       
@@ -73,34 +82,33 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
   const heroImageUrl = data.mainImage?.url || null;
   const showDisclaimer = (data.showAffiliateDisclosure ?? true);
 
-  // --- SMART DETECTION LOGIC ---
+  // --- 2. SMART DETECTION LOGIC ---
   const checkText = (data.title + " " + (data.category || "")).toLowerCase();
+  
+  // Check the first item type to determine the mode
+  const firstItemType = data.listItems?.[0]?.product?._type;
+
+  const isAviationPost = 
+    firstItemType === 'aviationEntity' || 
+    checkText.includes('airline') || 
+    checkText.includes('airport');
 
   const isEducationPost = 
-    checkText.includes('parenting') || 
-    checkText.includes('education') ||
-    checkText.includes('school') ||
-    checkText.includes('university') ||
-    checkText.includes('college');
+    !isAviationPost && ( // Prioritize Aviation check
+      checkText.includes('parenting') || 
+      checkText.includes('education') || 
+      checkText.includes('school') ||
+      checkText.includes('university') ||
+      checkText.includes('college')
+    );
 
   const hasMedicalKeywords = 
     checkText.includes("skincare") || checkText.includes("skin") ||    
-    checkText.includes("lotion") || checkText.includes("cream") || 
-    checkText.includes("oil") || checkText.includes("shampoo") || 
-    checkText.includes("serum") || checkText.includes("ointment") ||
-    checkText.includes("supplement") || checkText.includes("medicine") ||
-    checkText.includes("dermatologist");
+    checkText.includes("lotion") || checkText.includes("dermatologist");
 
-  const isElectronicDevice = 
-    checkText.includes("trimmer") || checkText.includes("shaver") || 
-    checkText.includes("clipper") || checkText.includes("monitor") || 
-    checkText.includes("camera") || checkText.includes("stroller") ||  
-    checkText.includes("seat") || checkText.includes("toy");        
+  const isMedicalPost = hasMedicalKeywords && !checkText.includes("trimmer");
 
-  const isMedicalPost = hasMedicalKeywords && !isElectronicDevice;
-
-  // --- 2. DATA TRANSFORMATION FOR QUICK VERDICT ---
-  // We automatically grab the Top 3 items to populate the cheat sheet
+  // --- QUICK VERDICT DATA ---
   const quickPicks = data.listItems?.slice(0, 3).map(item => ({
     tag: item.badgeLabel || (item.rank === 1 ? "Best Overall" : item.rank === 2 ? "Runner Up" : "Great Value"),
     title: item.product.title,
@@ -120,8 +128,29 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
     "itemListElement": data.listItems?.map((item) => {
       const entity = item.product;
       const isInstitution = entity._type === 'institution' || isEducationPost;
-
-      if (isInstitution) {
+      
+      // LOGIC A: Aviation
+      if (entity._type === 'aviationEntity') {
+        const schemaType = entity.entityType === 'airport' ? 'Airport' : 'Airline';
+        return {
+          "@type": "ListItem",
+          "position": item.rank,
+          "item": {
+            "@type": schemaType,
+            "name": entity.title,
+            "iataCode": entity.code,
+            "image": entity.mainImage?.url,
+            "url": entity.website,
+            "description": item.customVerdict || entity.verdict,
+            "address": {
+              "@type": "PostalAddress",
+              "addressCountry": entity.country
+            }
+          }
+        };
+      }
+      // LOGIC B: Schools
+      else if (isInstitution) {
         return {
           "@type": "ListItem",
           "position": item.rank,
@@ -138,7 +167,9 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
             }
           }
         };
-      } else {
+      } 
+      // LOGIC C: Products
+      else {
         return {
           "@type": "ListItem",
           "position": item.rank,
@@ -167,8 +198,8 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* --- TOP DISCLAIMER LOGIC --- */}
-      {showDisclaimer && !isEducationPost && (
+      {/* --- TOP DISCLAIMER --- */}
+      {showDisclaimer && !isEducationPost && !isAviationPost && (
         <div className="mb-2 text-sm text-gray-500 text-center md:text-left opacity-90 hover:opacity-100 transition-opacity">
           <AffiliateDisclosure />
         </div>
@@ -178,7 +209,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
          <div className="bg-slate-50 border-b border-gray-100 py-2 px-4 mb-6 text-sm text-gray-600 flex items-start gap-2 leading-relaxed">
            <Shield className="w-4 h-4 mt-0.5 flex-shrink-0 opacity-80" />
            <p>
-             <strong>Transparency Note:</strong> Our school rankings are based on independent research, KHDA reports, and parent feedback. We do not accept paid placements from schools.
+             <strong>Transparency Note:</strong> Independent school rankings based on research and KHDA reports.
            </p>
          </div>
       )}
@@ -197,7 +228,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
         </div>
       )}
 
-      {/* QUICK NAVIGATION */}
+      {/* QUICK JUMP */}
       {data.listItems && data.listItems.length > 0 && (
         <div className="mb-8 p-4 bg-gray-50/50 border border-gray-100 rounded-2xl">
           <h2 className="text-sm font-bold text-gray-800 uppercase tracking-widest mb-2 flex items-center gap-2 ml-1">
@@ -210,7 +241,6 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
                 <a
                   key={item._key}
                   href={`#item-${item.rank}`}
-                  aria-label={`Jump to ${item.product.title}`}
                   className="group flex items-center gap-2 pl-2 pr-3 py-1.5 bg-primary-100 border border-primary-200 rounded-full shadow-sm hover:shadow-md hover:bg-primary-50 transition-all duration-200"
                 >
                   <span className="bg-primary text-white text-xs font-black w-5 h-5 flex items-center justify-center rounded-full" aria-hidden="true">
@@ -231,9 +261,8 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
              <PortableText value={data.body || data.intro} />
           </div>
 
-          {/* --- 3. QUICK VERDICT COMPONENT (Inject Here) --- */}
-          {/* Only show for Product posts (not schools) */}
-          {!isEducationPost && quickPicks.length > 0 && (
+          {/* --- 3. QUICK VERDICT (Hide for Schools & Aviation) --- */}
+          {!isEducationPost && !isAviationPost && quickPicks.length > 0 && (
              <QuickVerdict picks={quickPicks} />
           )}
    
@@ -253,11 +282,21 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
               {data.listItems.map((item) => (
                 <React.Fragment key={item._key}>
                   
-                  {/* CARD RENDERING LOGIC */}
-                  {(item.product._type === 'institution' || isEducationPost) ? (
-                    <InstitutionCard item={item} />
-                  ) : (
-                    <ProductCard item={item} />
+                  {/* ✅ 4. THE CARD SWITCHER LOGIC */}
+                  
+                  {/* Option A: It's an Airline/Airport */}
+                  {item.product._type === 'aviationEntity' ? (
+                     <AviationCard item={item} />
+                  ) 
+                  
+                  /* Option B: It's a School/Institution */
+                  : (item.product._type === 'institution' || isEducationPost) ? (
+                     <InstitutionCard item={item} />
+                  ) 
+                  
+                  /* Option C: It's a Standard Product (Default) */
+                  : (
+                     <ProductCard item={item} />
                   )}
 
                   <div className="flex items-center justify-center py-2 opacity-40">
@@ -269,8 +308,8 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
           </div>
         )}
 
-        {/* COMPARISON TABLE - Hide for Schools */}
-        {data.listItems && data.listItems.length > 0 && !isEducationPost && (
+        {/* COMPARISON TABLE - Hide for Schools & Aviation */}
+        {data.listItems && data.listItems.length > 0 && !isEducationPost && !isAviationPost && (
           <div className="w-full overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0">
              <div className="min-w-[600px]"> 
                <ComparisonSummaryTable items={data.listItems} />
@@ -284,10 +323,13 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
             {data.listItems && data.listItems.length > 0 ? (
               <div className="mt-12 prose prose-lg max-w-none text-slate-800 leading-relaxed bg-blue-50/50 p-6 md:p-8 rounded-2xl border border-blue-100 shadow-sm">
                 
+                {/* --- 5. DYNAMIC FOOTER TITLE --- */}
                 <div className="flex items-center gap-2 mb-4 text-blue-800 border-b border-blue-200 pb-2">
                   <Shield className="w-6 h-6" />
                   <h2 className="text-xl font-bold m-0! p-0!">
-                    {isEducationPost ? "Admission & Parents' Guide" : "Guide & Maintenance"}
+                    {isEducationPost ? "Admission & Parents' Guide" : 
+                     isAviationPost ? "Traveler's Guide & Tips" : 
+                     "Guide & Maintenance"}
                   </h2>
                 </div>
                 
@@ -304,7 +346,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
         {data.faqs && data.faqs.length > 0 && <FAQAccordion faqs={data.faqs} />}
         
         {/* DISCLAIMER FOOTER */}
-        {(showDisclaimer || isMedicalPost) && !isEducationPost && (
+        {(showDisclaimer || isMedicalPost) && !isEducationPost && !isAviationPost && (
           <DisclaimerBlock type={isMedicalPost ? 'medical' : 'general'} />
         )}
 
