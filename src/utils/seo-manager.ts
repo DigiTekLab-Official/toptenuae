@@ -10,19 +10,24 @@ const DEFAULT_OG_IMAGE = `${SITE_URL}/images/brand/og-default.png`;
 const MAX_TITLE_LENGTH = 60;
 const MAX_DESC_LENGTH = 160;
 
-// ✅ FIXED: Helper that respects whole words
+// ✅ FIXED: Helper that respects whole words but prevents empty strings
 const truncate = (text: string, limit: number) => {
   if (!text || text.length <= limit) return text;
-  // Cut at limit, then cut back to the last space to avoid "Best Baby Moni..."
+  
   const sub = text.substring(0, limit);
-  return sub.substring(0, sub.lastIndexOf(" ")) + "...";
+  const lastSpace = sub.lastIndexOf(" ");
+
+  // If no space found (single long word), just cut it hard to avoid returning "..."
+  if (lastSpace === -1) return sub + "...";
+  
+  return sub.substring(0, lastSpace) + "...";
 };
 
 export interface SanitySeoSource {
   title: string;
   description?: string;
   slug?: { current: string };
-  url?: string; // ✅ This is the override field we will use
+  url?: string; // ✅ This is the override field from page.tsx
   mainImage?: { url: string };
   _type: string;
   _updatedAt?: string;
@@ -88,20 +93,20 @@ export function generateSeoMetadata(
     data.mainImage?.url || 
     DEFAULT_OG_IMAGE;
 
-  // 4. Resolve Canonical URL (CRITICAL FIX)
+  // 4. Resolve Canonical URL
   // Priority: 
   // 1. Manual Override in Sanity (data.seo.canonicalUrl)
-  // 2. Calculated "Master" URL passed from Page (data.url)
-  // 3. Auto-generated (Fallback)
+  // 2. Master URL passed from Page (data.url) - THIS PREVENTS GSC ISSUES
+  // 3. Fallback (Auto-detection)
   
   let canonical = data.seo?.canonicalUrl || data.url; 
   
   if (!canonical) {
-    // ⚠️ DANGER ZONE: This logic relies on "Active Category"
-    // If you visit /reviews/, this sets canonical to /reviews/ (BAD for SEO)
-    // ALWAYS try to pass 'data.url' from the page.tsx to avoid this block.
+    // ⚠️ Fallback logic. This runs ONLY if page.tsx fails to pass 'url'.
+    // If this runs on /reviews/, it might generate the wrong canonical.
+    // Ensure page.tsx always passes 'url'.
     
-    const activeCategory = data.categorySlug || pathContext?.category; // <--- The Risk is here
+    const activeCategory = data.categorySlug || pathContext?.category;
     const activeSlug = data.slug?.current || pathContext?.slug;
 
     if (activeCategory && activeSlug) {

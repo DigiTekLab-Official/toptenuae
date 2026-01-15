@@ -1,4 +1,3 @@
-// src/components/templates/TopTenTemplate.tsx
 "use client";
 
 import React from "react";
@@ -26,7 +25,8 @@ interface TopTenData {
   body: any; 
   closingContent?: any;
   mainImage?: { url: string; alt?: string }; 
-  category?: string;
+  // ✅ FIX: Category is an object from page.tsx, not a string
+  category?: { title: string; slug: string; menuLabel?: string } | string;
   publishedAt?: string;
   faqs?: { _key: string; question: string; answer: string }[];
   listItems?: ListItem[];
@@ -82,8 +82,16 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
   const heroImageUrl = data.mainImage?.url || null;
   const showDisclaimer = (data.showAffiliateDisclosure ?? true);
 
-  // --- 2. SMART DETECTION LOGIC ---
-  const checkText = (data.title + " " + (data.category || "")).toLowerCase();
+  // --- 2. SMART DETECTION LOGIC (FIXED) ---
+  // Extract string from category object safely
+  const categoryString = typeof data.category === 'string' 
+    ? data.category 
+    : data.category?.slug || "";
+
+  // Helper to normalize tricky categories for detection
+  const normalizedCat = categoryString === 'baby-kid' ? 'parenting-kids' : categoryString;
+
+  const checkText = (data.title + " " + normalizedCat).toLowerCase();
   
   // Check the first item type to determine the mode
   const firstItemType = data.listItems?.[0]?.product?._type;
@@ -99,7 +107,8 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
       checkText.includes('education') || 
       checkText.includes('school') ||
       checkText.includes('university') ||
-      checkText.includes('college')
+      checkText.includes('college') ||
+      normalizedCat.includes('parenting') // ✅ Explicit check
     );
 
   const hasMedicalKeywords = 
@@ -282,19 +291,13 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
               {data.listItems.map((item) => (
                 <React.Fragment key={item._key}>
                   
-                  {/* ✅ 4. THE CARD SWITCHER LOGIC */}
-                  
-                  {/* Option A: It's an Airline/Airport */}
+                  {/* CARD SWITCHER */}
                   {item.product._type === 'aviationEntity' ? (
                      <AviationCard item={item} />
                   ) 
-                  
-                  /* Option B: It's a School/Institution */
                   : (item.product._type === 'institution' || isEducationPost) ? (
                      <InstitutionCard item={item} />
                   ) 
-                  
-                  /* Option C: It's a Standard Product (Default) */
                   : (
                      <ProductCard item={item} />
                   )}
@@ -308,7 +311,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
           </div>
         )}
 
-        {/* COMPARISON TABLE - Hide for Schools & Aviation */}
+        {/* COMPARISON TABLE */}
         {data.listItems && data.listItems.length > 0 && !isEducationPost && !isAviationPost && (
           <div className="w-full overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0">
              <div className="min-w-[600px]"> 
@@ -323,7 +326,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
             {data.listItems && data.listItems.length > 0 ? (
               <div className="mt-12 prose prose-lg max-w-none text-slate-800 leading-relaxed bg-blue-50/50 p-6 md:p-8 rounded-2xl border border-blue-100 shadow-sm">
                 
-                {/* --- 5. DYNAMIC FOOTER TITLE --- */}
+                {/* DYNAMIC FOOTER TITLE */}
                 <div className="flex items-center gap-2 mb-4 text-blue-800 border-b border-blue-200 pb-2">
                   <Shield className="w-6 h-6" />
                   <h2 className="text-xl font-bold m-0! p-0!">

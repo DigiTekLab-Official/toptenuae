@@ -182,16 +182,15 @@ export default async function Page({ params }: PageProps) {
   // 2. 404 Guard
   if (!data) notFound();
 
-  // 3. Category Redirect Logic (FIXED)
+  // 3. Category Redirect Logic (STRICT MODE)
   const rawCategory = data.category?.slug || 'reviews';
+  
+  // This helper maps 'baby-kid' -> 'parenting-kids'
   const correctCategory = normalizeCategory(rawCategory);
 
-  // LOGIC: Allow 'reviews' or 'deals' to load content directly (no redirect)
-  // even if the true category is 'parenting-kids'.
-  // Redirect ONLY if the user is on a wrong path that is NOT a valid alias.
-  const isAllowedAlias = category === 'reviews' || category === 'deals';
-
-  if (!isAllowedAlias && correctCategory !== category) {
+  // If the URL category doesn't match the DB category, REDIRECT immediately.
+  // This automatically fixes /reviews/best-baby-monitors-uae -> /parenting-kids/best-baby-monitors-uae
+  if (correctCategory !== category) {
     permanentRedirect(`/${correctCategory}/${slug}`);
   }
 
