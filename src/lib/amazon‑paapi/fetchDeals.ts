@@ -1,5 +1,5 @@
 // 1. Use 'import' instead of 'require'
-import { createClient } from '@sanity/client';
+import { createClient } from 'next-sanity';
 // Note: You might need to add: // @ts-ignore if amazon-paapi doesn't have type definitions
 import amazonPaapi from 'amazon-paapi'; 
 
