@@ -18,7 +18,7 @@ export default function AboutPage() {
         <div className="relative z-10 max-w-3xl mx-auto">
           <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-6">
             Shopping in the UAE, <br />
-            <span className="text-yellow-400">Simplified.</span>
+            <span className="text-yellow-500">Simplified.</span>
           </h1>
           <p className="text-lg md:text-xl text-indigo-100 leading-relaxed font-medium">
             We analyze thousands of products on Amazon.ae so you don't have to. 

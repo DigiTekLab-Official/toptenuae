@@ -1,8 +1,7 @@
 // src/sanity/lib/queries.ts
 import { groq } from 'next-sanity'
 
-// 1. GLOBAL SITE SETTINGS (New)
-// Fetches branding, SEO defaults, and contact info for layout.tsx
+// 1. GLOBAL SITE SETTINGS
 export const SITE_SETTINGS_QUERY = groq`
   *[_type == "siteSettings"][0] {
     title,
@@ -45,7 +44,7 @@ export const PRODUCT_BY_SLUG_QUERY = groq`
   }
 `
 
-// 3. TOP 10 LIST QUERY (Updated with SEO & Related Content)
+// 3. TOP 10 LIST QUERY (Updated with Expansion for Internal Links)
 export const TOP_TEN_LIST_QUERY = groq`
   *[_type == "topTenList" && slug.current == $slug][0] {
     title,
@@ -54,20 +53,52 @@ export const TOP_TEN_LIST_QUERY = groq`
     "updatedAt": _updatedAt, 
     
     // --- SEO METADATA ---
-    // Fetches custom SEO title if set (e.g., "Tested & Ranked"), otherwise falls back to main title
     "seoTitle": coalesce(seo.metaTitle, title),
     "seoDescription": coalesce(seo.metaDescription, intro),
     "socialShareImage": seo.shareGraphic.asset->url,
 
     // --- MAIN CONTENT ---
     intro,
-    body,
-    closingContent,       
+    
+    // ✅ EXPANDED BODY: Fetches 'category' for relatedLink to fix 404s
+    body[] {
+      ...,
+      _type == "relatedLink" => {
+        ...,
+        targetPost->{
+          title,
+          "slug": slug.current,
+          "category": categories[0]->slug.current 
+        }
+      },
+      _type == "image" => {
+        ...,
+        asset->
+      }
+    },
+
+    // ✅ EXPANDED CLOSING CONTENT: Same fix here
+    closingContent[] {
+      ...,
+      _type == "relatedLink" => {
+        ...,
+        targetPost->{
+          title,
+          "slug": slug.current,
+          "category": categories[0]->slug.current 
+        }
+      },
+      _type == "image" => {
+        ...,
+        asset->
+      }
+    },
+       
     showAffiliateDisclosure,
     mainImage { asset, alt },
     faqs[] { _key, question, answer },
     
-    // --- LIST ITEMS (For Schema & Display) ---
+    // --- LIST ITEMS ---
     listItems[] | order(rank asc) {
       _key,
       rank,
@@ -95,8 +126,7 @@ export const TOP_TEN_LIST_QUERY = groq`
       }
     },
 
-    // --- RELATED CONTENT (Topic Clusters) ---
-    // 1. Related Lists: Finds other Top 10 lists in the same category
+    // --- RELATED CONTENT ---
     "relatedLists": *[
       _type == "topTenList" 
       && _id != ^._id 
@@ -105,10 +135,11 @@ export const TOP_TEN_LIST_QUERY = groq`
       title,
       "slug": slug.current,
       intro,
-      mainImage { asset, alt }
+      mainImage { asset, alt },
+      // Fetch category for URL building in cards
+      "category": categories[0]->slug.current
     },
 
-    // 2. Related Products: Finds high-rated products (>4.5 stars) in the same category
     "relatedProducts": *[
       _type == "product" 
       && count((categories[]->slug.current)[@ in ^.categories[]->slug.current]) > 0
@@ -125,7 +156,7 @@ export const TOP_TEN_LIST_QUERY = groq`
   }
 `
 
-// 4. DEALS QUERY (Optimized with Smart Fallbacks)
+// 4. DEALS QUERY
 export const ALL_DEALS_QUERY = groq`
   *[_type == "deal" && isActive == true] | order(featured desc, _createdAt desc) {
     _id,

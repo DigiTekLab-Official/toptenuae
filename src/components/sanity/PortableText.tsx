@@ -9,7 +9,7 @@ import SanityTable from "@/components/sanity/SanityTable";
 import NavigationGrid from "@/components/ui/NavigationGrid";
 import PriceWidget from '@/components/tools/PriceWidget';
 
-// --- 1. NEW: InfoCards Component for the Grid Layout ---
+// --- 1. InfoCards Component ---
 const InfoCards = ({ value }: { value: any }) => {
   if (!value?.cards) return null;
 
@@ -30,7 +30,6 @@ const InfoCards = ({ value }: { value: any }) => {
         return (
           <div key={index} className={`p-6 rounded-2xl border ${colors}`}>
             <h3 className="text-lg font-bold mb-3">{card.title}</h3>
-            {/* whitespace-pre-line ensures line breaks from the text area are respected */}
             <p className="whitespace-pre-line leading-relaxed opacity-90 text-sm md:text-base">
               {card.description}
             </p>
@@ -44,12 +43,11 @@ const InfoCards = ({ value }: { value: any }) => {
 // --- 2. Main Components Map ---
 const components: PortableTextComponents = {
   types: {
-    // ✅ Register the new InfoCards type here
     infoCards: InfoCards,
 
     navigationGrid: ({ value }: any) => <NavigationGrid title={value.title} items={value.items} />,
   
-    // Note: The WAVE 'Redundant title' error fix must be applied inside the RelatedLinkCard component itself.
+    // ✅ The Data for 'targetPost' is now enriched by the Query update above
     relatedLink: ({ value }) => (
       <RelatedLinkCard
         label={value.label}
@@ -57,6 +55,7 @@ const components: PortableTextComponents = {
         post={value.targetPost}
       />
     ),
+
     priceWidget: ({ value }: any) => (
       <PriceWidget 
         title={value.title}
@@ -78,10 +77,10 @@ const components: PortableTextComponents = {
     },
 
     image: ({ value }: any) => {
-      // 1. Guard Clause: Check if asset exists
+      // 1. Guard Clause
       if (!value?.asset?._ref) return null;
 
-      // 2. Generate direct URL properly
+      // 2. Generate URL
       let imageUrl = null;
       try {
         const builder = urlForImage(value);
@@ -99,15 +98,14 @@ const components: PortableTextComponents = {
 
       if (!imageUrl) return null;
 
-      // 3. ✅ EXTRACT DIMENSIONS from Sanity Asset Reference
-      // Sanity ID format: image-id-dimensions-format (e.g., image-abc...-1920x1080-jpg)
-      let width = 1200; // default fallback
-      let height = 800; // default fallback
+      // 3. Extract Dimensions
+      let width = 1200; 
+      let height = 800; 
       const ref = value.asset._ref;
       if (ref) {
         const parts = ref.split('-');
         if (parts.length >= 3) {
-           const dimensions = parts[2].split('x'); // ['1920', '1080']
+           const dimensions = parts[2].split('x');
            if (dimensions.length === 2) {
              width = parseInt(dimensions[0], 10);
              height = parseInt(dimensions[1], 10);
@@ -115,8 +113,7 @@ const components: PortableTextComponents = {
         }
       }
 
-      // Layout Logic
-      const isFloat = value.display === "left" || value.display === "right";
+      // 4. Layout Logic
       const containerClass =
         value.display === "left"
           ? "my-6 md:float-left md:mr-8 md:w-1/2 w-full clear-both md:clear-none"
@@ -126,16 +123,12 @@ const components: PortableTextComponents = {
 
       return (
         <figure className={containerClass}>
-          {/* ✅ FIX: Removed fixed 'aspect-[...]' classes. 
-             Now the container height simply wraps the image content. */}
           <div className="relative overflow-hidden rounded-lg shadow-sm">
             <Image
               src={imageUrl}
               alt={value.alt || ""}
-              // ✅ FIX: Use extracted width/height instead of 'fill'
               width={width}
               height={height}
-              // ✅ FIX: w-full h-auto ensures it fits the column but keeps natural height (no cropping)
               className="w-full h-auto object-contain" 
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 800px"
               quality={85}
@@ -153,7 +146,6 @@ const components: PortableTextComponents = {
 
   block: {
     normal: ({ children }) => {
-      // Prevent "Ghost Blocks"
       if (!children || (Array.isArray(children) && children[0] === "")) {
         return null;
       }
