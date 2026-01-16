@@ -1,6 +1,6 @@
 // src/app/reviews/page.tsx
-// 🎯 FULLY DYNAMIC - Buying Guides + Categories
-// "Fresh off the Bench" removed. Buying Guides fixed.
+// 🎯 FULLY DYNAMIC - Fixes 404 Links
+// Now links correctly to /category/slug instead of /reviews/slug
 
 import { Metadata } from 'next';
 import Link from 'next/link';
@@ -113,11 +113,13 @@ function categorizeProduct(title: string): string {
 // ============================================================================
 
 async function getAllReviews() {
+  // ✅ FIX: Fetch 'categorySlug' so we can build the correct URL
   const products = await client.fetch(`
     *[_type == "product" && defined(slug.current)] | order(_createdAt desc) {
       _id,
       title,
       "slug": slug.current,
+      "categorySlug": category->slug.current,
       rating,
       _createdAt,
       "imageUrl": mainImage.asset->url
@@ -141,9 +143,7 @@ async function getAllReviews() {
 }
 
 async function getTopLists() {
-  // ✅ FIX: "Blacklist" approach. 
-  // Fetch ALL Buying Guides, but filter out the specific topics you don't want.
-  // This guarantees your product lists show up, while hiding "Airlines" and "AI".
+  // ✅ FIX: Fetch 'categorySlug' here too
   return await client.fetch(`
     *[_type == "topTenList" && defined(slug.current) && 
       !(title match "Airline*") && 
@@ -155,6 +155,7 @@ async function getTopLists() {
       _id,
       title,
       "slug": slug.current,
+      "categorySlug": category->slug.current,
       _updatedAt,
       "imageUrl": mainImage.asset->url
     }
@@ -232,7 +233,7 @@ export default async function ReviewsPage() {
       {/* MAIN CONTENT */}
       <div className="max-w-7xl mx-auto px-4 py-16">
         
-        {/* 1. Featured Buying Guides (Fixed: Visible & Filtered) */}
+        {/* 1. Featured Buying Guides */}
         {topLists.length > 0 && (
           <div className="mb-20">
             <div className="flex items-center gap-3 mb-8">
@@ -246,51 +247,56 @@ export default async function ReviewsPage() {
             </div>
             
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {topLists.map((list: any) => (
-                <Link
-                  key={list._id}
-                  href={`/reviews/${list.slug}`}
-                  className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col h-full"
-                >
-                  {/* Thumbnail Image */}
-                  <div className="h-48 relative bg-gray-100 shrink-0 overflow-hidden">
-                    {list.imageUrl ? (
-                      <Image 
-                        src={list.imageUrl} 
-                        alt={list.title} 
-                        fill 
-                        className="object-cover transition-transform duration-700 group-hover:scale-105" 
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-300">
-                        <Package className="w-12 h-12" />
+              {topLists.map((list: any) => {
+                // ✅ FIX: Use correct category slug or fallback to 'reviews'
+                const href = `/${list.categorySlug || 'reviews'}/${list.slug}`;
+                
+                return (
+                  <Link
+                    key={list._id}
+                    href={href}
+                    className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col h-full"
+                  >
+                    {/* Thumbnail Image */}
+                    <div className="h-48 relative bg-gray-100 shrink-0 overflow-hidden">
+                      {list.imageUrl ? (
+                        <Image 
+                          src={list.imageUrl} 
+                          alt={list.title} 
+                          fill 
+                          className="object-cover transition-transform duration-700 group-hover:scale-105" 
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-300">
+                          <Package className="w-12 h-12" />
+                        </div>
+                      )}
+                      <div className="absolute top-3 left-3">
+                        <span className="bg-white/95 backdrop-blur-sm text-[#4b0082] text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-sm flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" /> Buying Guide
+                        </span>
                       </div>
-                    )}
-                    <div className="absolute top-3 left-3">
-                      <span className="bg-white/95 backdrop-blur-sm text-[#4b0082] text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-sm flex items-center gap-1">
-                        <CheckCircle2 className="w-3 h-3" /> Buying Guide
-                      </span>
                     </div>
-                  </div>
 
-                  <div className="p-6 flex flex-col flex-1">
-                    <h3 className="font-bold text-lg text-gray-900 group-hover:text-[#4b0082] transition-colors mb-3 line-clamp-2 leading-tight">
-                      {list.title}
-                    </h3>
-                    
-                    <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
-                      <div className="flex items-center text-xs text-gray-500">
-                        <Calendar className="w-3 h-3 mr-1.5" />
-                        {new Date(list._updatedAt).toLocaleDateString()}
+                    <div className="p-6 flex flex-col flex-1">
+                      <h3 className="font-bold text-lg text-gray-900 group-hover:text-[#4b0082] transition-colors mb-3 line-clamp-2 leading-tight">
+                        {list.title}
+                      </h3>
+                      
+                      <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
+                        <div className="flex items-center text-xs text-gray-500">
+                          <Calendar className="w-3 h-3 mr-1.5" />
+                          {new Date(list._updatedAt).toLocaleDateString()}
+                        </div>
+                        <span className="text-sm font-bold text-[#4b0082] flex items-center gap-1 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-300">
+                          Read <ArrowRight className="w-4 h-4" />
+                        </span>
                       </div>
-                      <span className="text-sm font-bold text-[#4b0082] flex items-center gap-1 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-300">
-                        Read <ArrowRight className="w-4 h-4" />
-                      </span>
                     </div>
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                );
+              })}
             </div>
           </div>
         )}
@@ -312,7 +318,6 @@ export default async function ReviewsPage() {
 
             return (
               <div key={category.key} className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 relative overflow-hidden">
-                {/* Decorative Background Icon */}
                 <div className="absolute top-0 right-0 opacity-[0.03] transform translate-x-1/4 -translate-y-1/4 pointer-events-none">
                   <IconComponent className="w-64 h-64" />
                 </div>
@@ -328,34 +333,39 @@ export default async function ReviewsPage() {
                 </div>
                 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 relative z-10">
-                  {items.map((product: any) => (
-                    <Link
-                      key={product._id}
-                      href={`/reviews/${product.slug}`}
-                      className="group flex flex-col bg-white border border-gray-200 hover:border-[#4b0082]/30 rounded-xl p-4 transition-all hover:shadow-lg hover:-translate-y-1"
-                    >
-                      <div className="flex items-start justify-between gap-3 mb-3">
-                        <h4 className="font-bold text-sm text-gray-900 group-hover:text-[#4b0082] line-clamp-2 leading-snug">
-                          {product.title}
-                        </h4>
-                        {product.imageUrl && (
-                           <div className="w-10 h-10 shrink-0 relative rounded-md overflow-hidden bg-gray-50 border border-gray-100">
-                              <Image src={product.imageUrl} alt="" fill className="object-cover" />
-                           </div>
-                        )}
-                      </div>
-                      
-                      <div className="mt-auto flex items-center justify-between">
-                         {product.rating ? (
-                          <div className="flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-100">
-                            <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                            <span className="text-xs font-bold text-amber-700">{product.rating}</span>
-                          </div>
-                        ) : <span></span>}
-                        <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-[#4b0082] transform group-hover:translate-x-1 transition-all" />
-                      </div>
-                    </Link>
-                  ))}
+                  {items.map((product: any) => {
+                    // ✅ FIX: Use correct category slug or fallback to 'reviews'
+                    const href = `/${product.categorySlug || 'reviews'}/${product.slug}`;
+
+                    return (
+                      <Link
+                        key={product._id}
+                        href={href}
+                        className="group flex flex-col bg-white border border-gray-200 hover:border-[#4b0082]/30 rounded-xl p-4 transition-all hover:shadow-lg hover:-translate-y-1"
+                      >
+                        <div className="flex items-start justify-between gap-3 mb-3">
+                          <h4 className="font-bold text-sm text-gray-900 group-hover:text-[#4b0082] line-clamp-2 leading-snug">
+                            {product.title}
+                          </h4>
+                          {product.imageUrl && (
+                             <div className="w-10 h-10 shrink-0 relative rounded-md overflow-hidden bg-gray-50 border border-gray-100">
+                                <Image src={product.imageUrl} alt="" fill className="object-cover" />
+                             </div>
+                          )}
+                        </div>
+                        
+                        <div className="mt-auto flex items-center justify-between">
+                           {product.rating ? (
+                            <div className="flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-100">
+                              <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                              <span className="text-xs font-bold text-amber-700">{product.rating}</span>
+                            </div>
+                          ) : <span></span>}
+                          <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-[#4b0082] transform group-hover:translate-x-1 transition-all" />
+                        </div>
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
             );
@@ -374,20 +384,25 @@ export default async function ReviewsPage() {
                 </div>
               </div>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {categorized['other'].map((product: any) => (
-                  <Link
-                    key={product._id}
-                    href={`/reviews/${product.slug}`}
-                    className="group block bg-gray-50 hover:bg-white border border-transparent hover:border-blue-200 rounded-lg p-4 transition-all hover:shadow-md"
-                  >
-                    <h4 className="font-semibold text-sm text-gray-900 group-hover:text-blue-600 line-clamp-2 mb-2">
-                      {product.title}
-                    </h4>
-                    <div className="flex justify-end">
-                       <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-blue-500 transform group-hover:translate-x-1 transition-all" />
-                    </div>
-                  </Link>
-                ))}
+                {categorized['other'].map((product: any) => {
+                  // ✅ FIX: Use correct category slug or fallback to 'reviews'
+                  const href = `/${product.categorySlug || 'reviews'}/${product.slug}`;
+
+                  return (
+                    <Link
+                      key={product._id}
+                      href={href}
+                      className="group block bg-gray-50 hover:bg-white border border-transparent hover:border-blue-200 rounded-lg p-4 transition-all hover:shadow-md"
+                    >
+                      <h4 className="font-semibold text-sm text-gray-900 group-hover:text-blue-600 line-clamp-2 mb-2">
+                        {product.title}
+                      </h4>
+                      <div className="flex justify-end">
+                         <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-blue-500 transform group-hover:translate-x-1 transition-all" />
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           )}
