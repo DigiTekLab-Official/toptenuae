@@ -1,6 +1,6 @@
 // src/components/templates/ArticleTemplate.tsx
 import Image from "next/image";
-import PortableText from "@/components/PortableText";
+import PortableText from "@/components/sanity/PortableText";
 import FAQAccordion from "@/components/FAQAccordion";
 // 🗑️ DELETED: discoverImage import (Not needed, we have the URL directly)
 

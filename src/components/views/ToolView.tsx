@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Calculator, Percent, Coins, HeartHandshake, Car, Plane, TrendingUp } from "lucide-react";
 import ClientToolRenderer from "@/components/tools/ClientToolRenderer";
 import Breadcrumb from "@/components/Breadcrumb";
-import PortableText from "@/components/PortableText";
+import PortableText from "@/components/sanity/PortableText";
 import FAQAccordion from "@/components/FAQAccordion";
 import RelatedTools from "@/components/tools/RelatedTools";
 

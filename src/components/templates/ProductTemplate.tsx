@@ -11,7 +11,7 @@ import {
   Tag,
   Info
 } from 'lucide-react';
-import PortableText from '@/components/PortableText';
+import PortableText from '@/components/sanity/PortableText';
 import PriceWidget from '@/components/tools/PriceWidget';
 import LogoIcon from '@/components/icons/LogoIcon';
 

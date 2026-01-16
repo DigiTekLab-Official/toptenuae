@@ -2,7 +2,7 @@
 
 // src/components/ui/Accordion.tsx
 import { Plus, Minus } from "lucide-react";
-import PortableText from '@/components/PortableText'
+import PortableText from '@/components/sanity/PortableText'
 
 interface FAQItem {
   question: string;

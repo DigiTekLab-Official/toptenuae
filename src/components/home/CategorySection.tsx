@@ -6,7 +6,7 @@ import Image from 'next/image';
 
 import { TopTenItem } from './HeroSection';
 
-import PortableText from '@/components/PortableText';
+import PortableText from '@/components/sanity/PortableText';
 
 
 

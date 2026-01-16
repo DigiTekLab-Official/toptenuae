@@ -1,28 +1,26 @@
 // src/app/[category]/page.tsx
 
-// 1. CRITICAL SEO FIX: Stable Indexing
-// We remove 'edge' and 'force-dynamic'.
-// We set revalidate to 24 hours (86400 seconds) for stable snapshots.
 export const revalidate = 86400; 
-export const dynamicParams = true; // Allow new categories to be found if added after build
+export const dynamicParams = true;
 
 import { client } from "@/sanity/lib/client";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Metadata } from "next";
 import Sidebar from "@/components/Sidebar";
-import { generateSeoMetadata } from "@/utils/seo-manager"; 
-import { cleanText } from "@/utils/sanity-text"; 
+import { generateSeoMetadata } from "@/lib/utils/seo-manager"; 
+import { cleanText } from "@/lib/utils/sanity-text"; 
 
 import { 
   Sparkles, ArrowRight, Calculator, Percent, Coins, 
   Car, Plane, TrendingUp, HeartHandshake
 } from "lucide-react"; 
 
-// 2. CRITICAL ADDITION: Generate Static Params
-// This tells Next.js to pre-build these pages. 
-// Without this, Google finds "empty" slots first, delaying indexing.
+// --- CUSTOM PAGES CONFIG ---
+const CUSTOM_PAGES = ['reviews']; // Add more as needed
+
+// --- GENERATE STATIC PARAMS ---
 export async function generateStaticParams() {
   const categories = await client.fetch(`
     *[_type == "category" && defined(slug.current)]{
@@ -30,9 +28,12 @@ export async function generateStaticParams() {
     }
   `);
 
-  return categories.map((c: any) => ({
-    category: c.category,
-  }));
+  // Filter out custom pages - they have their own routes
+  return categories
+    .filter((c: any) => !CUSTOM_PAGES.includes(c.category))
+    .map((c: any) => ({
+      category: c.category,
+    }));
 }
 
 // --- QUERY ---
@@ -45,7 +46,7 @@ const categoryQuery = `*[_type == "category" && slug.current == $slug][0]{
   "seo": seo { metaTitle, metaDescription, keywords, canonicalUrl, noIndex, ogImage },
   "items": *[
     _type in ["topTenList", "howTo", "tool", "holiday", "charity", "deal", "event"] && 
-    (references(^._id) || category._ref == ^._id || ^._id in categories[]._ref)
+    (references(^._id) || category._ref == ^._id || categories[0]._ref == ^._id)
   ] | order(publishedAt desc) {
     _type,
     title,
@@ -63,6 +64,12 @@ interface PageProps {
 // --- SEO GENERATION ---
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { category } = await params;
+  
+  // Don't generate metadata for custom pages
+  if (CUSTOM_PAGES.includes(category)) {
+    return { title: "" }; // Custom page handles its own metadata
+  }
+  
   const data = await client.fetch(
     `*[_type == "category" && slug.current == $slug][0]{ 
       title, description, _type, "slug": slug.current, seo 
@@ -89,6 +96,12 @@ const getToolConfig = (slug: string) => {
 // --- MAIN PAGE ---
 export default async function CategoryPage({ params }: PageProps) {
   const { category } = await params;
+  
+  // IMPROVEMENT: Early redirect before any data fetching
+  if (CUSTOM_PAGES.includes(category)) {
+    redirect(`/${category}`);
+  }
+  
   const data = await client.fetch(categoryQuery, { slug: category });
 
   if (!data) return notFound();
@@ -113,16 +126,49 @@ export default async function CategoryPage({ params }: PageProps) {
       })) || []
     }
   };
+  
+  // IMPROVEMENT: Add breadcrumb schema
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://toptenuae.com"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": cleanText(data.title),
+        "item": `https://toptenuae.com/${categorySlug}`
+      }
+    ]
+  };
 
   const isFinance = data.slug === 'finance' || data.slug === 'finance-tools';
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans pb-20">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      {/* Collection Schema */}
+      <script 
+        type="application/ld+json" 
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} 
+      />
+      
+      {/* Breadcrumb Schema - IMPROVEMENT */}
+      <script 
+        type="application/ld+json" 
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} 
+      />
 
+      {/* Hero Section */}
       <div className="bg-[#4b0082] text-white py-12 px-4 text-center relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0 100 C 20 0 50 0 100 100 Z" fill="white" /></svg>
+          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <path d="M0 100 C 20 0 50 0 100 100 Z" fill="white" />
+          </svg>
         </div>
         <div className="relative z-10 max-w-4xl mx-auto">
           <div className="flex justify-center mb-6">
@@ -131,31 +177,44 @@ export default async function CategoryPage({ params }: PageProps) {
               {isFinance ? "Premium Tools" : "Category Archive"}
             </span>
           </div>
-          <h1 className="text-3xl md:text-5xl font-black mb-4 tracking-tight">{data.title}</h1>
+          <h1 className="text-3xl md:text-5xl font-black mb-4 tracking-tight">
+            {data.title}
+          </h1>
           <p className="text-indigo-100 text-lg md:text-xl max-w-2xl mx-auto font-medium leading-relaxed">
             {cleanText(data.description) || `Explore the best content in ${data.title}.`}
           </p>
         </div>
       </div>
 
+      {/* Content Section */}
       <div className={`container mx-auto px-4 py-16 ${isFinance ? 'max-w-6xl' : 'max-w-7xl'}`}>
         {isFinance ? (
+          // Finance Tools Layout
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {data.items?.map((item: any) => {
                if (!item.slug) return null;
                const config = getToolConfig(item.slug);
                const ToolIcon = config.icon;
                return (
-                 <Link key={item.slug} href={`/${categorySlug}/${item.slug}`} className="group relative block h-full">
+                 <Link 
+                   key={item.slug} 
+                   href={`/${categorySlug}/${item.slug}`} 
+                   className="group relative block h-full"
+                 >
                    <div className="bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl border border-slate-300 hover:border-[#4b0082]/30 transition-all h-full flex flex-col overflow-hidden">
                       <div className="absolute top-0 right-0 bg-[#4b0082]/5 w-24 h-24 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110 group-hover:bg-[#4b0082]/10"></div>
                       <div className={`${config.iconBg} w-14 h-14 rounded-xl flex items-center justify-center mb-6 transition-colors duration-300`}>
                         <ToolIcon className={`w-7 h-7 ${config.iconColor} transition-colors duration-300`} />
                       </div>
-                      <h2 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-[#4b0082] transition-colors">{item.title}</h2>
-                      <p className="text-slate-500 text-sm leading-relaxed mb-6 flex-grow line-clamp-3">{cleanText(item.rawExcerpt)}</p>
+                      <h2 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-[#4b0082] transition-colors">
+                        {item.title}
+                      </h2>
+                      <p className="text-slate-500 text-sm leading-relaxed mb-6 flex-grow line-clamp-3">
+                        {cleanText(item.rawExcerpt)}
+                      </p>
                       <div className="mt-auto pt-2 border-t border-slate-100 flex items-center text-[#4b0082] font-bold text-sm">
-                        {config.ctaLabel} <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                        {config.ctaLabel} 
+                        <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                       </div>
                    </div>
                  </Link>
@@ -163,18 +222,30 @@ export default async function CategoryPage({ params }: PageProps) {
             })}
           </div>
         ) : (
+          // Regular Category Layout
           <div className="flex flex-col lg:flex-row gap-12">
             <main className="flex-1">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {data.items?.map((post: any) => {
                   if (!post.slug) return null;
                   return (
-                    <Link key={post.slug} href={`/${categorySlug}/${post.slug}`} className="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-xl transition-all overflow-hidden flex flex-col h-full">
+                    <Link 
+                      key={post.slug} 
+                      href={`/${categorySlug}/${post.slug}`} 
+                      className="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-xl transition-all overflow-hidden flex flex-col h-full"
+                    >
                       <div className="h-52 relative bg-gray-100 shrink-0">
                         {post.imageUrl ? (
-                          <Image src={post.imageUrl} alt={post.title} fill className="object-cover transition-transform duration-500 group-hover:scale-105" />
+                          <Image 
+                            src={post.imageUrl} 
+                            alt={post.title} 
+                            fill 
+                            className="object-cover transition-transform duration-500 group-hover:scale-105" 
+                          />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-slate-400 font-bold">TOP TEN UAE</div>
+                          <div className="w-full h-full flex items-center justify-center text-slate-400 font-bold">
+                            TOP TEN UAE
+                          </div>
                         )}
                         <div className="absolute top-3 left-3">
                            <span className="bg-white/90 backdrop-blur-md text-[#4b0082] text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-sm">
@@ -183,11 +254,19 @@ export default async function CategoryPage({ params }: PageProps) {
                         </div>
                       </div>
                       <div className="p-6 flex flex-col flex-1">
-                        <h2 className="text-xl font-bold mb-3 text-gray-900 group-hover:text-[#4b0082] transition-colors leading-tight">{post.title}</h2>
-                        <p className="text-gray-600 text-sm line-clamp-3 mb-5 flex-1 leading-relaxed">{cleanText(post.rawExcerpt)}</p>
+                        <h2 className="text-xl font-bold mb-3 text-gray-900 group-hover:text-[#4b0082] transition-colors leading-tight">
+                          {post.title}
+                        </h2>
+                        <p className="text-gray-600 text-sm line-clamp-3 mb-5 flex-1 leading-relaxed">
+                          {cleanText(post.rawExcerpt)}
+                        </p>
                         <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
-                          <span className="text-xs font-medium text-gray-400">{post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : ''}</span>
-                          <span className="text-sm font-bold text-[#4b0082] flex items-center gap-1 group-hover:translate-x-1 transition-transform">Read <ArrowRight className="w-4 h-4" /></span>
+                          <span className="text-xs font-medium text-gray-400">
+                            {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : ''}
+                          </span>
+                          <span className="text-sm font-bold text-[#4b0082] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                            Read <ArrowRight className="w-4 h-4" />
+                          </span>
                         </div>
                       </div>
                     </Link>

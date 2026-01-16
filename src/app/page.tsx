@@ -9,10 +9,10 @@ import { client } from "@/sanity/lib/client";
 import Link from "next/link";
 import Image from "next/image";
 import { Metadata } from "next";
-import { generateSeoMetadata } from "@/utils/seo-manager";
-import JsonLd from "@/components/JsonLd"; 
+import { generateSeoMetadata } from "@/lib/utils/seo-manager";
+import JsonLd from "@/components/sanity/JsonLd"; 
 import HomeNewsletter from "@/components/HomeNewsletter";
-import { cleanText } from "@/utils/sanity-text";
+import { cleanText } from "@/lib/utils/sanity-text";
 import { 
   generateOrganizationSchema, 
   generateWebSiteSchema,

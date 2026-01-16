@@ -2,19 +2,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // -----------------------------------------------------------------------------
-  // 1. ENABLE SOURCE MAPS (Fixes "Missing source maps" warning)
-  // -----------------------------------------------------------------------------
+  // 1. Performance & Structure
   productionBrowserSourceMaps: true,
-  
-  // -----------------------------------------------------------------------------
-  // GENERAL CONFIG
-  // -----------------------------------------------------------------------------
-  trailingSlash: false, 
+  trailingSlash: false, // We handle slash variations via regex in redirects
 
-  // -----------------------------------------------------------------------------
-  // IMAGE OPTIMIZATION
-  // -----------------------------------------------------------------------------
+  // 2. Images
   images: {
     unoptimized: true,
     dangerouslyAllowSVG: true,
@@ -27,97 +19,102 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  // Note: Security Headers removed (handled in middleware.ts)
-
-  // -----------------------------------------------------------------------------
-  // REDIRECTS 
-  // -----------------------------------------------------------------------------
+  // 3. THE REDIRECT ENGINE (Single Source of Truth)
   async redirects() {
     return [
-      // 1. UTILITIES (Kill WordPress Zombie URLs)
+      // --- A. CLEANUP (Feed, AMP, WordPress Junk) ---
       { source: '/:path*/amp', destination: '/:path*', permanent: true },
-      { source: '/:path*/amp/', destination: '/:path*', permanent: true }, // Catch trailing slash
       { source: '/:path*/feed', destination: '/:path*', permanent: true },
-      { source: '/:path*/feed/', destination: '/:path*', permanent: true }, // Catch trailing slash
+      { source: '/feed', destination: '/', permanent: true },
+      { source: '/wp-admin/:path*', destination: '/', permanent: true },
 
-      // 2. CATEGORY MIGRATIONS (Old WordPress Categories -> New Structure)
-      { source: "/category/deals", destination: "/deals", permanent: true },
-      { source: "/category/finance-tools", destination: "/finance-tools", permanent: true },
-      { source: "/category/reviews", destination: "/reviews", permanent: true },
-      { source: "/category/smart-home", destination: "/smart-home", permanent: true },
-      { source: "/category/tech", destination: "/tech", permanent: true },
-      { source: "/category/parenting-kids", destination: "/parenting-kids", permanent: true },
-      { source: "/category/events-holidays", destination: "/events-holidays", permanent: true },
-      { source: "/category/lifestyle", destination: "/lifestyle", permanent: true },
+      // --- B. CATEGORY MIGRATIONS ---
+      { source: "/category/deals{/}?", destination: "/deals", permanent: true },
+      { source: "/category/finance-tools{/}?", destination: "/finance-tools", permanent: true },
+      { source: "/category/reviews{/}?", destination: "/reviews", permanent: true },
+      { source: "/category/smart-home{/}?", destination: "/smart-home", permanent: true },
+      { source: "/category/tech{/}?", destination: "/tech", permanent: true },
+      { source: "/category/parenting-kids{/}?", destination: "/parenting-kids", permanent: true },
+      { source: "/category/events-holidays{/}?", destination: "/events-holidays", permanent: true },
+      { source: "/category/lifestyle{/}?", destination: "/lifestyle", permanent: true },
+      { source: "/category/travel-tourism{/}?", destination: "/events-holidays", permanent: true },
+      { source: "/category/health-fitness{/}?", destination: "/lifestyle", permanent: true },
+      { source: "/category/baby-kid{/}?", destination: "/parenting-kids", permanent: true },
+      { source: "/category/buyers-guide{/}?", destination: "/reviews", permanent: true },
+      { source: "/category/education{/}?", destination: "/parenting-kids", permanent: true },
+      { source: "/category/public-holidays-events{/}?", destination: "/events-holidays", permanent: true },
+      { source: "/category/how-to-guides{/}?", destination: "/lifestyle", permanent: true },
+      { source: "/category/uncategorized{/}?", destination: "/", permanent: true },
 
-      // 3. MERGED CATEGORIES (Consolidating content)
-      { source: "/category/travel-tourism", destination: "/events-holidays", permanent: true },
-      { source: "/category/health-fitness", destination: "/lifestyle", permanent: true },
-      { source: "/category/baby-kid", destination: "/parenting-kids", permanent: true },
-      { source: "/category/buyers-guide", destination: "/reviews", permanent: true },
-      { source: "/category/uncategorized", destination: "/", permanent: true },
-
-      // 4. ARTICLE REDIRECTS (Tech)
-      { source: "/samsung-galaxy-s26-ultra-specs-uae-price", destination: "/tech/samsung-galaxy-s26-ultra-specs-uae-price", permanent: true },
-      { source: "/quantum-computing-strategy-uae-2026", destination: "/tech/quantum-computing-strategy-uae-2026", permanent: true },
-      { source: "/quantum-computing-guide-uae", destination: "/tech/quantum-computing-guide-uae", permanent: true },
-      { source: "/deepseek-ai-startup-disrupting-big-tech-with-innovation", destination: "/tech/deepseek-ai-startup-disrupting-big-tech-with-innovation", permanent: true },
+      // --- C. TECH ARTICLES (Fixing GSC Slash Errors) ---
+      // Note: {/}? matches both "/path" and "/path/"
+      { source: "/samsung-galaxy-s26-ultra-specs-uae-price{/}?", destination: "/tech/samsung-galaxy-s26-ultra-specs-uae-price", permanent: true },
+      { source: "/quantum-computing-strategy-uae-2026{/}?", destination: "/tech/quantum-computing-strategy-uae-2026", permanent: true },
+      { source: "/quantum-computing-guide-uae{/}?", destination: "/tech/quantum-computing-guide-uae", permanent: true },
+      { source: "/deepseek-ai-startup-disrupting-big-tech-with-innovation{/}?", destination: "/tech/deepseek-ai-startup-disrupting-big-tech-with-innovation", permanent: true },
       { source: "/how-to-use-deepseek-ai-data-extraction-analysis{/}?", destination: "/tech/how-to-use-deepseek-ai-data-extraction-analysis", permanent: true },
       { source: "/deepseek-ai-revolutionary-data-retrieval-method{/}?", destination: "/tech/deepseek-ai-revolutionary-data-retrieval-method", permanent: true },
-      { source: "/state-of-ai-december-2025-uae-report", destination: "/tech/state-of-ai-december-2025-uae-report", permanent: true },
-      { source: "/understanding-deep-seek-ai", destination: "/tech/deepseek-ai-startup-disrupting-big-tech-with-innovation", permanent: true },
-      { source: "/understanding-deep-seek", destination: "/tech/deepseek-ai-startup-disrupting-big-tech-with-innovation", permanent: true },
+      { source: "/state-of-ai-december-2025-uae-report{/}?", destination: "/tech/state-of-ai-december-2025-uae-report", permanent: true },
+      { source: "/gmail-gemini-ai-features-2026{/}?", destination: "/tech/gmail-gemini-ai-features-2026", permanent: true },
+      { source: "/understanding-deep-seek-ai{/}?", destination: "/tech/deepseek-ai-startup-disrupting-big-tech-with-innovation", permanent: true },
+      { source: "/understanding-deep-seek{/}?", destination: "/tech/deepseek-ai-startup-disrupting-big-tech-with-innovation", permanent: true },
       { source: "/nasa-astronaut-don-pettit-burj-khalifa-image-from-space{/}?", destination: "/tech", permanent: true },
-      { source: "/charity-organizations-uae-donations{/}?", destination: "/lifestyle/charity-organizations-uae-donations", permanent: true },
-      { source: "/how-to-clean-washing-machine{/}?", destination: "/smart-home/how-to-clean-washing-machine", permanent: true },
 
-      // 5. ARTICLE REDIRECTS (Reviews)
-      { source: "/new-year-tech-upgrades-uae-2026", destination: "/reviews/new-year-tech-upgrades-uae-2026", permanent: true },
+      // --- D. REVIEWS ---
+      { source: "/new-year-tech-upgrades-uae-2026{/}?", destination: "/reviews/new-year-tech-upgrades-uae-2026", permanent: true },
       { source: "/best-electric-shaver-uae{/}?", destination: "/reviews/best-electric-shaver-uae", permanent: true },
       { source: "/best-beard-trimmers-uae{/}?", destination: "/reviews/best-beard-trimmers-uae", permanent: true },
       { source: "/best-wireless-earbuds-uae{/}?", destination: "/reviews/best-wireless-earbuds-uae", permanent: true },
-      { source: "/best-air-fryers-uae-2026", destination: "/reviews/best-air-fryers-uae-2026", permanent: true },
-      { source: "/reviews/sihoo-m18-ergonomic-chair-deal", destination: "/reviews", permanent: true },
+      { source: "/best-air-fryers-uae-2026{/}?", destination: "/reviews/best-air-fryers-uae-2026", permanent: true },
+      // Dead Deals -> Category
+      { source: "/reviews/lattafa-khamrah-perfume-deal", destination: "/deals", permanent: true },
+      { source: "/reviews/evvoli-air-fryer-4l-super-saver-deal", destination: "/deals", permanent: true },
+      { source: "/reviews/samsung-galaxy-s25-ultra-deal-jan-2026", destination: "/deals", permanent: true },
+      { source: "/reviews/magic-bullet-blender-deal", destination: "/deals", permanent: true },
+      { source: "/reviews/coodoo-100pcs-magnetic-tiles-deal", destination: "/deals", permanent: true },
+      { source: "/reviews/sihoo-m18-ergonomic-chair-deal", destination: "/deals", permanent: true },
 
-      // 6. ARTICLE REDIRECTS (Parenting)
-      // ✅ FIX: Force the Duplicate 'Reviews' URL to the 'Parenting' URL
+      // --- E. PARENTING (High GSC Error Count) ---
       { source: "/reviews/best-baby-monitors-uae{/}?", destination: "/parenting-kids/best-baby-monitors-uae", permanent: true },
-      
-      { source: "/best-baby-skincare-uae{/}?", destination: "/parenting-kids/best-baby-skincare-uae", permanent: true },    
+      { source: "/best-baby-skincare-uae{/}?", destination: "/parenting-kids/best-baby-skincare-uae", permanent: true },
       { source: "/best-baby-monitors-uae{/}?", destination: "/parenting-kids/best-baby-monitors-uae", permanent: true },
       { source: "/where-to-donate-used-toys-uae{/}?", destination: "/parenting-kids/where-to-donate-used-toys-uae", permanent: true },
-
-      // 7. ARTICLE REDIRECTS (Holidays)
-      { source: "/uae-holidays-2026", destination: "/events-holidays/uae-holidays-2026", permanent: true },
-      { source: "/uae-holidays-2025{/}?", destination: "/events-holidays/uae-holidays-2026", permanent: true },
-      { source: "/eid-al-fitr-uae-prayer-timings-free-events{/}?", destination: "/events-holidays/eid-al-fitr-uae-prayer-timings-free-events", permanent: true },
-      { source: "/eid-holidays-uae-2026-best-places-to-visit{/}?", destination: "/events-holidays/eid-holidays-uae-2026-best-places-to-visit", permanent: true },
-      { source: "/best-places-visit-uae-eid-holidays{/}?", destination: "/events-holidays/eid-holidays-uae-2026-best-places-to-visit", permanent: true },
-      { source: "/uae-eid-holidays-dates-events-travel-tips{/}?", destination: "/events-holidays/eid-holidays-uae-2026-best-places-to-visit", permanent: true },
-      { source: "/events-holidays/ramadan-2026", destination: "/events-holidays/ramadan-2026-uae", permanent: true },
-      { source: "/ramadan-2026", destination: "/events-holidays/ramadan-2026-uae", permanent: true },
-      { source: "/ramadan-deals-uae", destination: "/events-holidays/ramadan-2026-uae", permanent: true },
-      { source: "/ramadan-shopping-guide", destination: "/events-holidays/ramadan-2026-uae", permanent: true },
-
-      // 8. ARTICLE REDIRECTS (Finance/Core)
-      { source: "/gratuity-calculator-uae", destination: "/finance-tools/gratuity-calculator-uae", permanent: true },
-      { source: "/uae-vat-calculator", destination: "/finance-tools/uae-vat-calculator", permanent: true },
-      { source: "/zakat-calculator{/}?", destination: "/finance-tools/zakat-calculator", permanent: true },
-      { source: "/how-to-pay-zakat-in-uae-online", destination: "/lifestyle/how-to-pay-zakat-in-uae-online", permanent: true },
-      { source: "/charity-organizations-uae-donations{/}?", destination: "/lifestyle/charity-organizations-uae-donations", permanent: true },
-      { source: "/how-to-clean-washing-machine{/}?", destination: "/smart-home/how-to-clean-washing-machine", permanent: true },
-      { source: "/about", destination: "/about-us", permanent: true },
-      { source: "/contact", destination: "/contact-us", permanent: true },
-      { source: "/terms-conditions", destination: "/terms-and-conditions", permanent: true },
-      { source: "/best-budget-buys-uae-amazon-deals-march-2025{/}?", destination: "/deals", permanent: true },
-
-      // 9. FALLBACKS (Redirect missing old articles to category pages)
+      { source: "/10-best-baby-skin-care-products-in-the-uae-for-2025{/}?", destination: "/parenting-kids/best-baby-skincare-uae", permanent: true },
+      { source: "/best-baby-skincare-products-uae{/}?", destination: "/parenting-kids/best-baby-skincare-uae", permanent: true },
       { source: "/best-diaper-bags-uae{/}?", destination: "/parenting-kids", permanent: true },
       { source: "/best-diaper-bags-in-uae{/}?", destination: "/parenting-kids", permanent: true },
       { source: "/best-baby-white-noise-machines{/}?", destination: "/parenting-kids", permanent: true },
       { source: "/best-baby-toys{/}?", destination: "/parenting-kids", permanent: true },
       { source: "/best-educational-toys-uae{/}?", destination: "/parenting-kids", permanent: true },
       { source: "/best-educational-toys-in-uae{/}?", destination: "/parenting-kids", permanent: true },
+
+      // --- F. HOLIDAYS ---
+      { source: "/uae-holidays-2026{/}?", destination: "/events-holidays/uae-holidays-2026", permanent: true },
+      { source: "/uae-holidays-2025{/}?", destination: "/events-holidays/uae-holidays-2026", permanent: true },
+      { source: "/eid-al-fitr-uae-prayer-timings-free-events{/}?", destination: "/events-holidays/eid-al-fitr-uae-prayer-timings-free-events", permanent: true },
+      { source: "/free-eid-events-festive-activities-uae{/}?", destination: "/events-holidays/eid-al-fitr-uae-prayer-timings-free-events", permanent: true },
+      { source: "/eid-holidays-uae-2026-best-places-to-visit{/}?", destination: "/events-holidays/eid-holidays-uae-2026-best-places-to-visit", permanent: true },
+      { source: "/best-places-visit-uae-eid-holidays{/}?", destination: "/events-holidays/eid-holidays-uae-2026-best-places-to-visit", permanent: true },
+      { source: "/uae-eid-holidays-dates-events-travel-tips{/}?", destination: "/events-holidays/eid-holidays-uae-2026-best-places-to-visit", permanent: true },
+      { source: "/best-eid-holiday-travel-destinations-uae{/}?", destination: "/events-holidays/eid-holidays-uae-2026-best-places-to-visit", permanent: true },
+      { source: "/ramadan-2026{/}?", destination: "/events-holidays/ramadan-2026-uae", permanent: true },
+      { source: "/events-holidays/ramadan-2026{/}?", destination: "/events-holidays/ramadan-2026-uae", permanent: true },
+      { source: "/ramadan-deals-uae{/}?", destination: "/events-holidays/ramadan-2026-uae", permanent: true },
+      { source: "/ramadan-shopping-guide{/}?", destination: "/events-holidays/ramadan-2026-uae", permanent: true },
+
+      // --- G. FINANCE & LIFESTYLE & CORE ---
+      { source: "/gratuity-calculator-uae{/}?", destination: "/finance-tools/gratuity-calculator-uae", permanent: true },
+      { source: "/uae-vat-calculator{/}?", destination: "/finance-tools/uae-vat-calculator", permanent: true },
+      { source: "/zakat-calculator{/}?", destination: "/finance-tools/zakat-calculator", permanent: true },
+      { source: "/how-to-pay-zakat-in-uae-online{/}?", destination: "/lifestyle/how-to-pay-zakat-in-uae-online", permanent: true },
+      { source: "/charity-organizations-uae-donations{/}?", destination: "/lifestyle/charity-organizations-uae-donations", permanent: true },
+      { source: "/how-to-clean-washing-machine{/}?", destination: "/smart-home/how-to-clean-washing-machine", permanent: true },
+      { source: "/best-beauty-personal-care-products-uae{/}?", destination: "/lifestyle", permanent: true },
+      { source: "/best-beauty-products-uae{/}?", destination: "/lifestyle", permanent: true },
+      { source: "/about", destination: "/about-us", permanent: true },
+      { source: "/contact", destination: "/contact-us", permanent: true },
+      { source: "/terms-conditions", destination: "/terms-and-conditions", permanent: true },
+      { source: "/best-budget-buys-uae-amazon-deals-march-2025{/}?", destination: "/deals", permanent: true },
     ];
   },
 };

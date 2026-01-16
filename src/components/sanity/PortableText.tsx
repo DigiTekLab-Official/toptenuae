@@ -1,12 +1,12 @@
 // src/components/PortableText.tsx
 import { PortableText as PortableTextComponent, PortableTextComponents } from "@portabletext/react";
 import { ExternalLink } from "lucide-react";
-import RelatedLinkCard from "./ui/RelatedLinkCard";
-import CodeBlock from "./ui/CodeBlock";
+import RelatedLinkCard from "@/components/ui/RelatedLinkCard";
+import CodeBlock from "@/components/ui/CodeBlock";
 import Image from "next/image";
 import { urlForImage } from "@/sanity/lib/image"; 
-import SanityTable from "./ui/SanityTable"; 
-import NavigationGrid from "./ui/NavigationGrid";
+import SanityTable from "@/components/sanity/SanityTable"; 
+import NavigationGrid from "@/components/ui/NavigationGrid";
 import PriceWidget from '@/components/tools/PriceWidget';
 
 // --- 1. NEW: InfoCards Component for the Grid Layout ---

@@ -1,5 +1,5 @@
 // src/lib/schemaGenerator.ts
-import { cleanText } from '@/utils/sanity-text';
+import { cleanText } from '@/lib/utils/sanity-text';
 
 // --- CONFIGURATION ---
 const baseUrl = process.env.baseUrl || 'https://toptenuae.com';

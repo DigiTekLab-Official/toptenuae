@@ -4,9 +4,9 @@
 import React from "react";
 import Image from "next/image";
 import { discoverImage } from "@/sanity/lib/image";
-// 🗑️ REMOVED: import { generateEventSchema } from "@/lib/schemaGenerator";
+//  REMOVED: import { generateEventSchema } from "@/lib/schemaGenerator";
 import { Calendar, MapPin, Ticket } from "lucide-react";
-import PortableText from "@/components/PortableText";
+import PortableText from "@/components/sanity/PortableText";
 import FAQAccordion from "@/components/FAQAccordion";
 
 export interface EventSanityData {

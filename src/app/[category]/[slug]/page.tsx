@@ -10,9 +10,9 @@ export const dynamicParams = true;
 import { client } from "@/sanity/lib/client";
 import { notFound, permanentRedirect } from "next/navigation";
 import { Metadata } from "next";
-import { generateSeoMetadata } from "@/utils/seo-manager"; 
+import { generateSeoMetadata } from "@/lib/utils/seo-manager"; 
 import { generateSchema } from "@/lib/schemaGenerator"; 
-import JsonLd from '@/components/JsonLd';
+import JsonLd from '@/components/sanity/JsonLd';
 
 // IMPORT VIEWS
 import ToolView from "@/components/views/ToolView";

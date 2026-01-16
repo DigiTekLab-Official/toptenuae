@@ -4,7 +4,7 @@ import { Metadata } from 'next';
 import { Suspense } from 'react';
 import { ALL_DEALS_QUERY } from '@/sanity/lib/queries';
 import { Percent } from 'lucide-react';
-import JsonLd from '@/components/JsonLd';
+import JsonLd from '@/components/sanity/JsonLd';
 
 export const metadata: Metadata = {
   title: "Top Deals in UAE | Amazon & Noon Discounts",
@@ -86,7 +86,7 @@ export default async function DealsPage() {
             <div className="flex justify-center mb-6">
               <span className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-amber-400 text-[#4b0082] text-xs font-black uppercase tracking-wider shadow-lg animate-pulse">
                 <Percent className="w-4 h-4" />
-                🔴 LIVE: Amazon Super Saver Week (Jan 1–7)
+                🔴 LIVE: Amazon Super Saver Week (Jan 1-7)
               </span>
             </div>
             

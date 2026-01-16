@@ -1,6 +1,8 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
+# ============================================================================
+# DEPENDENCIES
+# ============================================================================
 /node_modules
 /.pnp
 .pnp.*
@@ -9,33 +11,218 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+package-lock.json
 
-# testing
+# ============================================================================
+# TESTING
+# ============================================================================
 /coverage
+*.lcov
+.nyc_output
 
-# next.js
+# ============================================================================
+# NEXT.JS
+# ============================================================================
 /.next/
 /out/
+/.vercel/output/
+.next/cache
 
-# production
+# ============================================================================
+# PRODUCTION BUILDS
+# ============================================================================
 /build
+/dist
 
-# misc
-.DS_Store
-*.pem
+# ============================================================================
+# ENVIRONMENT VARIABLES
+# ============================================================================
+.env
+.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# debug
+# Keep example file for reference
+!.env.example
+
+# ============================================================================
+# DEBUG LOGS
+# ============================================================================
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# ============================================================================
+# OPERATING SYSTEM FILES
+# ============================================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
 
-# vercel
-.vercel
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
 
-# typescript
+# Linux
+*~
+.directory
+.Trash-*
+
+# ============================================================================
+# IDEs & EDITORS
+# ============================================================================
+# VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+*.code-workspace
+
+# JetBrains IDEs
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+.history/
+
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+# ============================================================================
+# TYPESCRIPT
+# ============================================================================
 *.tsbuildinfo
 next-env.d.ts
+
+# ============================================================================
+# DEPLOYMENT PLATFORMS
+# ============================================================================
+# Vercel
+.vercel
+
+# Cloudflare
+.wrangler/
+wrangler.toml.local
+.dev.vars
+
+# Netlify
+.netlify/
+
+# ============================================================================
+# SANITY
+# ============================================================================
+# Sanity Studio build
+/studio/dist
+/studio/node_modules
+
+# ============================================================================
+# TESTING & COVERAGE
+# ============================================================================
+.coverage
+.nyc_output
+junit.xml
+
+# ============================================================================
+# MISC
+# ============================================================================
+*.pem
+*.key
+*.cert
+*.log
+
+# Project-specific
+project-structure.txt
+_archive/
+_old/
+_backup/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+.temp/
+
+# Lock files (keep only one)
+# If using pnpm, keep pnpm-lock.yaml and ignore others
+# package-lock.json  # Uncomment if using npm
+# yarn.lock          # Uncomment if using yarn
+
+# ============================================================================
+# SECURITY & SENSITIVE DATA
+# ============================================================================
+*.pem
+*.key
+*.cert
+*.csr
+.env.production
+secrets.json
+credentials.json
+
+# ============================================================================
+# PERFORMANCE & MONITORING
+# ============================================================================
+.lighthouse/
+.firebase/
+firebase-debug.log
+firestore-debug.log
+
+# ============================================================================
+# AI & ML (if applicable)
+# ============================================================================
+*.pkl
+*.h5
+*.pb
+/models/
+/data/
+
+# ============================================================================
+# CUSTOM ADDITIONS FOR YOUR PROJECT
+# ============================================================================
+# Ignore generated sitemaps (if dynamically generated)
+# /public/sitemap*.xml  # Uncomment if using static sitemaps
+
+# Ignore large media files during development
+# /public/videos/  # Uncomment if needed
+# /public/downloads/  # Uncomment if needed

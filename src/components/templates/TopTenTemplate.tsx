@@ -8,7 +8,7 @@ import { ArrowDown, Shield } from "lucide-react";
 import ComparisonSummaryTable from "./ComparisonSummaryTable";
 import QuickVerdict from "./QuickVerdict"; 
 import DisclaimerBlock from "../ui/DisclaimerBlock"; 
-import PortableText from "@/components/PortableText";
+import PortableText from "@/components/sanity/PortableText";
 import FAQAccordion from "@/components/FAQAccordion";
 import AffiliateDisclosure from "../ui/AffiliateDisclosure";
 import LogoIcon from "@/components/icons/LogoIcon";

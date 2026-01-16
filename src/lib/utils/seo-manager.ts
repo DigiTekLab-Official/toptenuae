@@ -1,6 +1,6 @@
 // src/utils/seo-manager.ts
 import { Metadata } from 'next';
-import { cleanText } from '@/utils/sanity-text';
+import { cleanText } from '@/lib/utils/sanity-text';
 
 // --- CONFIGURATION ---
 const SITE_URL = process.env.baseUrl || 'https://toptenuae.com';
