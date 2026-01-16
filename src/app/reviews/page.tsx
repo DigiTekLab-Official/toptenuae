@@ -220,11 +220,11 @@ export default async function ReviewsPage() {
           <div className="flex justify-center gap-4 sm:gap-12">
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 min-w-[120px]">
               <div className="text-3xl font-black text-white mb-1">{stats.totalProducts}</div>
-              <div className="text-[10px] text-indigo-200 uppercase tracking-widest font-bold">Products Tested</div>
+              <div className="text-[12px] text-indigo-200 uppercase tracking-widest font-bold">Products Tested</div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 min-w-[120px]">
               <div className="text-3xl font-black text-white mb-1">{stats.recentReviews}</div>
-              <div className="text-[10px] text-green-300 uppercase tracking-widest font-bold">New This Month</div>
+              <div className="text-[12px] text-green-300 uppercase tracking-widest font-bold">New This Month</div>
             </div>
           </div>
         </div>
@@ -273,7 +273,7 @@ export default async function ReviewsPage() {
                         </div>
                       )}
                       <div className="absolute top-3 left-3">
-                        <span className="bg-white/95 backdrop-blur-sm text-[#4b0082] text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-sm flex items-center gap-1">
+                        <span className="bg-white/95 backdrop-blur-sm text-[#4b0082] text-[12px] font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-sm flex items-center gap-1">
                           <CheckCircle2 className="w-3 h-3" /> Buying Guide
                         </span>
                       </div>
