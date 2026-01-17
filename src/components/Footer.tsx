@@ -22,13 +22,13 @@ export default function Footer() {
                 <TopTenUAELogo className="h-8 w-auto" />
               </div>
             </Link>
-            <p className="text-sm leading-relaxed text-slate-200">
-              Your trusted buying guide for the Emirates. We review, rank, and compare the best products and services in the UAE.
+            <p className="text-sm leading-relaxed font-bold text-slate-200">
+              The Best of the UAE, Ranked.
             </p>
             
             {/* Trust Signal */}
             <div className="flex items-center gap-2 text-sm font-semibold text-emerald-400 bg-emerald-400/10 w-fit px-3 py-1.5 rounded-full border border-emerald-400/20">
-              <ShieldCheck className="w-3 h-3" />
+              <ShieldCheck className="w-4 h-4" />
               <span>Unbiased & Independent</span>
             </div>
           </div>
@@ -57,7 +57,7 @@ export default function Footer() {
               <li className="pt-0">
                 <Link href="/finance-tools" prefetch={false} className="group flex items-center gap-2 hover:text-white transition-colors">
                    <span className=" group-hover:text-[#8B5CF6] transition-colors text-amber-400 text-base">Financial Calculators</span>
-                   <span className="bg-violet-800 text-white text-[12px] font-bold px-1.5 py-0.5 rounded animate-pulse">NEW</span>
+                   <span className="bg-violet-900 text-white text-[12px] font-bold px-1.5 py-0.5 rounded animate-pulse">NEW</span>
                 </Link>
               </li>
               <li><Link href="/finance-tools/gratuity-calculator-uae" prefetch={false} className="hover:text-[#8B5CF6] transition-colors">Gratuity Calculator</Link></li>

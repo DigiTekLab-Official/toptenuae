@@ -3,7 +3,6 @@
 
 import React from "react";
 import Image from "next/image";
-// DELETED: listImage import (Not needed, we have the URL directly)
 import LogoIcon from "@/components/icons/LogoIcon"; 
 import { 
   CheckCircle2, XCircle, Info, Star, ExternalLink, Shield, Tag,
@@ -46,14 +45,12 @@ interface ProductCardProps {
 
 export default function ProductCard({ item, index = 0 }: ProductCardProps) {
   const product = item.product || {};
-  // ✅ FIX: Use direct URL from query (matches page.tsx structure)
   const imageUrl = product.mainImage?.url || null;
   const displayName = product.title || "Product Name Unavailable";
   const finalVerdict = item.customVerdict || product.verdict; 
 
   return (
     <article
-      // ✅ CRITICAL: This ID enables the "Quick Jump" buttons in TopTenTemplate
       id={`item-${item.rank}`}
       className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden scroll-mt-32 mb-6"
     >
@@ -62,7 +59,6 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
         {/* --- HEADER --- */}
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-3 mb-4">
           <div className="flex items-start gap-3">
-            {/* ✅ UPDATED: Used Tailwind classes for consistency */}
             <span className="flex-shrink-0 bg-primary-50 text-primary text-xl font-black px-3 py-1 rounded-lg border-2 border-primary-100 shadow-sm">
               #{item.rank}
             </span>
@@ -79,10 +75,9 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
           </div>
         </div>
 
-        {/* --- BADGE (EMBOSSED 3D LOOK) --- */}
+        {/* --- BADGE --- */}
         {item.badgeLabel && (
           <div className="mb-6 flex">
-            {/* ✅ UPDATED: bg-primary */}
             <div className="relative bg-primary text-white px-5 py-1.5 rounded-lg shadow-lg overflow-hidden border-t border-white/20 border-b border-black/20">
               <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/30 to-transparent pointer-events-none"></div>
               <div className="relative flex items-center gap-2 font-black tracking-wide uppercase text-sm">
@@ -93,7 +88,7 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
           </div>
         )}
 
-        {/* --- MAIN IMAGE --- */}
+        {/* --- MAIN IMAGE - OPTIMIZED --- */}
         {imageUrl && (
           <div className="mb-6 flex justify-center">
             <div className="relative h-72 md:h-80 w-full max-w-[320px] overflow-hidden rounded-xl bg-white border border-gray-100 shadow-sm">
@@ -102,15 +97,19 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
                 alt={displayName}
                 fill
                 className="object-contain p-3 hover:scale-105 transition-transform duration-500"
-                priority={index === 0} // LCP Optimization for rank #1
+                // ✅ CRITICAL: Priority for first product only
+                priority={index === 0}
+                // ✅ Lazy load for products below the fold
+                loading={index === 0 ? undefined : "lazy"}
+                // ✅ Responsive sizing
                 sizes="(max-width: 768px) 100vw, 400px"
+                quality={85}
               />
             </div>
           </div>
         )}
 
-        
-{/* --- VERDICT --- */}
+        {/* --- VERDICT --- */}
         {finalVerdict && (
           <div className="mb-6 bg-primary-50 border-l-4 border-primary p-4 md:p-5 rounded-r-xl shadow-sm">
             <div className="flex items-center gap-2 mb-2">
@@ -122,6 +121,7 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
             </p>
           </div>
         )}
+
         {/* --- KEY FEATURES --- */}
         {product.keyFeatures && product.keyFeatures.length > 0 && (
           <div className="mb-6 bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50 p-4 rounded-xl shadow-sm border border-amber-100">

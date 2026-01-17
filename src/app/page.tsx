@@ -1,9 +1,8 @@
 // src/app/page.tsx
 
 // 1. CRITICAL SEO FIX: Stable Indexing
-// This gives Google a stable version of your homepage to index and helps Bingbots.
 export const revalidate = 86400; 
-export const runtime = 'nodejs'; // ✅ ADDED: Ensures stable headers for bots
+export const runtime = 'nodejs';
 
 import { client } from "@/sanity/lib/client";
 import Link from "next/link";
@@ -16,7 +15,7 @@ import { cleanText } from "@/lib/utils/sanity-text";
 import { 
   generateOrganizationSchema, 
   generateWebSiteSchema,
-  generateHomePageSchema // ✅ ADDED: Import the new function
+  generateHomePageSchema
 } from "@/lib/schemaGenerator";
 
 // Icons
@@ -38,9 +37,7 @@ const SELECTED_CATEGORIES = ["tech", "reviews", "events-holidays", "parenting-ki
 // --- SEO ---
 export async function generateMetadata(): Promise<Metadata> {
   return generateSeoMetadata({
-    // Updated Title with high-value keywords
-    title: "TopTenUAE - Trending Tech, Reviews, Deals & Smart UAE Tools",
-    // Updated Description to match the "Free" and "Calculator" intent
+    title: "The Best of the UAE, Ranked & Smart Tools",
     description: "Discover trending products, smart deals, and useful tools for UAE life — from tech and reviews to VAT & gratuity calculators.",
     url: "https://toptenuae.com",
     _type: "website",
@@ -57,17 +54,14 @@ const getToolConfig = (slug: string) => {
   return { icon: Calculator, ctaLabel: "Use Tool", iconColor: "text-primary", iconBg: "bg-primary/10" };
 };
 
-// --- QUERY (FIXED) ---
+// --- OPTIMIZED QUERY: Only fetch what's needed ---
 const HOME_QUERY = `
 {
   "heroPost": *[_type in ["topTenList", "howTo", "article", "news"] && defined(slug.current)] | order(publishedAt desc)[0] {
     title,
     "slug": slug.current,
-    
-    // ✅ FIX: Check 'categories[0]' (array) first, then 'category' (single ref)
     "categorySlug": coalesce(categories[0]->slug.current, category->slug.current, "general"), 
     "categoryTitle": coalesce(categories[0]->title, category->title, "Featured"),
-    
     "imageUrl": mainImage.asset->url,
     intro,
     publishedAt
@@ -94,7 +88,6 @@ const formatDate = (date: string) => {
 };
 
 export default async function Home() {
-  // ✅ Robust fetch to prevent build-time crashes if Sanity is unreachable
   let data;
   try {
     data = await client.fetch(HOME_QUERY);
@@ -132,27 +125,30 @@ export default async function Home() {
         data={[
           generateOrganizationSchema(),
           generateWebSiteSchema(),
-          generateHomePageSchema() // ✅ ADDED: Injected the new CollectionPage schema
+          generateHomePageSchema()
         ]}
       />
       <main className="font-sans">
       
       {/* SEO H1: Hidden but semantic for Google */}
       <h1 className="sr-only">
-        TopTenUAE - Trending Tech, Reviews, Deals & Smart Tools for UAE Life
+        TopTenUAE - The Best of the UAE, Ranked, Reviewed & Smart Tools
       </h1>
    
-      {/* 1. HERO SECTION */}
+      {/* 1. HERO SECTION - OPTIMIZED FOR LCP */}
       <section className="relative bg-slate-900 text-white overflow-hidden">
         <div className="absolute inset-0 z-0">
           {heroPost.imageUrl && (
             <Image 
               src={heroPost.imageUrl}
-              // ✅ FIXED: Added proper Alt text for SEO
               alt={heroPost.title}
               fill
               className="object-cover opacity-40 blur-sm scale-105"
+              // ✅ CRITICAL LCP FIX: Priority + fetchPriority
               priority
+              fetchPriority="high"
+              quality={85}
+              sizes="100vw"
               aria-hidden="true"
             />
           )}
@@ -161,12 +157,18 @@ export default async function Home() {
 
         <div className="container mx-auto px-4 py-16 lg:py-24 relative z-10 max-w-7xl">
           <div className="max-w-3xl">
+            <div className="flex items-center gap-3 mb-6">
+               <span className="text-amber-400 font-bold tracking-widest uppercase text-xs md:text-sm">
+                 The Best of the UAE, Ranked
+               </span>
+               <span className="w-8 h-[1px] bg-amber-400/50"></span>
+            </div>
             {heroPost.categoryTitle && (
               <span className="inline-block bg-primary text-white text-sm font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-4">
                 {heroPost.categoryTitle}
               </span>
             )}
-            <h2 className="text-4xl md:text-6xl font-black leading-tight mb-6 text-shadow-sm" aria-label={heroPost.title}>
+            <h2 className="text-4xl md:text-6xl font-black leading-tight mb-6 text-shadow-sm">
               {heroPost.title}
             </h2>
             <p className="text-lg md:text-xl text-slate-200 mb-8 line-clamp-2 max-w-2xl leading-relaxed">
@@ -199,7 +201,7 @@ export default async function Home() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {section.posts.map((post: any) => {
+              {section.posts.map((post: any, idx: number) => {
                 const isTool = post._type === "tool";
                 const postLink = `/${section.slug}/${post.slug}`;
 
@@ -230,11 +232,13 @@ export default async function Home() {
                       {post.imageUrl ? (
                         <Image
                           src={post.imageUrl}
-                          // ✅ FIXED: Added proper Alt text for SEO
                           alt={post.title}
                           fill
+                          // ✅ PERFORMANCE: Lazy load below-fold images
+                          loading={idx < 2 ? "eager" : "lazy"}
                           className="object-cover group-hover:scale-110 transition-transform duration-500"
-                          sizes="(max-width: 768px) 100vw, 25vw"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                          quality={80}
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-gray-300">
@@ -266,10 +270,10 @@ export default async function Home() {
       <section className="bg-primary/5 border-y border-primary/10 py-16 text-slate-800">
         <div className="container mx-auto px-4 text-center max-w-7xl">
            <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-4">
-             Don't Miss the Best UAE Deals
+             Join the TopTenUAE Community
            </h2>
            <p className="text-gray-600 max-w-xl mx-auto mb-8">
-             Join 15,000+ subscribers getting our weekly "Top 10" digests and exclusive tech discounts.
+             Get the best of the UAE, ranked and delivered to your inbox. Smarter choices start here.
            </p>
            <HomeNewsletter />
            <p className="text-sm text-gray-700 mt-4">Unsubscribe at any time. No spam, guaranteed.</p>

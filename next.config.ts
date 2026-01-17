@@ -2,24 +2,144 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // 1. Performance & Structure
+  // ============================================================================
+  // 1. PERFORMANCE & STRUCTURE
+  // ============================================================================
+  
+  // ✅ Keep source maps for debugging
   productionBrowserSourceMaps: true,
-  trailingSlash: false, // We handle slash variations via regex in redirects
+  
+  // ✅ SEO: No trailing slashes (handled via middleware & redirects)
+  trailingSlash: false,
+  
+  // ✅ PERFORMANCE: React strict mode for better practices
+  reactStrictMode: true,
+  
+  // ✅ PERFORMANCE: Disable X-Powered-By header
+  poweredByHeader: false,
+  
+  // ✅ PERFORMANCE: Compiler optimizations
+  compiler: {
+    // Remove console.logs in production (except errors/warnings)
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn'],
+    } : false,
+  },
 
-  // 2. Images
+  // ============================================================================
+  // 2. IMAGES - OPTIMIZED FOR CLOUDFLARE PAGES
+  // ============================================================================
+  
   images: {
+    // ⚠️ CLOUDFLARE NOTE: Cloudflare Pages doesn't support Next.js Image Optimization
+    // Keep unoptimized: true for Cloudflare deployment
     unoptimized: true,
+    
+    // ✅ Allow SVG images
     dangerouslyAllowSVG: true,
+    
+    // ✅ PERFORMANCE: Image quality settings
+    // Lower = smaller files, higher = better quality
     qualities: [75, 85],
+    
+    // ✅ PERFORMANCE: Supported formats (when using Next.js Image Optimization)
+    // Note: This won't apply with unoptimized: true, but good for future reference
+    formats: ['image/avif', 'image/webp'],
+    
+    // ✅ Allowed remote image sources
     remotePatterns: [
       { protocol: "https", hostname: "cdn.sanity.io" },
       { protocol: "https", hostname: "placehold.co" },
       { protocol: "https", hostname: "toptenuae.com" },
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
     ],
+    
+    // ✅ PERFORMANCE: Device sizes for responsive images
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    
+    // ✅ PERFORMANCE: Image sizes for different breakpoints
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    
+    // ✅ PERFORMANCE: Long cache lifetime
+    minimumCacheTTL: 31536000, // 1 year
   },
 
-  // 3. THE REDIRECT ENGINE (Single Source of Truth)
+  // ============================================================================
+  // 3. PERFORMANCE: EXPERIMENTAL FEATURES
+  // ============================================================================
+  
+  experimental: {
+    // ✅ PERFORMANCE: Optimize package imports (reduces bundle size)
+    optimizePackageImports: [
+      'lucide-react',
+      '@sanity/client',
+      '@sanity/image-url',
+    ],
+  },
+
+  // ============================================================================
+  // 4. PERFORMANCE: CACHE HEADERS (CLOUDFLARE COMPATIBLE)
+  // ============================================================================
+  
+  async headers() {
+    return [
+      // ✅ Long-term cache for static images
+      {
+        source: '/:all*(svg|jpg|jpeg|png|webp|avif|gif|ico)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // ✅ Long-term cache for Next.js static assets
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // ✅ Long-term cache for fonts
+      {
+        source: '/fonts/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // ✅ Cache for brand assets
+      {
+        source: '/images/brand/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // ✅ PERFORMANCE: Preload critical assets (CDN domains)
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Link',
+            value: '<https://cdn.sanity.io>; rel=preconnect; crossorigin',
+          },
+        ],
+      },
+    ];
+  },
+
+  // ============================================================================
+  // 5. THE REDIRECT ENGINE (Single Source of Truth)
+  // ============================================================================
+  
   async redirects() {
     return [
       // --- A. CLEANUP (Feed, AMP, WordPress Junk) ---
@@ -47,7 +167,6 @@ const nextConfig: NextConfig = {
       { source: "/category/uncategorized{/}?", destination: "/", permanent: true },
 
       // --- C. TECH ARTICLES (Fixing GSC Slash Errors) ---
-      // Note: {/}? matches both "/path" and "/path/"
       { source: "/samsung-galaxy-s26-ultra-specs-uae-price{/}?", destination: "/tech/samsung-galaxy-s26-ultra-specs-uae-price", permanent: true },
       { source: "/quantum-computing-strategy-uae-2026{/}?", destination: "/tech/quantum-computing-strategy-uae-2026", permanent: true },
       { source: "/quantum-computing-guide-uae{/}?", destination: "/tech/quantum-computing-guide-uae", permanent: true },

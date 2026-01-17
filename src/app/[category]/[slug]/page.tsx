@@ -1,9 +1,6 @@
 // src/app/[category]/[slug]/page.tsx
 
-// 1. FORCE NODE.JS RUNTIME
 export const runtime = 'nodejs'; 
-
-// 2. PERFORMANCE SETTINGS
 export const revalidate = 3600; 
 export const dynamicParams = true;
 
@@ -20,10 +17,8 @@ import ProductView from "@/components/views/ProductView";
 import ArticleView from "@/components/views/ArticleView";
 
 // --- HELPER: Normalize Categories ---
-// This ensures that "baby-kid" from DB always becomes "parenting-kids" in URL
 const normalizeCategory = (slug: string) => {
   const map: Record<string, string> = {
-    // 'travel-tourism': 'events-holidays',
     'health-fitness': 'lifestyle',
     'baby-kid': 'parenting-kids',
     'buyers-guide': 'reviews',
@@ -33,7 +28,7 @@ const normalizeCategory = (slug: string) => {
   return map[slug] || slug;
 };
 
-// --- MASTER QUERY ---
+// --- OPTIMIZED QUERY: Reduced payload ---
 const QUERY = `*[slug.current == $slug][0]{
   "slug": slug.current, _id, _type, title, description, seo, showAffiliateDisclosure,
   brand, affiliateLink, retailer, price, currency, availability,
@@ -53,9 +48,8 @@ const QUERY = `*[slug.current == $slug][0]{
     ..., 
     _type == "image" => { ..., asset, alt, caption, display }, 
     _type == "table" => { ... }, 
-    _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current, "category": coalesce(categories[0]->slug.current, category->slug.current) } } 
+    _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current } } 
   },
-
   
   author->{name, "slug": slug.current}, 
   intro,
@@ -64,7 +58,7 @@ const QUERY = `*[slug.current == $slug][0]{
     _type != "topTenList" && _type != "tool" => intro[] { 
       ..., 
       _type == "image" => { ..., asset, alt, caption, display }, 
-      _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current, "category": coalesce(categories[0]->slug.current, category->slug.current) } }, 
+      _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current } }, 
       _type == "navigationGrid" => { _type, title, items[] { label, description, "imageUrl": image.asset->url, "targetSlug": targetPost->slug.current } } 
     }, 
     null 
@@ -73,7 +67,7 @@ const QUERY = `*[slug.current == $slug][0]{
   body[] { 
     ..., 
     _type == "image" => { ..., asset, alt, caption, display }, 
-    _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current, "category": coalesce(categories[0]->slug.current, category->slug.current) } }, 
+    _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current } }, 
     _type == "navigationGrid" => { _type, title, items[] { label, description, "imageUrl": image.asset->url, "targetSlug": targetPost->slug.current } }, 
     _type == "table" => { ... } 
   },
@@ -82,7 +76,7 @@ const QUERY = `*[slug.current == $slug][0]{
     ..., 
     _type == "image" => { ..., asset, alt, caption }, 
     _type == "table" => { ... }, 
-    _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current, "category": coalesce(categories[0]->slug.current, category->slug.current) } } 
+    _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current } } 
   },  
   
   "mainImage": coalesce(image, mainImage, product->mainImage) { ..., "url": asset->url, alt },
@@ -95,7 +89,7 @@ const QUERY = `*[slug.current == $slug][0]{
     _key, rank, badgeLabel, whySelected, customVerdict, 
     product->{ 
       _type, title, "slug": slug.current, 
-      mainImage { asset, alt, "url": asset->url }, 
+      "mainImage": mainImage { asset, alt, "url": asset->url }, 
       affiliateLink, retailer, priceTier, price, currency, availability, 
       realComplaint, customerRating, reviewCount, verdict, keyFeatures, 
       pros, cons, itemDescription,
@@ -111,7 +105,7 @@ const QUERY = `*[slug.current == $slug][0]{
   ] | order(publishedAt desc)[0...3] {
     title, "slug": slug.current,
     "category": coalesce(categories[0]->slug.current, "reviews"),
-    intro, mainImage { asset, alt }
+    intro, "mainImage": mainImage { asset, alt, "url": asset->url }
   },
 
   "relatedProducts": *[
@@ -121,7 +115,7 @@ const QUERY = `*[slug.current == $slug][0]{
   ] | order(reviewCount desc)[0...4] {
     title, brand, "slug": slug.current,
     "category": coalesce(categories[0]->slug.current, "products"),
-    price, currency, customerRating, mainImage { asset, alt }
+    price, currency, customerRating, "mainImage": mainImage { asset, alt, "url": asset->url }
   }
 }`;
 
@@ -142,7 +136,7 @@ export async function generateStaticParams() {
     slug: doc.slug,
   }));
 }
-// --- SEO: Metadata Generation (Optimized) ---
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { category, slug } = await params;
   
@@ -151,7 +145,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title, description, intro, verdict, itemDescription,
       seo, "imageUrl": mainImage.asset->url, 
       _type, "slug": slug.current, dealPrice, price, linkedProduct->{mainImage},
-      // Fetch Primary Category for Canonical Logic
       "primaryCategory": coalesce(categories[0]->slug.current, category->slug.current)
     }`,
     { slug }
@@ -164,38 +157,26 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
-  // --- CRITICAL SEO FIX ---
-  // If user visits /reviews/baby-monitor, we tell Google the MASTER page is /parenting-kids/baby-monitor
   const masterCategory = normalizeCategory(data.primaryCategory || 'reviews');
   const masterUrl = `https://toptenuae.com/${masterCategory}/${slug}`;
 
-  // Pass 'url' explicitly to override auto-detection
   return generateSeoMetadata({ ...data, url: masterUrl }, { category, slug });
 }
 
-// --- MAIN PAGE COMPONENT ---
 export default async function Page({ params }: PageProps) {
   const { category, slug } = await params;
   
-  // 1. Fetch Data
   const data = await client.fetch(QUERY, { slug });
 
-  // 2. 404 Guard
   if (!data) notFound();
 
-  // 3. Category Redirect Logic (STRICT MODE)
   const rawCategory = data.category?.slug || 'reviews';
-  
-  // This helper maps 'baby-kid' -> 'parenting-kids'
   const correctCategory = normalizeCategory(rawCategory);
 
-  // If the URL category doesn't match the DB category, REDIRECT immediately.
-  // This automatically fixes /reviews/best-baby-monitors-uae -> /parenting-kids/best-baby-monitors-uae
   if (correctCategory !== category) {
     permanentRedirect(`/${correctCategory}/${slug}`);
   }
 
-  // 4. Generate Schema
   const schemaData = generateSchema(data);
 
   return (

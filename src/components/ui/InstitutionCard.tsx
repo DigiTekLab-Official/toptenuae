@@ -1,7 +1,9 @@
+// src/components/ui/InstitutionCard.tsx
 "use client";
 
 import React from "react";
 import Image from "next/image";
+import { urlForImage } from "@/sanity/lib/image";
 import LogoIcon from "@/components/icons/LogoIcon";
 import { 
   MapPin, GraduationCap, Coins, AlertTriangle, 
@@ -14,11 +16,10 @@ interface SchoolData {
   location?: string;
   address?: string;
   curriculum?: string;
-  feeRange?: string; 
-  // 👇 FIX: Allow 'number' here to match the Parent Template
+  feeRange?: string;   
   rating?: string | number;   
   verdict?: string;
-  mainImage?: { url: string };
+  mainImage?: any; // ✅ ALLOWS SANITY OBJECT
   realityCheck?: string[];
   website?: string;
 }
@@ -35,7 +36,6 @@ interface InstitutionCardProps {
 
 export default function InstitutionCard({ item }: InstitutionCardProps) {
   const school = item.product || {};
-  const imageUrl = school.mainImage?.url || null;
   const verdictText = item.customVerdict || school.verdict;
 
   // SEO Friendly Alt Text
@@ -82,11 +82,12 @@ export default function InstitutionCard({ item }: InstitutionCardProps) {
           </div>
         )}
         
-        {/* --- IMAGE --- */}
-        {imageUrl && (
+        {/* --- IMAGE (OPTIMIZED) --- */}
+        {school.mainImage && (
           <div className="relative w-full h-64 md:h-[350px] mb-8 bg-gray-50 rounded-xl overflow-hidden border border-gray-100 shadow-inner">
             <Image
-              src={imageUrl}
+              // ✅ RESIZED for Card Width
+              src={urlForImage(school.mainImage).width(800).height(500).url()}
               alt={seoAltText}
               fill
               className="object-cover hover:scale-105 transition-transform duration-700"

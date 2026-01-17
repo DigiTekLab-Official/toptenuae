@@ -15,7 +15,7 @@ const NAV_LINKS = [
   { name: "Parenting", href: "/parenting-kids" },
   { name: "Reviews", href: "/reviews" },
   { name: "Smart Home", href: "/smart-home" },
-  { name: "Finance Tools", href: "/finance-tools" },
+  { name: "Finance", href: "/finance-tools" },
   { name: "Deals", href: "/deals", isHighlight: true },
 ];
 

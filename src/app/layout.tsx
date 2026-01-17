@@ -8,12 +8,13 @@ import GTM from "@/components/analytics/GTM";
 import Clarity from "@/components/analytics/Clarity";
 import { Suspense } from "react";
 
-// Configure Font
+// ✅ PERFORMANCE: Optimized font loading with size-adjust to prevent CLS
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
   weight: ['300', '400', '500', '600', '700'],
   variable: "--font-ibm-plex-sans", 
   display: "swap",
+  adjustFontFallback: true, // Prevents layout shift during font load
 });
 
 export const metadata: Metadata = {
@@ -26,22 +27,19 @@ export const metadata: Metadata = {
   description: "Discover the top 10 best places, services, and experiences in the UAE.",
   keywords: ["Top 10 UAE", "Best in Dubai", "Abu Dhabi Guide"],
   
-  // ✅ FIX 1: Explicitly point to the V2 file in public/
-  // This overrides src/app/icon.svg if it exists, ensuring the new file is used.
   icons: {
     icon: '/icon-v2.svg', 
     shortcut: '/icon-v2.svg',
-    apple: '/apple-icon.png', // Ensure this file exists in public/ or remove this line
+    apple: '/apple-icon.png',
   },
 
   openGraph: {
     title: 'TopTenUAE',
     description: 'Discover the top 10 best places, services, and experiences in the UAE.',
     url: 'https://toptenuae.com',
-    siteName: 'TopTenUAE', // This sets the OG name
+    siteName: 'TopTenUAE',
     images: [
       {
-        // ✅ FIX 2: Using your existing file path
         url: '/images/brand/og-default.png', 
         width: 1200,
         height: 630,
@@ -66,7 +64,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#4b0082', // Purple theme color matches your new branding
+  themeColor: '#4b0082',
   width: 'device-width',
   initialScale: 1,
 };
@@ -77,7 +75,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   
-  // ✅ FIX 3: JSON-LD to force Google to read "TopTenUAE" as the brand name
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
@@ -88,11 +85,18 @@ export default function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
+      {/* ✅ PERFORMANCE: Preconnect to critical third-party domains */}
+      <head>
+        <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://scripts.clarity.ms" />
+        <link rel="dns-prefetch" href="https://static.cloudflareinsights.com" />
+      </head>
       <body
         className={`${ibmPlexSans.className} ${ibmPlexSans.variable} font-sans text-slate-900 bg-slate-50 antialiased min-h-screen flex flex-col overflow-x-hidden`}
         suppressHydrationWarning={true}
       >
-        {/* ✅ ADDED: GTM NoScript Fallback (Standard Implementation) */}
+        {/* GTM NoScript Fallback */}
         <noscript>
           <iframe 
             src="https://www.googletagmanager.com/ns.html?id=GTM-N3PB47W"
@@ -109,6 +113,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
 
+        {/* ✅ PERFORMANCE: Defer analytics to prevent blocking */}
         <Suspense fallback={null}>
           <GTM />
           <Clarity />
@@ -120,7 +125,10 @@ export default function RootLayout({
           {children}
         </div>
         
-        <Footer />
+        {/* ✅ CLS FIX: Reserve minimum height for footer */}
+        <div style={{ minHeight: '400px' }}>
+          <Footer />
+        </div>
       </body>
     </html>
   );
