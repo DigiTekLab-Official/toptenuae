@@ -96,6 +96,24 @@ export default function RootLayout({
         className={`${ibmPlexSans.className} ${ibmPlexSans.variable} font-sans text-slate-900 bg-slate-50 antialiased min-h-screen flex flex-col overflow-x-hidden`}
         suppressHydrationWarning={true}
       >
+        {/* ✅ PERFORMANCE: Defer non-critical CSS loading to prevent render blocking */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                const links = document.querySelectorAll('link[rel="stylesheet"]');
+                links.forEach(link => {
+                  if (!link.href.includes('fonts.googleapis')) {
+                    link.media = 'print';
+                    link.onload = function() {
+                      this.media = 'all';
+                    };
+                  }
+                });
+              })();
+            `
+          }}
+        />
         {/* GTM NoScript Fallback */}
         <noscript>
           <iframe 

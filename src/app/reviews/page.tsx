@@ -87,40 +87,50 @@ const SECTIONS_CONFIG: Record<string, any> = {
 
 // --- DATA FETCHING ---
 async function getData() {
-  // 1. Fetch 9 Featured Guides (No change)
+  // 1. Fetch 9 Featured Guides
   const featured = await client.fetch(`
     *[_type == "topTenList" && isFeaturedReview == true] | order(_updatedAt desc) [0...9] {
       _id, title, "slug": slug.current,
-      "categorySlug": coalesce(category->slug.current, "reviews"),
+      // ⚡ FIX: Added '@' before '->'
+      "categorySlug": coalesce(
+         category->slug.current, 
+         categories[@->slug.current != "reviews"][0]->slug.current, 
+         categories[0]->slug.current, 
+         "reviews"
+      ),
       "imageUrl": mainImage.asset->url,
       _updatedAt
     }
   `);
 
-  // 2. Fetch All Reviews (No change to query)
+  // 2. Fetch All Reviews
   const items = await client.fetch(`
     *[(_type == "product" || _type == "topTenList") && defined(slug.current) && defined(reviewSection)] 
     | order(_createdAt desc) {
       _id, title, _type, rating,
       "slug": slug.current,
-      "categorySlug": coalesce(category->slug.current, categories[0]->slug.current, "reviews"),
+      // ⚡ FIX: Added '@' before '->' here too
+      "categorySlug": coalesce(
+         category->slug.current, 
+         categories[@->slug.current != "reviews"][0]->slug.current, 
+         categories[0]->slug.current, 
+         "reviews"
+      ),
       "section": reviewSection,
       "imageUrl": coalesce(mainImage.asset->url, image.asset->url)
     }
   `);
 
-  // 3. Initialize Groups
+  // 3. Initialize Groups (No Change)
   const grouped: Record<string, any[]> = {};
   Object.keys(SECTIONS_CONFIG).forEach(key => {
     grouped[key] = [];
   });
   
-  // 4. SMART SORTING: The "Balanced Diet" Logic
-  // We create temporary buckets for each section
+  // 4. Smart Sorting (Balanced Diet)
   const tempBuckets: Record<string, { lists: any[], products: any[] }> = {};
   Object.keys(SECTIONS_CONFIG).forEach(key => tempBuckets[key] = { lists: [], products: [] });
 
-  // Sort items into Lists vs Products
   items.forEach((item: any) => {
     if (tempBuckets[item.section]) {
       if (item._type === 'topTenList') {
@@ -131,16 +141,10 @@ async function getData() {
     }
   });
 
-  // Merge them back: 4 Lists + 4 Products (Max 8 total)
+  // Merge: 4 Lists + 4 Products
   Object.keys(SECTIONS_CONFIG).forEach(key => {
     const bucket = tempBuckets[key];
-    // Take up to 4 lists
-    const topLists = bucket.lists.slice(0, 4);
-    // Take up to 4 products
-    const topProducts = bucket.products.slice(0, 4);
-    
-    // Combine them (Lists first, then Products)
-    grouped[key] = [...topLists, ...topProducts];
+    grouped[key] = [...bucket.lists.slice(0, 4), ...bucket.products.slice(0, 4)];
   });
 
   return { featured, grouped };

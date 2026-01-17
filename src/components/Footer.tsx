@@ -7,7 +7,7 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-slate-950 text-slate-200 font-sans border-t-4 border-[#8B5CF6]">
+    <footer className="bg-slate-950 text-slate-100 font-sans border-t-4 border-[#8B5CF6]">
       
       {/* 1. TOP SECTION (Links) */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl py-12 lg:py-16">
@@ -54,7 +54,7 @@ export default function Footer() {
               <li className="pt-0">
                 <Link href="/finance-tools" prefetch={false} className="group flex items-center gap-2 hover:text-white transition-colors">
                    <span className="group-hover:text-[#8B5CF6] transition-colors text-amber-400 text-base">Financial Calculators</span>
-                   <span className="bg-violet-900 text-white text-[12px] font-bold px-1.5 py-0.5 rounded animate-pulse">NEW</span>
+                   <span className="bg-violet-600 text-white text-[12px] font-bold px-1.5 py-0.5 rounded animate-pulse">NEW</span>
                 </Link>
               </li>
               <li><Link href="/finance-tools/gratuity-calculator-uae" prefetch={false} className="hover:text-[#8B5CF6] transition-colors">Gratuity Calculator</Link></li>
