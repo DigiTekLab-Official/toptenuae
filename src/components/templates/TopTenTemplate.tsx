@@ -103,12 +103,11 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
 
   const isEducationPost = 
     !isAviationPost && ( // Prioritize Aviation check
-      checkText.includes('parenting') || 
+      firstItemType === 'institution' || // ✅ CRITICAL: Only if first item is actually institution type
       checkText.includes('education') || 
       checkText.includes('school') ||
       checkText.includes('university') ||
-      checkText.includes('college') ||
-      normalizedCat.includes('parenting') // ✅ Explicit check
+      checkText.includes('college')
     );
 
   const hasMedicalKeywords = 
@@ -291,11 +290,11 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
               {data.listItems.map((item) => (
                 <React.Fragment key={item._key}>
                   
-                  {/* CARD SWITCHER */}
+                  {/* CARD SWITCHER - FIXED: Only use InstitutionCard for actual school/institution posts */}
                   {item.product._type === 'aviationEntity' ? (
                      <AviationCard item={item} />
                   ) 
-                  : (item.product._type === 'institution' || isEducationPost) ? (
+                  : isEducationPost && item.product._type === 'institution' ? (
                      <InstitutionCard item={item} />
                   ) 
                   : (

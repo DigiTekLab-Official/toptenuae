@@ -75,14 +75,62 @@ async function getAllReviews() {
 }
 
 async function getTopLists() {
-  // ✅ FIX: Use 'coalesce' here too for Buying Guides
+  // ✅ FIX: "Smart Filter" Logic
+  // 1. STRICTLY fetch "topTenList" only (Removes "Samsung Release Date" / News)
+  // 2. INCLUDE "parenting-kids" & "tech" (Brings back Baby Monitors & Laptops)
+  // 3. EXCLUDE specific keywords (Removes "Quantum", "Schools", "Donation")
+  
   return await client.fetch(`
     *[_type == "topTenList" && defined(slug.current) && 
-      !(title match "Airline*") && 
-      !(title match "Quantum*") && 
-      !(title match "State of AI*") &&
-      !(category->slug.current match "news") &&
-      !(category->slug.current match "travel")
+      // A. Category Filter: Allow these specific product categories
+      (
+        category->slug.current in [
+          "reviews", 
+          "tech", 
+          "parenting-kids",  // <--- ADDED BACK for Baby Monitors/Skin Care
+          "kitchen", 
+          "audio", 
+          "grooming", 
+          "smart-home", 
+          "home-appliances", 
+          "electronics",
+          "gaming"
+        ] ||
+        // Check the categories array too
+        count((categories[]->slug.current)[@ in [
+          "reviews", "tech", "parenting-kids", "kitchen", "audio", "grooming"
+        ]]) > 0
+      ) &&
+      
+      // B. Content Filter: Remove non-product topics by Title
+      !(title match "Quantum*") &&       // Removes "Demystifying Quantum"
+      !(title match "State of AI*") &&   // Removes "State of AI"
+      !(title match "School*") &&        // Removes "Top 10 Schools" (Parenting)
+      !(title match "Donate*") &&        // Removes "Where to Donate Toys" (Parenting)
+      !(title match "Charity*") &&       // Removes "Charity Orgs"
+      !(title match "Airline*") &&       // Removes "Safest Airlines"
+      !(title match "Airport*")
+      
+    ] | order(_updatedAt desc) [0...12] {
+      _id,
+      title,
+      "slug": slug.current,
+      "categorySlug": coalesce(category->slug.current, categories[0]->slug.current, "reviews"),
+      _updatedAt,
+      "imageUrl": coalesce(mainImage.asset->url, image.asset->url)
+    }
+  `);
+}
+
+async function getTopRecommendations() {
+  // ✅ NEW: Fetch specialized lists (schools, airlines, travel guides)
+  // Exclude: product reviews, tech news, baby products, audio/headphones
+  return await client.fetch(`
+    *[_type == "topTenList" && defined(slug.current) &&
+      !(category->slug.current == "reviews" || "reviews" in categories[]->slug.current) &&
+      !(title match "*Quantum*" || title match "*State of AI*" || 
+        title match "*Baby*" || title match "*Skin*Care*" || 
+        title match "*headphone*" || title match "*earbuds*" || title match "*wireless*audio*")
     ] | order(_updatedAt desc) [0...6] {
       _id,
       title,
@@ -108,9 +156,10 @@ async function getReviewStats() {
 // ============================================================================
 
 export default async function ReviewsPage() {
-  const [{ products, categorized }, topLists, stats] = await Promise.all([
+  const [{ products, categorized }, topLists, topRecommendations, stats] = await Promise.all([
     getAllReviews(),
     getTopLists(),
+    getTopRecommendations(),
     getReviewStats(),
   ]);
 
@@ -203,7 +252,47 @@ export default async function ReviewsPage() {
           </div>
         )}
 
-        {/* 2. Browse by Category */}
+        {/* 2. Top Recommendations */}
+        {topRecommendations.length > 0 && (
+          <div className="mb-20">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="bg-emerald-100 p-2 rounded-lg"><TrendingUp className="w-6 h-6 text-emerald-600" /></div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Top Recommendations</h2>
+                <p className="text-sm text-gray-500">Schools, airlines, travel guides, and more</p>
+              </div>
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {topRecommendations.map((item: any) => {
+                const href = `/${item.categorySlug}/${item.slug}`;
+                
+                return (
+                  <Link key={item._id} href={href} className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col h-full">
+                    <div className="h-48 relative bg-gray-100 shrink-0 overflow-hidden">
+                      {item.imageUrl ? (
+                        <Image src={item.imageUrl} alt={item.title} fill className="object-cover transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 768px) 100vw, 33vw"/>
+                      ) : <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-300"><Package className="w-12 h-12" /></div>}
+                      <div className="absolute top-3 left-3">
+                        <span className="bg-white/95 backdrop-blur-sm text-emerald-600 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-sm flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" /> Top Pick
+                        </span>
+                      </div>
+                    </div>
+                    <div className="p-6 flex flex-col flex-1">
+                      <h3 className="font-bold text-lg text-gray-900 group-hover:text-emerald-600 transition-colors mb-3 line-clamp-2 leading-tight">{item.title}</h3>
+                      <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
+                        <div className="flex items-center text-xs text-gray-500"><Calendar className="w-3 h-3 mr-1.5" />{new Date(item._updatedAt).toLocaleDateString()}</div>
+                        <span className="text-sm font-bold text-emerald-600 flex items-center gap-1 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-300">Explore <ArrowRight className="w-4 h-4" /></span>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* 3. Browse by Category */}
         <div className="space-y-16">
           <div className="flex items-center gap-3 mb-6">
              <div className="bg-purple-100 p-2 rounded-lg"><Package className="w-6 h-6 text-purple-600" /></div>

@@ -53,8 +53,9 @@ const QUERY = `*[slug.current == $slug][0]{
     ..., 
     _type == "image" => { ..., asset, alt, caption, display }, 
     _type == "table" => { ... }, 
-    _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current } } 
+    _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current, "category": coalesce(categories[0]->slug.current, category->slug.current) } } 
   },
+
   
   author->{name, "slug": slug.current}, 
   intro,
@@ -63,7 +64,7 @@ const QUERY = `*[slug.current == $slug][0]{
     _type != "topTenList" && _type != "tool" => intro[] { 
       ..., 
       _type == "image" => { ..., asset, alt, caption, display }, 
-      _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current } }, 
+      _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current, "category": coalesce(categories[0]->slug.current, category->slug.current) } }, 
       _type == "navigationGrid" => { _type, title, items[] { label, description, "imageUrl": image.asset->url, "targetSlug": targetPost->slug.current } } 
     }, 
     null 
@@ -72,7 +73,7 @@ const QUERY = `*[slug.current == $slug][0]{
   body[] { 
     ..., 
     _type == "image" => { ..., asset, alt, caption, display }, 
-    _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current } }, 
+    _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current, "category": coalesce(categories[0]->slug.current, category->slug.current) } }, 
     _type == "navigationGrid" => { _type, title, items[] { label, description, "imageUrl": image.asset->url, "targetSlug": targetPost->slug.current } }, 
     _type == "table" => { ... } 
   },
@@ -81,7 +82,7 @@ const QUERY = `*[slug.current == $slug][0]{
     ..., 
     _type == "image" => { ..., asset, alt, caption }, 
     _type == "table" => { ... }, 
-    _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current } } 
+    _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current, "category": coalesce(categories[0]->slug.current, category->slug.current) } } 
   },  
   
   "mainImage": coalesce(image, mainImage, product->mainImage) { ..., "url": asset->url, alt },

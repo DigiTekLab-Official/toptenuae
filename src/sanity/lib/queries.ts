@@ -68,7 +68,7 @@ export const TOP_TEN_LIST_QUERY = groq`
         targetPost->{
           title,
           "slug": slug.current,
-          "category": categories[0]->slug.current 
+          "category": coalesce(categories[0]->slug.current, category->slug.current) 
         }
       },
       _type == "image" => {
@@ -85,7 +85,7 @@ export const TOP_TEN_LIST_QUERY = groq`
         targetPost->{
           title,
           "slug": slug.current,
-          "category": categories[0]->slug.current 
+          "category": coalesce(categories[0]->slug.current, category->slug.current) 
         }
       },
       _type == "image" => {

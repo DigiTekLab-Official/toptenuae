@@ -1,6 +1,6 @@
 // src/components/ui/RelatedLinkCard.tsx
 import Link from "next/link";
-import { ArrowRight, ExternalLink } from "lucide-react"; // Switched to ArrowRight for internal links, or keep ExternalLink if preferred
+import { ArrowRight, ExternalLink } from "lucide-react"; 
 
 interface RelatedLinkProps {
   label: string;
@@ -8,11 +8,18 @@ interface RelatedLinkProps {
   post: {
     title: string;
     slug: string;
+    category?: string; // ✅ Added optional category field
   };
 }
 
 export default function RelatedLinkCard({ label, preText, post }: RelatedLinkProps) {
+  // Guard clause: ensure slug exists
   if (!post?.slug) return null;
+
+  // ✅ LOGIC FIX: Construct the correct URL based on category presence
+  const href = post.category 
+    ? `/${post.category}/${post.slug}` 
+    : `/${post.slug}`;
 
   return (
     <div className="my-8 not-prose">
@@ -33,16 +40,15 @@ export default function RelatedLinkCard({ label, preText, post }: RelatedLinkPro
             <span className="opacity-90">{preText}</span>{" "}
             
             <Link 
-              href={`/${post.slug}`} 
+              href={href} // ✅ Used dynamic href here
               className="inline-flex items-center gap-1 font-bold text-primary hover:text-primary-800 hover:underline decoration-2 underline-offset-2 transition-colors align-bottom"
-              // ❌ REMOVED: title={post.title} (Fixes WAVE "Redundant title text" error)
             >
               <span className="truncate max-w-[280px] sm:max-w-md md:max-w-lg block">
                 {post.title}
               </span>
               
-              {/* ✅ ADDED: aria-hidden="true" to prevent screen reader noise */}
-              <ExternalLink className="w-5 h-5 shrink-0 mb-0.5" aria-hidden="true" />
+              {/* Switched to ArrowRight since this is usually an internal link */}
+              <ArrowRight className="w-5 h-5 shrink-0 mb-0.5" aria-hidden="true" />
             </Link>
           </p>
         </div>
