@@ -78,11 +78,49 @@ const nextConfig: NextConfig = {
   },
 
   // ============================================================================
-  // 4. PERFORMANCE: CACHE HEADERS (CLOUDFLARE COMPATIBLE)
+  // 4. SECURITY & PERFORMANCE: HEADERS (FIXED FOR BEST PRACTICES 100)
   // ============================================================================
   
   async headers() {
     return [
+      // ============================================================================
+      // SECURITY HEADERS (Applied to all routes)
+      // ============================================================================
+      {
+        source: '/:path*',
+        headers: [
+          // ✅ SECURITY FIX: HSTS Header (fixes "No HSTS header found" error)
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload',
+          },
+          // ✅ SECURITY FIX: COOP Header (fixes "No COOP header found" error)
+          {
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin-allow-popups',
+          },
+          // ✅ SECURITY: Cross-Origin Resource Policy
+          {
+            key: 'Cross-Origin-Resource-Policy',
+            value: 'same-site',
+          },
+          // ✅ SECURITY: Cross-Origin Embedder Policy
+          {
+            key: 'Cross-Origin-Embedder-Policy',
+            value: 'unsafe-none',
+          },
+          // ✅ PERFORMANCE: Preload critical assets (CDN domains)
+          {
+            key: 'Link',
+            value: '<https://cdn.sanity.io>; rel=preconnect; crossorigin',
+          },
+        ],
+      },
+      
+      // ============================================================================
+      // CACHE HEADERS (Applied to specific file types)
+      // ============================================================================
+      
       // ✅ Long-term cache for static images
       {
         source: '/:all*(svg|jpg|jpeg|png|webp|avif|gif|ico)',
@@ -120,16 +158,6 @@ const nextConfig: NextConfig = {
           {
             key: 'Cache-Control',
             value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
-      // ✅ PERFORMANCE: Preload critical assets (CDN domains)
-      {
-        source: '/:path*',
-        headers: [
-          {
-            key: 'Link',
-            value: '<https://cdn.sanity.io>; rel=preconnect; crossorigin',
           },
         ],
       },
