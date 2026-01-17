@@ -118,6 +118,29 @@ const nextConfig: NextConfig = {
       },
       
       // ============================================================================
+      // SPECIAL HEADERS FOR RSC REQUESTS (Fixes 404 errors)
+      // ============================================================================
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'query',
+            key: '_rsc',
+          },
+        ],
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'private, no-cache, no-store, must-revalidate',
+          },
+          {
+            key: 'Vary',
+            value: 'RSC, Next-Router-State-Tree, Next-Router-Prefetch',
+          },
+        ],
+      },
+      
+      // ============================================================================
       // CACHE HEADERS (Applied to specific file types)
       // ============================================================================
       

@@ -77,7 +77,7 @@ export function middleware(request: NextRequest) {
   
   // ✅ PERFORMANCE: Disable caching for RSC (React Server Components) requests
   // This fixes the 404 errors for _rsc requests
-  if (request.nextUrl.searchParams.has('_rsc')) {
+  if (searchParams.has('_rsc')) {
     response.headers.set('Cache-Control', 'private, no-cache, no-store, must-revalidate');
     response.headers.set('Vary', 'RSC, Next-Router-State-Tree, Next-Router-Prefetch');
   }
@@ -100,12 +100,11 @@ export function middleware(request: NextRequest) {
     'camera=(), microphone=(), geolocation=()'
   );
 
-  // ✅ SECURITY FIX: Content Security Policy (CSP) - FIXED ALL ISSUES
-  // This CSP fixes:
-  // 1. Added https://z.clarity.ms to connect-src (fixes Clarity connection errors)
-  // 2. Added https://c.clarity.ms to img-src (fixes Clarity image errors)
-  // 3. Added require-trusted-types-for directive (fixes Trusted Types warning)
-  // 4. Kept necessary unsafe-inline/unsafe-eval for Next.js and analytics to work
+  // ✅ SECURITY FIX: Content Security Policy (CSP) - COMPLETE FIX
+  // This CSP includes ALL Clarity endpoints (updated 2026):
+  // - j.clarity.ms (new collection endpoint)
+  // - c.bing.com (Bing tracking pixel)
+  // - z.clarity.ms, c.clarity.ms, y.clarity.ms (existing endpoints)
   const cspHeader = `
     default-src 'self';
     script-src 'self' 'unsafe-eval' 'unsafe-inline' 
@@ -123,7 +122,8 @@ export function middleware(request: NextRequest) {
       https://lh3.googleusercontent.com
       https://www.googletagmanager.com
       https://www.google-analytics.com
-      https://c.clarity.ms;
+      https://c.clarity.ms
+      https://c.bing.com;
     font-src 'self' 
       https://fonts.gstatic.com;
     connect-src 'self' 
@@ -135,6 +135,7 @@ export function middleware(request: NextRequest) {
       https://c.clarity.ms
       https://y.clarity.ms
       https://z.clarity.ms
+      https://j.clarity.ms
       https://static.cloudflareinsights.com;
     frame-src 'self' 
       https://www.googletagmanager.com;

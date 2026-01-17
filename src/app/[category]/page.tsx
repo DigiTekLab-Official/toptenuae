@@ -2,6 +2,8 @@
 
 export const revalidate = 86400; 
 export const dynamicParams = true;
+// IMPORTANT FIX: This tells Next.js to handle dynamic segments properly
+export const dynamic = 'force-static';
 
 import { client } from "@/sanity/lib/client";
 import { notFound, redirect } from "next/navigation";
@@ -18,22 +20,30 @@ import {
 } from "lucide-react"; 
 
 // --- CUSTOM PAGES CONFIG ---
-const CUSTOM_PAGES = ['reviews']; // Add more as needed
+// IMPROVEMENT: Define custom pages that have their own dedicated routes
+const CUSTOM_PAGES = ['reviews', 'deals']; // Add more as needed
 
 // --- GENERATE STATIC PARAMS ---
 export async function generateStaticParams() {
-  const categories = await client.fetch(`
-    *[_type == "category" && defined(slug.current)]{
-      "category": slug.current
-    }
-  `);
+  try {
+    const categories = await client.fetch(`
+      *[_type == "category" && defined(slug.current)]{
+        "category": slug.current
+      }
+    `);
 
-  // Filter out custom pages - they have their own routes
-  return categories
-    .filter((c: any) => !CUSTOM_PAGES.includes(c.category))
-    .map((c: any) => ({
-      category: c.category,
-    }));
+    // Filter out custom pages - they have their own routes
+    const filteredCategories = categories
+      .filter((c: any) => c.category && !CUSTOM_PAGES.includes(c.category))
+      .map((c: any) => ({
+        category: c.category,
+      }));
+
+    return filteredCategories;
+  } catch (error) {
+    console.error('Error generating static params:', error);
+    return [];
+  }
 }
 
 // --- QUERY ---
@@ -65,32 +75,84 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { category } = await params;
   
-  // Don't generate metadata for custom pages
+  // IMPROVEMENT: Handle custom pages properly
   if (CUSTOM_PAGES.includes(category)) {
     return { title: "" }; // Custom page handles its own metadata
   }
   
-  const data = await client.fetch(
-    `*[_type == "category" && slug.current == $slug][0]{ 
-      title, description, _type, "slug": slug.current, seo 
-    }`, 
-    { slug: category }
-  );
+  try {
+    const data = await client.fetch(
+      `*[_type == "category" && slug.current == $slug][0]{ 
+        title, description, _type, "slug": slug.current, seo 
+      }`, 
+      { slug: category }
+    );
 
-  if (!data) return { title: "Category Not Found" };
-  return generateSeoMetadata(data, { category });
+    if (!data) return { title: "Category Not Found" };
+    return generateSeoMetadata(data, { category });
+  } catch (error) {
+    console.error('Error generating metadata:', error);
+    return { title: "Category Not Found" };
+  }
 }
 
 // --- HELPERS ---
 const getToolConfig = (slug: string) => {
-  if (!slug) return { icon: Calculator, iconColor: '', iconBg: '', ctaLabel: 'View' };
-  if (slug.includes('vat')) return { icon: Percent, iconColor: 'text-[#4b0082] group-hover:text-white', iconBg: 'bg-blue-50 group-hover:bg-[#4b0082]', ctaLabel: 'Calculate VAT' };
-  if (slug.includes('zakat')) return { icon: HeartHandshake, iconColor: 'text-indigo-500 group-hover:text-white', iconBg: 'bg-indigo-50 group-hover:bg-indigo-500', ctaLabel: 'Calculate Zakat' };
-  if (slug.includes('gratuity')) return { icon: Coins, iconColor: 'text-amber-500 group-hover:text-white', iconBg: 'bg-amber-50 group-hover:bg-amber-500', ctaLabel: 'Calculate Benefits' };
-  if (slug.includes('loan') || slug.includes('car')) return { icon: Car, iconColor: 'text-sky-500 group-hover:text-white', iconBg: 'bg-sky-50 group-hover:bg-sky-600', ctaLabel: 'Estimate EMI' };
-  if (slug.includes('visa') || slug.includes('freelance')) return { icon: Plane, iconColor: 'text-violet-500 group-hover:text-white', iconBg: 'bg-violet-50 group-hover:bg-violet-500', ctaLabel: 'Compare Costs' };
-  if (slug.includes('roi')) return { icon: TrendingUp, iconColor: 'text-emerald-500 group-hover:text-white', iconBg: 'bg-emerald-50 group-hover:bg-emerald-500', ctaLabel: 'Check ROI' };
-  return { icon: Calculator, iconColor: 'text-purple-600 group-hover:text-white', iconBg: 'bg-purple-50 group-hover:bg-purple-600', ctaLabel: 'Calculate Now' };
+  if (!slug) return { 
+    icon: Calculator, 
+    iconColor: 'text-purple-600 group-hover:text-white', 
+    iconBg: 'bg-purple-50 group-hover:bg-purple-600', 
+    ctaLabel: 'Calculate' 
+  };
+  
+  if (slug.includes('vat')) return { 
+    icon: Percent, 
+    iconColor: 'text-[#4b0082] group-hover:text-white', 
+    iconBg: 'bg-blue-50 group-hover:bg-[#4b0082]', 
+    ctaLabel: 'Calculate VAT' 
+  };
+  
+  if (slug.includes('zakat')) return { 
+    icon: HeartHandshake, 
+    iconColor: 'text-indigo-500 group-hover:text-white', 
+    iconBg: 'bg-indigo-50 group-hover:bg-indigo-500', 
+    ctaLabel: 'Calculate Zakat' 
+  };
+  
+  if (slug.includes('gratuity')) return { 
+    icon: Coins, 
+    iconColor: 'text-amber-500 group-hover:text-white', 
+    iconBg: 'bg-amber-50 group-hover:bg-amber-500', 
+    ctaLabel: 'Calculate Benefits' 
+  };
+  
+  if (slug.includes('loan') || slug.includes('car')) return { 
+    icon: Car, 
+    iconColor: 'text-sky-500 group-hover:text-white', 
+    iconBg: 'bg-sky-50 group-hover:bg-sky-600', 
+    ctaLabel: 'Estimate EMI' 
+  };
+  
+  if (slug.includes('visa') || slug.includes('freelance')) return { 
+    icon: Plane, 
+    iconColor: 'text-violet-500 group-hover:text-white', 
+    iconBg: 'bg-violet-50 group-hover:bg-violet-500', 
+    ctaLabel: 'Compare Costs' 
+  };
+  
+  if (slug.includes('roi')) return { 
+    icon: TrendingUp, 
+    iconColor: 'text-emerald-500 group-hover:text-white', 
+    iconBg: 'bg-emerald-50 group-hover:bg-emerald-500', 
+    ctaLabel: 'Check ROI' 
+  };
+  
+  return { 
+    icon: Calculator, 
+    iconColor: 'text-purple-600 group-hover:text-white', 
+    iconBg: 'bg-purple-50 group-hover:bg-purple-600', 
+    ctaLabel: 'Calculate Now' 
+  };
 };
 
 // --- MAIN PAGE ---
@@ -102,12 +164,22 @@ export default async function CategoryPage({ params }: PageProps) {
     redirect(`/${category}`);
   }
   
-  const data = await client.fetch(categoryQuery, { slug: category });
+  // IMPROVEMENT: Add try-catch for better error handling
+  let data;
+  try {
+    data = await client.fetch(categoryQuery, { slug: category });
+  } catch (error) {
+    console.error('Error fetching category data:', error);
+    return notFound();
+  }
 
   if (!data) return notFound();
   
   const categorySlug = data.slug || category;
   if (!categorySlug || categorySlug === 'null') return notFound();
+
+  // IMPROVEMENT: Filter out items without slugs early
+  const validItems = (data.items || []).filter((item: any) => item && item.slug);
 
   // JSON-LD for CollectionPage
   const jsonLd = {
@@ -118,16 +190,16 @@ export default async function CategoryPage({ params }: PageProps) {
     "url": `https://toptenuae.com/${categorySlug}`,
     "mainEntity": {
       "@type": "ItemList",
-      "itemListElement": data.items?.map((item: any, index: number) => ({
+      "itemListElement": validItems.map((item: any, index: number) => ({
         "@type": "ListItem",
         "position": index + 1,
         "url": `https://toptenuae.com/${categorySlug}/${item.slug}`,
         "name": cleanText(item.title)
-      })) || []
+      }))
     }
   };
   
-  // IMPROVEMENT: Add breadcrumb schema
+  // Breadcrumb Schema
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -147,7 +219,7 @@ export default async function CategoryPage({ params }: PageProps) {
     ]
   };
 
-  const isFinance = data.slug === 'finance' || data.slug === 'finance-tools';
+  const isFinance = categorySlug === 'finance' || categorySlug === 'finance-tools';
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans pb-20">
@@ -157,7 +229,7 @@ export default async function CategoryPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} 
       />
       
-      {/* Breadcrumb Schema - IMPROVEMENT */}
+      {/* Breadcrumb Schema */}
       <script 
         type="application/ld+json" 
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} 
@@ -191,10 +263,10 @@ export default async function CategoryPage({ params }: PageProps) {
         {isFinance ? (
           // Finance Tools Layout
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {data.items?.map((item: any) => {
-               if (!item.slug) return null;
+            {validItems.map((item: any) => {
                const config = getToolConfig(item.slug);
                const ToolIcon = config.icon;
+               
                return (
                  <Link 
                    key={item.slug} 
@@ -210,7 +282,7 @@ export default async function CategoryPage({ params }: PageProps) {
                         {item.title}
                       </h2>
                       <p className="text-slate-500 text-sm leading-relaxed mb-6 flex-grow line-clamp-3">
-                        {cleanText(item.rawExcerpt)}
+                        {cleanText(item.rawExcerpt) || 'Click to use this tool'}
                       </p>
                       <div className="mt-auto pt-2 border-t border-slate-100 flex items-center text-[#4b0082] font-bold text-sm">
                         {config.ctaLabel} 
@@ -225,10 +297,9 @@ export default async function CategoryPage({ params }: PageProps) {
           // Regular Category Layout
           <div className="flex flex-col lg:flex-row gap-12">
             <main className="flex-1">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {data.items?.map((post: any) => {
-                  if (!post.slug) return null;
-                  return (
+              {validItems.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {validItems.map((post: any) => (
                     <Link 
                       key={post.slug} 
                       href={`/${categorySlug}/${post.slug}`} 
@@ -238,8 +309,9 @@ export default async function CategoryPage({ params }: PageProps) {
                         {post.imageUrl ? (
                           <Image 
                             src={post.imageUrl} 
-                            alt={post.title} 
+                            alt={post.title || 'Article image'} 
                             fill 
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                             className="object-cover transition-transform duration-500 group-hover:scale-105" 
                           />
                         ) : (
@@ -258,11 +330,15 @@ export default async function CategoryPage({ params }: PageProps) {
                           {post.title}
                         </h2>
                         <p className="text-gray-600 text-sm line-clamp-3 mb-5 flex-1 leading-relaxed">
-                          {cleanText(post.rawExcerpt)}
+                          {cleanText(post.rawExcerpt) || 'Read more about this article'}
                         </p>
                         <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
                           <span className="text-xs font-medium text-gray-400">
-                            {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : ''}
+                            {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('en-US', { 
+                              year: 'numeric', 
+                              month: 'short', 
+                              day: 'numeric' 
+                            }) : 'Recent'}
                           </span>
                           <span className="text-sm font-bold text-[#4b0082] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
                             Read <ArrowRight className="w-4 h-4" />
@@ -270,9 +346,13 @@ export default async function CategoryPage({ params }: PageProps) {
                         </div>
                       </div>
                     </Link>
-                  );
-                })}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-16">
+                  <p className="text-gray-500 text-lg">No content available in this category yet.</p>
+                </div>
+              )}
             </main>
             <aside className="w-full lg:w-80 shrink-0 space-y-8">
                <Sidebar currentSlug="" categorySlug={categorySlug} />
