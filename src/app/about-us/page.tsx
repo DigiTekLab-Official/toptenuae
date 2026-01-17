@@ -1,3 +1,4 @@
+// src/app/about-us/page.tsx
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CheckCircle, ShieldCheck, TrendingUp, Users } from "lucide-react";
@@ -43,7 +44,7 @@ export default function AboutPage() {
             </h2>
             <div className="w-16 h-1 bg-yellow-400 mb-6"></div>
             <p className="text-gray-600 mb-4 leading-relaxed">
-              Finding the right product in the UAE can be overwhelming. Between fake reviews, confusing specs, and endless options on Amazon.ae and Noon, it’s hard to know what’s actually worth your Dirhams.
+              Finding the right product in the UAE can be overwhelming. Between fake reviews, confusing specs, and endless options on Amazon.ae and Noon, it's hard to know what's actually worth your Dirhams.
             </p>
             <p className="text-gray-600 font-medium leading-relaxed">
               We built TopTenUAE to cut through the noise. We don't just list random products; we analyze verified purchase data, cross-reference local availability, and read the fine print to bring you unbiased top 10 lists.
@@ -134,7 +135,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* 5. CTA SECTION */}
+      {/* 5. CTA SECTION - ✅ SEO FIX: Changed "Learn more" to descriptive text */}
       <section className="bg-primary py-12 px-4 text-center">
         <h2 className="text-2xl font-bold text-white mb-6">Ready to find the best?</h2>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -142,13 +143,13 @@ export default function AboutPage() {
             href="/" 
             className="inline-block bg-yellow-400 text-gray-900 font-bold py-3 px-8 rounded-full hover:bg-yellow-300 transition-colors shadow-lg"
           >
-            Browse Top Picks
+            Browse Our Top Product Picks
           </Link>
           <Link 
             href="/contact-us" 
             className="inline-block bg-transparent border-2 border-white text-white font-bold py-3 px-8 rounded-full hover:bg-white/10 transition-colors"
           >
-            Contact Us
+            Get in Touch with Our Team
           </Link>
         </div>
       </section>
