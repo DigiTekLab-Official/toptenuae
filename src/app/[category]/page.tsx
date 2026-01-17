@@ -12,7 +12,8 @@ import Link from "next/link";
 import { Metadata } from "next";
 import Sidebar from "@/components/Sidebar";
 import { generateSeoMetadata } from "@/lib/utils/seo-manager"; 
-import { cleanText } from "@/lib/utils/sanity-text"; 
+import { cleanText } from "@/lib/utils/sanity-text";
+import { listImage } from "@/sanity/lib/image"; // ✅ Use your optimized image function
 
 import { 
   Sparkles, ArrowRight, Calculator, Percent, Coins, 
@@ -47,6 +48,7 @@ export async function generateStaticParams() {
 }
 
 // --- QUERY ---
+// ✅ IMPROVEMENT: Fetch the full image object for proper optimization
 const categoryQuery = `*[_type == "category" && slug.current == $slug][0]{
   _id,
   _type,
@@ -61,7 +63,7 @@ const categoryQuery = `*[_type == "category" && slug.current == $slug][0]{
     _type,
     title,
     "slug": slug.current,
-    "imageUrl": mainImage.asset->url,
+    mainImage,
     publishedAt,
     "rawExcerpt": coalesce(intro, description, itemDescription, body[0...1])
   }
@@ -299,54 +301,60 @@ export default async function CategoryPage({ params }: PageProps) {
             <main className="flex-1">
               {validItems.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {validItems.map((post: any) => (
-                    <Link 
-                      key={post.slug} 
-                      href={`/${categorySlug}/${post.slug}`} 
-                      className="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-xl transition-all overflow-hidden flex flex-col h-full"
-                    >
-                      <div className="h-52 relative bg-gray-100 shrink-0">
-                        {post.imageUrl ? (
-                          <Image 
-                            src={post.imageUrl} 
-                            alt={post.title || 'Article image'} 
-                            fill 
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            className="object-cover transition-transform duration-500 group-hover:scale-105" 
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-slate-400 font-bold">
-                            TOP TEN UAE
+                  {validItems.map((post: any) => {
+                    // ✅ Use your optimized image function
+                    const optimizedImageUrl = post.mainImage ? listImage(post.mainImage) : null;
+                    
+                    return (
+                      <Link 
+                        key={post.slug} 
+                        href={`/${categorySlug}/${post.slug}`} 
+                        className="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-xl transition-all overflow-hidden flex flex-col h-full"
+                      >
+                        <div className="h-52 relative bg-gray-100 shrink-0">
+                          {optimizedImageUrl ? (
+                            <Image 
+                              src={optimizedImageUrl} 
+                              alt={post.title || 'Article image'} 
+                              fill 
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
+                              className="object-cover transition-transform duration-500 group-hover:scale-105" 
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-slate-400 font-bold">
+                              TOP TEN UAE
+                            </div>
+                          )}
+                          <div className="absolute top-3 left-3">
+                             <span className="bg-white/90 backdrop-blur-md text-[#4b0082] text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-sm">
+                               {post._type === 'topTenList' ? 'Review' : post._type}
+                             </span>
                           </div>
-                        )}
-                        <div className="absolute top-3 left-3">
-                           <span className="bg-white/90 backdrop-blur-md text-[#4b0082] text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-sm">
-                             {post._type === 'topTenList' ? 'Review' : post._type}
-                           </span>
                         </div>
-                      </div>
-                      <div className="p-6 flex flex-col flex-1">
-                        <h2 className="text-xl font-bold mb-3 text-gray-900 group-hover:text-[#4b0082] transition-colors leading-tight">
-                          {post.title}
-                        </h2>
-                        <p className="text-gray-600 text-sm line-clamp-3 mb-5 flex-1 leading-relaxed">
-                          {cleanText(post.rawExcerpt) || 'Read more about this article'}
-                        </p>
-                        <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
-                          <span className="text-xs font-medium text-gray-400">
-                            {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('en-US', { 
-                              year: 'numeric', 
-                              month: 'short', 
-                              day: 'numeric' 
-                            }) : 'Recent'}
-                          </span>
-                          <span className="text-sm font-bold text-[#4b0082] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                            Read <ArrowRight className="w-4 h-4" />
-                          </span>
+                        <div className="p-6 flex flex-col flex-1">
+                          <h2 className="text-xl font-bold mb-3 text-gray-900 group-hover:text-[#4b0082] transition-colors leading-tight">
+                            {post.title}
+                          </h2>
+                          <p className="text-gray-600 text-sm line-clamp-3 mb-5 flex-1 leading-relaxed">
+                            {cleanText(post.rawExcerpt) || 'Read more about this article'}
+                          </p>
+                          <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
+                            <span className="text-xs font-medium text-gray-400">
+                              {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('en-US', { 
+                                year: 'numeric', 
+                                month: 'short', 
+                                day: 'numeric' 
+                              }) : 'Recent'}
+                            </span>
+                            <span className="text-sm font-bold text-[#4b0082] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                              Read <ArrowRight className="w-4 h-4" />
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    </Link>
-                  ))}
+                      </Link>
+                    );
+                  })}
                 </div>
               ) : (
                 <div className="text-center py-16">
