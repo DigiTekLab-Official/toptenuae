@@ -27,8 +27,8 @@ export default function AboutPage() {
           </p>
         </div>
         
-        {/* Background Pattern */}
-        <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+        {/* Background Pattern - Added aria-hidden for accessibility */}
+        <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none" aria-hidden="true">
            <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
              <path d="M0 100 C 20 0 50 0 100 100 Z" fill="white" />
            </svg>
@@ -135,10 +135,11 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* 5. CTA SECTION - ✅ SEO FIX: Changed "Learn more" to descriptive text */}
+      {/* 5. CTA SECTION - Fixed Descriptive Links */}
       <section className="bg-primary py-12 px-4 text-center">
         <h2 className="text-2xl font-bold text-white mb-6">Ready to find the best?</h2>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          {/* SEO FIX: Explicit text describing the destination */}
           <Link 
             href="/" 
             className="inline-block bg-yellow-400 text-gray-900 font-bold py-3 px-8 rounded-full hover:bg-yellow-300 transition-colors shadow-lg"
@@ -154,7 +155,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* JSON-LD Structured Data for Organization */}
+      {/* JSON-LD Structured Data */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
