@@ -8,11 +8,19 @@ import { Turnstile } from '@marsidev/react-turnstile';
 export default function HomeNewsletter() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "error" | "success">("idle");
+  const [isCaptchaVisible, setIsCaptchaVisible] = useState(false); // ✅ Cookie Fix State
   
   // Security
   const [honeypot, setHoneypot] = useState("");
   const [token, setToken] = useState("");
   const turnstileRef = useRef(null);
+
+  const handleInteraction = () => {
+    // ✅ Load Turnstile only on user interaction to prevent cookie penalties on load
+    if (!isCaptchaVisible) {
+      setIsCaptchaVisible(true);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,8 +28,9 @@ export default function HomeNewsletter() {
 
     // Honeypot & Captcha
     if (honeypot) return;
-    if (!token) {
-      alert("Please complete the security check.");
+    if (!token && isCaptchaVisible) {
+      // If visible but no token yet, wait or prompt
+      alert("Please verify you are human.");
       return;
     }
 
@@ -56,7 +65,7 @@ export default function HomeNewsletter() {
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         
         <div className="flex flex-col sm:flex-row gap-3">
-            {/* Honeypot Field - Hidden from humans & screen readers */}
+            {/* Honeypot Field */}
             <div className="hidden" aria-hidden="true">
               <label htmlFor="fax-input">Fax</label>
               <input
@@ -67,7 +76,6 @@ export default function HomeNewsletter() {
                 autoComplete="off"
                 value={honeypot}
                 onChange={(e) => setHoneypot(e.target.value)}
-                // ✅ ACCESSIBILITY FIX: Removed role="presentation"
                 aria-hidden="true" 
               />
             </div>
@@ -84,6 +92,8 @@ export default function HomeNewsletter() {
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onFocus={handleInteraction} // ✅ Trigger load on focus
+                onClick={handleInteraction} // ✅ Trigger load on click
                 placeholder="Enter your email address" 
                 disabled={status === 'loading' || status === 'success'}
                 className={`w-full px-5 py-3 rounded-full border transition-all shadow-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 
@@ -113,9 +123,9 @@ export default function HomeNewsletter() {
             </button>
         </div>
 
-        {/* Turnstile - Only show if not success */}
-        {status !== 'success' && (
-          <div className="flex justify-center scale-90 origin-top">
+        {/* Turnstile - Only render if visible and not success */}
+        {isCaptchaVisible && status !== 'success' && (
+          <div className="flex justify-center scale-90 origin-top animate-in fade-in zoom-in">
              <Turnstile 
                 ref={turnstileRef}
                 siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}

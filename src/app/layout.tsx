@@ -7,6 +7,8 @@ import Footer from "@/components/Footer";
 import GTM from "@/components/analytics/GTM";
 import Clarity from "@/components/analytics/Clarity";
 import { Suspense } from "react";
+// ✅ Import headers to retrieve the nonce
+import { headers } from "next/headers";
 
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -43,11 +45,15 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({
+// ✅ FIX: component must be async to await headers()
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // ✅ FIX: Await the headers() call for Next.js 15+
+  const headersList = await headers();
+  const nonce = headersList.get('x-nonce') || '';
   
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -69,8 +75,9 @@ export default function RootLayout({
         className={`${ibmPlexSans.className} ${ibmPlexSans.variable} font-sans text-slate-900 bg-slate-50 antialiased min-h-screen flex flex-col overflow-x-hidden`}
         suppressHydrationWarning={true}
       >
-        {/* ✅ SECURITY FIX: Trusted Types Polyfill. Prevents Chrome crash when header is enabled. */}
+        {/* ✅ SECURITY: Trusted Types Polyfill with Nonce */}
         <script
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: `
               if (typeof window !== 'undefined' && window.trustedTypes && window.trustedTypes.createPolicy) {
@@ -99,13 +106,16 @@ export default function RootLayout({
         </noscript>
 
         <script
+          id="json-ld"
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          nonce={nonce}
         />
 
         <Suspense fallback={null}>
-          <GTM />
-          <Clarity />
+          {/* ✅ Pass Nonce to Analytics Scripts */}
+          <GTM nonce={nonce} />
+          <Clarity nonce={nonce} />
         </Suspense>
         
         <Header />
@@ -114,7 +124,6 @@ export default function RootLayout({
           {children}
         </div>
         
-        {/* ✅ CLS FIX: Removed minHeight wrapper which was causing layout shifts */}
         <Footer />
       </body>
     </html>
