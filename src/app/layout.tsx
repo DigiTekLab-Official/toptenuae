@@ -8,6 +8,7 @@ import GTM from "@/components/analytics/GTM";
 import Clarity from "@/components/analytics/Clarity";
 import { Suspense } from "react";
 
+// ✅ PERFORMANCE: Optimized font loading
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
   weight: ['300', '400', '500', '600', '700'],
@@ -79,7 +80,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* ✅ CSP Managed via middleware.ts headers */}
+        {/* ✅ CSP is handled via middleware.ts headers */}
         
         {/* ✅ PERFORMANCE: Preconnect to critical third-party domains */}
         <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
@@ -91,23 +92,7 @@ export default function RootLayout({
         className={`${ibmPlexSans.className} ${ibmPlexSans.variable} font-sans text-slate-900 bg-slate-50 antialiased min-h-screen flex flex-col overflow-x-hidden`}
         suppressHydrationWarning={true}
       >
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                const links = document.querySelectorAll('link[rel="stylesheet"]');
-                links.forEach(link => {
-                  if (!link.href.includes('fonts.googleapis')) {
-                    link.media = 'print';
-                    link.onload = function() {
-                      this.media = 'all';
-                    };
-                  }
-                });
-              })();
-            `
-          }}
-        />
+        {/* GTM NoScript Fallback */}
         <noscript>
           <iframe 
             src="https://www.googletagmanager.com/ns.html?id=GTM-N3PB47W"
@@ -118,11 +103,13 @@ export default function RootLayout({
           />
         </noscript>
 
+        {/* Inject JSON-LD Script */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
 
+        {/* ✅ PERFORMANCE: Defer analytics */}
         <Suspense fallback={null}>
           <GTM />
           <Clarity />

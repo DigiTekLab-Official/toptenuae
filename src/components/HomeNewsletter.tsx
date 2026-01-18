@@ -42,7 +42,6 @@ export default function HomeNewsletter() {
 
       setStatus("success");
       setEmail("");
-      // No redirect - just show success state inline
       
     } catch (error) {
       console.error("Subscription error:", error);
@@ -57,7 +56,7 @@ export default function HomeNewsletter() {
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         
         <div className="flex flex-col sm:flex-row gap-3">
-            {/* Honeypot Field - Hidden from humans */}
+            {/* Honeypot Field - Hidden from humans & screen readers */}
             <div className="hidden" aria-hidden="true">
               <label htmlFor="fax-input">Fax</label>
               <input
@@ -68,7 +67,7 @@ export default function HomeNewsletter() {
                 autoComplete="off"
                 value={honeypot}
                 onChange={(e) => setHoneypot(e.target.value)}
-                // ✅ ACCESSIBILITY FIX: Removed role="presentation" (invalid on input)
+                // ✅ ACCESSIBILITY FIX: Removed role="presentation"
                 aria-hidden="true" 
               />
             </div>
