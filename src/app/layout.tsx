@@ -7,8 +7,11 @@ import Footer from "@/components/Footer";
 import GTM from "@/components/analytics/GTM";
 import Clarity from "@/components/analytics/Clarity";
 import { Suspense } from "react";
-// ✅ Import headers to retrieve the nonce
 import { headers } from "next/headers";
+
+// ✅ CLOUDFLARE FIX: Switch to Edge Runtime
+// Since we use dynamic headers() for CSP, we must run on the Edge.
+export const runtime = 'edge';
 
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -45,13 +48,13 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-// ✅ FIX: component must be async to await headers()
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // ✅ FIX: Await the headers() call for Next.js 15+
+  // ✅ SECURITY: Get nonce for CSP
+  // Awaiting headers() is required in Next.js 15+
   const headersList = await headers();
   const nonce = headersList.get('x-nonce') || '';
   
@@ -113,7 +116,6 @@ export default async function RootLayout({
         />
 
         <Suspense fallback={null}>
-          {/* ✅ Pass Nonce to Analytics Scripts */}
           <GTM nonce={nonce} />
           <Clarity nonce={nonce} />
         </Suspense>
