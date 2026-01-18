@@ -59,10 +59,10 @@ export function middleware(request: NextRequest) {
   // 4. SECURITY & PERFORMANCE HEADERS
   const response = NextResponse.next();
   
-  // ✅ FIX: Force HSTS (Strict Transport Security)
+  // Force HSTS
   response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
   
-  // ✅ FIX: Force COOP (Cross-Origin Opener Policy)
+  // Force COOP
   response.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
 
   // Fix RSC 404 errors
@@ -76,14 +76,12 @@ export function middleware(request: NextRequest) {
   response.headers.set('X-XSS-Protection', '1; mode=block');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   
-  // ✅ BEST PRACTICES FIX: Comprehensive Permissions Policy
   response.headers.set(
     'Permissions-Policy',
     'camera=(), microphone=(), geolocation=(), payment=(), usb=(), vr=(), accelerometer=(), gyroscope=(), magnetometer=()'
   );
 
-  // ✅ BEST PRACTICES FIX: Added 'require-trusted-types-for' to CSP
-  // This addresses the "Mitigate DOM-based XSS with Trusted Types" audit
+  // ✅ CSP FIX: Removed 'require-trusted-types-for' to fix Chrome crash
   const cspHeader = `
     default-src 'self';
     script-src 'self' 'unsafe-eval' 'unsafe-inline' 
@@ -134,7 +132,6 @@ export function middleware(request: NextRequest) {
     form-action 'self';
     frame-ancestors 'self';
     upgrade-insecure-requests;
-    require-trusted-types-for 'script';
   `.replace(/\s{2,}/g, ' ').trim();
 
   response.headers.set('Content-Security-Policy', cspHeader);
