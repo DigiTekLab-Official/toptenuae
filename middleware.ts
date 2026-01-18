@@ -59,10 +59,10 @@ export function middleware(request: NextRequest) {
   // 4. SECURITY & PERFORMANCE HEADERS
   const response = NextResponse.next();
   
-  // Force HSTS (Strict Transport Security)
+  // Force HSTS
   response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
   
-  // Force COOP (Cross-Origin Opener Policy)
+  // Force COOP
   response.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
 
   // Fix RSC 404 errors
@@ -81,7 +81,7 @@ export function middleware(request: NextRequest) {
     'camera=(), microphone=(), geolocation=(), payment=(), usb=(), vr=(), accelerometer=(), gyroscope=(), magnetometer=()'
   );
 
-  // ✅ CSP FIX: Stable version (No Trusted Types crash)
+  // ✅ CSP: Stable & Secure (Includes Turnstile, Clarity, GTM)
   const cspHeader = `
     default-src 'self';
     script-src 'self' 'unsafe-eval' 'unsafe-inline' 
