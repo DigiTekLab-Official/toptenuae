@@ -8,48 +8,41 @@ import GTM from "@/components/analytics/GTM";
 import Clarity from "@/components/analytics/Clarity";
 import { Suspense } from "react";
 
-// ✅ PERFORMANCE: Optimized font loading with size-adjust to prevent CLS
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
   weight: ['300', '400', '500', '600', '700'],
   variable: "--font-ibm-plex-sans", 
   display: "swap",
-  adjustFontFallback: true, // Prevents layout shift during font load
+  adjustFontFallback: true, 
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://toptenuae.com'), 
-  
   title: {
     template: '%s | TopTenUAE', 
     default: 'TopTenUAE | Discover the Best of the Emirates',
   },
   description: "Discover the top 10 best places, services, and experiences in the UAE.",
   keywords: ["Top 10 UAE", "Best in Dubai", "Abu Dhabi Guide"],
-  
   icons: {
     icon: '/icon-v2.svg', 
     shortcut: '/icon-v2.svg',
     apple: '/apple-icon.png',
   },
-
   openGraph: {
     title: 'TopTenUAE',
     description: 'Discover the top 10 best places, services, and experiences in the UAE.',
     url: 'https://toptenuae.com',
     siteName: 'TopTenUAE',
-    images: [
-      {
+    images: [{
         url: '/images/brand/og-default.png', 
         width: 1200,
         height: 630,
         alt: 'TopTenUAE - Best of the Emirates',
-      },
-    ],
+      }],
     locale: 'en_AE',
     type: 'website',
   },
-  
   robots: {
     index: true,
     follow: true,
@@ -86,7 +79,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* ✅ CSP REMOVED: Now handled via middleware.ts headers to avoid Lighthouse "meta tag" warning */}
+        {/* ✅ CSP Managed via middleware.ts headers */}
         
         {/* ✅ PERFORMANCE: Preconnect to critical third-party domains */}
         <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
@@ -98,7 +91,6 @@ export default function RootLayout({
         className={`${ibmPlexSans.className} ${ibmPlexSans.variable} font-sans text-slate-900 bg-slate-50 antialiased min-h-screen flex flex-col overflow-x-hidden`}
         suppressHydrationWarning={true}
       >
-        {/* ✅ PERFORMANCE: Defer non-critical CSS loading */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -116,7 +108,6 @@ export default function RootLayout({
             `
           }}
         />
-        {/* GTM NoScript Fallback */}
         <noscript>
           <iframe 
             src="https://www.googletagmanager.com/ns.html?id=GTM-N3PB47W"
@@ -127,13 +118,11 @@ export default function RootLayout({
           />
         </noscript>
 
-        {/* Inject JSON-LD Script */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
 
-        {/* ✅ PERFORMANCE: Defer analytics to prevent blocking */}
         <Suspense fallback={null}>
           <GTM />
           <Clarity />
@@ -145,7 +134,6 @@ export default function RootLayout({
           {children}
         </div>
         
-        {/* ✅ CLS FIX: Reserve minimum height for footer */}
         <div style={{ minHeight: '400px' }}>
           <Footer />
         </div>
