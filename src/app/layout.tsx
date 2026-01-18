@@ -17,20 +17,6 @@ const ibmPlexSans = IBM_Plex_Sans({
   adjustFontFallback: true, // Prevents layout shift during font load
 });
 
-// ✅ SECURITY: Constructing a valid CSP string
-// We include challenges.cloudflare.com to fix the Turnstile error
-const csp = `
-  default-src 'self';
-  script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://www.clarity.ms https://scripts.clarity.ms https://static.cloudflareinsights.com https://challenges.cloudflare.com;
-  frame-src 'self' https://challenges.cloudflare.com https://www.googletagmanager.com;
-  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-  img-src 'self' blob: data: https://cdn.sanity.io https://www.google-analytics.com https://stats.g.doubleclick.net https://www.google.com https://www.google.ae;
-  font-src 'self' https://fonts.gstatic.com data:;
-  connect-src 'self' https://www.google-analytics.com https://www.clarity.ms https://stats.g.doubleclick.net https://cdn.sanity.io https://toptenuae.com;
-`
-.replace(/\s{2,}/g, ' ') // Minify the string
-.trim();
-
 export const metadata: Metadata = {
   metadataBase: new URL('https://toptenuae.com'), 
   
@@ -100,8 +86,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* ✅ SECURITY: Added CSP Meta Tag to fix Cloudflare Turnstile blocking */}
-        <meta httpEquiv="Content-Security-Policy" content={csp} />
+        {/* ✅ CSP REMOVED: Now handled via middleware.ts headers to avoid Lighthouse "meta tag" warning */}
         
         {/* ✅ PERFORMANCE: Preconnect to critical third-party domains */}
         <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />

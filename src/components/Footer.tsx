@@ -6,7 +6,6 @@ import TopTenUAELogo from "./icons/TopTenUAELogo";
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
-  // ✅ ACCESSIBILITY FIX: Increased padding to py-3 to ensure 48px touch target
   const linkClass = "block py-3 text-slate-200 hover:text-[#A78BFA] transition-colors";
 
   return (
@@ -55,7 +54,8 @@ export default function Footer() {
                 <Link href="/finance-tools" prefetch={false} className="group block py-3 hover:text-white transition-colors">
                    <div className="flex items-center gap-2">
                      <span className="group-hover:text-[#A78BFA] transition-colors text-amber-300 text-base">Financial Calculators</span>
-                     <span className="bg-violet-600 text-white text-[12px] font-bold px-1.5 py-0.5 rounded animate-pulse">NEW</span>
+                     {/* ✅ CONTRAST FIX: Changed bg-violet-600 to bg-violet-700 */}
+                     <span className="bg-violet-700 text-white text-[12px] font-bold px-1.5 py-0.5 rounded animate-pulse">NEW</span>
                    </div>
                 </Link>
               </li>

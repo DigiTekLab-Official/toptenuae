@@ -57,22 +57,21 @@ export default function HomeNewsletter() {
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         
         <div className="flex flex-col sm:flex-row gap-3">
-            {/* Honeypot */}
-            <label htmlFor="fax-input" className="sr-only">
-              Fax
-            </label>
-            <input
-              type="text"
-              name="fax"
-              id="fax-input"
-              tabIndex={-1}
-              autoComplete="off"
-              value={honeypot}
-              onChange={(e) => setHoneypot(e.target.value)}
-              aria-hidden="true"
-              role="presentation"
-              style={{ display: 'none' }}
-            />
+            {/* Honeypot Field - Hidden from humans */}
+            <div className="hidden" aria-hidden="true">
+              <label htmlFor="fax-input">Fax</label>
+              <input
+                type="text"
+                name="fax"
+                id="fax-input"
+                tabIndex={-1}
+                autoComplete="off"
+                value={honeypot}
+                onChange={(e) => setHoneypot(e.target.value)}
+                // ✅ ACCESSIBILITY FIX: Removed role="presentation" (invalid on input)
+                aria-hidden="true" 
+              />
+            </div>
 
             <div className="relative grow">
               <label htmlFor="email-input" className="sr-only">
