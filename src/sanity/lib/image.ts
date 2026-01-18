@@ -52,7 +52,7 @@ export const listImage = (source: any) => {
   if (!source || !source.asset) return undefined
 
   return builder.image(source)
-    .width(640) // ✅ Updated to 640
+    .width(640) // ✅ Updated to 640 (was 800)
     .auto('format')
     .quality(80)
     .url()

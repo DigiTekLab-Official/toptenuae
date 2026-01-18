@@ -114,9 +114,8 @@ export default function RootLayout({
           {children}
         </div>
         
-        <div style={{ minHeight: '400px' }}>
-          <Footer />
-        </div>
+        {/* ✅ CLS FIX: Removed minHeight wrapper which was causing layout shifts */}
+        <Footer />
       </body>
     </html>
   );
