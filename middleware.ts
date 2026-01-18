@@ -13,12 +13,10 @@ export function middleware(request: NextRequest) {
   const { pathname, searchParams } = url;
   const hostname = request.headers.get('host') || '';
 
-  // 1. SECURITY: BLOCK SUBDOMAINS
   if (hostname.startsWith('webmail.') || hostname.startsWith('mail.') || hostname.startsWith('cpanel.')) {
     return new NextResponse('Gone', { status: 410 });
   }
 
-  // 2. SEO: FORCE NON-WWW & CLEAN PARAMS
   let hasChanges = false;
   if (hostname.startsWith('www.')) {
     return NextResponse.redirect(new URL(`https://${hostname.replace('www.', '')}${pathname}${url.search}`, request.url), 301);
@@ -31,20 +29,72 @@ export function middleware(request: NextRequest) {
 
   if (hasChanges) return NextResponse.redirect(url, 301);
 
-  // 3. GENERATE NONCE FOR CSP
-  const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
+  const response = NextResponse.next();
+  
+  response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+  response.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
 
-  // 4. PREPARE HEADERS
-  // ✅ BEST PRACTICES FIX: Strict CSP with Nonce & Strict-Dynamic
-  // This satisfies the "Ensure CSP is effective against XSS attacks" audit
+  if (searchParams.has('_rsc')) {
+    response.headers.set('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+    response.headers.set('Vary', 'RSC, Next-Router-State-Tree, Next-Router-Prefetch');
+  }
+  
+  response.headers.set('X-Frame-Options', 'SAMEORIGIN');
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('X-XSS-Protection', '1; mode=block');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  
+  response.headers.set(
+    'Permissions-Policy',
+    'camera=(), microphone=(), geolocation=(), payment=(), usb=(), vr=(), accelerometer=(), gyroscope=(), magnetometer=()'
+  );
+
+  // ✅ BEST PRACTICES FIX: Added 'require-trusted-types-for' back
   const cspHeader = `
     default-src 'self';
-    script-src 'nonce-${nonce}' 'strict-dynamic' 'unsafe-eval' https: http:;
-    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-    img-src 'self' blob: data: https:;
-    font-src 'self' https://fonts.gstatic.com;
-    connect-src 'self' https:;
-    frame-src 'self' https://www.googletagmanager.com https://challenges.cloudflare.com;
+    script-src 'self' 'unsafe-eval' 'unsafe-inline' 
+      https://www.googletagmanager.com 
+      https://www.google-analytics.com 
+      https://www.clarity.ms 
+      https://*.clarity.ms
+      https://c.clarity.ms
+      https://z.clarity.ms
+      https://j.clarity.ms
+      https://y.clarity.ms
+      https://scripts.clarity.ms
+      https://static.cloudflareinsights.com
+      https://challenges.cloudflare.com;
+    style-src 'self' 'unsafe-inline' 
+      https://fonts.googleapis.com;
+    img-src 'self' blob: data: 
+      https://cdn.sanity.io 
+      https://placehold.co 
+      https://toptenuae.com 
+      https://lh3.googleusercontent.com
+      https://www.googletagmanager.com
+      https://www.google-analytics.com
+      https://www.clarity.ms
+      https://*.clarity.ms
+      https://c.clarity.ms
+      https://c.bing.com;
+    font-src 'self' 
+      https://fonts.gstatic.com;
+    connect-src 'self' 
+      https://cdn.sanity.io 
+      https://*.sanity.io
+      https://www.google-analytics.com 
+      https://www.googletagmanager.com
+      https://www.clarity.ms
+      https://*.clarity.ms
+      https://c.clarity.ms
+      https://z.clarity.ms
+      https://j.clarity.ms
+      https://y.clarity.ms
+      https://static.cloudflareinsights.com
+      https://challenges.cloudflare.com;
+    frame-src 'self' 
+      https://www.googletagmanager.com
+      https://challenges.cloudflare.com;
     object-src 'none';
     base-uri 'self';
     form-action 'self';
@@ -53,35 +103,9 @@ export function middleware(request: NextRequest) {
     require-trusted-types-for 'script';
   `.replace(/\s{2,}/g, ' ').trim();
 
-  // Create request headers to pass nonce to the application (layout.tsx)
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set('x-nonce', nonce);
-  requestHeaders.set('Content-Security-Policy', cspHeader);
-
-  // Create response
-  const response = NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  });
-
-  // Set response headers for the browser
   response.headers.set('Content-Security-Policy', cspHeader);
-  response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
-  response.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
-  response.headers.set('X-Frame-Options', 'SAMEORIGIN');
-  response.headers.set('X-Content-Type-Options', 'nosniff');
-  response.headers.set('X-XSS-Protection', '1; mode=block');
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  response.headers.set(
-    'Permissions-Policy',
-    'camera=(), microphone=(), geolocation=(), payment=(), usb=(), vr=(), accelerometer=(), gyroscope=(), magnetometer=()'
-  );
 
-  if (searchParams.has('_rsc')) {
-    response.headers.set('Cache-Control', 'private, no-cache, no-store, must-revalidate');
-    response.headers.set('Vary', 'RSC, Next-Router-State-Tree, Next-Router-Prefetch');
-  } else if (pathname.match(/\.(jpg|jpeg|png|gif|svg|webp|avif|ico|css|js|woff|woff2|ttf|eot)$/)) {
+  if (pathname.match(/\.(jpg|jpeg|png|gif|svg|webp|avif|ico|css|js|woff|woff2|ttf|eot)$/)) {
     response.headers.set('Cache-Control', 'public, max-age=31536000, immutable');
   }
 

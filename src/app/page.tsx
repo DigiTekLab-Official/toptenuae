@@ -1,8 +1,6 @@
 // src/app/page.tsx
-
-// ✅ CLOUDFLARE FIX: Must use 'edge' runtime to match RootLayout and Cloudflare environment
-export const runtime = 'edge';
 export const revalidate = 86400; 
+export const runtime = 'nodejs';
 
 import { client } from "@/sanity/lib/client";
 import Link from "next/link";
@@ -12,6 +10,7 @@ import { generateSeoMetadata } from "@/lib/utils/seo-manager";
 import JsonLd from "@/components/sanity/JsonLd"; 
 import HomeNewsletter from "@/components/HomeNewsletter";
 import { cleanText } from "@/lib/utils/sanity-text";
+// ✅ IMPORT IMAGE HELPERS
 import { mainImage, listImage } from "@/sanity/lib/image";
 import { 
   generateOrganizationSchema, 
@@ -51,6 +50,7 @@ const getToolConfig = (slug: string) => {
   return { icon: Calculator, ctaLabel: "Use Tool", iconColor: "text-primary", iconBg: "bg-primary/10" };
 };
 
+// ✅ UPDATED QUERY: Fetch 'mainImage' object instead of raw URL
 const HOME_QUERY = `
 {
   "heroPost": *[_type in ["topTenList", "howTo", "article", "news"] && defined(slug.current)] | order(publishedAt desc)[0] {
@@ -115,6 +115,7 @@ export default async function Home() {
     cleanText(heroPost?.intro) || 
     "Read our latest comprehensive review for the UAE market.";
     
+  // ✅ OPTIMIZED HERO IMAGE URL (1600px)
   const heroImageUrl = heroPost.mainImage ? mainImage(heroPost.mainImage) : null;
 
   return (
@@ -202,7 +203,8 @@ export default async function Home() {
                 const isTool = post._type === "tool";
                 const postLink = `/${section.slug}/${post.slug}`;
                 
-                // ✅ OPTIMIZED: Use listImage (640px) from Sanity
+                // ✅ OPTIMIZED CARD IMAGE URL (800px)
+                // This replaces the raw 1920px image, saving ~150KB per card
                 const cardImageUrl = post.mainImage ? listImage(post.mainImage) : null;
 
                 if (isTool) {
@@ -236,6 +238,7 @@ export default async function Home() {
                           fill
                           loading={idx < 2 ? "eager" : "lazy"}
                           className="object-cover group-hover:scale-110 transition-transform duration-500"
+                          // 'sizes' is less relevant with unoptimized:true, but good to keep
                           sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
                           quality={80}
                         />

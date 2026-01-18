@@ -1,8 +1,5 @@
 // src/app/[category]/page.tsx
 
-// ✅ CLOUDFLARE FIX: Must match Root Layout's runtime
-export const runtime = 'edge';
-
 export const revalidate = 86400; 
 export const dynamicParams = true;
 // IMPORTANT FIX: This tells Next.js to handle dynamic segments properly
@@ -61,7 +58,7 @@ const categoryQuery = `*[_type == "category" && slug.current == $slug][0]{
   "seo": seo { metaTitle, metaDescription, keywords, canonicalUrl, noIndex, ogImage },
   "items": *[
     _type in ["topTenList", "howTo", "tool", "holiday", "charity", "deal", "event"] && 
-    (references(^._id) || category._ref == ^._id || categories[0]._ref == ^._id)
+    (references(^._id) || category._ref == ^._id || categories[]._ref == ^._id)
   ] | order(publishedAt desc) {
     _type,
     title,

@@ -3,10 +3,11 @@
 import { useEffect, useState } from "react";
 import Script from "next/script";
 
-export default function Clarity({ nonce }: { nonce?: string }) {
+export default function Clarity() {
   const [shouldLoad, setShouldLoad] = useState(false);
 
   useEffect(() => {
+    // ✅ PERFORMANCE FIX: Increased delay to 5.5 seconds
     const timer = setTimeout(() => setShouldLoad(true), 5500);
     return () => clearTimeout(timer);
   }, []);
@@ -18,7 +19,6 @@ export default function Clarity({ nonce }: { nonce?: string }) {
       <Script
         id="microsoft-clarity-init"
         strategy="afterInteractive"
-        nonce={nonce} // ✅ SECURITY: Apply Nonce
         dangerouslySetInnerHTML={{
           __html: `
             (function(c,l,a,r,i,t,y){

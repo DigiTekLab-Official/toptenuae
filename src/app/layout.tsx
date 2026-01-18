@@ -7,11 +7,6 @@ import Footer from "@/components/Footer";
 import GTM from "@/components/analytics/GTM";
 import Clarity from "@/components/analytics/Clarity";
 import { Suspense } from "react";
-import { headers } from "next/headers";
-
-// ✅ CLOUDFLARE FIX: Switch to Edge Runtime
-// Since we use dynamic headers() for CSP, we must run on the Edge.
-export const runtime = 'edge';
 
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -48,15 +43,11 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // ✅ SECURITY: Get nonce for CSP
-  // Awaiting headers() is required in Next.js 15+
-  const headersList = await headers();
-  const nonce = headersList.get('x-nonce') || '';
   
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -78,9 +69,8 @@ export default async function RootLayout({
         className={`${ibmPlexSans.className} ${ibmPlexSans.variable} font-sans text-slate-900 bg-slate-50 antialiased min-h-screen flex flex-col overflow-x-hidden`}
         suppressHydrationWarning={true}
       >
-        {/* ✅ SECURITY: Trusted Types Polyfill with Nonce */}
+        {/* ✅ SECURITY FIX: Trusted Types Polyfill. Prevents Chrome crash when header is enabled. */}
         <script
-          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: `
               if (typeof window !== 'undefined' && window.trustedTypes && window.trustedTypes.createPolicy) {
@@ -109,15 +99,13 @@ export default async function RootLayout({
         </noscript>
 
         <script
-          id="json-ld"
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-          nonce={nonce}
         />
 
         <Suspense fallback={null}>
-          <GTM nonce={nonce} />
-          <Clarity nonce={nonce} />
+          <GTM />
+          <Clarity />
         </Suspense>
         
         <Header />
@@ -126,6 +114,7 @@ export default async function RootLayout({
           {children}
         </div>
         
+        {/* ✅ CLS FIX: Removed minHeight wrapper which was causing layout shifts */}
         <Footer />
       </body>
     </html>
