@@ -1,6 +1,8 @@
 // src/app/[category]/[slug]/page.tsx
 
-export const runtime = 'nodejs'; 
+// ✅ CLOUDFLARE FIX: Enforce Edge Runtime
+export const runtime = 'edge';
+
 export const revalidate = 3600; 
 export const dynamicParams = true;
 

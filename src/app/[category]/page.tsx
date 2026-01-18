@@ -1,5 +1,8 @@
 // src/app/[category]/page.tsx
 
+// ✅ CLOUDFLARE FIX: Must match Root Layout's runtime
+export const runtime = 'edge';
+
 export const revalidate = 86400; 
 export const dynamicParams = true;
 // IMPORTANT FIX: This tells Next.js to handle dynamic segments properly
