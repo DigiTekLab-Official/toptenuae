@@ -1,6 +1,4 @@
 // src/sanity/lib/image.ts
-// ✅ PERFORMANCE OPTIMIZED & FIXED FOR REVIEWS PAGE
-
 import { createImageUrlBuilder } from '@sanity/image-url'
 import type { SanityImageSource } from '@sanity/image-url'
 import { dataset, projectId } from './client'
@@ -19,17 +17,16 @@ export const urlFor = (source: SanityImageSource) => {
 // --------------------------------------------------
 
 /**
- * ✅ CARD IMAGE (The Fix for Reviews Page)
+ * ✅ CARD IMAGE
  * Enforces 1.42 Aspect Ratio (1600x1125)
- * Fixes "Low Resolution" & "Aspect Ratio" errors in Lighthouse
  */
 export const cardImage = (source: any) => {
   if (!source || !source.asset) return undefined
   
   return builder.image(source)
-    .width(1600)      // High res for Retina screens (matches 1335px display slot)
-    .height(1125)     // Enforces 1.42 Aspect Ratio (7:5)
-    .fit('crop')      // Crops specifically to center
+    .width(1600)
+    .height(1125)
+    .fit('crop')
     .crop('center')
     .auto('format')
     .quality(85)
@@ -37,28 +34,29 @@ export const cardImage = (source: any) => {
 }
 
 /**
- * ✅ Main Image (Updated)
- * Bumped to 1600w to prevent blurriness on desktop screens >1200px
+ * ✅ Main Image
+ * 1600w for high-res hero sections
  */
 export const mainImage = (source: any) => {
   if (!source || !source.asset) return undefined 
   
   return builder.image(source)
-    .width(1600) // ✅ Increased from 1200 to fix low-res on desktop
+    .width(1600)
     .auto('format') 
     .quality(85) 
     .url()
 }
 
 /**
- * ✅ List/Grid Image
- * Optimized for smaller grid cards
+ * ✅ List/Grid Image (FIXED)
+ * Reduced from 800px to 640px to fix LCP/Image Size warnings.
+ * This perfectly targets the ~600px mobile card width.
  */
 export const listImage = (source: any) => {
   if (!source || !source.asset) return undefined
 
   return builder.image(source)
-    .width(800) // ✅ Bumped to 800 to be safe for 2-column mobile grids
+    .width(640) // ✅ CHANGED from 800 to 640
     .auto('format')
     .quality(80)
     .url()
@@ -66,7 +64,6 @@ export const listImage = (source: any) => {
 
 /**
  * ✅ Hero/Discover Image
- * For large hero sections and Google Discover
  */
 export const discoverImage = (source: any) => {
   if (!source || !source.asset) return undefined
@@ -82,7 +79,6 @@ export const discoverImage = (source: any) => {
 
 /**
  * ✅ Sidebar/Thumbnail Image
- * For small previews and thumbnails
  */
 export const sidebarImage = (source: any) => {
   if (!source || !source.asset) return undefined
@@ -99,8 +95,6 @@ export const sidebarImage = (source: any) => {
 
 /**
  * ✅ Product Card Image
- * Optimized specifically for product cards
- * Matches the displayed size in ProductCard.tsx (414x459)
  */
 export const productCardImage = (source: any) => {
   if (!source || !source.asset) return undefined
@@ -108,7 +102,7 @@ export const productCardImage = (source: any) => {
   return builder.image(source)
     .width(414)
     .height(459)
-    .fit('max') // Maintain aspect ratio
+    .fit('max')
     .auto('format')
     .quality(85)
     .url()
@@ -116,7 +110,6 @@ export const productCardImage = (source: any) => {
 
 /**
  * ✅ Responsive Image with srcset
- * Returns multiple sizes for responsive images
  */
 export const responsiveImage = (source: any) => {
   if (!source || !source.asset) return undefined
@@ -133,7 +126,6 @@ export const responsiveImage = (source: any) => {
 
 /**
  * ✅ Get optimized image at specific dimensions
- * Use this when you know exact display dimensions
  */
 export const optimizedImage = (
   source: any, 
@@ -162,5 +154,5 @@ export const optimizedImage = (
   return imageBuilder.url();
 }
 
-// Legacy export (for backwards compatibility)
+// Legacy export
 export const urlForImage = urlFor;

@@ -7,9 +7,8 @@ export default function Clarity() {
   const [shouldLoad, setShouldLoad] = useState(false);
 
   useEffect(() => {
-    // ✅ PERFORMANCE FIX: Force a 4.5-second delay.
-    // We delay this slightly longer than GTM to prevent network congestion.
-    const timer = setTimeout(() => setShouldLoad(true), 4500);
+    // ✅ PERFORMANCE FIX: Increased delay to 5.5 seconds
+    const timer = setTimeout(() => setShouldLoad(true), 5500);
     return () => clearTimeout(timer);
   }, []);
 
@@ -19,7 +18,7 @@ export default function Clarity() {
     <>
       <Script
         id="microsoft-clarity-init"
-        strategy="afterInteractive" // We handle the delay manually above
+        strategy="afterInteractive"
         dangerouslySetInnerHTML={{
           __html: `
             (function(c,l,a,r,i,t,y){

@@ -10,9 +10,9 @@ export default function GTM() {
   const [shouldLoad, setShouldLoad] = useState(false);
 
   useEffect(() => {
-    // ✅ PERFORMANCE FIX: Force a 4-second delay.
-    // This moves GTM execution completely out of the "Total Blocking Time" window.
-    const timer = setTimeout(() => setShouldLoad(true), 4000);
+    // ✅ PERFORMANCE FIX: Increased delay to 5 seconds
+    // This ensures GTM loads strictly after the LCP window
+    const timer = setTimeout(() => setShouldLoad(true), 5000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -22,7 +22,7 @@ export default function GTM() {
     <>
       <Script
         id="gtm-init"
-        strategy="afterInteractive" // We handle the delay manually above
+        strategy="afterInteractive"
         dangerouslySetInnerHTML={{
           __html: `
             (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
