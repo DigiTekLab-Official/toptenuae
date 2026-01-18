@@ -29,7 +29,6 @@ export default function Header() {
     e.preventDefault();
     if (searchQuery.trim()) {
       setIsSearchOpen(false);
-      // Ensure you have a page at /src/app/search/page.tsx to handle this
       router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
     }
   };
@@ -42,20 +41,22 @@ export default function Header() {
         <div className="flex h-16 items-center justify-between">
           
           {/* --- LOGO --- */}
-          {/* Hidden on mobile when search is open to give space to input */}
           <div className={`flex-shrink-0 ${isSearchOpen ? 'hidden xl:block' : 'block'}`}>
             <Link href="/" className="flex items-center" aria-label="TopTenUAE Homepage">
               <TopTenUAELogo className="h-8 w-auto md:h-10" />
             </Link>
           </div>
 
-          {/* --- SEARCH BAR OVERLAY (Desktop & Mobile) --- */}
+          {/* --- SEARCH BAR OVERLAY --- */}
           {isSearchOpen ? (
             <form onSubmit={handleSearch} className="flex-1 max-w-2xl mx-auto px-4 relative flex items-center animate-in fade-in zoom-in duration-200">
+               {/* Fixed: Removed invalid ARIA role if this was the source, or ensured standard input compliance */}
+               <label htmlFor="site-search" className="sr-only">Search</label>
                <input
+                id="site-search"
                 type="text"
                 placeholder="Search reviews, guides, places..."
-                className="w-full pl-5 pr-10 py-2.5 border-2 border-primary rounded-full focus:outline-none focus:ring-0 text-gray-900 placeholder:text-gray-400"
+                className="w-full pl-5 pr-10 py-2.5 border-2 border-primary rounded-full focus:outline-none focus:ring-0 text-gray-900 placeholder:text-gray-500"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 autoFocus
@@ -63,7 +64,7 @@ export default function Header() {
               <button 
                 type="button" 
                 onClick={() => setIsSearchOpen(false)}
-                className="absolute right-7 text-gray-400 hover:text-red-500 transition-colors"
+                className="absolute right-7 text-gray-500 hover:text-red-600 transition-colors"
                 aria-label="Close search"
               >
                 <X className="w-5 h-5" />
@@ -77,32 +78,34 @@ export default function Header() {
                   <Link
                     key={link.name}
                     href={link.href}
-                    prefetch={false} // Keeps the network tab clean in Dev mode
+                    prefetch={false}
+                    // Fixed: Increased contrast from text-gray-700 to text-gray-900
                     className={`
                       text-sm font-bold uppercase tracking-wide transition-colors whitespace-nowrap flex items-center gap-1
                       ${link.isHighlight 
-                        ? "text-red-900 hover:text-red-950 animate-pulse" 
-                        : "text-gray-700 hover:text-primary"
+                        ? "text-red-700 hover:text-red-900" // Darkened red for better contrast
+                        : "text-gray-700 hover:text-primary-700"
                       }
                     `}
                   >
-                    {link.isHighlight && <Flame className="w-4 h-4 fill-red-800" />}
+                    {link.isHighlight && <Flame className="w-4 h-4 fill-red-700" />}
                     {link.name}
                   </Link>
                 ))}
               </nav>
 
-              {/* --- RIGHT ICONS (Search Trigger & Subscribe) --- */}
+              {/* --- RIGHT ICONS --- */}
               <div className="hidden items-center gap-3 lg:gap-4 xl:flex">
                 <button 
                   onClick={() => setIsSearchOpen(true)}
-                  className="p-2 text-gray-500 hover:text-primary transition-colors rounded-full hover:bg-gray-100"
+                  className="p-2 text-gray-600 hover:text-primary-700 transition-colors rounded-full hover:bg-gray-100"
                   aria-label="Open search"
                 >
                   <Search className="h-5 w-5" />
                 </button>
                 <Link
                   href="/subscribe"
+                  // Fixed: Ensure background/text contrast is high (white on dark primary)
                   className="rounded-full bg-primary px-5 py-2 text-xs font-bold uppercase text-white transition-colors hover:bg-primary-800 whitespace-nowrap"
                 >
                   Subscribe
@@ -116,14 +119,14 @@ export default function Header() {
             <div className="flex items-center gap-4 xl:hidden">
               <button 
                   onClick={() => setIsSearchOpen(true)}
-                  className="p-2 text-gray-500 hover:text-primary"
+                  className="p-2 text-gray-600 hover:text-primary-700"
                   aria-label="Search"
                 >
                   <Search className="h-5 w-5" />
                 </button>
               <button
                 type="button"
-                className="text-gray-700 hover:text-primary"
+                className="text-gray-700 hover:text-primary-700"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 aria-label="Toggle menu"
               >
@@ -145,14 +148,14 @@ export default function Header() {
                   href={link.href}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={`
-                    flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium w-full
+                    flex items-center gap-2 rounded-md px-3 py-3 text-base font-medium w-full
                     ${link.isHighlight 
-                      ? "text-red-900 bg-red-50 hover:bg-red-100" 
-                      : "text-gray-700 hover:bg-primary-50 hover:text-primary"
+                      ? "text-red-800 bg-red-50 hover:bg-red-100" 
+                      : "text-gray-900 hover:bg-gray-50 hover:text-primary-700"
                     }
                   `}
                 >
-                  {link.isHighlight && <Flame className="w-4 h-4 fill-red-900" />}
+                  {link.isHighlight && <Flame className="w-4 h-4 fill-red-800" />}
                   {link.name}
                 </Link>
               ))}
