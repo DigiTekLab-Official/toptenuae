@@ -54,7 +54,7 @@ const getToolConfig = (slug: string) => {
   return { icon: Calculator, ctaLabel: "Use Tool", iconColor: "text-primary", iconBg: "bg-primary/10" };
 };
 
-// --- OPTIMIZED QUERY: Only fetch what's needed ---
+// --- OPTIMIZED QUERY ---
 const HOME_QUERY = `
 {
   "heroPost": *[_type in ["topTenList", "howTo", "article", "news"] && defined(slug.current)] | order(publishedAt desc)[0] {
@@ -130,12 +130,11 @@ export default async function Home() {
       />
       <main className="font-sans">
       
-      {/* SEO H1: Hidden but semantic for Google */}
       <h1 className="sr-only">
         TopTenUAE - The Best of the UAE, Ranked, Reviewed & Smart Tools
       </h1>
    
-      {/* 1. HERO SECTION - OPTIMIZED FOR LCP */}
+      {/* 1. HERO SECTION */}
       <section className="relative bg-slate-900 text-white overflow-hidden">
         <div className="absolute inset-0 z-0">
           {heroPost.imageUrl && (
@@ -144,7 +143,6 @@ export default async function Home() {
               alt={heroPost.title}
               fill
               className="object-cover opacity-40 blur-sm scale-105"
-              // ✅ CRITICAL LCP FIX: Priority + fetchPriority
               priority
               fetchPriority="high"
               quality={85}
@@ -174,8 +172,10 @@ export default async function Home() {
             <p className="text-lg md:text-xl text-slate-200 mb-8 line-clamp-2 max-w-2xl leading-relaxed">
               {heroDescription}
             </p>
+            {/* FIX: Added prefetch={false} to prevent 404s in console */}
             <Link 
               href={`/${heroPost.categorySlug}/${heroPost.slug}`}
+              prefetch={false}
               className="inline-flex items-center gap-2 bg-white text-slate-900 font-bold px-8 py-4 rounded-full hover:bg-primary hover:text-white transition-all transform hover:scale-105 shadow-lg"
             >
               Read Full Review <ArrowRight className="w-5 h-5" />
@@ -195,7 +195,7 @@ export default async function Home() {
                  </div>
                  <h2 className="text-2xl font-black text-gray-900">{section.title}</h2>
               </div>
-              <Link href={`/${section.slug}`} className="text-sm font-bold text-primary hover:text-primary-700 hidden sm:block">
+              <Link href={`/${section.slug}`} prefetch={false} className="text-sm font-bold text-primary hover:text-primary-700 hidden sm:block">
                 View All {section.title} &rarr;
               </Link>
             </div>
@@ -209,7 +209,8 @@ export default async function Home() {
                    const config = getToolConfig(post.slug);
                    const ToolIcon = config.icon;
                    return (
-                    <Link key={post.slug} href={postLink} className="group relative block h-full">
+                    // FIX: Added prefetch={false}
+                    <Link key={post.slug} href={postLink} prefetch={false} className="group relative block h-full">
                       <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl border border-slate-300 hover:border-primary/30 transition-all h-full flex flex-col overflow-hidden">
                         <div className="absolute top-0 right-0 bg-primary/5 w-24 h-24 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
                         <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-6 transition-colors duration-300 ${config.iconBg}`}>
@@ -227,14 +228,14 @@ export default async function Home() {
                 }
 
                 return (
-                  <Link key={post.slug} href={postLink} className="group flex flex-col bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
+                  // FIX: Added prefetch={false}
+                  <Link key={post.slug} href={postLink} prefetch={false} className="group flex flex-col bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
                     <div className="relative h-48 w-full overflow-hidden bg-gray-100">
                       {post.imageUrl ? (
                         <Image
                           src={post.imageUrl}
                           alt={post.title}
                           fill
-                          // ✅ PERFORMANCE: Lazy load below-fold images
                           loading={idx < 2 ? "eager" : "lazy"}
                           className="object-cover group-hover:scale-110 transition-transform duration-500"
                           sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"

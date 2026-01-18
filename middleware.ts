@@ -101,10 +101,7 @@ export function middleware(request: NextRequest) {
   );
 
   // ✅ SECURITY FIX: Content Security Policy (CSP) - COMPLETE FIX
-  // This CSP includes ALL Clarity endpoints (updated 2026):
-  // - j.clarity.ms (new collection endpoint)
-  // - c.bing.com (Bing tracking pixel)
-  // - z.clarity.ms, c.clarity.ms, y.clarity.ms (existing endpoints)
+  // Added 'challenges.cloudflare.com' to script-src, frame-src, and connect-src
   const cspHeader = `
     default-src 'self';
     script-src 'self' 'unsafe-eval' 'unsafe-inline' 
@@ -112,7 +109,8 @@ export function middleware(request: NextRequest) {
       https://www.google-analytics.com 
       https://www.clarity.ms 
       https://scripts.clarity.ms
-      https://static.cloudflareinsights.com;
+      https://static.cloudflareinsights.com
+      https://challenges.cloudflare.com;
     style-src 'self' 'unsafe-inline' 
       https://fonts.googleapis.com;
     img-src 'self' blob: data: 
@@ -136,9 +134,11 @@ export function middleware(request: NextRequest) {
       https://y.clarity.ms
       https://z.clarity.ms
       https://j.clarity.ms
-      https://static.cloudflareinsights.com;
+      https://static.cloudflareinsights.com
+      https://challenges.cloudflare.com;
     frame-src 'self' 
-      https://www.googletagmanager.com;
+      https://www.googletagmanager.com
+      https://challenges.cloudflare.com;
     object-src 'none';
     base-uri 'self';
     form-action 'self';
@@ -149,7 +149,6 @@ export function middleware(request: NextRequest) {
   response.headers.set('Content-Security-Policy', cspHeader);
 
   // ✅ CLOUDFLARE: Set cache headers for static content
-  // Cloudflare respects these headers for edge caching
   if (pathname.match(/\.(jpg|jpeg|png|gif|svg|webp|avif|ico|css|js|woff|woff2|ttf|eot)$/)) {
     response.headers.set('Cache-Control', 'public, max-age=31536000, immutable');
   }

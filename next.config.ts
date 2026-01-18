@@ -6,8 +6,8 @@ const nextConfig: NextConfig = {
   // 1. PERFORMANCE & STRUCTURE
   // ============================================================================
   
-  // ✅ Keep source maps for debugging
-  productionBrowserSourceMaps: true,
+  // ✅ FIXED: Set to false to prevent "Source map" 404/timeout errors in Lighthouse
+  productionBrowserSourceMaps: false,
   
   // ✅ SEO: No trailing slashes (handled via middleware & redirects)
   trailingSlash: false,
@@ -39,11 +39,9 @@ const nextConfig: NextConfig = {
     dangerouslyAllowSVG: true,
     
     // ✅ PERFORMANCE: Image quality settings
-    // Lower = smaller files, higher = better quality
     qualities: [75, 85],
     
-    // ✅ PERFORMANCE: Supported formats (when using Next.js Image Optimization)
-    // Note: This won't apply with unoptimized: true, but good for future reference
+    // ✅ PERFORMANCE: Supported formats
     formats: ['image/avif', 'image/webp'],
     
     // ✅ Allowed remote image sources
