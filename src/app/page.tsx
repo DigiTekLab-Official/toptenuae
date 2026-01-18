@@ -1,6 +1,4 @@
 // src/app/page.tsx
-
-// 1. CRITICAL SEO FIX: Stable Indexing
 export const revalidate = 86400; 
 export const runtime = 'nodejs';
 
@@ -18,7 +16,6 @@ import {
   generateHomePageSchema
 } from "@/lib/schemaGenerator";
 
-// Icons
 import { 
   ArrowRight, 
   Flame, 
@@ -31,10 +28,8 @@ import {
   PieChart 
 } from "lucide-react";
 
-// --- CONFIGURATION ---
 const SELECTED_CATEGORIES = ["tech", "reviews", "events-holidays", "parenting-kids", "finance-tools"]; 
 
-// --- SEO ---
 export async function generateMetadata(): Promise<Metadata> {
   return generateSeoMetadata({
     title: "The Best of the UAE, Ranked & Smart Tools",
@@ -45,7 +40,6 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-// --- HELPER ---
 const getToolConfig = (slug: string) => {
   if (slug.includes("vat")) return { icon: Percent, ctaLabel: "Calculate VAT", iconColor: "text-blue-600", iconBg: "bg-blue-50" };
   if (slug.includes("zakat")) return { icon: Coins, ctaLabel: "Calculate Zakat", iconColor: "text-amber-600", iconBg: "bg-amber-50" };
@@ -54,7 +48,6 @@ const getToolConfig = (slug: string) => {
   return { icon: Calculator, ctaLabel: "Use Tool", iconColor: "text-primary", iconBg: "bg-primary/10" };
 };
 
-// --- OPTIMIZED QUERY ---
 const HOME_QUERY = `
 {
   "heroPost": *[_type in ["topTenList", "howTo", "article", "news"] && defined(slug.current)] | order(publishedAt desc)[0] {
@@ -172,7 +165,6 @@ export default async function Home() {
             <p className="text-lg md:text-xl text-slate-200 mb-8 line-clamp-2 max-w-2xl leading-relaxed">
               {heroDescription}
             </p>
-            {/* FIX: Added prefetch={false} to prevent 404s in console */}
             <Link 
               href={`/${heroPost.categorySlug}/${heroPost.slug}`}
               prefetch={false}
@@ -209,7 +201,6 @@ export default async function Home() {
                    const config = getToolConfig(post.slug);
                    const ToolIcon = config.icon;
                    return (
-                    // FIX: Added prefetch={false}
                     <Link key={post.slug} href={postLink} prefetch={false} className="group relative block h-full">
                       <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl border border-slate-300 hover:border-primary/30 transition-all h-full flex flex-col overflow-hidden">
                         <div className="absolute top-0 right-0 bg-primary/5 w-24 h-24 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
@@ -228,9 +219,9 @@ export default async function Home() {
                 }
 
                 return (
-                  // FIX: Added prefetch={false}
                   <Link key={post.slug} href={postLink} prefetch={false} className="group flex flex-col bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
-                    <div className="relative h-48 w-full overflow-hidden bg-gray-100">
+                    {/* ✅ ASPECT RATIO FIX: Added aspect-[16/9] to wrapper to enforce correct dimensions */}
+                    <div className="relative aspect-[16/9] w-full overflow-hidden bg-gray-100">
                       {post.imageUrl ? (
                         <Image
                           src={post.imageUrl}
@@ -276,6 +267,7 @@ export default async function Home() {
            <p className="text-gray-600 max-w-xl mx-auto mb-8">
              Get the best of the UAE, ranked and delivered to your inbox. Smarter choices start here.
            </p>
+           {/* Note: Check HomeNewsletter.tsx for 'fax-input' and ensure it doesn't have role="presentation" */}
            <HomeNewsletter />
            <p className="text-sm text-gray-700 mt-4">Unsubscribe at any time. No spam, guaranteed.</p>
         </div>
