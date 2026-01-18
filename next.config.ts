@@ -39,7 +39,8 @@ const nextConfig: NextConfig = {
     dangerouslyAllowSVG: true,
     
     // ✅ PERFORMANCE: Image quality settings
-    qualities: [75, 85],
+    // Updated to include 80 to fix console warnings
+    qualities: [75, 80, 85],
     
     // ✅ PERFORMANCE: Supported formats
     formats: ['image/avif', 'image/webp'],
