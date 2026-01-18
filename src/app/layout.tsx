@@ -8,7 +8,6 @@ import GTM from "@/components/analytics/GTM";
 import Clarity from "@/components/analytics/Clarity";
 import { Suspense } from "react";
 
-// ✅ PERFORMANCE: Optimized font loading
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
   weight: ['300', '400', '500', '600', '700'],
@@ -25,36 +24,17 @@ export const metadata: Metadata = {
   },
   description: "Discover the top 10 best places, services, and experiences in the UAE.",
   keywords: ["Top 10 UAE", "Best in Dubai", "Abu Dhabi Guide"],
-  icons: {
-    icon: '/icon-v2.svg', 
-    shortcut: '/icon-v2.svg',
-    apple: '/apple-icon.png',
-  },
+  icons: { icon: '/icon-v2.svg', shortcut: '/icon-v2.svg', apple: '/apple-icon.png' },
   openGraph: {
     title: 'TopTenUAE',
     description: 'Discover the top 10 best places, services, and experiences in the UAE.',
     url: 'https://toptenuae.com',
     siteName: 'TopTenUAE',
-    images: [{
-        url: '/images/brand/og-default.png', 
-        width: 1200,
-        height: 630,
-        alt: 'TopTenUAE - Best of the Emirates',
-      }],
+    images: [{ url: '/images/brand/og-default.png', width: 1200, height: 630, alt: 'TopTenUAE - Best of the Emirates' }],
     locale: 'en_AE',
     type: 'website',
   },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
-  },
+  robots: { index: true, follow: true },
 };
 
 export const viewport: Viewport = {
@@ -80,9 +60,6 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* ✅ CSP is handled via middleware.ts headers */}
-        
-        {/* ✅ PERFORMANCE: Preconnect to critical third-party domains */}
         <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://scripts.clarity.ms" />
@@ -92,7 +69,25 @@ export default function RootLayout({
         className={`${ibmPlexSans.className} ${ibmPlexSans.variable} font-sans text-slate-900 bg-slate-50 antialiased min-h-screen flex flex-col overflow-x-hidden`}
         suppressHydrationWarning={true}
       >
-        {/* GTM NoScript Fallback */}
+        {/* ✅ SECURITY FIX: Trusted Types Polyfill. Prevents Chrome crash when header is enabled. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (typeof window !== 'undefined' && window.trustedTypes && window.trustedTypes.createPolicy) {
+                try {
+                  if (!window.trustedTypes.defaultPolicy) {
+                    window.trustedTypes.createPolicy('default', {
+                      createHTML: string => string,
+                      createScript: string => string,
+                      createScriptURL: string => string,
+                    });
+                  }
+                } catch(e) {}
+              }
+            `
+          }}
+        />
+
         <noscript>
           <iframe 
             src="https://www.googletagmanager.com/ns.html?id=GTM-N3PB47W"
@@ -103,13 +98,11 @@ export default function RootLayout({
           />
         </noscript>
 
-        {/* Inject JSON-LD Script */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
 
-        {/* ✅ PERFORMANCE: Defer analytics */}
         <Suspense fallback={null}>
           <GTM />
           <Clarity />

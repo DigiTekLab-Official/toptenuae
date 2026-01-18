@@ -13,59 +13,27 @@ export function middleware(request: NextRequest) {
   const { pathname, searchParams } = url;
   const hostname = request.headers.get('host') || '';
 
-  // 1. SECURITY: BLOCK SUBDOMAINS
-  if (
-    hostname.startsWith('webmail.') || 
-    hostname.startsWith('mail.') || 
-    hostname.startsWith('cpanel.')
-  ) {
+  if (hostname.startsWith('webmail.') || hostname.startsWith('mail.') || hostname.startsWith('cpanel.')) {
     return new NextResponse('Gone', { status: 410 });
   }
 
   let hasChanges = false;
-
-  // 2. SEO: FORCE NON-WWW
   if (hostname.startsWith('www.')) {
-    const newHost = hostname.replace('www.', '');
-    return NextResponse.redirect(
-      new URL(`https://${newHost}${pathname}${url.search}`, request.url),
-      301
-    );
+    return NextResponse.redirect(new URL(`https://${hostname.replace('www.', '')}${pathname}${url.search}`, request.url), 301);
   }
 
-  // 3. SEO: CLEAN PARAMETERS
   const badParams = ['noamp', 'amp', 'm', 'feed', 'cat'];
-  
-  if (pathname.endsWith('/feed') || pathname.endsWith('/feed/')) {
-    url.pathname = pathname.replace(/\/feed\/?$/, '');
-    hasChanges = true;
-  }
-  if (pathname.endsWith('/amp') || pathname.endsWith('/amp/')) {
-    url.pathname = pathname.replace(/\/amp\/?$/, '');
-    hasChanges = true;
-  }
-  
-  badParams.forEach((param) => {
-    if (searchParams.has(param)) {
-      searchParams.delete(param);
-      hasChanges = true;
-    }
-  });
+  if (pathname.endsWith('/feed') || pathname.endsWith('/feed/')) { url.pathname = pathname.replace(/\/feed\/?$/, ''); hasChanges = true; }
+  if (pathname.endsWith('/amp') || pathname.endsWith('/amp/')) { url.pathname = pathname.replace(/\/amp\/?$/, ''); hasChanges = true; }
+  badParams.forEach((param) => { if (searchParams.has(param)) { searchParams.delete(param); hasChanges = true; } });
 
-  if (hasChanges) {
-    return NextResponse.redirect(url, 301);
-  }
+  if (hasChanges) return NextResponse.redirect(url, 301);
 
-  // 4. SECURITY & PERFORMANCE HEADERS
   const response = NextResponse.next();
   
-  // Force HSTS
   response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
-  
-  // Force COOP
   response.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
 
-  // Fix RSC 404 errors
   if (searchParams.has('_rsc')) {
     response.headers.set('Cache-Control', 'private, no-cache, no-store, must-revalidate');
     response.headers.set('Vary', 'RSC, Next-Router-State-Tree, Next-Router-Prefetch');
@@ -81,7 +49,7 @@ export function middleware(request: NextRequest) {
     'camera=(), microphone=(), geolocation=(), payment=(), usb=(), vr=(), accelerometer=(), gyroscope=(), magnetometer=()'
   );
 
-  // ✅ CSP: Stable & Secure (Includes Turnstile, Clarity, GTM)
+  // ✅ BEST PRACTICES FIX: Added 'require-trusted-types-for' back
   const cspHeader = `
     default-src 'self';
     script-src 'self' 'unsafe-eval' 'unsafe-inline' 
@@ -132,6 +100,7 @@ export function middleware(request: NextRequest) {
     form-action 'self';
     frame-ancestors 'self';
     upgrade-insecure-requests;
+    require-trusted-types-for 'script';
   `.replace(/\s{2,}/g, ' ').trim();
 
   response.headers.set('Content-Security-Policy', cspHeader);

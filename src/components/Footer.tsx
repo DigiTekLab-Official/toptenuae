@@ -10,12 +10,9 @@ export default function Footer() {
 
   return (
     <footer className="bg-slate-950 text-slate-100 font-sans border-t-4 border-[#8B5CF6]">
-      
-      {/* 1. TOP SECTION */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl py-12 lg:py-16">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8 lg:gap-8">
           
-          {/* Column 1: Brand */}
           <div className="space-y-4">
             <Link href="/" prefetch={false} className="inline-block p-1" aria-label="TopTenUAE Home">
               <div className="bg-white p-2 rounded-lg shadow-sm inline-block">
@@ -31,7 +28,6 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Column 2 */}
           <div>
             <h2 className="text-white font-bold text-base uppercase tracking-wider mb-2">Discover</h2>
             <ul className="space-y-1 text-sm">
@@ -46,7 +42,6 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Column 3 */}
           <div>
             <h2 className="text-white font-bold text-base uppercase tracking-wider mb-2">Calculators & Money</h2>
             <ul className="space-y-1 text-sm">
@@ -54,8 +49,8 @@ export default function Footer() {
                 <Link href="/finance-tools" prefetch={false} className="group block py-3 hover:text-white transition-colors">
                    <div className="flex items-center gap-2">
                      <span className="group-hover:text-[#A78BFA] transition-colors text-amber-300 text-base">Financial Calculators</span>
-                     {/* ✅ CONTRAST FIX: Changed bg-violet-600 to bg-violet-700 */}
-                     <span className="bg-violet-700 text-white text-[12px] font-bold px-1.5 py-0.5 rounded animate-pulse">NEW</span>
+                     {/* ✅ ACCESSIBILITY FIX: Changed bg-violet-700 to bg-violet-800 for higher contrast */}
+                     <span className="bg-violet-800 text-white text-[12px] font-bold px-1.5 py-0.5 rounded animate-pulse">NEW</span>
                    </div>
                 </Link>
               </li>
@@ -65,15 +60,12 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Column 4 */}
           <div>
             <h2 className="text-white font-bold text-base uppercase tracking-wider mb-2">Company</h2>
             <ul className="space-y-1 text-sm">
               <li><Link href="/about-us" prefetch={false} className={linkClass}>About TopTenUAE</Link></li>
               <li><Link href="/contact-us" prefetch={false} className={linkClass}>Contact Our Team</Link></li>
-              
               <li className="h-px bg-slate-800 my-2 w-2/3"></li>
-              
               <li><Link href="/privacy-policy" prefetch={false} className={linkClass}>Privacy Policy</Link></li>
               <li><Link href="/terms-and-conditions" prefetch={false} className={linkClass}>Terms of Service</Link></li>
               <li><Link href="/cookies-policy" prefetch={false} className={linkClass}>Cookies Policy</Link></li>
@@ -82,7 +74,6 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Column 5: Connect */}
           <div>
             <h2 className="text-white font-bold text-base uppercase tracking-wider mb-4">Connect</h2>
             <div className="flex gap-2 mb-6">
@@ -120,7 +111,6 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* 2. BOTTOM BAR */}
       <div className="bg-slate-950 border-t border-slate-800 py-8">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           <div className="mb-6 pb-6 border-b border-slate-950">
