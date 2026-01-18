@@ -6,8 +6,8 @@ import TopTenUAELogo from "./icons/TopTenUAELogo";
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
-  // Fixed: Changed hover color to a slightly lighter violet for better visibility on dark backgrounds
-  const linkClass = "block py-2 text-slate-200 hover:text-[#A78BFA] transition-colors";
+  // ✅ ACCESSIBILITY FIX: Increased padding to py-3 to ensure 48px touch target
+  const linkClass = "block py-3 text-slate-200 hover:text-[#A78BFA] transition-colors";
 
   return (
     <footer className="bg-slate-950 text-slate-100 font-sans border-t-4 border-[#8B5CF6]">
@@ -26,7 +26,6 @@ export default function Footer() {
             <p className="text-sm leading-relaxed font-bold text-slate-100">
               The Best of the UAE, Ranked.
             </p>
-            
             <div className="flex items-center gap-2 text-sm font-semibold text-emerald-300 bg-emerald-950/50 w-fit px-3 py-1.5 rounded-full border border-emerald-500/30">
               <ShieldCheck className="w-4 h-4" />
               <span>Unbiased & Independent</span>
@@ -44,8 +43,7 @@ export default function Footer() {
               <li><Link href="/smart-home" prefetch={false} className={linkClass}>Smart Home</Link></li>
               <li><Link href="/reviews" prefetch={false} className={linkClass}>Reviews</Link></li>
               <li><Link href="/travel-tourism" prefetch={false} className={linkClass}>Travel & Tourism</Link></li>
-              {/* Fixed: Brightened Amber color for better contrast on dark bg */}
-              <li><Link href="/deals" prefetch={false} className={`block py-2 hover:text-[#A78BFA] transition-colors text-amber-300 font-medium`}>Deals & Offers 🔥</Link></li>
+              <li><Link href="/deals" prefetch={false} className={`block py-3 hover:text-[#A78BFA] transition-colors text-amber-300 font-medium`}>Deals & Offers 🔥</Link></li>
             </ul>
           </div>
 
@@ -54,7 +52,7 @@ export default function Footer() {
             <h2 className="text-white font-bold text-base uppercase tracking-wider mb-2">Calculators & Money</h2>
             <ul className="space-y-1 text-sm">
               <li>
-                <Link href="/finance-tools" prefetch={false} className="group block py-2 hover:text-white transition-colors">
+                <Link href="/finance-tools" prefetch={false} className="group block py-3 hover:text-white transition-colors">
                    <div className="flex items-center gap-2">
                      <span className="group-hover:text-[#A78BFA] transition-colors text-amber-300 text-base">Financial Calculators</span>
                      <span className="bg-violet-600 text-white text-[12px] font-bold px-1.5 py-0.5 rounded animate-pulse">NEW</span>
@@ -87,7 +85,6 @@ export default function Footer() {
           {/* Column 5: Connect */}
           <div>
             <h2 className="text-white font-bold text-base uppercase tracking-wider mb-4">Connect</h2>
-            
             <div className="flex gap-2 mb-6">
               <Link 
                 href="https://www.facebook.com/TopTenUAEofficial" 
@@ -126,14 +123,11 @@ export default function Footer() {
       {/* 2. BOTTOM BAR */}
       <div className="bg-slate-950 border-t border-slate-800 py-8">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-          
           <div className="mb-6 pb-6 border-b border-slate-950">
-            {/* Fixed: Text-slate-400 is often too dark, bumped to 300 for small text */}
             <p className="text-[12px] text-slate-300 leading-relaxed text-justify md:text-left">
               <strong className="text-slate-200">Affiliate Disclosure:</strong> TopTenUAE is a participant in the Amazon Services LLC Associates Program...
             </p>
           </div>
-
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-300">
             <p>&copy; {currentYear} TopTenUAE. All rights reserved.</p>
             <p className="flex items-center gap-1">
