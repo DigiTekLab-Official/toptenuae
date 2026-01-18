@@ -10,6 +10,8 @@ import { generateSeoMetadata } from "@/lib/utils/seo-manager";
 import JsonLd from "@/components/sanity/JsonLd"; 
 import HomeNewsletter from "@/components/HomeNewsletter";
 import { cleanText } from "@/lib/utils/sanity-text";
+// ✅ IMPORT IMAGE HELPERS
+import { mainImage, listImage } from "@/sanity/lib/image";
 import { 
   generateOrganizationSchema, 
   generateWebSiteSchema,
@@ -48,6 +50,7 @@ const getToolConfig = (slug: string) => {
   return { icon: Calculator, ctaLabel: "Use Tool", iconColor: "text-primary", iconBg: "bg-primary/10" };
 };
 
+// ✅ UPDATED QUERY: Fetch 'mainImage' object instead of raw URL
 const HOME_QUERY = `
 {
   "heroPost": *[_type in ["topTenList", "howTo", "article", "news"] && defined(slug.current)] | order(publishedAt desc)[0] {
@@ -55,7 +58,7 @@ const HOME_QUERY = `
     "slug": slug.current,
     "categorySlug": coalesce(categories[0]->slug.current, category->slug.current, "general"), 
     "categoryTitle": coalesce(categories[0]->title, category->title, "Featured"),
-    "imageUrl": mainImage.asset->url,
+    mainImage, 
     intro,
     publishedAt
   },
@@ -65,7 +68,7 @@ const HOME_QUERY = `
     "posts": *[_type in ["holiday", "topTenList", "howTo", "tool", "charity"] && references(^._id)] | order(publishedAt desc)[0...4] {
       title,
       "slug": slug.current,
-      "imageUrl": mainImage.asset->url,
+      mainImage,
       publishedAt,
       _type
     }
@@ -111,6 +114,9 @@ export default async function Home() {
   const heroDescription = 
     cleanText(heroPost?.intro) || 
     "Read our latest comprehensive review for the UAE market.";
+    
+  // ✅ OPTIMIZED HERO IMAGE URL (1600px)
+  const heroImageUrl = heroPost.mainImage ? mainImage(heroPost.mainImage) : null;
 
   return (
     <>
@@ -130,9 +136,9 @@ export default async function Home() {
       {/* 1. HERO SECTION */}
       <section className="relative bg-slate-900 text-white overflow-hidden">
         <div className="absolute inset-0 z-0">
-          {heroPost.imageUrl && (
+          {heroImageUrl && (
             <Image 
-              src={heroPost.imageUrl}
+              src={heroImageUrl}
               alt={heroPost.title}
               fill
               className="object-cover opacity-40 blur-sm scale-105"
@@ -196,6 +202,10 @@ export default async function Home() {
               {section.posts.map((post: any, idx: number) => {
                 const isTool = post._type === "tool";
                 const postLink = `/${section.slug}/${post.slug}`;
+                
+                // ✅ OPTIMIZED CARD IMAGE URL (800px)
+                // This replaces the raw 1920px image, saving ~150KB per card
+                const cardImageUrl = post.mainImage ? listImage(post.mainImage) : null;
 
                 if (isTool) {
                    const config = getToolConfig(post.slug);
@@ -220,15 +230,15 @@ export default async function Home() {
 
                 return (
                   <Link key={post.slug} href={postLink} prefetch={false} className="group flex flex-col bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
-                    {/* ✅ ASPECT RATIO FIX: Added aspect-[16/9] to wrapper to enforce correct dimensions */}
                     <div className="relative aspect-[16/9] w-full overflow-hidden bg-gray-100">
-                      {post.imageUrl ? (
+                      {cardImageUrl ? (
                         <Image
-                          src={post.imageUrl}
+                          src={cardImageUrl}
                           alt={post.title}
                           fill
                           loading={idx < 2 ? "eager" : "lazy"}
                           className="object-cover group-hover:scale-110 transition-transform duration-500"
+                          // 'sizes' is less relevant with unoptimized:true, but good to keep
                           sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
                           quality={80}
                         />
@@ -267,7 +277,6 @@ export default async function Home() {
            <p className="text-gray-600 max-w-xl mx-auto mb-8">
              Get the best of the UAE, ranked and delivered to your inbox. Smarter choices start here.
            </p>
-           {/* Note: Check HomeNewsletter.tsx for 'fax-input' and ensure it doesn't have role="presentation" */}
            <HomeNewsletter />
            <p className="text-sm text-gray-700 mt-4">Unsubscribe at any time. No spam, guaranteed.</p>
         </div>

@@ -1,18 +1,28 @@
-// src/components/analytics/GTM.tsx
-'use client';
+"use client";
 
-import Script from 'next/script';
+import { useEffect, useState } from "react";
+import Script from "next/script";
 
 // Export the ID so we don't hardcode it twice
 export const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID || 'GTM-N3PB47W';
 
 export default function GTM() {
+  const [shouldLoad, setShouldLoad] = useState(false);
+
+  useEffect(() => {
+    // ✅ PERFORMANCE FIX: Force a 4-second delay.
+    // This moves GTM execution completely out of the "Total Blocking Time" window.
+    const timer = setTimeout(() => setShouldLoad(true), 4000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!shouldLoad) return null;
+
   return (
     <>
-      {/* ✅ PERFORMANCE FIX: Keep lazyOnload strategy to prevent blocking main thread */}
       <Script
         id="gtm-init"
-        strategy="lazyOnload"
+        strategy="afterInteractive" // We handle the delay manually above
         dangerouslySetInnerHTML={{
           __html: `
             (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
