@@ -1,162 +1,107 @@
-// src/app/robots.ts
 import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.baseUrl || 'https://toptenuae.com';
+  // Use public env var for consistency
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://toptenuae.com';
 
   // =============================================================================
-  // CRITICAL GSC FIXES - Block Problem URLs Causing Indexing Issues
+  // CRITICAL CONFIGURATION
   // =============================================================================
   
   const sharedDisallow = [
-    // 1. STUDIO & ADMIN (Security)
+    // 1. SECURITY & ADMIN (Keep these blocked)
     '/studio',
     '/api/',
     '/admin',
     '/private',
-    
-    // 2. WEBMAIL & CPANEL (Fixes "Page with redirect" & "Not found" errors)
     '/webmail/',
     '/cpanel/',
-    '/cgi-bin/',
-    '/docs/',
-    '/protected/',
-    '/blocked/',
-    
-    // 3. WORDPRESS LEGACY (Cleanup old paths)
-    '/wp-admin/',
+    '/wp-admin/',      // Block WP admin, but ALLOW other WP paths to let redirects work
     '/wp-includes/',
     '/wp-content/',
-    '/author/',
-    '/index.php/',
     
-    // 4. OLD CATEGORY STRUCTURE (Already migrated, prevent re-indexing)
-    '/category/',
+    // 2. QUERY PARAMETERS (Prevent Duplicate Content)
+    // We allow Google to crawl the main URL, but block variations that dilutes SEO
+    '/*?s=',          // Block internal search results
+    '/*?ref=',        // Block referral parameters
+    '/*?utm_',        // Block marketing tracking
+    '/*?fbclid',      // Block Facebook tracking
+    '/*?gclid',       // Block Google Ads tracking
     
-    // 5. AMP & FEED URLs (Fixes "Page with redirect" errors)
-    '/*/amp',
-    '/*/amp/',
-    '/*/feed',
-    '/*/feed/',
-    '/feed/',
-    '/rss/',
-    '/comments/feed/',
-    
-    // 6. QUERY PARAMETERS (Fixes duplicate content issues)
-    '/*?s=',          // Search queries
-    '/*?noamp=',      // AMP parameter
-    '/*?amp=',        // AMP parameter
-    '/*?m=',          // Mobile parameter
-    '/*?feed=',       // Feed parameter
-    '/*?cat=',        // Category parameter
-    '/*?ref=',        // Referral parameter
-    
-    // 7. INTERNAL SEARCH (Prevents crawl budget waste)
+    // 3. INTERNAL SEARCH
     '/search',
-    '/?s=',
   ];
+
+  // NOTE: I removed '/category/', '/feed/', and '/amp/' from Disallow.
+  // WHY? Because we want Google to crawl them ONE TIME, hit your 301 Redirects,
+  // and update its index to the new clean URLs.
 
   return {
     rules: [
       // =========================================================================
-      // MAIN RULE: All Search Engines + AI Bots
+      // MAIN RULE: Standard Search Engines (Google, Bing)
       // =========================================================================
       {
         userAgent: '*',
         allow: '/',
         disallow: sharedDisallow,
-        // CRITICAL: Add crawl-delay to prevent overwhelming server
-        crawlDelay: 1,
       },
 
       // =========================================================================
-      // AI BOTS - Explicit Authorization
+      // AI BOTS - STRATEGY: MAXIMIZE VISIBILITY
       // =========================================================================
-      
-      // --- OpenAI (ChatGPT) ---
+      // We explicitly ALLOW these bots because we want TopTenUAE to appear 
+      // in ChatGPT answers and Perplexity summaries.
       {
         userAgent: [
-          'GPTBot',           // Training Models
-          'ChatGPT-User',     // Live Browsing
+          'GPTBot',           // ChatGPT Training
+          'ChatGPT-User',     // ChatGPT Live Browsing (Critical for answers)
           'OAI-SearchBot',    // SearchGPT
+          'Google-Extended',  // Gemini
+          'Applebot',         // Siri / Apple Intelligence
+          'PerplexityBot',    // Perplexity AI
+          'ClaudeBot',        // Claude AI
         ],
-        allow: '/',
-        disallow: sharedDisallow,
-      },
-
-      // --- Google (Gemini) ---
-      {
-        userAgent: 'Google-Extended',
-        allow: '/',
-        disallow: sharedDisallow,
-      },
-
-      // --- Apple (Siri & Intelligence) ---
-      {
-        userAgent: [
-          'Applebot',
-          'Applebot-Extended',
-        ],
-        allow: '/',
-        disallow: sharedDisallow,
-      },
-
-      // --- Answer Engines ---
-      {
-        userAgent: [
-          'PerplexityBot',
-          'ClaudeBot',
-          'DeepSeekBot',
-        ],
-        allow: '/',
-        disallow: sharedDisallow,
-      },
-
-      // --- Base Crawlers ---
-      {
-        userAgent: 'CCBot',
         allow: '/',
         disallow: sharedDisallow,
       },
 
       // =========================================================================
-      // AGGRESSIVE CRAWLERS - Rate Limit (Fixes server load issues)
+      // AGGRESSIVE CRAWLERS - STRATEGY: PROTECT SERVER
       // =========================================================================
+      // These bots often hammer sites. We slow them down.
       {
         userAgent: [
-          'AhrefsBot',        // SEO tool (very aggressive)
-          'SemrushBot',       // SEO tool
-          'DotBot',           // Moz crawler
-          'MJ12bot',          // Majestic crawler
-          'BLEXBot',          // Webmeup crawler
+          'AhrefsBot',
+          'SemrushBot',
+          'DotBot',
+          'MJ12bot',
+          'BLEXBot',
+          'Bytespider',       // Often aggressive
         ],
         allow: '/',
         disallow: sharedDisallow,
-        crawlDelay: 10,      // Slow them down significantly
+        crawlDelay: 10,       // Force them to wait 10 seconds between requests
       },
 
       // =========================================================================
-      // BAD BOTS - Complete Block (Spam/scraping bots)
+      // BAD BOTS - STRATEGY: BLOCK COMPLETELY
       // =========================================================================
       {
         userAgent: [
-          'ia_archiver',      // Alexa crawler (deprecated, causes issues)
-          'MegaIndex',        // Russian scraper
-          'SeznamBot',        // Czech scraper
-          'JobboerseBot',     // Scraper
-          'EmailCollector',   // Spam bot
-          'EmailSiphon',      // Spam bot
-          'WebBandit',        // Scraper
-          'Offline Explorer', // Offline copier
-          'HTTrack',          // Offline copier
-          'Teleport',         // Offline copier
-          'WebCopier',        // Offline copier
+          'ia_archiver',
+          'MegaIndex',
+          'SeznamBot',
+          'Uptimebot',
+          'Mauibot',
+          'LieBaoFast',
+          'PC6spider',
         ],
-        disallow: '/',       // Block everything
+        disallow: '/',
       },
     ],
 
-    // SITEMAP - Critical for GSC crawling
+    // SITEMAP LOCATION
     sitemap: `${baseUrl}/sitemap.xml`,
   };
 }

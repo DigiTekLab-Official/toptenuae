@@ -7,7 +7,8 @@ export const dynamicParams = true;
 import { client } from "@/sanity/lib/client";
 import { notFound, permanentRedirect } from "next/navigation";
 import { Metadata } from "next";
-import { generateSeoMetadata } from "@/lib/utils/seo-manager"; 
+// Ensure this path matches where you saved the SEO manager
+import { generateSeoMetadata } from "@/utils/seo-manager"; 
 import { generateSchema } from "@/lib/schemaGenerator"; 
 import JsonLd from '@/components/sanity/JsonLd';
 
@@ -16,19 +17,50 @@ import ToolView from "@/components/views/ToolView";
 import ProductView from "@/components/views/ProductView";
 import ArticleView from "@/components/views/ArticleView";
 
-// --- HELPER: Normalize Categories ---
-const normalizeCategory = (slug: string) => {
+// =============================================================================
+// LOGIC SYNCHRONIZATION (Must Match Sitemap & Next Config)
+// =============================================================================
+
+// 1. Manual Overrides (Critical for Migration Fixes)
+const manualOverrides: Record<string, string> = {
+  'best-baby-monitors-uae': 'parenting-kids',
+  'best-baby-skincare-uae': 'parenting-kids',
+  'where-to-donate-used-toys-uae': 'parenting-kids',
+  'best-educational-toys-uae': 'parenting-kids',
+  'top-10-schools-dubai-2026-khda-fees-reviews': 'parenting-kids',
+  'samsung-galaxy-s26-ultra-specs-uae-price': 'tech',
+  'quantum-computing-guide-uae': 'tech',
+  'how-to-pay-zakat-in-uae-online': 'lifestyle',
+  'charity-organizations-uae-donations': 'lifestyle',
+  'how-to-clean-washing-machine': 'smart-home',
+  'ramadan-2026-uae': 'events-holidays',
+};
+
+// 2. Normalize Categories
+const normalizeCategory = (categorySlug: string, postSlug?: string) => {
+  // A. Check specific post overrides first
+  if (postSlug && manualOverrides[postSlug]) {
+    return manualOverrides[postSlug];
+  }
+
+  // B. Standard Category Mapping
   const map: Record<string, string> = {
+    'travel-tourism': 'events-holidays',
     'health-fitness': 'lifestyle',
     'baby-kid': 'parenting-kids',
     'buyers-guide': 'reviews',
     'deals': 'deals',
     'tech': 'tech',
+    'public-holidays-events': 'events-holidays',
+    'how-to-guides': 'smart-home',
   };
-  return map[slug] || slug;
+  
+  return map[categorySlug] || categorySlug;
 };
 
-// --- OPTIMIZED QUERY: Reduced payload ---
+// =============================================================================
+// DATA QUERY
+// =============================================================================
 const QUERY = `*[slug.current == $slug][0]{
   "slug": slug.current, _id, _type, title, description, seo, showAffiliateDisclosure,
   brand, affiliateLink, retailer, price, currency, availability,
@@ -48,7 +80,7 @@ const QUERY = `*[slug.current == $slug][0]{
     ..., 
     _type == "image" => { ..., asset, alt, caption, display }, 
     _type == "table" => { ... }, 
-    _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current } } 
+    _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current, "category": coalesce(categories[0]->slug.current, category->slug.current) } } 
   },
   
   author->{name, "slug": slug.current}, 
@@ -58,7 +90,7 @@ const QUERY = `*[slug.current == $slug][0]{
     _type != "topTenList" && _type != "tool" => intro[] { 
       ..., 
       _type == "image" => { ..., asset, alt, caption, display }, 
-      _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current } }, 
+      _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current, "category": coalesce(categories[0]->slug.current, category->slug.current) } }, 
       _type == "navigationGrid" => { _type, title, items[] { label, description, "imageUrl": image.asset->url, "targetSlug": targetPost->slug.current } } 
     }, 
     null 
@@ -67,7 +99,7 @@ const QUERY = `*[slug.current == $slug][0]{
   body[] { 
     ..., 
     _type == "image" => { ..., asset, alt, caption, display }, 
-    _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current } }, 
+    _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current, "category": coalesce(categories[0]->slug.current, category->slug.current) } }, 
     _type == "navigationGrid" => { _type, title, items[] { label, description, "imageUrl": image.asset->url, "targetSlug": targetPost->slug.current } }, 
     _type == "table" => { ... } 
   },
@@ -76,7 +108,7 @@ const QUERY = `*[slug.current == $slug][0]{
     ..., 
     _type == "image" => { ..., asset, alt, caption }, 
     _type == "table" => { ... }, 
-    _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current } } 
+    _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current, "category": coalesce(categories[0]->slug.current, category->slug.current) } } 
   },  
   
   "mainImage": coalesce(image, mainImage, product->mainImage) { ..., "url": asset->url, alt },
@@ -123,6 +155,9 @@ interface PageProps {
   params: Promise<{ category: string; slug: string }>;
 }
 
+// =============================================================================
+// STATIC PARAMS GENERATION
+// =============================================================================
 export async function generateStaticParams() {
   const slugs = await client.fetch(
     `*[_type in ["tool", "product", "article", "deal", "topTenList", "holiday", "event", "howTo", "charity"] && defined(slug.current)]{
@@ -132,11 +167,14 @@ export async function generateStaticParams() {
   );
 
   return slugs.map((doc: any) => ({
-    category: normalizeCategory(doc.category), 
+    category: normalizeCategory(doc.category, doc.slug), 
     slug: doc.slug,
   }));
 }
 
+// =============================================================================
+// METADATA GENERATION
+// =============================================================================
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { category, slug } = await params;
   
@@ -157,12 +195,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
-  const masterCategory = normalizeCategory(data.primaryCategory || 'reviews');
+  // Determine the ONE true canonical category
+  const masterCategory = normalizeCategory(data.primaryCategory || 'reviews', slug);
   const masterUrl = `https://toptenuae.com/${masterCategory}/${slug}`;
 
+  // Pass strict canonical to SEO manager
   return generateSeoMetadata({ ...data, url: masterUrl }, { category, slug });
 }
 
+// =============================================================================
+// MAIN PAGE COMPONENT
+// =============================================================================
 export default async function Page({ params }: PageProps) {
   const { category, slug } = await params;
   
@@ -170,9 +213,12 @@ export default async function Page({ params }: PageProps) {
 
   if (!data) notFound();
 
+  // --- THE GUARD: STRICT REDIRECT LOGIC ---
   const rawCategory = data.category?.slug || 'reviews';
-  const correctCategory = normalizeCategory(rawCategory);
+  // Check override/normalization using the Post Slug
+  const correctCategory = normalizeCategory(rawCategory, slug);
 
+  // If user is at /reviews/baby-monitor but should be at /parenting-kids/baby-monitor
   if (correctCategory !== category) {
     permanentRedirect(`/${correctCategory}/${slug}`);
   }
@@ -183,6 +229,7 @@ export default async function Page({ params }: PageProps) {
     <>
       <JsonLd data={schemaData} />
       
+      {/* Tool Breadcrumb Schema Injection */}
       {data._type === "tool" && (
         <script
           type="application/ld+json"
@@ -199,6 +246,7 @@ export default async function Page({ params }: PageProps) {
         />
       )}
 
+      {/* Render View Based on Type */}
       {data._type === "tool" ? (
         <ToolView data={data} category={category} slug={slug} />
       ) : data._type === "product" || data._type === "deal" ? (
