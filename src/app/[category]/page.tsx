@@ -2,7 +2,6 @@
 
 export const revalidate = 86400;
 export const dynamicParams = true;
-
 // IMPORTANT FIX: Handle dynamic segments correctly
 export const dynamic = "force-static";
 
@@ -147,7 +146,7 @@ export async function generateMetadata({
 }
 
 // ============================================================================
-// HELPERS
+// HELPERS (Now actually used!)
 // ============================================================================
 const getToolConfig = (slug: string) => {
   if (!slug) {
@@ -159,7 +158,9 @@ const getToolConfig = (slug: string) => {
     };
   }
 
-  if (slug.includes("vat")) {
+  const s = slug.toLowerCase();
+
+  if (s.includes("vat")) {
     return {
       icon: Percent,
       iconColor: "text-[#4b0082] group-hover:text-white",
@@ -168,7 +169,7 @@ const getToolConfig = (slug: string) => {
     };
   }
 
-  if (slug.includes("zakat")) {
+  if (s.includes("zakat")) {
     return {
       icon: HeartHandshake,
       iconColor: "text-indigo-500 group-hover:text-white",
@@ -177,7 +178,7 @@ const getToolConfig = (slug: string) => {
     };
   }
 
-  if (slug.includes("gratuity")) {
+  if (s.includes("gratuity")) {
     return {
       icon: Coins,
       iconColor: "text-amber-500 group-hover:text-white",
@@ -186,7 +187,7 @@ const getToolConfig = (slug: string) => {
     };
   }
 
-  if (slug.includes("loan") || slug.includes("car")) {
+  if (s.includes("loan") || s.includes("car")) {
     return {
       icon: Car,
       iconColor: "text-sky-500 group-hover:text-white",
@@ -195,7 +196,7 @@ const getToolConfig = (slug: string) => {
     };
   }
 
-  if (slug.includes("visa") || slug.includes("freelance")) {
+  if (s.includes("visa") || s.includes("freelance")) {
     return {
       icon: Plane,
       iconColor: "text-violet-500 group-hover:text-white",
@@ -204,7 +205,7 @@ const getToolConfig = (slug: string) => {
     };
   }
 
-  if (slug.includes("roi")) {
+  if (s.includes("roi")) {
     return {
       icon: TrendingUp,
       iconColor: "text-emerald-500 group-hover:text-white",
@@ -213,6 +214,7 @@ const getToolConfig = (slug: string) => {
     };
   }
 
+  // Default Fallback
   return {
     icon: Calculator,
     iconColor: "text-purple-600 group-hover:text-white",
@@ -232,7 +234,6 @@ export default async function CategoryPage({ params }: PageProps) {
   }
 
   let data;
-
   try {
     data = await client.fetch(categoryQuery, { slug: category });
   } catch (error) {
@@ -249,6 +250,7 @@ export default async function CategoryPage({ params }: PageProps) {
     (item: any) => item && item.slug
   );
 
+  // --- JSON-LD ---
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
@@ -286,18 +288,15 @@ export default async function CategoryPage({ params }: PageProps) {
     ],
   };
 
-  const isFinance =
-    categorySlug === "finance" || categorySlug === "finance-tools";
+  // --- MODE DETECTION ---
+  const isFinanceTools = categorySlug === "finance-tools";
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans pb-20">
-      {/* Collection Schema */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-
-      {/* Breadcrumb Schema */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -305,7 +304,7 @@ export default async function CategoryPage({ params }: PageProps) {
         }}
       />
 
-      {/* Hero */}
+      {/* Hero Section */}
       <div className="bg-[#4b0082] text-white py-12 px-4 text-center relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
           <svg
@@ -320,12 +319,12 @@ export default async function CategoryPage({ params }: PageProps) {
         <div className="relative z-10 max-w-4xl mx-auto">
           <div className="flex justify-center mb-6">
             <span className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-white/10 border border-white/20 text-amber-300 text-xs font-bold uppercase tracking-wider backdrop-blur-md">
-              {isFinance ? (
+              {isFinanceTools ? (
                 <Calculator className="w-3 h-3" />
               ) : (
                 <Sparkles className="w-3 h-3" />
               )}
-              {isFinance ? "Premium Tools" : "Category Archive"}
+              {isFinanceTools ? "Free Tools & Calculators" : "Category Archive"}
             </span>
           </div>
 
@@ -340,16 +339,62 @@ export default async function CategoryPage({ params }: PageProps) {
         </div>
       </div>
 
-      {/* Content */}
+      {/* Content Area */}
       <div
         className={`container mx-auto px-4 py-16 ${
-          isFinance ? "max-w-6xl" : "max-w-7xl"
+          isFinanceTools ? "max-w-7xl" : "max-w-7xl"
         }`}
       >
         <div className="flex flex-col lg:flex-row gap-12">
+          
           <main className="flex-1">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* ----------------------------------------------------------------
+              LAYOUT SWITCHER
+              If Finance Tools: Grid of 3 (Icons)
+              If Standard: Grid of 2 (Images)
+              ----------------------------------------------------------------
+            */}
+            <div
+              className={`grid gap-8 ${
+                isFinanceTools
+                  ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                  : "grid-cols-1 md:grid-cols-2"
+              }`}
+            >
               {validItems.map((post: any) => {
+                // If it's a finance tool page, render Tool Card
+                if (isFinanceTools) {
+                  const config = getToolConfig(post.slug);
+                  const Icon = config.icon;
+
+                  return (
+                    <Link
+                      key={post.slug}
+                      href={`/${categorySlug}/${post.slug}`}
+                      className="group bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-xl transition-all p-6 flex flex-col items-start h-full"
+                    >
+                      <div
+                        className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 transition-colors ${config.iconBg}`}
+                      >
+                        <Icon
+                          className={`w-7 h-7 transition-colors ${config.iconColor}`}
+                        />
+                      </div>
+                      <h2 className="text-xl font-bold text-slate-900 group-hover:text-[#4b0082] transition-colors mb-2">
+                        {post.title}
+                      </h2>
+                      <p className="text-sm text-slate-500 mb-6 line-clamp-2">
+                        {cleanText(post.rawExcerpt) ||
+                          "Calculate instantly with our free UAE tool."}
+                      </p>
+                      <span className="mt-auto flex items-center gap-2 text-sm font-bold text-[#4b0082] group-hover:underline">
+                        {config.ctaLabel} <ArrowRight size={16} />
+                      </span>
+                    </Link>
+                  );
+                }
+
+                // Standard Article Card (Existing Logic)
                 const optimizedImageUrl = post.mainImage
                   ? listImage(post.mainImage)
                   : null;
