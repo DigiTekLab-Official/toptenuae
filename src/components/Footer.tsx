@@ -1,7 +1,7 @@
-// src/components/Footer.tsx
 import Link from 'next/link';
+import Image from 'next/image'; // ✅ Added Image component
 import { Facebook, Twitter, Instagram, Mail, ShieldCheck } from 'lucide-react';
-import TopTenUAELogo from "./icons/TopTenUAELogo"; 
+// ❌ Removed the problematic SVG component import
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -16,7 +16,13 @@ export default function Footer() {
           <div className="space-y-4">
             <Link href="/" prefetch={false} className="inline-block p-1" aria-label="TopTenUAE Home">
               <div className="bg-white p-2 rounded-lg shadow-sm inline-block">
-                <TopTenUAELogo className="h-8 w-auto" />
+                <Image 
+                  src="/images/brand/logo.svg" 
+                  alt="TopTenUAE Logo" 
+                  width={150} 
+                  height={40} 
+                  className="h-8 w-auto object-contain"
+                />
               </div>
             </Link>
             <p className="text-sm leading-relaxed font-bold text-slate-100">
@@ -49,7 +55,6 @@ export default function Footer() {
                 <Link href="/finance-tools" prefetch={false} className="group block py-3 hover:text-white transition-colors">
                    <div className="flex items-center gap-2">
                      <span className="group-hover:text-[#A78BFA] transition-colors text-amber-300 text-base">Financial Calculators</span>
-                     {/* ✅ ACCESSIBILITY FIX: Changed bg-violet-700 to bg-violet-800 for higher contrast */}
                      <span className="bg-violet-800 text-white text-[12px] font-bold px-1.5 py-0.5 rounded animate-pulse">NEW</span>
                    </div>
                 </Link>

@@ -1,12 +1,10 @@
-// src/components/Header.tsx
 "use client";
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Menu, X, Search, Flame } from "lucide-react";
-// Ensure this path matches where you saved your SVG/Logo component
-import TopTenUAELogo from "./icons/TopTenUAELogo"; 
 
 const NAV_LINKS = [
   { name: "Holidays", href: "/events-holidays" },
@@ -40,23 +38,30 @@ export default function Header() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
         <div className="flex h-16 items-center justify-between">
           
-          {/* --- LOGO --- */}
+          {/* --- LOGO (SEO OPTIMIZED) --- */}
           <div className={`flex-shrink-0 ${isSearchOpen ? 'hidden xl:block' : 'block'}`}>
             <Link href="/" className="flex items-center" aria-label="TopTenUAE Homepage">
-              <TopTenUAELogo className="h-8 w-auto md:h-10" />
+              {/* ✅ USING IMAGE INSTEAD OF INLINE SVG TO PREVENT SEO ERRORS */}
+              <Image 
+                src="/images/brand/logo.svg" 
+                alt="TopTenUAE Logo"
+                width={200} // Adjust width based on your actual SVG aspect ratio
+                height={40} // Adjust height to fit header
+                className="h-8 w-auto md:h-10 object-contain"
+                priority // Loads logo immediately
+              />
             </Link>
           </div>
 
           {/* --- SEARCH BAR OVERLAY --- */}
           {isSearchOpen ? (
             <form onSubmit={handleSearch} className="flex-1 max-w-2xl mx-auto px-4 relative flex items-center animate-in fade-in zoom-in duration-200">
-               {/* Fixed: Removed invalid ARIA role if this was the source, or ensured standard input compliance */}
                <label htmlFor="site-search" className="sr-only">Search</label>
                <input
                 id="site-search"
                 type="text"
                 placeholder="Search reviews, guides, places..."
-                className="w-full pl-5 pr-10 py-2.5 border-2 border-primary rounded-full focus:outline-none focus:ring-0 text-gray-900 placeholder:text-gray-500"
+                className="w-full pl-5 pr-10 py-2.5 border-2 border-[#4b0082] rounded-full focus:outline-none focus:ring-0 text-gray-900 placeholder:text-gray-500"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 autoFocus
@@ -79,12 +84,11 @@ export default function Header() {
                     key={link.name}
                     href={link.href}
                     prefetch={false}
-                    // Fixed: Increased contrast from text-gray-700 to text-gray-900
                     className={`
                       text-sm font-bold uppercase tracking-wide transition-colors whitespace-nowrap flex items-center gap-1
                       ${link.isHighlight 
-                        ? "text-red-700 hover:text-red-900" // Darkened red for better contrast
-                        : "text-gray-700 hover:text-primary-700"
+                        ? "text-red-700 hover:text-red-900" 
+                        : "text-gray-700 hover:text-[#4b0082]"
                       }
                     `}
                   >
@@ -98,15 +102,14 @@ export default function Header() {
               <div className="hidden items-center gap-3 lg:gap-4 xl:flex">
                 <button 
                   onClick={() => setIsSearchOpen(true)}
-                  className="p-2 text-gray-600 hover:text-primary-700 transition-colors rounded-full hover:bg-gray-100"
+                  className="p-2 text-gray-600 hover:text-[#4b0082] transition-colors rounded-full hover:bg-gray-100"
                   aria-label="Open search"
                 >
                   <Search className="h-5 w-5" />
                 </button>
                 <Link
                   href="/subscribe"
-                  // Fixed: Ensure background/text contrast is high (white on dark primary)
-                  className="rounded-full bg-primary px-5 py-2 text-xs font-bold uppercase text-white transition-colors hover:bg-primary-800 whitespace-nowrap"
+                  className="rounded-full bg-[#4b0082] px-5 py-2 text-xs font-bold uppercase text-white transition-colors hover:bg-purple-900 whitespace-nowrap"
                 >
                   Subscribe
                 </Link>
@@ -119,14 +122,14 @@ export default function Header() {
             <div className="flex items-center gap-4 xl:hidden">
               <button 
                   onClick={() => setIsSearchOpen(true)}
-                  className="p-2 text-gray-600 hover:text-primary-700"
+                  className="p-2 text-gray-600 hover:text-[#4b0082]"
                   aria-label="Search"
                 >
                   <Search className="h-5 w-5" />
                 </button>
               <button
                 type="button"
-                className="text-gray-700 hover:text-primary-700"
+                className="text-gray-700 hover:text-[#4b0082]"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 aria-label="Toggle menu"
               >
@@ -151,7 +154,7 @@ export default function Header() {
                     flex items-center gap-2 rounded-md px-3 py-3 text-base font-medium w-full
                     ${link.isHighlight 
                       ? "text-red-800 bg-red-50 hover:bg-red-100" 
-                      : "text-gray-900 hover:bg-gray-50 hover:text-primary-700"
+                      : "text-gray-900 hover:bg-gray-50 hover:text-[#4b0082]"
                     }
                   `}
                 >
@@ -163,7 +166,7 @@ export default function Header() {
                 <Link
                   href="/subscribe"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block w-full rounded-md bg-primary px-3 py-3 text-center text-sm font-bold uppercase text-white hover:bg-primary-800"
+                  className="block w-full rounded-md bg-[#4b0082] px-3 py-3 text-center text-sm font-bold uppercase text-white hover:bg-purple-900"
                 >
                   Subscribe to Newsletter
                 </Link>
