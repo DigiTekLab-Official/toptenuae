@@ -27,6 +27,9 @@ const ibmPlexSans = IBM_Plex_Sans({
 export const metadata: Metadata = {
   metadataBase: new URL("https://toptenuae.com"),
 
+  // ✅ CRITICAL NEW ADDITION: Link to Manifest
+  manifest: "/manifest.json",
+
   // ✅ SITE NAME SIGNAL: Explicit Application Name
   applicationName: "TopTenUAE",
   
