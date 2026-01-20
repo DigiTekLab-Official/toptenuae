@@ -1,4 +1,3 @@
-// src/app/layout.tsx
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { IBM_Plex_Sans } from "next/font/google";
@@ -10,7 +9,7 @@ import GTM from "@/components/analytics/GTM";
 import Clarity from "@/components/analytics/Clarity";
 
 // =============================================================================
-// FONT CONFIGURATION (CLS-OPTIMIZED)
+// FONT CONFIGURATION
 // =============================================================================
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -27,6 +26,15 @@ const ibmPlexSans = IBM_Plex_Sans({
 // =============================================================================
 export const metadata: Metadata = {
   metadataBase: new URL("https://toptenuae.com"),
+
+  // ✅ SITE NAME SIGNAL: Explicit Application Name
+  applicationName: "TopTenUAE",
+  
+  // ✅ SITE NAME SIGNAL: Apple Web App Title
+  appleWebApp: {
+    title: "TopTenUAE",
+    statusBarStyle: "default",
+  },
 
   title: {
     template: "%s | TopTenUAE",
@@ -48,13 +56,20 @@ export const metadata: Metadata = {
     "UAE Calculators",
   ],
 
+  // ✅ FAVICON SIGNALS (Order matters for Google)
   icons: {
     icon: [
+      // 1. The Purple PNG (Primary for Google Search)
+      { url: "/icon.png", type: "image/png", sizes: "192x192" },
+      // 2. The SVG (Fallback for modern browsers)
       { url: "/icon-v2.svg", type: "image/svg+xml" },
+      // 3. Standard Favicon
       { url: "/favicon.ico", sizes: "any" },
     ],
-    shortcut: "/icon-v2.svg",
-    apple: "/apple-icon.png",
+    shortcut: "/icon.png",
+    apple: [
+      { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
+    ],
   },
 
   alternates: {
@@ -99,7 +114,7 @@ export const metadata: Metadata = {
   },
 
   verification: {
-    // google: 'your-google-verification-code', // Add when available
+    // google: 'your-google-verification-code', 
   },
 };
 
@@ -122,23 +137,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Base JSON-LD for all pages
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: "TopTenUAE",
-    alternateName: ["TopTenUAE.com", "Top Ten UAE"],
-    url: "https://toptenuae.com",
-    potentialAction: {
-      "@type": "SearchAction",
-      target: {
-        "@type": "EntryPoint",
-        urlTemplate: "https://toptenuae.com/?s={search_term_string}",
-      },
-      "query-input": "required name=search_term_string",
-    },
-  };
+  
+  // ✅ REMOVED Duplicate "WebSite" Schema (jsonLd object). 
+  // It is now handled exclusively on the Homepage by schemaGenerator.ts.
 
+  // ✅ KEPT Organization Schema (Brand Authority) with PNG Logo
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -147,7 +150,7 @@ export default function RootLayout({
     url: "https://toptenuae.com",
     logo: {
       "@type": "ImageObject",
-      url: "https://toptenuae.com/icon-v2.svg",
+      url: "https://toptenuae.com/icon.png", // Point to PNG for consistency
       width: 512,
       height: 512,
     },
@@ -162,9 +165,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* ================================================================= */}
-        {/* CRITICAL PERFORMANCE: Preconnect & DNS Prefetch                  */}
-        {/* ================================================================= */}
+        {/* Connection Optimizations */}
         <link
           rel="preconnect"
           href="https://cdn.sanity.io"
@@ -174,22 +175,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://scripts.clarity.ms" />
         <link rel="dns-prefetch" href="https://static.cloudflareinsights.com" />
 
-        {/* ================================================================= */}
-        {/* CRITICAL FIX: Preload Critical CSS to Prevent Render Blocking    */}
-        {/* ================================================================= */}
-        <link
-          rel="preload"
-          href="/_next/static/css/app/layout.css"
-          as="style"
-        />
-
-        {/* ================================================================= */}
-        {/* Schema.org JSON-LD                                               */}
-        {/* ================================================================= */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
+        {/* JSON-LD Injections */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -202,9 +188,7 @@ export default function RootLayout({
         className={`${ibmPlexSans.className} ${ibmPlexSans.variable} font-sans text-slate-900 bg-slate-50 antialiased min-h-screen flex flex-col overflow-x-hidden`}
         suppressHydrationWarning={true}
       >
-        {/* ================================================================= */}
-        {/* Trusted Types Polyfill (Cloudflare Compatibility)                */}
-        {/* ================================================================= */}
+        {/* Trusted Types Polyfill */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -223,9 +207,7 @@ export default function RootLayout({
           }}
         />
 
-        {/* ================================================================= */}
-        {/* Google Tag Manager (noscript)                                    */}
-        {/* ================================================================= */}
+        {/* Google Tag Manager (noscript) */}
         <noscript>
           <iframe
             src="https://www.googletagmanager.com/ns.html?id=GTM-N3PB47W"
@@ -236,26 +218,17 @@ export default function RootLayout({
           />
         </noscript>
 
-        {/* ================================================================= */}
-        {/* Analytics (Deferred for Performance)                             */}
-        {/* ================================================================= */}
+        {/* Analytics */}
         <Suspense fallback={null}>
           <GTM />
           <Clarity />
         </Suspense>
 
-        {/* ================================================================= */}
-        {/* Main Layout Structure                                            */}
-        {/* ================================================================= */}
         <Header />
 
-        {/* Main Content Area */}
         <main className="grow w-full max-w-[100vw]">{children}</main>
 
-        {/* ================================================================= */}
-        {/* CRITICAL CLS FIX: Reserve Footer Space                           */}
-        {/* This prevents the massive 0.42 CLS caused by Footer              */}
-        {/* ================================================================= */}
+        {/* Footer CLS Reserve Space */}
         <div style={{ minHeight: "450px" }} className="relative">
           <Footer />
         </div>
