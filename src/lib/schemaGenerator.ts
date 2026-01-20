@@ -1,25 +1,37 @@
 // src/lib/schemaGenerator.ts
 import { cleanText } from '@/lib/utils/sanity-text';
 
-// --- CONFIGURATION ---
-const baseUrl = process.env.baseUrl || 'https://toptenuae.com';
+// =============================================================================
+// CONFIGURATION
+// =============================================================================
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.baseUrl || 'https://toptenuae.com';
 const ORGANIZATION_LOGO = `${baseUrl}/images/brand/logoIcon.svg`;
 const DEFAULT_IMAGE = `${baseUrl}/images/brand/og-default.png`;
 
-// --- HELPER: DATES ---
+// =============================================================================
+// HELPERS
+// =============================================================================
+
 const formatIsoDate = (dateStr?: string, isAllDay?: boolean) => {
   if (!dateStr) return undefined;
   return isAllDay ? dateStr.split("T")[0] : dateStr;
 };
 
-// Helper: Get Next Year for Price Validity
 const getNextYearDate = () => {
   const date = new Date();
   date.setFullYear(date.getFullYear() + 1);
   return date.toISOString().split('T')[0];
 };
 
-// --- 1. GLOBAL ORGANIZATION SCHEMA ---
+// ✅ NEW: Generate page @id
+const getPageId = (category?: string, slug?: string) => {
+  if (!category || !slug) return `${baseUrl}/#webpage`;
+  return `${baseUrl}/${category}/${slug}#webpage`;
+};
+
+// =============================================================================
+// 1. ORGANIZATION SCHEMA
+// =============================================================================
 export const generateOrganizationSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'Organization',
@@ -28,17 +40,26 @@ export const generateOrganizationSchema = () => ({
   url: baseUrl,
   logo: {
     '@type': 'ImageObject',
-    url: `${baseUrl}/images/brand/logoIcon.svg`,
+    url: ORGANIZATION_LOGO,
     width: 512,
     height: 512
   },
   sameAs: [
-    'https://facebook.com/toptenuae',
-    'https://twitter.com/toptenuae'
-  ]
+    // Add your verified social profiles
+    // 'https://facebook.com/toptenuae',
+    // 'https://twitter.com/toptenuae'
+  ],
+  contactPoint: {
+    '@type': 'ContactPoint',
+    contactType: 'Customer Service',
+    areaServed: 'AE',
+    availableLanguage: ['en', 'ar']
+  }
 });
 
-// --- 2. WEBSITE SCHEMA ---
+// =============================================================================
+// 2. WEBSITE SCHEMA
+// =============================================================================
 export const generateWebSiteSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'WebSite',
@@ -60,7 +81,9 @@ export const generateWebSiteSchema = () => ({
   }
 });
 
-// --- 2.5 HOMEPAGE COLLECTION SCHEMA (ADDED) ---
+// =============================================================================
+// 3. HOMEPAGE COLLECTION SCHEMA
+// =============================================================================
 export const generateHomePageSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'CollectionPage',
@@ -81,8 +104,278 @@ export const generateHomePageSchema = () => ({
   inLanguage: 'en-AE'
 });
 
-// --- 3. EVENT SCHEMA ---
-export const generateEventSchema = (data: any, imageUrl: string | null = null) => {
+// =============================================================================
+// 4. BREADCRUMB SCHEMA (CRITICAL FOR GSC)
+// =============================================================================
+export const generateBreadcrumbSchema = (
+  category: string,
+  categoryTitle: string,
+  slug: string,
+  title: string
+) => ({
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Home',
+      item: baseUrl,
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: categoryTitle,
+      item: `${baseUrl}/${category}`,
+    },
+    {
+      '@type': 'ListItem',
+      position: 3,
+      name: cleanText(title),
+      item: `${baseUrl}/${category}/${slug}`,
+    },
+  ],
+});
+
+// =============================================================================
+// 5. PRODUCT SCHEMA (ENHANCED)
+// =============================================================================
+export const generateProductSchema = (data: any, category?: string, slug?: string) => {
+  const priceValue = data.price || data.dealPrice || data.livePrice || data.priceEstimate || 0;
+  const cleanPrice = typeof priceValue === 'string' 
+    ? priceValue.replace(/[^0-9.]/g, "") 
+    : priceValue;
+
+  const pageUrl = category && slug 
+    ? `${baseUrl}/${category}/${slug}` 
+    : baseUrl;
+
+  const schema: any = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    '@id': `${pageUrl}#product`,
+    name: cleanText(data.title || data.itemName),
+    image: data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE],
+    description: cleanText(data.verdict || data.itemDescription || data.intro || data.description || ''),
+    brand: {
+      '@type': 'Brand',
+      name: cleanText(data.brand || 'Generic')
+    },
+    offers: {
+      '@type': 'Offer',
+      price: cleanPrice,
+      priceCurrency: data.currency || 'AED',
+      availability: data.availability || 'https://schema.org/InStock',
+      url: data.affiliateLink || pageUrl,
+      priceValidUntil: data.priceValidUntil || getNextYearDate(),
+      seller: {
+        '@type': 'Organization',
+        name: data.retailer || 'Amazon.ae'
+      }
+    },
+    // ✅ CRITICAL FIX: Add page association
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': getPageId(category, slug)
+    },
+    isPartOf: {
+      '@id': `${baseUrl}/#website`
+    }
+  };
+
+  // Add aggregate rating if available
+  if (data.customerRating && data.reviewCount) {
+    schema.aggregateRating = {
+      '@type': 'AggregateRating',
+      ratingValue: data.customerRating,
+      reviewCount: data.reviewCount,
+      bestRating: 5,
+      worstRating: 1
+    };
+  }
+
+  // ✅ CRITICAL FIX: Only add Review if editorial rating exists
+  // Removed hard-coded 4.5 rating (Google manual action risk)
+  if (data.verdict && data.customerRating) {
+    schema.review = {
+      '@type': 'Review',
+      author: {
+        '@type': 'Organization',
+        name: 'TopTenUAE Editorial Team'
+      },
+      reviewRating: {
+        '@type': 'Rating',
+        ratingValue: data.customerRating, // Use actual rating, not hard-coded
+        bestRating: 5
+      },
+      reviewBody: cleanText(data.verdict)
+    };
+  }
+
+  return schema;
+};
+
+// =============================================================================
+// 6. TOP TEN LIST SCHEMA (CRITICAL FOR "BEST X" QUERIES)
+// =============================================================================
+export const generateTopTenListSchema = (data: any, category?: string, slug?: string) => {
+  if (!data.listItems || data.listItems.length === 0) return null;
+
+  const pageUrl = category && slug ? `${baseUrl}/${category}/${slug}` : baseUrl;
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    '@id': `${pageUrl}#itemlist`,
+    name: cleanText(data.seo?.metaTitle || data.title),
+    description: cleanText(data.seo?.metaDescription || data.intro || data.description || ''),
+    url: pageUrl,
+    itemListOrder: 'https://schema.org/ItemListOrderDescending',
+    numberOfItems: data.listItems.length,
+    // ✅ CRITICAL FIX: Add page association
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': getPageId(category, slug)
+    },
+    isPartOf: {
+      '@id': `${baseUrl}/#website`
+    },
+    itemListElement: data.listItems.map((item: any, index: number) => {
+      const product = item.product || {};
+      const priceValue = product.price || product.dealPrice || product.livePrice || 0;
+      const cleanPrice = typeof priceValue === 'string' 
+        ? priceValue.replace(/[^0-9.]/g, "") 
+        : priceValue;
+
+      // ✅ CRITICAL FIX: Construct full product URL properly
+      const productUrl = product.slug 
+        ? `${baseUrl}/${category || 'reviews'}/${product.slug}` 
+        : undefined;
+
+      const productItem: any = {
+        '@type': 'ListItem',
+        position: item.rank || index + 1,
+        item: {
+          '@type': 'Product',
+          name: cleanText(product.title || item.itemName || `Product ${index + 1}`),
+          url: productUrl,
+          description: cleanText(item.customVerdict || product.verdict || product.itemDescription || ''),
+          image: product.mainImage?.url ? [product.mainImage.url] : [DEFAULT_IMAGE],
+          brand: product.brand ? {
+            '@type': 'Brand',
+            name: cleanText(product.brand)
+          } : undefined,
+          offers: {
+            '@type': 'Offer',
+            price: cleanPrice,
+            priceCurrency: product.currency || 'AED',
+            availability: product.availability || 'https://schema.org/InStock',
+            url: product.affiliateLink,
+            priceValidUntil: product.priceValidUntil || getNextYearDate(),
+            seller: {
+              '@type': 'Organization',
+              name: product.retailer || 'Amazon.ae'
+            }
+          }
+        }
+      };
+
+      // Add rating if available
+      if (product.customerRating && product.reviewCount) {
+        productItem.item.aggregateRating = {
+          '@type': 'AggregateRating',
+          ratingValue: product.customerRating,
+          reviewCount: product.reviewCount,
+          bestRating: 5,
+          worstRating: 1
+        };
+      }
+
+      return productItem;
+    })
+  };
+};
+
+// =============================================================================
+// 7. TOOL SCHEMA
+// =============================================================================
+export const generateToolSchema = (data: any, category?: string, slug?: string) => {
+  const toolSlug = slug || data.slug?.current || data.slug || '';
+  const categorySlug = category || data.category?.slug || 'finance-tools';
+  const fullUrl = `${baseUrl}/${categorySlug}/${toolSlug}`;
+
+  // Dynamic feature list
+  let features = ['Free Online Tool', 'Instant Calculation', 'Mobile Friendly', 'No Registration Required'];
+
+  if (toolSlug.includes('vat')) {
+    features = [
+      'Add VAT to price (5% UAE rate)',
+      'Remove VAT (Reverse calculation)',
+      'VAT inclusive & exclusive formulas',
+      'Instant VAT calculation',
+      'Dubai & Abu Dhabi compliant'
+    ];
+  } else if (toolSlug.includes('gratuity')) {
+    features = [
+      'UAE Labor Law compliant (2023)',
+      'Limited & Unlimited contract calculation',
+      'Resignation & Termination scenarios',
+      'End of Service Benefits calculator',
+      'MOHRE formula verified'
+    ];
+  } else if (toolSlug.includes('zakat')) {
+    features = [
+      'Gold & Silver Nisab calculation',
+      'Cash & assets 2.5% Zakat rate',
+      'Islamic Shariah compliant',
+      'Live gold prices (Dubai)',
+      'Multi-asset calculation'
+    ];
+  }
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    '@id': `${fullUrl}#tool`,
+    name: cleanText(data.title),
+    description: cleanText(data.seo?.metaDescription || data.description || ''),
+    url: fullUrl,
+    applicationCategory: 'FinanceApplication',
+    operatingSystem: 'Web Browser, Android, iOS',
+    isAccessibleForFree: true,
+    author: {
+      '@type': 'Organization',
+      '@id': `${baseUrl}/#organization`
+    },
+    publisher: {
+      '@type': 'Organization',
+      '@id': `${baseUrl}/#organization`
+    },
+    featureList: features,
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'AED',
+      availability: 'https://schema.org/InStock'
+    },
+    image: data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE],
+    // ✅ CRITICAL FIX: Add page association
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': getPageId(category, slug)
+    },
+    isPartOf: {
+      '@id': `${baseUrl}/#website`
+    }
+  };
+};
+
+// =============================================================================
+// 8. EVENT SCHEMA (ENHANCED)
+// =============================================================================
+export const generateEventSchema = (data: any, category?: string, slug?: string) => {
+  const eventUrl = category && slug ? `${baseUrl}/${category}/${slug}` : baseUrl;
+  
   const statusMap: Record<string, string> = {
     scheduled: "https://schema.org/EventScheduled",
     cancelled: "https://schema.org/EventCancelled",
@@ -90,22 +383,23 @@ export const generateEventSchema = (data: any, imageUrl: string | null = null) =
     rescheduled: "https://schema.org/EventRescheduled",
   };
 
-  const images = imageUrl ? [imageUrl] : (data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE]);
-  const organizer = { '@type': 'Organization', name: 'TopTenUAE', url: baseUrl };
-
+  const images = data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE];
+  
   const schema: any = {
     '@context': 'https://schema.org',
     '@type': 'Event',
+    '@id': `${eventUrl}#event`,
     name: cleanText(data.title),
-    description: cleanText(data.intro || data.description),
+    description: cleanText(data.intro || data.description || ''),
     image: images,
     startDate: formatIsoDate(data.startDate || data.date, data.isAllDay),
     endDate: formatIsoDate(data.endDate, data.isAllDay),
     eventStatus: statusMap[data.status] || "https://schema.org/EventScheduled",
-    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+    // ✅ CRITICAL FIX: Use MixedEventAttendanceMode for hybrid events
+    eventAttendanceMode: "https://schema.org/MixedEventAttendanceMode",
     location: {
       '@type': 'Place',
-      name: data.locationName || 'UAE Venue',
+      name: data.locationName || 'UAE',
       address: {
         '@type': 'PostalAddress',
         streetAddress: data.address?.street,
@@ -114,315 +408,230 @@ export const generateEventSchema = (data: any, imageUrl: string | null = null) =
         addressCountry: 'AE'
       }
     },
-    organizer: organizer,
-    performer: organizer
-  };
-
-  if (data.ticketPrice !== undefined || data.ticketUrl) {
-    schema.offers = {
-      '@type': 'Offer',
-      url: data.ticketUrl || `${baseUrl}/events-holidays/${data.slug || ''}`,
-      price: data.ticketPrice || 0,
-      priceCurrency: data.currency || "AED",
-      availability: data.isTicketAvailable === false ? "https://schema.org/SoldOut" : "https://schema.org/InStock",
-      validFrom: data.ticketSaleDate || data.publishedAt || new Date().toISOString()
-    };
-  }
-  return schema;
-};
-
-// --- 4. PRODUCT SCHEMA ---
-export const generateProductSchema = (data: any) => {
-  const priceValue = data.price || data.livePrice || data.priceEstimate || 0;
-
-  const schema: any = {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    name: cleanText(data.title || data.itemName),
-    image: data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE],
-    description: cleanText(data.verdict || data.intro || data.description),
-    brand: { '@type': 'Brand', name: cleanText(data.brand || 'Generic') },
-    offers: {
-      '@type': 'Offer',
-      price: typeof priceValue === 'string' ? priceValue.replace(/[^0-9.]/g, "") : priceValue,
-      priceCurrency: data.currency || 'AED',
-      availability: data.availability || 'https://schema.org/InStock',
-      url: data.affiliateLink,
-      priceValidUntil: data.priceValidUntil || getNextYearDate(),
-      // ⚠️ SAFETY: Shipping/Returns removed because TopTenUAE is an Affiliate/Publisher.
+    organizer: {
+      '@id': `${baseUrl}/#organization`
+    },
+    // ✅ CRITICAL FIX: Add page association
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': getPageId(category, slug)
+    },
+    isPartOf: {
+      '@id': `${baseUrl}/#website`
     }
   };
 
-  if (data.customerRating) {
-    schema.aggregateRating = {
-      '@type': 'AggregateRating',
-      ratingValue: data.customerRating,
-      reviewCount: data.reviewCount || 1
+  // Add ticket info if available
+  if (data.ticketPrice !== undefined || data.ticketUrl) {
+    schema.offers = {
+      '@type': 'Offer',
+      url: data.ticketUrl || eventUrl,
+      price: data.ticketPrice || 0,
+      priceCurrency: data.currency || "AED",
+      availability: data.isTicketAvailable === false 
+        ? "https://schema.org/SoldOut" 
+        : "https://schema.org/InStock",
+      validFrom: data.ticketSaleDate || data.publishedAt || new Date().toISOString()
     };
   }
 
-  if (data.verdict) {
-    schema.review = {
-      '@type': 'Review',
-      author: { '@type': 'Organization', name: 'TopTenUAE' },
-      reviewRating: { '@type': 'Rating', ratingValue: 4.5, bestRating: 5 },
-      reviewBody: cleanText(data.verdict)
-    };
-  }
   return schema;
 };
 
-// --- 5. TOOL / CALCULATOR SCHEMA ---
-export const generateToolSchema = (data: any) => {
-  const slug = data.slug?.current || data.slug || '';
-
-  // 1. DYNAMIC FEATURE LIST (Matches User Intent)
-  let features = ['Free Online Tool', 'Instant Calculation', 'Mobile Friendly'];
-
-  if (slug.includes('vat')) {
-    features = [
-      'Add VAT to price',
-      'Remove VAT (Reverse calculation)',
-      'UAE VAT compliant (5%)',
-      'Instant VAT calculation',
-      'VAT inclusive & exclusive formulas'
-    ];
-  } else if (slug.includes('gratuity')) {
-    features = [
-      'UAE Labor Law compliant',
-      'Limited & Unlimited contract logic',
-      'Resignation & Termination calculation',
-      'End of Service Benefits calculator'
-    ];
-  } else if (slug.includes('zakat')) {
-    features = [
-      'Gold & Silver Nisab',
-      'Cash & assets calculation',
-      'Islamic Zakat rules',
-      '2.5% Zakat rate'
-    ];
-  }
-
-  const categorySlug = data.category?.slug || 'finance-tools';
-  const fullUrl = `${baseUrl}/${categorySlug}/${slug}`;
-
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'SoftwareApplication',
-    name: cleanText(data.title),
-    description: cleanText(data.seo?.metaDescription || data.description),
-    url: fullUrl,
-    applicationCategory: 'FinanceApplication',
-    operatingSystem: 'Web, Android, iOS',
-    isAccessibleForFree: true,
-
-    author: {
-      '@type': 'Organization',
-      name: 'TopTenUAE',
-      url: baseUrl
-    },
-    publisher: {
-      '@type': 'Organization',
-      name: 'TopTenUAE',
-      logo: {
-        '@type': 'ImageObject',
-        url: ORGANIZATION_LOGO
-      }
-    },
-
-    featureList: features,
-
-    offers: {
-      '@type': 'Offer',
-      price: '0',
-      priceCurrency: 'AED'
-    },
-
-    image: data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE]
-  };
-};
-
-// --- 6. DEAL SCHEMA ---
-export const generateDealSchema = (data: any) => ({
-  '@context': 'https://schema.org',
-  '@type': 'Offer',
-  name: cleanText(data.title),
-  description: cleanText(data.description),
-  price: data.dealPrice,
-  priceCurrency: 'AED',
-  priceValidUntil: data.dealEndDate || getNextYearDate(),
-  url: data.affiliateLink,
-  availability: 'https://schema.org/InStock',
-  image: data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE]
-});
-
-// --- 7. HOW-TO SCHEMA ---
-export const generateHowToSchema = (data: any) => {
-  const images = data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE];
-
-  const steps = data.steps && Array.isArray(data.steps)
-    ? data.steps.map((step: any, index: number) => ({
-      '@type': 'HowToStep',
-      position: index + 1,
-      name: cleanText(step.title || `Step ${index + 1}`),
-      text: cleanText(step.description || step.text || "Follow instructions"),
-      url: `${baseUrl}/${data.slug}#step-${index + 1}`
-    }))
-    : [
-      {
-        '@type': 'HowToStep',
-        position: 1,
-        name: "Read Full Guide",
-        text: cleanText(data.intro || data.description || "Follow the detailed steps in the guide."),
-        url: `${baseUrl}/${data.slug}`
-      }
-    ];
-
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'HowTo',
-    name: cleanText(data.title),
-    description: cleanText(data.intro || data.description),
-    image: images,
-    totalTime: data.totalTime || "PT10M",
-    step: steps
-  };
-};
-
-// --- 8. ARTICLE SCHEMA ---
-export const generateArticleSchema = (data: any) => {
+// =============================================================================
+// 9. ARTICLE SCHEMA
+// =============================================================================
+export const generateArticleSchema = (data: any, category?: string, slug?: string) => {
+  const articleUrl = category && slug ? `${baseUrl}/${category}/${slug}` : baseUrl;
   const headline = cleanText(data.title) || "TopTenUAE Article";
   const images = data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE];
 
-  // ✅ OPTIMIZATION: Use correct type based on Sanity data
   const schemaType = (data._type === 'news') ? 'NewsArticle' : 'Article';
 
   const articleSchema: any = {
     '@context': 'https://schema.org',
     '@type': schemaType,
+    '@id': `${articleUrl}#article`,
     headline: headline,
+    description: cleanText(data.seoDescription || data.intro || data.description || ''),
     image: images,
-    datePublished: data.publishedAt,
-    dateModified: data._updatedAt || data.publishedAt,
-    author: { '@type': 'Organization', name: data.author?.name || 'TopTenUAE Editor', url: baseUrl },
-    publisher: { '@type': 'Organization', name: 'TopTenUAE', url: baseUrl, logo: { '@type': 'ImageObject', url: ORGANIZATION_LOGO } }
+    datePublished: data.publishedAt || data._createdAt,
+    dateModified: data._updatedAt || data.publishedAt || data._createdAt,
+    author: {
+      '@type': 'Organization',
+      '@id': `${baseUrl}/#organization`,
+      name: data.author?.name || 'TopTenUAE Editorial Team'
+    },
+    publisher: {
+      '@type': 'Organization',
+      '@id': `${baseUrl}/#organization`
+    },
+    // ✅ CRITICAL FIX: Add page association
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': getPageId(category, slug)
+    },
+    isPartOf: {
+      '@id': `${baseUrl}/#website`
+    }
   };
 
-  const schemas = [articleSchema];
-
-  if (data.faqs && data.faqs.length > 0) {
-    schemas.push({
-      '@context': 'https://schema.org',
-      '@type': 'FAQPage',
-      mainEntity: data.faqs.map((faq: any) => ({
-        '@type': 'Question',
-        name: cleanText(faq.question),
-        acceptedAnswer: { '@type': 'Answer', text: cleanText(faq.answer) }
-      }))
-    });
-  }
-  return schemas;
+  return articleSchema;
 };
 
-// --- 9. MASTER DISPATCHER ---
-export function generateSchema(data: any) {
-  if (!data) return generateOrganizationSchema();
+// =============================================================================
+// 10. HOW-TO SCHEMA
+// =============================================================================
+export const generateHowToSchema = (data: any, category?: string, slug?: string) => {
+  const howToUrl = category && slug ? `${baseUrl}/${category}/${slug}` : baseUrl;
+  const images = data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE];
 
+  const steps = data.steps && Array.isArray(data.steps)
+    ? data.steps.map((step: any, index: number) => ({
+        '@type': 'HowToStep',
+        position: index + 1,
+        name: cleanText(step.title || `Step ${index + 1}`),
+        text: cleanText(step.description || step.text || "Follow instructions"),
+        url: `${howToUrl}#step-${index + 1}`
+      }))
+    : [{
+        '@type': 'HowToStep',
+        position: 1,
+        name: "Read Full Guide",
+        text: cleanText(data.intro || data.description || "Follow the detailed steps in the guide."),
+        url: howToUrl
+      }];
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    '@id': `${howToUrl}#howto`,
+    name: cleanText(data.title),
+    description: cleanText(data.intro || data.description || ''),
+    image: images,
+    totalTime: data.totalTime || "PT15M",
+    step: steps,
+    publisher: {
+      '@id': `${baseUrl}/#organization`
+    },
+    // ✅ CRITICAL FIX: Add page association
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': getPageId(category, slug)
+    },
+    isPartOf: {
+      '@id': `${baseUrl}/#website`
+    }
+  };
+};
+
+// =============================================================================
+// 11. FAQ SCHEMA
+// =============================================================================
+export const generateFAQSchema = (faqs: any[]) => {
+  if (!faqs || faqs.length === 0) return null;
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq: any) => ({
+      '@type': 'Question',
+      name: cleanText(faq.question),
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: cleanText(faq.answer)
+      }
+    }))
+  };
+};
+
+// =============================================================================
+// 12. DEAL SCHEMA
+// =============================================================================
+export const generateDealSchema = (data: any, category?: string, slug?: string) => {
+  const dealUrl = category && slug ? `${baseUrl}/${category}/${slug}` : data.affiliateLink || baseUrl;
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Offer',
+    '@id': `${dealUrl}#offer`,
+    name: cleanText(data.title),
+    description: cleanText(data.description || ''),
+    price: data.dealPrice || data.price,
+    priceCurrency: data.currency || 'AED',
+    priceValidUntil: data.dealEndDate || getNextYearDate(),
+    url: data.affiliateLink || dealUrl,
+    availability: 'https://schema.org/InStock',
+    image: data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE],
+    seller: {
+      '@type': 'Organization',
+      name: data.retailer || 'Amazon.ae'
+    }
+  };
+};
+
+// =============================================================================
+// 13. MASTER SCHEMA GENERATOR
+// =============================================================================
+export function generateSchema(data: any, category?: string, slug?: string) {
+  if (!data) return [generateOrganizationSchema()];
+
+  const schemas: any[] = [];
+
+  // Always add Organization
+  schemas.push(generateOrganizationSchema());
+
+  // Add breadcrumb if we have category/slug
+  if (category && slug) {
+    const categoryTitle = data.category?.title || category.charAt(0).toUpperCase() + category.slice(1).replace(/-/g, ' ');
+    schemas.push(generateBreadcrumbSchema(category, categoryTitle, slug, data.title));
+  }
+
+  // Detect type and add appropriate schema
   const rawType = data.schemaType || data._type;
-  // ✅ CLEANUP: Normalized to lowercase
   const targetType = rawType ? rawType.toLowerCase() : 'article';
 
   switch (targetType) {
     case 'product':
-      return generateProductSchema(data);
+      schemas.push(generateProductSchema(data, category, slug));
+      break;
+
+    case 'toptenlist':
+      const listSchema = generateTopTenListSchema(data, category, slug);
+      if (listSchema) schemas.push(listSchema);
+      break;
 
     case 'tool':
-      const tool = generateToolSchema(data);
-      if (data.faqs) {
-        const faqs = {
-          '@context': 'https://schema.org',
-          '@type': 'FAQPage',
-          mainEntity: data.faqs.map((f: any) => ({
-            '@type': 'Question',
-            name: cleanText(f.question),
-            acceptedAnswer: { '@type': 'Answer', text: cleanText(f.answer) }
-          }))
-        };
-        return [tool, faqs];
-      }
-      return tool;
-
-    case 'deal':
-      return generateDealSchema(data);
+      schemas.push(generateToolSchema(data, category, slug));
+      break;
 
     case 'event':
     case 'holiday':
-      return generateEventSchema(data, data.mainImage?.url);
-
-    case 'toptenlist':
-    case 'topTenList': // Falls through safely
-      return {
-        '@context': 'https://schema.org',
-        '@type': 'ItemList',
-        name: cleanText(data.seo?.metaTitle || data.title),
-        description: cleanText(data.seo?.metaDescription || data.intro),
-        itemListOrder: 'https://schema.org/ItemListOrderDescending',
-        numberOfItems: data.listItems?.length || 0,
-        itemListElement: data.listItems?.map((item: any, index: number) => {
-          const product = item.product || {};
-          const priceValue = product.price || product.livePrice || 0;
-
-          return {
-            '@type': 'ListItem',
-            position: index + 1,
-            item: {
-              '@type': 'Product',
-              name: cleanText(item.product?.title || item.itemName || 'Product'),
-              url: product.slug ? `${baseUrl}/${product.slug}` : undefined,
-              description: cleanText(item.customVerdict || product.verdict),
-              image: product.mainImage?.url ? [product.mainImage.url] : [DEFAULT_IMAGE],
-
-              offers: {
-                '@type': 'Offer',
-                price: typeof priceValue === 'string' ? priceValue.replace(/[^0-9.]/g, "") : priceValue,
-                priceCurrency: product.currency || 'AED',
-                availability: product.availability || 'https://schema.org/InStock',
-                url: product.affiliateLink,
-                priceValidUntil: product.priceValidUntil || getNextYearDate(),
-                // ⚠️ SAFETY: Shipping/Returns removed for lists as well.
-              },
-
-              aggregateRating: product.customerRating ? {
-                '@type': 'AggregateRating',
-                ratingValue: product.customerRating,
-                reviewCount: product.reviewCount || 1
-              } : undefined
-            }
-          };
-        })
-      };
+      schemas.push(generateEventSchema(data, category, slug));
+      break;
 
     case 'howto':
-    case 'howTo':
-      const howTo = generateHowToSchema(data);
-      if (data.faqs) {
-        const faqs = {
-          '@context': 'https://schema.org',
-          '@type': 'FAQPage',
-          mainEntity: data.faqs.map((f: any) => ({
-            '@type': 'Question',
-            name: cleanText(f.question),
-            acceptedAnswer: { '@type': 'Answer', text: cleanText(f.answer) }
-          }))
-        };
-        return [howTo, faqs];
-      }
-      return howTo;
+      schemas.push(generateHowToSchema(data, category, slug));
+      break;
+
+    case 'deal':
+      schemas.push(generateDealSchema(data, category, slug));
+      break;
 
     case 'newsarticle':
     case 'article':
-    case 'news': // Added explicit case
+    case 'news':
+    case 'charity':
     default:
-      return generateArticleSchema(data);
+      schemas.push(generateArticleSchema(data, category, slug));
+      break;
   }
-};
+
+  // Add FAQ schema if FAQs exist
+  if (data.faqs && data.faqs.length > 0) {
+    const faqSchema = generateFAQSchema(data.faqs);
+    if (faqSchema) schemas.push(faqSchema);
+  }
+
+  return schemas;
+}

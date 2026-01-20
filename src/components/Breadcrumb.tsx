@@ -1,3 +1,4 @@
+// src/components/Breadcrumb.tsx
 import Link from 'next/link';
 import { ChevronRight, Home } from 'lucide-react';
 
