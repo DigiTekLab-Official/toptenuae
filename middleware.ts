@@ -42,15 +42,41 @@ export function middleware(request: NextRequest) {
   // 2. CRITICAL FIX: Catch Duplicate URL Bug
   // ========================================================================
   // Example: /best-electric-shaver-uae/https://toptenuae.com/...
-  if (pathname.includes('https://') || pathname.includes('http://')) {
-    // Extract the actual path from the malformed URL
-    const parts = pathname.split(/https?:\/\/[^\/]+/);
-    const cleanPath = parts[parts.length - 1] || '/';
+  // This handles the malformed URLs that can't be fixed in next.config.ts
+  if (pathname.includes('://')) {
+    // Extract the actual path after the protocol
+    const httpsIndex = pathname.indexOf('https://');
+    const httpIndex = pathname.indexOf('http://');
     
-    return NextResponse.redirect(
-      new URL(cleanPath, request.url),
-      301
-    );
+    if (httpsIndex !== -1) {
+      // Find the next slash after https://domain
+      const afterHttps = pathname.substring(httpsIndex + 8); // Skip 'https://'
+      const nextSlashIndex = afterHttps.indexOf('/');
+      
+      if (nextSlashIndex !== -1) {
+        // Get the clean path after the domain
+        const cleanPath = afterHttps.substring(nextSlashIndex);
+        return NextResponse.redirect(
+          new URL(cleanPath, request.url),
+          301
+        );
+      }
+    } else if (httpIndex !== -1) {
+      // Handle http:// similarly
+      const afterHttp = pathname.substring(httpIndex + 7); // Skip 'http://'
+      const nextSlashIndex = afterHttp.indexOf('/');
+      
+      if (nextSlashIndex !== -1) {
+        const cleanPath = afterHttp.substring(nextSlashIndex);
+        return NextResponse.redirect(
+          new URL(cleanPath, request.url),
+          301
+        );
+      }
+    }
+    
+    // Fallback: redirect to homepage if parsing fails
+    return NextResponse.redirect(new URL('/', request.url), 301);
   }
 
   // ========================================================================

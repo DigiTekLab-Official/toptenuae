@@ -198,17 +198,8 @@ const nextConfig: NextConfig = {
       // ========================================================================
       // A. CRITICAL FIX: DUPLICATE URL PATTERN BUG
       // ========================================================================
-      // Catches the concatenated URL bug from GSC errors
-      {
-        source: '/best-electric-shaver-uae/https://toptenuae.com/best-electric-shaver-uae',
-        destination: '/reviews/best-electric-shaver-uae',
-        permanent: true,
-      },
-      {
-        source: '/:path*/https://toptenuae.com/:slug*',
-        destination: '/:path*/:slug*',
-        permanent: true,
-      },
+      // NOTE: Malformed URLs with https:// are handled in middleware.ts
+      // Cannot use them in next.config.ts redirects due to parsing errors
 
       // ========================================================================
       // B. WEBMAIL & SECURITY PATHS (Return 410 Gone)
