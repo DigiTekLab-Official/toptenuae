@@ -14,40 +14,87 @@ export function middleware(request: NextRequest) {
   const { pathname, searchParams } = url;
   const hostname = request.headers.get('host') || '';
 
-  // --------------------------------------------------------
-  // 1. SECURITY: Block Bad Bots / Hosts
-  // --------------------------------------------------------
+  // ========================================================================
+  // 1. SECURITY: Block Bad Bots / Malicious Hosts
+  // ========================================================================
   if (
     hostname.startsWith('webmail.') ||
     hostname.startsWith('mail.') ||
-    hostname.startsWith('cpanel.')
+    hostname.startsWith('cpanel.') ||
+    hostname.startsWith('www.webmail.') ||
+    hostname.startsWith('www.mail.')
   ) {
     return new NextResponse('Gone', { status: 410 });
   }
 
-  // --------------------------------------------------------
-  // 2. CRITICAL MIGRATION REDIRECTS (Fixes Localhost 404s)
-  // --------------------------------------------------------
-  // We handle these specific stubborn URLs here to force a redirect
-  // before the Next.js router can throw a 404.
+  // Block PHP files and suspicious paths
+  if (
+    pathname.includes('.php') ||
+    pathname.startsWith('/cgi-bin/') ||
+    pathname.startsWith('/phpinfo') ||
+    pathname === '/docs/index.html' ||
+    pathname.includes('/page_does_not_exist')
+  ) {
+    return new NextResponse('Gone', { status: 410 });
+  }
+
+  // ========================================================================
+  // 2. CRITICAL FIX: Catch Duplicate URL Bug
+  // ========================================================================
+  // Example: /best-electric-shaver-uae/https://toptenuae.com/...
+  if (pathname.includes('https://') || pathname.includes('http://')) {
+    // Extract the actual path from the malformed URL
+    const parts = pathname.split(/https?:\/\/[^\/]+/);
+    const cleanPath = parts[parts.length - 1] || '/';
+    
+    return NextResponse.redirect(
+      new URL(cleanPath, request.url),
+      301
+    );
+  }
+
+  // ========================================================================
+  // 3. CRITICAL MIGRATION REDIRECTS
+  // ========================================================================
+  // Handle stubborn single-segment URLs before Next.js router
   const legacyRedirects: Record<string, string> = {
     '/how-to-clean-washing-machine': '/smart-home/how-to-clean-washing-machine',
     '/gratuity-calculator-uae': '/finance-tools/gratuity-calculator-uae',
     '/uae-vat-calculator': '/finance-tools/uae-vat-calculator',
     '/zakat-calculator': '/finance-tools/zakat-calculator',
-    // Add any other single-segment URLs that fail here
+    '/best-electric-shaver-uae': '/reviews/best-electric-shaver-uae',
+    '/best-baby-monitors-uae': '/parenting-kids/best-baby-monitors-uae',
+    '/best-baby-skincare-uae': '/parenting-kids/best-baby-skincare-uae',
+    '/uae-holidays-2026': '/events-holidays/uae-holidays-2026',
+    '/uae-holidays-2025': '/events-holidays/uae-holidays-2026',
+    '/ramadan-2026': '/events-holidays/ramadan-2026-uae',
+    '/thank-you': '/',
+    '/sample-page': '/',
   };
 
   // Remove trailing slash for matching
   const cleanPath = pathname.replace(/\/$/, '');
   
   if (legacyRedirects[cleanPath]) {
-    return NextResponse.redirect(new URL(legacyRedirects[cleanPath], request.url), 301);
+    return NextResponse.redirect(
+      new URL(legacyRedirects[cleanPath], request.url), 
+      301
+    );
   }
 
-  // --------------------------------------------------------
-  // 3. SEO: URL Normalization
-  // --------------------------------------------------------
+  // ========================================================================
+  // 4. SEO: Block Search Results from Indexing
+  // ========================================================================
+  // Block internal search pages (they shouldn't be indexed)
+  if (searchParams.has('s') && searchParams.get('s') !== '') {
+    const response = NextResponse.next();
+    response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+    return response;
+  }
+
+  // ========================================================================
+  // 5. SEO: URL Normalization
+  // ========================================================================
   let needsRedirect = false;
 
   // A. Force WWW → Non-WWW
@@ -80,18 +127,21 @@ export function middleware(request: NextRequest) {
   }
 
   // D. Remove Tracking Params & Legacy URL patterns
-  const badParams = ['noamp', 'amp', 'm', 'feed', 'cat', 'fbclid', 'gclid'];
+  const badParams = ['noamp', 'amp', 'm', 'feed', 'cat', 'fbclid', 'gclid', 'utm_source', 'utm_medium', 'utm_campaign'];
 
+  // Handle /feed suffix
   if (pathname.endsWith('/feed') || pathname.endsWith('/feed/')) {
     url.pathname = pathname.replace(/\/feed\/?$/, '');
     needsRedirect = true;
   }
 
+  // Handle /amp suffix
   if (pathname.endsWith('/amp') || pathname.endsWith('/amp/')) {
     url.pathname = pathname.replace(/\/amp\/?$/, '');
     needsRedirect = true;
   }
 
+  // Remove bad query parameters
   badParams.forEach((param) => {
     if (searchParams.has(param)) {
       searchParams.delete(param);
@@ -99,16 +149,23 @@ export function middleware(request: NextRequest) {
     }
   });
 
+  // E. Handle index.php paths
+  if (pathname.startsWith('/index.php/')) {
+    url.pathname = pathname.replace('/index.php', '');
+    needsRedirect = true;
+  }
+
   // Execute Redirect if needed
   if (needsRedirect) {
     return NextResponse.redirect(url, 301);
   }
 
-  // --------------------------------------------------------
-  // 4. HEADERS: Security & Performance
-  // --------------------------------------------------------
+  // ========================================================================
+  // 6. HEADERS: Security & Performance
+  // ========================================================================
   const response = NextResponse.next();
 
+  // Security Headers
   response.headers.set(
     'Strict-Transport-Security',
     'max-age=63072000; includeSubDomains; preload'
@@ -140,9 +197,9 @@ export function middleware(request: NextRequest) {
     'camera=(), microphone=(), geolocation=(), payment=(), usb=(), vr=(), accelerometer=(), gyroscope=(), magnetometer=()'
   );
 
-  // --------------------------------------------------------
-  // 5. CONTENT SECURITY POLICY
-  // --------------------------------------------------------
+  // ========================================================================
+  // 7. CONTENT SECURITY POLICY
+  // ========================================================================
   const cspHeader = `
     default-src 'self';
     script-src 'self' 'unsafe-eval' 'unsafe-inline'
@@ -200,9 +257,9 @@ export function middleware(request: NextRequest) {
 
   response.headers.set('Content-Security-Policy', cspHeader);
 
-  // --------------------------------------------------------
-  // 6. STATIC ASSET CACHING
-  // --------------------------------------------------------
+  // ========================================================================
+  // 8. STATIC ASSET CACHING
+  // ========================================================================
   if (
     pathname.match(
       /\.(jpg|jpeg|png|gif|svg|webp|avif|ico|css|js|woff|woff2|ttf|eot)$/

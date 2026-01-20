@@ -1,45 +1,57 @@
+// src/app/robots.ts
 import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
-  // Use public env var for consistency
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://toptenuae.com';
 
   // =============================================================================
-  // CRITICAL CONFIGURATION
+  // CRITICAL: Each User-Agent needs its own rule object
+  // Multiple user-agents in one array causes parsing errors
   // =============================================================================
   
   const sharedDisallow = [
-    // 1. SECURITY & ADMIN (Keep these blocked)
+    // 1. SECURITY & ADMIN
     '/studio',
+    '/studio/*',
     '/api/',
+    '/api/*',
     '/admin',
+    '/admin/*',
     '/private',
+    '/private/*',
     '/webmail/',
+    '/webmail/*',
     '/cpanel/',
-    '/wp-admin/',      // Block WP admin, but ALLOW other WP paths to let redirects work
+    '/cpanel/*',
+    '/cgi-bin/*',
+    '/wp-admin/',
     '/wp-includes/',
     '/wp-content/',
     
-    // 2. QUERY PARAMETERS (Prevent Duplicate Content)
-    // We allow Google to crawl the main URL, but block variations that dilutes SEO
-    '/*?s=',          // Block internal search results
-    '/*?ref=',        // Block referral parameters
-    '/*?utm_',        // Block marketing tracking
-    '/*?fbclid',      // Block Facebook tracking
-    '/*?gclid',       // Block Google Ads tracking
+    // 2. QUERY PARAMETERS
+    '/*?s=',
+    '/*?ref=',
+    '/*?utm_',
+    '/*?fbclid',
+    '/*?gclid',
     
-    // 3. INTERNAL SEARCH
+    // 3. UTILITY PAGES
     '/search',
+    '/search/*',
+    '/thank-you',
+    '/phpinfo.php',
+    '/*.php$',
+    '/author/*',
+    '/feed/',
+    '/feed/*',
+    '/index.php/*',
+    '/sample-page/',
   ];
-
-  // NOTE: I removed '/category/', '/feed/', and '/amp/' from Disallow.
-  // WHY? Because we want Google to crawl them ONE TIME, hit your 301 Redirects,
-  // and update its index to the new clean URLs.
 
   return {
     rules: [
       // =========================================================================
-      // MAIN RULE: Standard Search Engines (Google, Bing)
+      // MAIN RULE: Standard Search Engines
       // =========================================================================
       {
         userAgent: '*',
@@ -48,60 +60,118 @@ export default function robots(): MetadataRoute.Robots {
       },
 
       // =========================================================================
-      // AI BOTS - STRATEGY: MAXIMIZE VISIBILITY
+      // AI BOTS - SEPARATE RULES (CRITICAL FIX)
+      // Each AI bot gets its own rule to prevent parsing errors
       // =========================================================================
-      // We explicitly ALLOW these bots because we want TopTenUAE to appear 
-      // in ChatGPT answers and Perplexity summaries.
       {
-        userAgent: [
-          'GPTBot',           // ChatGPT Training
-          'ChatGPT-User',     // ChatGPT Live Browsing (Critical for answers)
-          'OAI-SearchBot',    // SearchGPT
-          'Google-Extended',  // Gemini
-          'Applebot',         // Siri / Apple Intelligence
-          'PerplexityBot',    // Perplexity AI
-          'ClaudeBot',        // Claude AI
-        ],
+        userAgent: 'GPTBot',
+        allow: '/',
+        disallow: sharedDisallow,
+      },
+      {
+        userAgent: 'ChatGPT-User',
+        allow: '/',
+        disallow: sharedDisallow,
+      },
+      {
+        userAgent: 'OAI-SearchBot',
+        allow: '/',
+        disallow: sharedDisallow,
+      },
+      {
+        userAgent: 'Google-Extended',
+        allow: '/',
+        disallow: sharedDisallow,
+      },
+      {
+        userAgent: 'Applebot',
+        allow: '/',
+        disallow: sharedDisallow,
+      },
+      {
+        userAgent: 'PerplexityBot',
+        allow: '/',
+        disallow: sharedDisallow,
+      },
+      {
+        userAgent: 'ClaudeBot',
         allow: '/',
         disallow: sharedDisallow,
       },
 
       // =========================================================================
-      // AGGRESSIVE CRAWLERS - STRATEGY: PROTECT SERVER
+      // AGGRESSIVE CRAWLERS - SEPARATE RULES WITH DELAY
       // =========================================================================
-      // These bots often hammer sites. We slow them down.
       {
-        userAgent: [
-          'AhrefsBot',
-          'SemrushBot',
-          'DotBot',
-          'MJ12bot',
-          'BLEXBot',
-          'Bytespider',       // Often aggressive
-        ],
+        userAgent: 'AhrefsBot',
         allow: '/',
         disallow: sharedDisallow,
-        crawlDelay: 10,       // Force them to wait 10 seconds between requests
+        crawlDelay: 10,
+      },
+      {
+        userAgent: 'SemrushBot',
+        allow: '/',
+        disallow: sharedDisallow,
+        crawlDelay: 10,
+      },
+      {
+        userAgent: 'DotBot',
+        allow: '/',
+        disallow: sharedDisallow,
+        crawlDelay: 10,
+      },
+      {
+        userAgent: 'MJ12bot',
+        allow: '/',
+        disallow: sharedDisallow,
+        crawlDelay: 10,
+      },
+      {
+        userAgent: 'BLEXBot',
+        allow: '/',
+        disallow: sharedDisallow,
+        crawlDelay: 10,
+      },
+      {
+        userAgent: 'Bytespider',
+        allow: '/',
+        disallow: sharedDisallow,
+        crawlDelay: 10,
       },
 
       // =========================================================================
-      // BAD BOTS - STRATEGY: BLOCK COMPLETELY
+      // BAD BOTS - BLOCK COMPLETELY
       // =========================================================================
       {
-        userAgent: [
-          'ia_archiver',
-          'MegaIndex',
-          'SeznamBot',
-          'Uptimebot',
-          'Mauibot',
-          'LieBaoFast',
-          'PC6spider',
-        ],
+        userAgent: 'ia_archiver',
+        disallow: '/',
+      },
+      {
+        userAgent: 'MegaIndex',
+        disallow: '/',
+      },
+      {
+        userAgent: 'SeznamBot',
+        disallow: '/',
+      },
+      {
+        userAgent: 'Uptimebot',
+        disallow: '/',
+      },
+      {
+        userAgent: 'Mauibot',
+        disallow: '/',
+      },
+      {
+        userAgent: 'LieBaoFast',
+        disallow: '/',
+      },
+      {
+        userAgent: 'PC6spider',
         disallow: '/',
       },
     ],
 
-    // SITEMAP LOCATION
     sitemap: `${baseUrl}/sitemap.xml`,
   };
 }
