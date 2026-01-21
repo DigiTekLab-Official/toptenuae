@@ -225,4 +225,4 @@ firestore-debug.log
 
 # Ignore large media files during development
 # /public/videos/  # Uncomment if needed
-# /public/downloads/  # Uncomment if needed
+# /public/downloads/  # Uncomment if neededchromewebdata_*.html
