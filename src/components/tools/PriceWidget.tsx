@@ -1,3 +1,4 @@
+// src/components/tools/PriceWidget.tsx
 'use client';
 
 import { ExternalLink } from 'lucide-react';

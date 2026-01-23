@@ -8,7 +8,7 @@ import { Menu, X, Search, Flame } from "lucide-react";
 
 const NAV_LINKS = [
   { name: "Holidays", href: "/events-holidays" },
-  { name: "Tech & AI", href: "/tech" },
+  { name: "Tech", href: "/tech" },
   { name: "Lifestyle", href: "/lifestyle" },
   { name: "Parenting", href: "/parenting-kids" },
   { name: "Reviews", href: "/reviews" },
