@@ -99,7 +99,7 @@ const HOME_QUERY = `
   "sections": *[_type == "category" && slug.current in ${JSON.stringify(SELECTED_CATEGORIES)}] {
     title,
     "slug": slug.current,
-    "posts": *[_type in ["holiday", "topTenList", "howTo", "tool", "charity"] && references(^._id)] | order(publishedAt desc)[0...4] {
+    "posts": *[_type in ["holiday", "topTenList", "howTo", "tool",] && references(^._id)] | order(publishedAt desc)[0...4] {
       title,
       "slug": slug.current,
       mainImage,
