@@ -36,7 +36,7 @@ export default function Footer() {
               The Best of the UAE, Ranked.
             </p>
 
-            <div className="inline-flex items-center gap-2 text-xs font-semibold text-emerald-100 bg-emerald-900/50 px-3 py-2 rounded-full border border-emerald-700/50 backdrop-blur-sm">
+            <div className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-500 bg-emerald-900/50 px-3 py-2 rounded-full border border-emerald-700/50 backdrop-blur-sm">
               <ShieldCheck className="w-4 h-4" />
               <span>Unbiased & Independent</span>
             </div>
@@ -76,8 +76,7 @@ export default function Footer() {
               <ul className="space-y-1">
                 <li><Link href="/finance-tools/gratuity-calculator-uae" prefetch={false} className="block py-2 text-sm text-purple-100 hover:text-white transition-colors duration-200 font-medium">UAE Gratuity Calculator</Link></li>
                 <li><Link href="/finance-tools/uae-vat-calculator" prefetch={false} className="block py-2 text-sm text-purple-100 hover:text-white transition-colors duration-200 font-medium">VAT Calculator</Link></li>
-                <li><Link href="/finance-tools/zakat-calculator" prefetch={false} className="block py-2 text-sm text-purple-100 hover:text-white transition-colors duration-200 font-medium">Zakat Calculator</Link></li>
-                <li><Link href="/finance-tools/salary-calculator-uae" prefetch={false} className="block py-2 text-sm text-purple-100 hover:text-white transition-colors duration-200 font-medium">Salary Calculator</Link></li>
+                <li><Link href="/finance-tools/zakat-calculator" prefetch={false} className="block py-2 text-sm text-purple-100 hover:text-white transition-colors duration-200 font-medium">Zakat Calculator</Link></li>                
                 <li className="pt-2">
                   <Link href="/finance-tools" prefetch={false} className="inline-flex items-center gap-2 text-sm text-white bg-purple-600 hover:bg-purple-500 px-4 py-2.5 rounded-lg transition-all duration-200 font-semibold hover:shadow-lg hover:shadow-purple-500/30">
                     View All Tools →
