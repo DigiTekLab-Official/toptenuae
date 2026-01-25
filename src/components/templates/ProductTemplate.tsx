@@ -205,7 +205,7 @@ export default function ProductTemplate({ data }: ProductTemplateProps) {
                   href={affiliateLink}
                   target="_blank"
                   rel="nofollow sponsored noopener"
-                  className="group flex items-center justify-center gap-2 w-full bg-[#0071e3] hover:bg-[#0076df] text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-[#0071e3] transition-all hover:-translate-y-1 hover:shadow-xl text-lg mb-4"
+                  className="group flex items-center justify-center gap-2 w-full bg-[#0071e3] hover:bg-[#0076df] text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-blue-200 transition-all hover:-translate-y-1 hover:shadow-xl text-lg mb-4"
                 >
                   View on Amazon
                   <ExternalLink className="w-5 h-5 opacity-80" />
