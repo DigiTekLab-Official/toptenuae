@@ -66,7 +66,7 @@ export default function PriceWidget({
             className={`${buttonBg} ${buttonText} px-6 py-3 rounded-lg font-bold text-sm flex items-center gap-2 shadow-sm transition-transform hover:-translate-y-0.5 whitespace-nowrap`}
           >
             <span>Buy Now</span>
-            <ExternalLink className="w-4 h-4" />
+            <ExternalLink className="w-4 h-4" aria-label="Opens in new tab" />
           </a>
         </div>
 
