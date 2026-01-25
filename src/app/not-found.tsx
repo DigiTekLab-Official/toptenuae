@@ -91,7 +91,7 @@ export default function NotFound() {
               Product Reviews
             </Link>
             <Link 
-              href="/smart-home" 
+              href="/how-to-guides" 
               className="text-sm px-5 py-2.5 bg-white rounded-full border border-gray-200 hover:border-[#4b0082] hover:text-[#4b0082] hover:bg-[#4b0082]/5 transition-all font-medium shadow-sm"
             >
               Smart Home

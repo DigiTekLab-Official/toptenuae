@@ -4,26 +4,15 @@ import { MetadataRoute } from 'next';
 export default function robots(): MetadataRoute.Robots {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://toptenuae.com';
 
-  // =============================================================================
-  // CRITICAL: Each User-Agent needs its own rule object
-  // Multiple user-agents in one array causes parsing errors
-  // =============================================================================
-  
   const sharedDisallow = [
     // 1. SECURITY & ADMIN
-    '/studio',
-    '/studio/*',
+    '/studio/',
     '/api/',
-    '/api/*',
-    '/admin',
-    '/admin/*',
-    '/private',
-    '/private/*',
+    '/admin/',
+    '/private/',
     '/webmail/',
-    '/webmail/*',
     '/cpanel/',
-    '/cpanel/*',
-    '/cgi-bin/*',
+    '/cgi-bin/',
     '/wp-admin/',
     '/wp-includes/',
     '/wp-content/',
@@ -36,111 +25,111 @@ export default function robots(): MetadataRoute.Robots {
     '/*?gclid',
     
     // 3. UTILITY PAGES
-    '/search',
-    '/search/*',
+    '/search/',
     '/thank-you',
     '/phpinfo.php',
-    '/*.php$',
-    '/author/*',
+    '/*.php',
+    '/author/',
     '/feed/',
-    '/feed/*',
-    '/index.php/*',
+    '/index.php/',
     '/sample-page/',
   ];
 
   return {
     rules: [
       // =========================================================================
-      // MAIN RULE: Standard Search Engines
+      // MAIN RULE: Standard Search Engines (Google, DuckDuckGo, etc.)
       // =========================================================================
       {
         userAgent: '*',
-        allow: '/',
         disallow: sharedDisallow,
       },
 
       // =========================================================================
-      // AI BOTS - SEPARATE RULES (CRITICAL FIX)
-      // Each AI bot gets its own rule to prevent parsing errors
+      // MICROSOFT ECOSYSTEM (Bing + Copilot + Yahoo)
+      // Blocking Bingbot kills your traffic from Microsoft Copilot.
+      // =========================================================================
+      {
+        userAgent: 'Bingbot',
+        disallow: sharedDisallow,
+      },
+      {
+        userAgent: 'Slurp', // Yahoo
+        disallow: sharedDisallow,
+      },
+      {
+        userAgent: 'Microsoft-Werbe-Robot', // Microsoft Ads/Services
+        disallow: sharedDisallow,
+      },
+
+      // =========================================================================
+      // AI BOTS - Explicit Permissions
       // =========================================================================
       {
         userAgent: 'GPTBot',
-        allow: '/',
         disallow: sharedDisallow,
       },
       {
         userAgent: 'ChatGPT-User',
-        allow: '/',
         disallow: sharedDisallow,
       },
       {
         userAgent: 'OAI-SearchBot',
-        allow: '/',
         disallow: sharedDisallow,
       },
       {
         userAgent: 'Google-Extended',
-        allow: '/',
         disallow: sharedDisallow,
       },
       {
-        userAgent: 'Applebot',
-        allow: '/',
+        userAgent: 'Applebot', // Powers Siri & Apple Intelligence
         disallow: sharedDisallow,
       },
       {
         userAgent: 'PerplexityBot',
-        allow: '/',
         disallow: sharedDisallow,
       },
       {
         userAgent: 'ClaudeBot',
-        allow: '/',
         disallow: sharedDisallow,
       },
 
       // =========================================================================
-      // AGGRESSIVE CRAWLERS - SEPARATE RULES WITH DELAY
+      // AGGRESSIVE CRAWLERS - Throttled Access
       // =========================================================================
       {
         userAgent: 'AhrefsBot',
-        allow: '/',
         disallow: sharedDisallow,
         crawlDelay: 10,
       },
       {
         userAgent: 'SemrushBot',
-        allow: '/',
         disallow: sharedDisallow,
         crawlDelay: 10,
       },
       {
         userAgent: 'DotBot',
-        allow: '/',
         disallow: sharedDisallow,
         crawlDelay: 10,
       },
       {
         userAgent: 'MJ12bot',
-        allow: '/',
         disallow: sharedDisallow,
         crawlDelay: 10,
       },
       {
         userAgent: 'BLEXBot',
-        allow: '/',
         disallow: sharedDisallow,
         crawlDelay: 10,
       },
       {
-        userAgent: 'Bytespider',
-        allow: '/',
+        userAgent: 'Bytespider', // ByteDance (TikTok/Douyin) Crawler
         disallow: sharedDisallow,
         crawlDelay: 10,
       },
 
       // =========================================================================
-      // BAD BOTS - BLOCK COMPLETELY
+      // BAD BOTS - Blocked Completely
       // =========================================================================
       {
         userAgent: 'ia_archiver',

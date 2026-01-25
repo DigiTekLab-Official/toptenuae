@@ -1,14 +1,11 @@
+// src/lib/schemaGenerator.ts - 2026 OPTIMIZED
 import { cleanText } from '@/lib/utils/sanity-text';
 
 // =============================================================================
 // CONFIGURATION
 // =============================================================================
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.baseUrl || 'https://toptenuae.com';
-
-// ✅ CRITICAL FIX: Unified Logo to PNG (Matches layout.tsx)
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://toptenuae.com';
 const ORGANIZATION_LOGO = `${baseUrl}/icon.png`; 
-
-// Fallback image
 const DEFAULT_IMAGE = `${baseUrl}/images/brand/og-default.png`;
 
 // =============================================================================
@@ -26,37 +23,52 @@ const getNextYearDate = () => {
   return date.toISOString().split('T')[0];
 };
 
-// Generate page @id
 const getPageId = (category?: string, slug?: string) => {
   if (!category || !slug) return `${baseUrl}/#webpage`;
   return `${baseUrl}/${category}/${slug}#webpage`;
 };
 
 // =============================================================================
-// 1. ORGANIZATION SCHEMA
+// 1. ORGANIZATION SCHEMA (Enhanced with More Signals)
 // =============================================================================
 export const generateOrganizationSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'Organization',
   '@id': `${baseUrl}/#organization`,
   name: 'TopTenUAE',
+  alternateName: 'Top Ten UAE',
   url: baseUrl,
   logo: {
     '@type': 'ImageObject',
+    '@id': `${baseUrl}/#logo`,
     url: ORGANIZATION_LOGO,
     width: 512,
     height: 512,
     caption: 'TopTenUAE Logo'
   },
-  sameAs: [
-    // Add verified social profiles here if available
-  ],
+  image: {
+    '@type': 'ImageObject',
+    url: DEFAULT_IMAGE,
+    width: 1200,
+    height: 630
+  },
+  description: 'Expert reviews, rankings, and smart tools for UAE residents. Your trusted guide to the best products, services, and experiences in the Emirates.',
+  foundingDate: '2020',
+  areaServed: {
+    '@type': 'Country',
+    name: 'United Arab Emirates',
+    '@id': 'https://www.wikidata.org/wiki/Q878'
+  },
   contactPoint: {
     '@type': 'ContactPoint',
     contactType: 'Customer Service',
     areaServed: 'AE',
     availableLanguage: ['en', 'ar']
-  }
+  },
+  sameAs: [
+    // Add your verified social profiles here when available
+    // e.g. 'https://twitter.com/toptenuae'
+  ]
 });
 
 // =============================================================================
@@ -69,6 +81,7 @@ export const generateWebSiteSchema = () => ({
   name: 'TopTenUAE',
   alternateName: ['Top Ten UAE', 'TopTen UAE'],
   url: `${baseUrl}/`,
+  description: 'Discover trending products, expert reviews, and free UAE tools. Rankings, comparisons, and calculators for smarter decisions.',
   inLanguage: 'en-AE',
   publisher: {
     '@id': `${baseUrl}/#organization`
@@ -91,19 +104,25 @@ export const generateHomePageSchema = () => ({
   '@type': 'CollectionPage',
   '@id': `${baseUrl}/#homepage`,
   url: `${baseUrl}/`,
-  name: 'TopTenUAE - Trending Tech, Reviews & Smart UAE Tools',
+  name: 'TopTenUAE - The Best of the UAE, Ranked',
   description: 'Discover trending products, expert reviews, and free UAE tools including VAT and gratuity calculators.',
   isPartOf: {
     '@id': `${baseUrl}/#website`
   },
   about: {
     '@type': 'Thing',
-    name: 'UAE Technology, Reviews & Online Tools'
+    name: 'UAE Product Reviews and Comparisons'
   },
   publisher: {
     '@id': `${baseUrl}/#organization`
   },
-  inLanguage: 'en-AE'
+  inLanguage: 'en-AE',
+  primaryImageOfPage: {
+    '@type': 'ImageObject',
+    url: DEFAULT_IMAGE,
+    width: 1200,
+    height: 630
+  }
 });
 
 // =============================================================================
@@ -140,7 +159,28 @@ export const generateBreadcrumbSchema = (
 });
 
 // =============================================================================
-// 5. PRODUCT SCHEMA
+// 5. FEATURED CONTENT ITEM LIST (NEW - For Homepage)
+// =============================================================================
+export const generateFeaturedContentSchema = (posts: any[]) => {
+  if (!posts || posts.length === 0) return null;
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Featured UAE Reviews and Guides',
+    description: 'Top-rated content from TopTenUAE',
+    numberOfItems: posts.length,
+    itemListElement: posts.map((post, idx) => ({
+      '@type': 'ListItem',
+      position: idx + 1,
+      url: `${baseUrl}/${post.categorySlug}/${post.slug}`,
+      name: post.title
+    }))
+  };
+};
+
+// =============================================================================
+// 6. PRODUCT SCHEMA (Enhanced with Review)
 // =============================================================================
 export const generateProductSchema = (data: any, category?: string, slug?: string) => {
   const priceValue = data.price || data.dealPrice || data.livePrice || data.priceEstimate || 0;
@@ -152,17 +192,23 @@ export const generateProductSchema = (data: any, category?: string, slug?: strin
     ? `${baseUrl}/${category}/${slug}` 
     : baseUrl;
 
+  const images = data.mainImage?.url 
+    ? [data.mainImage.url] 
+    : data.images?.map((img: any) => img.url).filter(Boolean) || [DEFAULT_IMAGE];
+
   const schema: any = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     '@id': `${pageUrl}#product`,
     name: cleanText(data.title || data.itemName),
-    image: data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE],
+    image: images,
     description: cleanText(data.verdict || data.itemDescription || data.intro || data.description || ''),
-    brand: {
+    brand: data.brand ? {
       '@type': 'Brand',
-      name: cleanText(data.brand || 'Generic')
-    },
+      name: cleanText(data.brand)
+    } : undefined,
+    sku: data.sku || undefined,
+    mpn: data.mpn || undefined,
     offers: {
       '@type': 'Offer',
       price: cleanPrice,
@@ -172,18 +218,16 @@ export const generateProductSchema = (data: any, category?: string, slug?: strin
       priceValidUntil: data.priceValidUntil || getNextYearDate(),
       seller: {
         '@type': 'Organization',
-        name: data.retailer || 'Amazon.ae'
+        name: data.retailer || 'Various UAE Retailers'
       }
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
       '@id': getPageId(category, slug)
-    },
-    isPartOf: {
-      '@id': `${baseUrl}/#website`
     }
   };
 
+  // Add Aggregate Rating if available
   if (data.customerRating && data.reviewCount) {
     schema.aggregateRating = {
       '@type': 'AggregateRating',
@@ -194,19 +238,22 @@ export const generateProductSchema = (data: any, category?: string, slug?: strin
     };
   }
 
+  // Add Review if verdict exists
   if (data.verdict && data.customerRating) {
     schema.review = {
       '@type': 'Review',
       author: {
         '@type': 'Organization',
-        name: 'TopTenUAE Editorial Team'
+        name: 'TopTenUAE Editorial Team',
+        '@id': `${baseUrl}/#organization`
       },
       reviewRating: {
         '@type': 'Rating',
         ratingValue: data.customerRating,
         bestRating: 5
       },
-      reviewBody: cleanText(data.verdict)
+      reviewBody: cleanText(data.verdict),
+      datePublished: data.publishedAt || data._createdAt
     };
   }
 
@@ -214,7 +261,7 @@ export const generateProductSchema = (data: any, category?: string, slug?: strin
 };
 
 // =============================================================================
-// 6. TOP TEN LIST SCHEMA
+// 7. TOP TEN LIST SCHEMA (Enhanced)
 // =============================================================================
 export const generateTopTenListSchema = (data: any, category?: string, slug?: string) => {
   if (!data.listItems || data.listItems.length === 0) return null;
@@ -233,9 +280,6 @@ export const generateTopTenListSchema = (data: any, category?: string, slug?: st
     mainEntityOfPage: {
       '@type': 'WebPage',
       '@id': getPageId(category, slug)
-    },
-    isPartOf: {
-      '@id': `${baseUrl}/#website`
     },
     itemListElement: data.listItems.map((item: any, index: number) => {
       const product = item.product || {};
@@ -270,7 +314,7 @@ export const generateTopTenListSchema = (data: any, category?: string, slug?: st
             priceValidUntil: product.priceValidUntil || getNextYearDate(),
             seller: {
               '@type': 'Organization',
-              name: product.retailer || 'Amazon.ae'
+              name: product.retailer || 'Various UAE Retailers'
             }
           }
         }
@@ -292,7 +336,7 @@ export const generateTopTenListSchema = (data: any, category?: string, slug?: st
 };
 
 // =============================================================================
-// 7. TOOL SCHEMA
+// 8. TOOL SCHEMA (Enhanced with Features)
 // =============================================================================
 export const generateToolSchema = (data: any, category?: string, slug?: string) => {
   const toolSlug = slug || data.slug?.current || data.slug || '';
@@ -300,13 +344,20 @@ export const generateToolSchema = (data: any, category?: string, slug?: string) 
   const fullUrl = `${baseUrl}/${categorySlug}/${toolSlug}`;
 
   let features = ['Free Online Tool', 'Instant Calculation', 'Mobile Friendly', 'No Registration Required'];
+  let appCategory = 'FinanceApplication';
 
   if (toolSlug.includes('vat')) {
     features = ['Add VAT to price (5% UAE rate)', 'Remove VAT (Reverse calculation)', 'VAT inclusive & exclusive formulas', 'Instant VAT calculation'];
+    appCategory = 'FinanceApplication';
   } else if (toolSlug.includes('gratuity')) {
     features = ['UAE Labor Law compliant', 'Limited & Unlimited contract calculation', 'Resignation & Termination scenarios', 'End of Service Benefits'];
+    appCategory = 'FinanceApplication';
   } else if (toolSlug.includes('zakat')) {
     features = ['Gold & Silver Nisab calculation', 'Cash & assets 2.5% Zakat rate', 'Islamic Shariah compliant', 'Live gold prices (Dubai)'];
+    appCategory = 'FinanceApplication';
+  } else if (toolSlug.includes('loan') || toolSlug.includes('emi')) {
+    features = ['Monthly EMI calculation', 'Amortization schedule', 'Interest breakdown', 'UAE bank rates comparison'];
+    appCategory = 'FinanceApplication';
   }
 
   return {
@@ -316,7 +367,7 @@ export const generateToolSchema = (data: any, category?: string, slug?: string) 
     name: cleanText(data.title),
     description: cleanText(data.seo?.metaDescription || data.description || ''),
     url: fullUrl,
-    applicationCategory: 'FinanceApplication',
+    applicationCategory: appCategory,
     operatingSystem: 'Web Browser, Android, iOS',
     isAccessibleForFree: true,
     author: {
@@ -338,15 +389,12 @@ export const generateToolSchema = (data: any, category?: string, slug?: string) 
     mainEntityOfPage: {
       '@type': 'WebPage',
       '@id': getPageId(category, slug)
-    },
-    isPartOf: {
-      '@id': `${baseUrl}/#website`
     }
   };
 };
 
 // =============================================================================
-// 8. EVENT SCHEMA
+// 9. EVENT SCHEMA (Enhanced)
 // =============================================================================
 export const generateEventSchema = (data: any, category?: string, slug?: string) => {
   const eventUrl = category && slug ? `${baseUrl}/${category}/${slug}` : baseUrl;
@@ -370,10 +418,10 @@ export const generateEventSchema = (data: any, category?: string, slug?: string)
     startDate: formatIsoDate(data.startDate || data.date, data.isAllDay),
     endDate: formatIsoDate(data.endDate, data.isAllDay),
     eventStatus: statusMap[data.status] || "https://schema.org/EventScheduled",
-    eventAttendanceMode: "https://schema.org/MixedEventAttendanceMode",
+    eventAttendanceMode: data.attendanceMode || "https://schema.org/MixedEventAttendanceMode",
     location: {
       '@type': 'Place',
-      name: data.locationName || 'UAE',
+      name: data.locationName || 'United Arab Emirates',
       address: {
         '@type': 'PostalAddress',
         streetAddress: data.address?.street,
@@ -388,9 +436,6 @@ export const generateEventSchema = (data: any, category?: string, slug?: string)
     mainEntityOfPage: {
       '@type': 'WebPage',
       '@id': getPageId(category, slug)
-    },
-    isPartOf: {
-      '@id': `${baseUrl}/#website`
     }
   };
 
@@ -411,7 +456,7 @@ export const generateEventSchema = (data: any, category?: string, slug?: string)
 };
 
 // =============================================================================
-// 9. ARTICLE SCHEMA
+// 10. ARTICLE SCHEMA (Enhanced)
 // =============================================================================
 export const generateArticleSchema = (data: any, category?: string, slug?: string) => {
   const articleUrl = category && slug ? `${baseUrl}/${category}/${slug}` : baseUrl;
@@ -420,7 +465,7 @@ export const generateArticleSchema = (data: any, category?: string, slug?: strin
 
   const schemaType = (data._type === 'news') ? 'NewsArticle' : 'Article';
 
-  const articleSchema: any = {
+  return {
     '@context': 'https://schema.org',
     '@type': schemaType,
     '@id': `${articleUrl}#article`,
@@ -436,22 +481,23 @@ export const generateArticleSchema = (data: any, category?: string, slug?: strin
     },
     publisher: {
       '@type': 'Organization',
-      '@id': `${baseUrl}/#organization`
+      '@id': `${baseUrl}/#organization`,
+      name: 'TopTenUAE',
+      logo: {
+        '@type': 'ImageObject',
+        '@id': `${baseUrl}/#logo`
+      }
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
       '@id': getPageId(category, slug)
     },
-    isPartOf: {
-      '@id': `${baseUrl}/#website`
-    }
+    inLanguage: 'en-AE'
   };
-
-  return articleSchema;
 };
 
 // =============================================================================
-// 10. HOW-TO SCHEMA
+// 11. HOW-TO SCHEMA
 // =============================================================================
 export const generateHowToSchema = (data: any, category?: string, slug?: string) => {
   const howToUrl = category && slug ? `${baseUrl}/${category}/${slug}` : baseUrl;
@@ -463,7 +509,8 @@ export const generateHowToSchema = (data: any, category?: string, slug?: string)
         position: index + 1,
         name: cleanText(step.title || `Step ${index + 1}`),
         text: cleanText(step.description || step.text || "Follow instructions"),
-        url: `${howToUrl}#step-${index + 1}`
+        url: `${howToUrl}#step-${index + 1}`,
+        image: step.image?.url || undefined
       }))
     : [{
         '@type': 'HowToStep',
@@ -481,6 +528,11 @@ export const generateHowToSchema = (data: any, category?: string, slug?: string)
     description: cleanText(data.intro || data.description || ''),
     image: images,
     totalTime: data.totalTime || "PT15M",
+    estimatedCost: data.estimatedCost || {
+      '@type': 'MonetaryAmount',
+      currency: 'AED',
+      value: '0'
+    },
     step: steps,
     publisher: {
       '@id': `${baseUrl}/#organization`
@@ -488,15 +540,12 @@ export const generateHowToSchema = (data: any, category?: string, slug?: string)
     mainEntityOfPage: {
       '@type': 'WebPage',
       '@id': getPageId(category, slug)
-    },
-    isPartOf: {
-      '@id': `${baseUrl}/#website`
     }
   };
 };
 
 // =============================================================================
-// 11. FAQ SCHEMA
+// 12. FAQ SCHEMA
 // =============================================================================
 export const generateFAQSchema = (faqs: any[]) => {
   if (!faqs || faqs.length === 0) return null;
@@ -516,7 +565,7 @@ export const generateFAQSchema = (faqs: any[]) => {
 };
 
 // =============================================================================
-// 12. DEAL SCHEMA
+// 13. DEAL/OFFER SCHEMA
 // =============================================================================
 export const generateDealSchema = (data: any, category?: string, slug?: string) => {
   const dealUrl = category && slug ? `${baseUrl}/${category}/${slug}` : data.affiliateLink || baseUrl;
@@ -535,13 +584,13 @@ export const generateDealSchema = (data: any, category?: string, slug?: string) 
     image: data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE],
     seller: {
       '@type': 'Organization',
-      name: data.retailer || 'Amazon.ae'
+      name: data.retailer || 'Various UAE Retailers'
     }
   };
 };
 
 // =============================================================================
-// 13. MASTER SCHEMA GENERATOR (FINAL LOGIC)
+// 14. MASTER SCHEMA GENERATOR
 // =============================================================================
 export function generateSchema(data: any, category?: string, slug?: string) {
   if (!data) return [generateOrganizationSchema()];
@@ -551,10 +600,16 @@ export function generateSchema(data: any, category?: string, slug?: string) {
   // 1. ALWAYS ADD ORGANIZATION
   schemas.push(generateOrganizationSchema());
 
-  // 2. CRITICAL: ADD WEBSITE SCHEMA ONLY ON HOMEPAGE
+  // 2. HOMEPAGE ONLY: Add Website & Homepage schemas
   if (!category && !slug) {
     schemas.push(generateWebSiteSchema());
     schemas.push(generateHomePageSchema());
+    
+    // Add Featured Content if available
+    if (data.featuredPosts && data.featuredPosts.length > 0) {
+      const featuredSchema = generateFeaturedContentSchema(data.featuredPosts);
+      if (featuredSchema) schemas.push(featuredSchema);
+    }
   }
 
   // 3. ADD BREADCRUMB (if deep link)
@@ -599,7 +654,6 @@ export function generateSchema(data: any, category?: string, slug?: string) {
     case 'news':
     case 'charity':
     default:
-      // Only add Article schema for inner pages, not the homepage
       if (category || slug) {
         schemas.push(generateArticleSchema(data, category, slug));
       }

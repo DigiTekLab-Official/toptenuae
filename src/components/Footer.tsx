@@ -52,11 +52,11 @@ export default function Footer() {
             </h2>
             <nav aria-label="Discover navigation">
               <ul className="space-y-1">
-                <li><Link href="/top-ten" prefetch={false} className={linkClass}>Top 10 Lists</Link></li>
-                <li><Link href="/reviews" prefetch={false} className={linkClass}>Reviews</Link></li>
-                <li><Link href="/how-to" prefetch={false} className={linkClass}>How-To Guides</Link></li>
+                <li><Link href="/top-ten" prefetch={false} className={linkClass}>Rankings</Link></li>
+                <li><Link href="/reviews" prefetch={false} className={linkClass}>Best Buys</Link></li>
+                <li><Link href="/how-to-guides" prefetch={false} className={linkClass}>How-To Guides</Link></li>
                 <li><Link href="/travel-tourism" prefetch={false} className={linkClass}>Travel & Tourism</Link></li>
-                <li><Link href="/events-holidays" prefetch={false} className={linkClass}>Events & Holidays</Link></li>
+                <li><Link href="/events-holidays" prefetch={false} className={linkClass}>What's On</Link></li>
                 <li>
                   <Link href="/deals" prefetch={false} className="block py-2 text-sm text-amber-300 hover:text-amber-200 transition-colors duration-200 font-semibold flex items-center gap-1">
                     Deals & Offers 🔥

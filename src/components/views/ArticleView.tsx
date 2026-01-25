@@ -22,6 +22,12 @@ export default function ArticleView({ data, category, slug }: ArticleViewProps) 
     }).format(new Date(dateString));
   };
 
+  // ✅ LOGIC FIX: 
+  // 1. "topTenList", "event", "holiday" handle their own images in their specific templates.
+  // 2. All other types (article, news, product, tool, review) rely on this View to render the Header Image.
+  const customLayoutTypes = ["topTenList", "event", "holiday"];
+  const showHeaderImage = data.mainImage?.url && !customLayoutTypes.includes(data._type);
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       <Breadcrumb 
@@ -50,8 +56,8 @@ export default function ArticleView({ data, category, slug }: ArticleViewProps) 
               </div>
             </div>
 
-            {/* HEADER IMAGE (Only for standard Articles/News) */}
-            {data.mainImage?.url && (data._type === "article" || data._type === "news") && (
+            {/* ✅ FIXED: Render Image for standard types (Article, Product, etc.), skip for TopTen */}
+            {showHeaderImage && (
                <div className="mt-6 relative w-full h-[auto] aspect-video rounded-xl overflow-hidden bg-gray-100">
                  <Image 
                    src={data.mainImage.url} 

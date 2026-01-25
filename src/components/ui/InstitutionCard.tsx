@@ -86,8 +86,14 @@ export default function InstitutionCard({ item }: InstitutionCardProps) {
         {school.mainImage && (
           <div className="relative w-full h-64 md:h-[350px] mb-8 bg-gray-50 rounded-xl overflow-hidden border border-gray-100 shadow-inner">
             <Image
-              // ✅ RESIZED for Card Width
-              src={urlForImage(school.mainImage).width(800).height(500).url()}
+              // ✅ Handle both transformed (with url) and raw Sanity objects
+              src={
+                typeof school.mainImage === 'string' 
+                  ? school.mainImage 
+                  : school.mainImage.url 
+                    ? school.mainImage.url 
+                    : urlForImage(school.mainImage).width(800).height(500).url()
+              }
               alt={seoAltText}
               fill
               className="object-cover hover:scale-105 transition-transform duration-700"

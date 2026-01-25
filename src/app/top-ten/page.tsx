@@ -4,8 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import {
   Star, ArrowRight, Package, Smartphone, Baby, Home, 
-  Scissors, Activity, Watch, Plane, Coffee, MapPin, 
-  Car, CheckCircle2, Trophy
+  Scissors, Activity, Plane, MapPin, Trophy
 } from 'lucide-react';
 import { client } from '@/sanity/lib/client';
 
@@ -33,7 +32,7 @@ async function getData() {
   const featured = await client.fetch(`
     *[_type == "topTenList" && isFeaturedReview == true] | order(_updatedAt desc) [0...8] {
       _id, title, "slug": slug.current,
-      "categorySlug": coalesce(category->slug.current, categories[0]->slug.current, "top-10s"),
+      "categorySlug": coalesce(category->slug.current, categories[0]->slug.current, "top-ten"),
       "imageUrl": mainImage.asset->url
     }
   `);
@@ -66,19 +65,27 @@ export default async function TopTenPage() {
   return (
     <div className="min-h-screen bg-slate-50 font-sans pb-20">
       
-      {/* HERO SECTION */}
-      <div className="bg-[#4b0082] text-white py-16 px-4 text-center relative overflow-hidden">
-         <div className="absolute inset-0 opacity-10 pattern-grid-lg" />
+      {/* ================================================================== */}
+      {/* 1. HERO SECTION (UPDATED: Brand Purple Style)                      */}
+      {/* ================================================================== */}
+      <div className="relative bg-[#4b0082] text-white py-12 px-4 text-center overflow-hidden lg:py-12">
+         {/* Background Pattern/Glow */}
+         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-amber-400/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
+         <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-purple-500/30 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
+
          <div className="relative z-10 max-w-4xl mx-auto">
-            <div className="flex justify-center mb-4">
-               <span className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-white/10 border border-white/20 text-amber-300 text-sm font-bold uppercase tracking-wider">
+            <div className="flex justify-center mb-6">
+               <span className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-amber-400/20 border border-amber-400/30 text-amber-300 text-sm font-bold uppercase tracking-wider">
                  <Trophy className="w-4 h-4" /> Official Rankings 2026
                </span>
             </div>
-            <h1 className="text-3xl md:text-5xl font-black mb-4 tracking-tight">
-               Featured Buying Guides
+            <h1 className="text-4xl md:text-6xl font-black mb-6 leading-tight">
+               Featured Buying Guides <br className="hidden md:block" />
+               <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-400">
+                  Best of UAE
+               </span>
             </h1>
-            <p className="text-indigo-100 text-lg max-w-2xl mx-auto">
+            <p className="text-lg md:text-base text-purple-100 max-w-2xl mx-auto leading-relaxed">
                We research, test, and rank the top products in the UAE so you don't have to.
             </p>
          </div>
@@ -95,7 +102,7 @@ export default async function TopTenPage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {featured.map((post: any) => (
-              <Link key={post._id} href={`/top-10s/${post.slug}`} className="group bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-xl transition-all overflow-hidden flex flex-col h-full">
+              <Link key={post._id} href={`/top-ten/${post.slug}`} className="group bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-xl transition-all overflow-hidden flex flex-col h-full">
                 <div className="h-48 relative bg-gray-100">
                   {post.imageUrl ? (
                     <Image src={post.imageUrl} alt={post.title} fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
@@ -138,7 +145,7 @@ export default async function TopTenPage() {
                 {items.slice(0, 8).map((item: any) => (
                   <Link
                     key={item._id}
-                    href={`/top-10s/${item.slug}`}
+                    href={`/top-ten/${item.slug}`}
                     className="group flex flex-col bg-white border border-gray-200 hover:border-[#4b0082]/30 rounded-xl overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 h-full"
                   >
                     <div className="h-40 relative bg-gray-100 shrink-0 border-b border-gray-100">

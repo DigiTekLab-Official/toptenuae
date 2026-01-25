@@ -1,4 +1,4 @@
-
+// src/components/views/ProductView.tsx
 import ProductTemplate from "@/components/templates/ProductTemplate";
 
 interface ProductViewProps {

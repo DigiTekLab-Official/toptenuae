@@ -1,3 +1,4 @@
+// src/app/deals/page.tsx
 import { client } from '@/sanity/lib/client';
 import DealsFeed from '@/components/deals/DealsFeed';
 import { Metadata } from 'next';

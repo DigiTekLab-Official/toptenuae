@@ -16,7 +16,12 @@ import LogoIcon from "@/components/icons/LogoIcon";
 // --- CARDS ---
 import ProductCard from "../ui/ProductCard";       
 import InstitutionCard from "../ui/InstitutionCard"; 
-import AviationCard from "../ui/AviationCard"; 
+import AviationCard from "../ui/AviationCard";
+
+// DEBUG: Log component mount
+if (typeof window !== "undefined") {
+  console.log("[TopTenTemplate] Client component mounted");
+} 
 
 // --- INTERFACES ---
 interface TopTenData {
@@ -24,8 +29,8 @@ interface TopTenData {
   intro: any; 
   body: any; 
   closingContent?: any;
+  // ✅ MATCHED QUERY: simple object with url string
   mainImage?: { url: string; alt?: string }; 
-  // ✅ FIX: Category is an object from page.tsx, not a string
   category?: { title: string; slug: string; menuLabel?: string } | string;
   publishedAt?: string;
   faqs?: { _key: string; question: string; answer: string }[];
@@ -44,7 +49,8 @@ interface Product {
   // Common fields
   title: string;
   slug?: { current: string }; 
-  mainImage?: any;
+  // ✅ MATCHED QUERY: simple object with url string
+  mainImage?: { url: string; alt?: string };
   affiliateLink?: string;
   retailer?: string;
   priceTier?: string;  
@@ -79,21 +85,27 @@ interface ListItem {
 
 // --- MAIN TEMPLATE ---
 export default function TopTenTemplate({ data }: { data: TopTenData }) {
+  // ✅ DIRECT ACCESS: No more asset checks needed
   const heroImageUrl = data.mainImage?.url || null;
   const showDisclaimer = (data.showAffiliateDisclosure ?? true);
 
-  // --- 2. SMART DETECTION LOGIC (FIXED) ---
-  // Extract string from category object safely
+  // DEBUG LOGGING
+  console.log("[TopTenTemplate] Received data:", {
+    title: data.title,
+    listItemsCount: data.listItems?.length || 0,
+    hasFirstItem: !!data.listItems?.[0],
+    firstItemProductTitle: data.listItems?.[0]?.product?.title,
+    firstItemHasImage: !!data.listItems?.[0]?.product?.mainImage?.url,
+  });
+
+  // --- 2. SMART DETECTION LOGIC ---
   const categoryString = typeof data.category === 'string' 
     ? data.category 
     : data.category?.slug || "";
 
-  // Helper to normalize tricky categories for detection
   const normalizedCat = categoryString === 'baby-kid' ? 'parenting-kids' : categoryString;
-
   const checkText = (data.title + " " + normalizedCat).toLowerCase();
   
-  // Check the first item type to determine the mode
   const firstItemType = data.listItems?.[0]?.product?._type;
 
   const isAviationPost = 
@@ -102,8 +114,8 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
     checkText.includes('airport');
 
   const isEducationPost = 
-    !isAviationPost && ( // Prioritize Aviation check
-      firstItemType === 'institution' || // ✅ CRITICAL: Only if first item is actually institution type
+    !isAviationPost && ( 
+      firstItemType === 'institution' || 
       checkText.includes('education') || 
       checkText.includes('school') ||
       checkText.includes('university') ||
@@ -122,6 +134,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
     title: item.product.title,
     rating: item.product.customerRating || 0,
     priceEstimate: item.product.price ? `${item.product.currency || 'AED'} ${item.product.price}` : undefined,
+    // ✅ DIRECT ACCESS:
     imageUrl: item.product.mainImage?.url || "",
     affiliateLink: item.product.affiliateLink
   })) || [];
@@ -290,7 +303,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
               {data.listItems.map((item) => (
                 <React.Fragment key={item._key}>
                   
-                  {/* CARD SWITCHER - FIXED: Only use InstitutionCard for actual school/institution posts */}
+                  {/* CARD SWITCHER */}
                   {item.product._type === 'aviationEntity' ? (
                      <AviationCard item={item} />
                   ) 

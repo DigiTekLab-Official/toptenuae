@@ -42,76 +42,34 @@ export function middleware(request: NextRequest) {
   // 2. CRITICAL FIX: Catch Duplicate URL Bug
   // ========================================================================
   // Example: /best-electric-shaver-uae/https://toptenuae.com/...
-  // This handles the malformed URLs that can't be fixed in next.config.ts
   if (pathname.includes('://')) {
-    // Extract the actual path after the protocol
     const httpsIndex = pathname.indexOf('https://');
     const httpIndex = pathname.indexOf('http://');
     
     if (httpsIndex !== -1) {
-      // Find the next slash after https://domain
-      const afterHttps = pathname.substring(httpsIndex + 8); // Skip 'https://'
+      const afterHttps = pathname.substring(httpsIndex + 8);
       const nextSlashIndex = afterHttps.indexOf('/');
-      
       if (nextSlashIndex !== -1) {
-        // Get the clean path after the domain
         const cleanPath = afterHttps.substring(nextSlashIndex);
-        return NextResponse.redirect(
-          new URL(cleanPath, request.url),
-          301
-        );
+        return NextResponse.redirect(new URL(cleanPath, request.url), 301);
       }
     } else if (httpIndex !== -1) {
-      // Handle http:// similarly
-      const afterHttp = pathname.substring(httpIndex + 7); // Skip 'http://'
+      const afterHttp = pathname.substring(httpIndex + 7);
       const nextSlashIndex = afterHttp.indexOf('/');
-      
       if (nextSlashIndex !== -1) {
         const cleanPath = afterHttp.substring(nextSlashIndex);
-        return NextResponse.redirect(
-          new URL(cleanPath, request.url),
-          301
-        );
+        return NextResponse.redirect(new URL(cleanPath, request.url), 301);
       }
     }
-    
-    // Fallback: redirect to homepage if parsing fails
     return NextResponse.redirect(new URL('/', request.url), 301);
   }
 
-  // ========================================================================
-  // 3. CRITICAL MIGRATION REDIRECTS
-  // ========================================================================
-  // Handle stubborn single-segment URLs before Next.js router
-  const legacyRedirects: Record<string, string> = {
-    '/how-to-clean-washing-machine': '/smart-home/how-to-clean-washing-machine',
-    '/gratuity-calculator-uae': '/finance-tools/gratuity-calculator-uae',
-    '/uae-vat-calculator': '/finance-tools/uae-vat-calculator',
-    '/zakat-calculator': '/finance-tools/zakat-calculator',
-    '/best-electric-shaver-uae': '/reviews/best-electric-shaver-uae',
-    '/best-baby-monitors-uae': '/parenting-kids/best-baby-monitors-uae',
-    '/best-baby-skincare-uae': '/parenting-kids/best-baby-skincare-uae',
-    '/uae-holidays-2026': '/events-holidays/uae-holidays-2026',
-    '/uae-holidays-2025': '/events-holidays/uae-holidays-2026',
-    '/ramadan-2026': '/events-holidays/ramadan-2026-uae',
-    '/thank-you': '/',
-    '/sample-page': '/',
-  };
-
-  // Remove trailing slash for matching
-  const cleanPath = pathname.replace(/\/$/, '');
-  
-  if (legacyRedirects[cleanPath]) {
-    return NextResponse.redirect(
-      new URL(legacyRedirects[cleanPath], request.url), 
-      301
-    );
-  }
+  // ❌ REMOVED: Section 3 (legacyRedirects)
+  // Reason: These are now handled faster in next.config.ts
 
   // ========================================================================
   // 4. SEO: Block Search Results from Indexing
   // ========================================================================
-  // Block internal search pages (they shouldn't be indexed)
   if (searchParams.has('s') && searchParams.get('s') !== '') {
     const response = NextResponse.next();
     response.headers.set('X-Robots-Tag', 'noindex, nofollow');
@@ -140,7 +98,7 @@ export function middleware(request: NextRequest) {
     needsRedirect = true;
   }
 
-  // C. Clean Dirty URLs (Spaces, encoded chars)
+  // C. Clean Dirty URLs
   if (url.pathname.includes('%20') || url.pathname.includes(' ')) {
     url.pathname = url.pathname
       .replace(/%20/g, '-')
@@ -155,19 +113,16 @@ export function middleware(request: NextRequest) {
   // D. Remove Tracking Params & Legacy URL patterns
   const badParams = ['noamp', 'amp', 'm', 'feed', 'cat', 'fbclid', 'gclid', 'utm_source', 'utm_medium', 'utm_campaign'];
 
-  // Handle /feed suffix
   if (pathname.endsWith('/feed') || pathname.endsWith('/feed/')) {
     url.pathname = pathname.replace(/\/feed\/?$/, '');
     needsRedirect = true;
   }
 
-  // Handle /amp suffix
   if (pathname.endsWith('/amp') || pathname.endsWith('/amp/')) {
     url.pathname = pathname.replace(/\/amp\/?$/, '');
     needsRedirect = true;
   }
 
-  // Remove bad query parameters
   badParams.forEach((param) => {
     if (searchParams.has(param)) {
       searchParams.delete(param);
@@ -175,13 +130,11 @@ export function middleware(request: NextRequest) {
     }
   });
 
-  // E. Handle index.php paths
   if (pathname.startsWith('/index.php/')) {
     url.pathname = pathname.replace('/index.php', '');
     needsRedirect = true;
   }
 
-  // Execute Redirect if needed
   if (needsRedirect) {
     return NextResponse.redirect(url, 301);
   }
@@ -191,37 +144,19 @@ export function middleware(request: NextRequest) {
   // ========================================================================
   const response = NextResponse.next();
 
-  // Security Headers
-  response.headers.set(
-    'Strict-Transport-Security',
-    'max-age=63072000; includeSubDomains; preload'
-  );
-  response.headers.set(
-    'Cross-Origin-Opener-Policy',
-    'same-origin-allow-popups'
-  );
+  response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+  response.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
 
-  // Fix for React Server Components (RSC)
   if (searchParams.has('_rsc')) {
-    response.headers.set(
-      'Cache-Control',
-      'private, no-cache, no-store, must-revalidate'
-    );
-    response.headers.set(
-      'Vary',
-      'RSC, Next-Router-State-Tree, Next-Router-Prefetch'
-    );
+    response.headers.set('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+    response.headers.set('Vary', 'RSC, Next-Router-State-Tree, Next-Router-Prefetch');
   }
 
   response.headers.set('X-Frame-Options', 'SAMEORIGIN');
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('X-XSS-Protection', '1; mode=block');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  
-  response.headers.set(
-    'Permissions-Policy',
-    'camera=(), microphone=(), geolocation=(), payment=(), usb=(), vr=(), accelerometer=(), gyroscope=(), magnetometer=()'
-  );
+  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), vr=(), accelerometer=(), gyroscope=(), magnetometer=()');
 
   // ========================================================================
   // 7. CONTENT SECURITY POLICY
@@ -277,9 +212,7 @@ export function middleware(request: NextRequest) {
     form-action 'self';
     frame-ancestors 'self';
     upgrade-insecure-requests;
-  `
-    .replace(/\s{2,}/g, ' ')
-    .trim();
+  `.replace(/\s{2,}/g, ' ').trim();
 
   response.headers.set('Content-Security-Policy', cspHeader);
 

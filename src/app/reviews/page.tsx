@@ -1,9 +1,10 @@
+// src/app/reviews/page.tsx
 import { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
-  Star, ArrowRight, Package, Smartphone, Home, Baby, 
-  Scissors, Microscope, ShieldCheck, Activity, ChevronRight
+  Star, Package, Smartphone, Home, Baby, 
+  Scissors, Microscope, Activity, ChevronRight
 } from 'lucide-react';
 import { client } from '@/sanity/lib/client';
 
@@ -40,7 +41,7 @@ async function getData() {
       _id, title, rating, "slug": slug.current,
       "categorySlug": coalesce(category->slug.current, categories[0]->slug.current),
       "section": reviewSection,
-      "subCategoryTitle": subCategory->menuLabel, // Fetching the compact menu label
+      "subCategoryTitle": subCategory->menuLabel, 
       "imageUrl": coalesce(image.asset->url, mainImage.asset->url)
     }
   `);
@@ -48,23 +49,16 @@ async function getData() {
   // 3. Advanced Grouping: Section -> SubCategory -> Products
   const grouped: Record<string, Record<string, any[]>> = {};
 
-  // Initialize Sections
   Object.keys(SECTIONS_CONFIG).forEach(key => {
     grouped[key] = {}; 
   });
 
   reviews.forEach((item: any) => {
-    // If item belongs to a valid section
     if (grouped[item.section]) {
-      // Determine Sub-Category Name (or fallback to 'General')
       const subCat = item.subCategoryTitle || 'General Reviews';
-      
-      // Initialize Sub-Category Array if missing
       if (!grouped[item.section][subCat]) {
         grouped[item.section][subCat] = [];
       }
-      
-      // Add Item
       grouped[item.section][subCat].push(item);
     }
   });
@@ -78,26 +72,33 @@ export default async function ReviewsPage() {
   return (
     <div className="min-h-screen bg-slate-50 font-sans pb-20">
 
-      {/* HERO SECTION */}
-      <div className="bg-slate-900 text-white py-12 px-4 text-center relative overflow-hidden">
-        <div className="relative z-10 max-w-4xl mx-auto">
-          <div className="flex justify-center mb-4">
-             <span className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-blue-600/20 border border-blue-500/30 text-blue-300 text-sm font-bold uppercase tracking-wider">
-               <ShieldCheck className="w-4 h-4" /> 100% Independent
-             </span>
-          </div>
-          <h1 className="text-3xl md:text-4xl font-black mb-4 tracking-tight">
-             Expert Reviews for UAE Buyers
+      {/* ================================================================== */}
+      {/* 1. HERO SECTION (UPDATED: Brand Purple Style)                      */}
+      {/* ================================================================== */}
+      <section className="relative bg-[#4b0082] text-white overflow-hidden py-4 lg:py-12">
+        {/* Background Pattern/Glow */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-amber-400/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
+        <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-purple-500/30 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
+
+        <div className="container mx-auto px-4 relative z-10 text-center">
+          <span className="inline-block py-1 px-4 rounded-full bg-amber-400/20 text-amber-300 font-bold text-sm tracking-widest uppercase mb-4 border border-amber-400/30">
+            100% Independent Testing
+          </span>
+          <h1 className="text-4xl md:text-6xl font-black mb-6 leading-tight">
+            Expert Product Reviews <br className="hidden md:block" />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-400">
+              UAE Buying Guides
+            </span>
           </h1>
-          <p className="text-slate-400 text-base max-w-2xl mx-auto">
-             Real tests, hands-on photos, and unbiased verdicts. We buy and test so you don't waste your money.
+          <p className="text-lg md:text-xl text-purple-100 max-w-2xl mx-auto mb-8 leading-relaxed">
+            Real tests, hands-on photos, and unbiased verdicts. We buy and test electronics, appliances, and gear so you don't waste your money.
           </p>
         </div>
-      </div>
+      </section>
 
       <div className="max-w-7xl mx-auto px-4 py-12 space-y-16">
 
-        {/* SECTION 1: Featured Grid (Kept visually rich) */}
+        {/* SECTION 1: Featured Grid */}
         <section>
           <div className="flex items-center gap-3 mb-6">
              <div className="bg-blue-100 p-2 rounded-lg"><Microscope className="w-6 h-6 text-blue-600" /></div>

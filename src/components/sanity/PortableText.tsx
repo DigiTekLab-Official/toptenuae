@@ -42,12 +42,15 @@ const InfoCards = ({ value }: { value: any }) => {
 
 // --- 2. Main Components Map ---
 const components: PortableTextComponents = {
+  // ✅ FIX: Silence "Unknown block type" build warnings
+  unknownType: ({ value, isInline }) => null,
+
   types: {
     infoCards: InfoCards,
 
     navigationGrid: ({ value }: any) => <NavigationGrid title={value.title} items={value.items} />,
   
-    // ✅ The Data for 'targetPost' is now enriched by the Query update above
+    // The Data for 'targetPost' is enriched by the GROQ Query
     relatedLink: ({ value }) => (
       <RelatedLinkCard
         label={value.label}
@@ -77,43 +80,58 @@ const components: PortableTextComponents = {
     },
 
     image: ({ value }: any) => {
-      // 1. Guard Clause
-      if (!value?.asset?._ref) return null;
+      // 1. Guard Clause - Check if we have an asset
+      if (!value?.asset) return null;
 
-      // 2. Generate URL
+      // 2. Get Image URL (prefer pre-built URL from query, fallback to urlForImage())
       let imageUrl = null;
-      try {
-        const builder = urlForImage(value);
-        if (typeof builder === 'string') {
-            imageUrl = builder;
-        } else if (builder && typeof builder.url === 'function') {
-            imageUrl = builder.url();
-        } else {
-             imageUrl = builder?.toString() || null;
+      let width = 1200;
+      let height = 800;
+
+      if (value.asset.url) {
+        // Use pre-built URL from query
+        imageUrl = value.asset.url;
+        // Extract dimensions from metadata if available
+        if (value.asset.metadata?.dimensions) {
+          width = value.asset.metadata.dimensions.width || 1200;
+          height = value.asset.metadata.dimensions.height || 800;
         }
-      } catch (e) {
-        console.error("Error generating image URL:", e);
+      } else if (value.asset._ref) {
+        // Fallback: Build URL from reference
+        try {
+          const builder = urlForImage(value);
+          // Handle specific builder return types safely
+          if (typeof builder === 'string') {
+              imageUrl = builder;
+          } else if (builder && typeof builder.url === 'function') {
+              imageUrl = builder.url();
+          } else {
+               imageUrl = builder?.toString() || null;
+          }
+        } catch (e) {
+          console.error("Error generating image URL:", e);
+          return null;
+        }
+
+        // Extract dimensions from _ref string (e.g., image-key-100x200-png)
+        const ref = value.asset._ref;
+        if (ref) {
+          const parts = ref.split('-');
+          if (parts.length >= 3) {
+             const dimensions = parts[2].split('x');
+             if (dimensions.length === 2) {
+               width = parseInt(dimensions[0], 10);
+               height = parseInt(dimensions[1], 10);
+             }
+          }
+        }
+      } else {
         return null;
       }
 
       if (!imageUrl) return null;
 
-      // 3. Extract Dimensions
-      let width = 1200; 
-      let height = 800; 
-      const ref = value.asset._ref;
-      if (ref) {
-        const parts = ref.split('-');
-        if (parts.length >= 3) {
-           const dimensions = parts[2].split('x');
-           if (dimensions.length === 2) {
-             width = parseInt(dimensions[0], 10);
-             height = parseInt(dimensions[1], 10);
-           }
-        }
-      }
-
-      // 4. Layout Logic
+      // 3. Layout Logic
       const containerClass =
         value.display === "left"
           ? "my-6 md:float-left md:mr-8 md:w-1/2 w-full clear-both md:clear-none"
@@ -146,7 +164,8 @@ const components: PortableTextComponents = {
 
   block: {
     normal: ({ children }) => {
-      if (!children || (Array.isArray(children) && children[0] === "")) {
+      // Prevent rendering empty paragraphs
+      if (!children || (Array.isArray(children) && children.length === 1 && children[0] === "")) {
         return null;
       }
       return (
@@ -176,7 +195,7 @@ const components: PortableTextComponents = {
       </h5>
     ),
     blockquote: ({ children }) => (
-      <blockquote className="border-l-5 border-[#8B5CF6] pl-6 py-4 text-gray-700 pr-6 my-10 bg-[#ECE4FD] italic text-lg rounded-r-lg">
+      <blockquote className="border-l-4 border-[#8B5CF6] pl-6 py-4 text-gray-700 pr-6 my-10 bg-[#ECE4FD]/50 italic text-lg rounded-r-lg">
         {children}
       </blockquote>
     ),
