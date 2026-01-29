@@ -1,21 +1,24 @@
 // src/app/api/amazon-sync/route.ts
 
-import { fetchAndStoreDeals } from "@/lib/amazon-paapi/fetchDeals";
+import { NextResponse } from 'next/server';
 
-export const runtime = "nodejs"; // REQUIRED for amazon-paapi
+// Try edge runtime first - if amazon-paapi doesn't work, we'll need to refactor
+export const runtime = 'edge';
 
 export async function GET() {
   try {
+    // Import dynamically to avoid build-time issues
+    const { fetchAndStoreDeals } = await import("@/lib/amazon-paapi/fetchDeals");
     const result = await fetchAndStoreDeals();
 
-    return Response.json({
+    return NextResponse.json({
       success: true,
       result,
     });
   } catch (error) {
     console.error("Amazon sync error:", error);
-    return Response.json(
-      { success: false, error: "Amazon sync failed" },
+    return NextResponse.json(
+      { success: false, error: error instanceof Error ? error.message : "Amazon sync failed" },
       { status: 500 }
     );
   }
