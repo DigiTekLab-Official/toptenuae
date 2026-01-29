@@ -1,102 +1,138 @@
-// 1. Use 'import' instead of 'require'
-import { createClient } from 'next-sanity';
-// Note: You might need to add: // @ts-ignore if amazon-paapi doesn't have type definitions
-import amazonPaapi from 'amazon-paapi'; 
+// src/lib/amazon-paapi/fetchDeals.ts
 
-// 2. Initialize a Write-Ready Sanity Client
-// We create a separate client here because we need the WRITE_TOKEN
+import { createClient } from "next-sanity";
+// @ts-ignore – amazon-paapi has no official TS types
+import amazonPaapi from "amazon-paapi";
+
+/* ------------------------------------------------------------------ */
+/* 1. Sanity WRITE client (server-side only)                           */
+/* ------------------------------------------------------------------ */
 const sanityWriteClient = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID, // Use NEXT_PUBLIC_ vars for ID
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
-  token: process.env.SANITY_WRITE_TOKEN, // Ensure this is set in .env.local
-  apiVersion: '2024-01-01', // Always specify an API version
-  useCdn: false, // Always false for writes
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
+  token: process.env.SANITY_WRITE_TOKEN!, // REQUIRED
+  apiVersion: "2024-01-01",
+  useCdn: false, // must be false for writes
 });
 
+/* ------------------------------------------------------------------ */
+/* 2. Amazon PA API parameters (UAE)                                   */
+/* ------------------------------------------------------------------ */
 const commonParameters = {
   AccessKey: process.env.AMAZON_ACCESS_KEY!,
   SecretKey: process.env.AMAZON_SECRET_KEY!,
   PartnerTag: process.env.AMAZON_PARTNER_TAG!,
-  Marketplace: 'www.amazon.ae',
-  PartnerType: 'Associates',
+  PartnerType: "Associates",
+  Marketplace: "www.amazon.ae",
 };
 
 const requestParameters = {
-  Keywords: 'deals',
-  SearchIndex: 'All',
+  Keywords: "deals",
+  SearchIndex: "All",
   ItemCount: 20,
   Resources: [
-    'Images.Primary.Medium',
-    'ItemInfo.Title',
-    'Offers.Listings.Price',
-    'Offers.Listings.DealDetails',
-    'CustomerReviews.StarRating',
-    'CustomerReviews.Count',
+    "Images.Primary.Medium",
+    "ItemInfo.Title",
+    "Offers.Listings.Price",
+    "CustomerReviews.StarRating",
+    "CustomerReviews.Count",
   ],
 };
 
-// 3. Define Types (Even simple ones help prevent errors)
+/* ------------------------------------------------------------------ */
+/* 3. Internal type (Sanity deal shape we write)                       */
+/* ------------------------------------------------------------------ */
 interface DealData {
-  _type: 'deal';
+  _type: "deal";
   asin: string;
   title: string;
-  image: string;
+  image?: string;
   affiliateLink: string;
-  originalPrice?: number;
-  dealPrice?: number;
-  discountPercentage?: number;
-  isPrimeExclusive: boolean;
-  rating?: number;
-  reviewCount?: number;
+  dealPrice?: number | null;
+  originalPrice?: number | null;
+  discountPercentage?: number | null;
+  rating?: number | null;
+  reviewCount?: number | null;
+  isActive: boolean;
 }
 
-// 4. Export the function so it can be used elsewhere
+/* ------------------------------------------------------------------ */
+/* 4. Main function                                                    */
+/* ------------------------------------------------------------------ */
 export async function fetchAndStoreDeals() {
   try {
-    console.log('Fetching deals from Amazon...');
-    const data = await amazonPaapi.SearchItems(commonParameters, requestParameters);
+    console.log("🔄 Fetching deals from Amazon PA API (UAE)...");
 
-    if (!data.Items || data.Items.length === 0) {
-      console.warn('No items found from Amazon API.');
-      return;
+    const response = await amazonPaapi.SearchItems(
+      commonParameters,
+      requestParameters
+    );
+
+    const items = response?.Items ?? [];
+
+    if (items.length === 0) {
+      console.warn("⚠️ Amazon PA API returned 0 items");
+      return { added: 0 };
     }
 
-    // Map Amazon data to your Sanity schema
-    const deals: DealData[] = data.Items.map((item: any) => ({
-      _type: 'deal',
-      asin: item.ASIN,
-      title: item.ItemInfo?.Title?.DisplayValue || 'Unknown Title',
-      image: item.Images?.Primary?.Medium?.URL || '',
-      affiliateLink: item.DetailPageURL,
-      // Safe navigation for deeply nested properties
-      originalPrice: item.Offers?.Listings?.[0]?.Price?.SavingBasis?.Amount || 0,
-      dealPrice: item.Offers?.Listings?.[0]?.Price?.Amount || 0,
-      discountPercentage: item.Offers?.Listings?.[0]?.Price?.Savings?.Percentage || 0,
-      isPrimeExclusive: item.Offers?.Listings?.[0]?.DeliveryInfo?.IsPrimeEligible || false,
-      rating: item.CustomerReviews?.StarRating || 0,
-      reviewCount: item.CustomerReviews?.Count || 0,
-    }));
+    /* -------------------------------------------------------------- */
+    /* 5. Map Amazon → Sanity (API IS SOURCE OF TRUTH)                */
+    /* -------------------------------------------------------------- */
+    const deals: DealData[] = items.map((item: any) => {
+      const listing = item.Offers?.Listings?.[0];
+      const price = listing?.Price?.Amount ?? null;
+      const mrp = listing?.Price?.SavingBasis?.Amount ?? null;
+      const discount =
+        listing?.Price?.Savings?.Percentage ??
+        (price && mrp ? Math.round(((mrp - price) / mrp) * 100) : null);
 
-    // 5. Use a Transaction for Atomic, Fast Updates
+      // 🔎 VERY IMPORTANT: log LIVE Amazon API prices (proof)
+      console.log(
+        "[AMAZON API]",
+        item.ASIN,
+        "PRICE:",
+        price,
+        "MRP:",
+        mrp,
+        "DISCOUNT:",
+        discount
+      );
+
+      return {
+        _type: "deal",
+        asin: item.ASIN,
+        title: item.ItemInfo?.Title?.DisplayValue ?? "Unknown product",
+        image: item.Images?.Primary?.Medium?.URL,
+        affiliateLink: item.DetailPageURL,
+        dealPrice: price,
+        originalPrice: mrp,
+        discountPercentage: discount,
+        rating: item.CustomerReviews?.StarRating ?? null,
+        reviewCount: item.CustomerReviews?.Count ?? null,
+        isActive: true,
+      };
+    });
+
+    /* -------------------------------------------------------------- */
+    /* 6. Write to Sanity (deterministic IDs)                          */
+    /* -------------------------------------------------------------- */
     const transaction = sanityWriteClient.transaction();
 
     deals.forEach((deal) => {
-      // Use a deterministic ID so we don't create duplicates
-      const docId = `deal-${deal.asin}`;
-      
+      const docId = `deal-${deal.asin}`; // API-owned document
+
       transaction.createOrReplace({
         _id: docId,
-        ...deal
+        ...deal,
       });
     });
 
-    const result = await transaction.commit();
-    console.log(`Successfully updated ${deals.length} deals in Sanity.`);
-    return result;
+    await transaction.commit();
 
+    console.log(`✅ Successfully synced ${deals.length} deals to Sanity`);
+    return { added: deals.length };
   } catch (error) {
-    console.error('Failed to fetch/store deals:', error);
-    // Re-throw so the calling function knows it failed
+    console.error("❌ Amazon PA API sync failed:", error);
     throw error;
   }
 }
