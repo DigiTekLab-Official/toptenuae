@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   description: "Curated list of the best price drops in UAE. Electronics, Fashion, and Home essentials at up to 70% off.",
 };
 
-export const revalidate = 3600;
+// Cloudflare Pages: Fully static generation (no ISR)
 
 // --- Loading Skeleton ---
 function DealsLoading() {

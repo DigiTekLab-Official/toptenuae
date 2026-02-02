@@ -1,8 +1,7 @@
 // src/app/[category]/page.tsx
 
-export const revalidate = 86400;
+// Cloudflare Pages: Fully static generation (no ISR)
 export const dynamicParams = true;
-// IMPORTANT FIX: Handle dynamic segments correctly
 export const dynamic = "force-static";
 
 import { Metadata } from "next";

@@ -9,7 +9,7 @@ import JsonLd from '@/components/sanity/JsonLd';
 import ArticleView from "@/components/views/ArticleView";
 import { GENERIC_POST_QUERY } from "@/sanity/lib/queries";
 
-export const revalidate = 3600;
+// Cloudflare Pages: Fully static generation (no ISR)
 export const dynamicParams = true;
 
 // Helper: Normalize Categories

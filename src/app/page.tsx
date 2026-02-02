@@ -1,5 +1,5 @@
 // src/app/page.tsx
-export const revalidate = 86400; // 24 Hours ISR
+// Cloudflare Pages: Fully static generation (no ISR)
 export const runtime = 'nodejs';
 
 import { client } from "@/sanity/lib/client";
@@ -223,7 +223,6 @@ export default async function Home() {
     data = await client.fetch(HOME_QUERY, {}, {
       cache: 'force-cache',
       next: { 
-        revalidate: 86400,
         tags: ['homepage']
       }
     });

@@ -9,8 +9,7 @@ import JsonLd from "@/components/sanity/JsonLd";
 import ProductView from "@/components/views/ProductView";
 import { PRODUCT_BY_SLUG_QUERY } from "@/sanity/lib/queries";
 
-// Next.js 15 - Static Generation Config
-export const revalidate = 3600; 
+// Cloudflare Pages: Fully static generation (no ISR)
 export const dynamicParams = true; 
 
 // ----------------------------
@@ -81,7 +80,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const data = await client.fetch<ProductData | null>(
       PRODUCT_BY_SLUG_QUERY,
       { slug },
-      { cache: "force-cache", next: { revalidate: 3600 } }
+      { cache: "force-cache" }
     );
 
     if (!data) return { title: "Not Found", robots: { index: false } };
@@ -116,7 +115,7 @@ export default async function ReviewPage({ params }: PageProps) {
     data = await client.fetch<ProductData | null>(
       PRODUCT_BY_SLUG_QUERY,
       { slug },
-      { cache: "force-cache", next: { revalidate: 3600 } }
+      { cache: "force-cache" }
     );
   } catch (error) {
     console.error(`Error fetching product review [${slug}]:`, error);
