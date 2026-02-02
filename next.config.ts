@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
   // ============================================================================
 
   productionBrowserSourceMaps: false, 
-  trailingSlash: false, 
+  trailingSlash: true, // ✅ CLOUDFLARE PAGES REQUIREMENT
   reactStrictMode: true, 
   poweredByHeader: false, 
 

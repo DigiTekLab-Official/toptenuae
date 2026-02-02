@@ -17,14 +17,20 @@ export default function robots(): MetadataRoute.Robots {
     '/wp-includes/',
     '/wp-content/',
     
-    // 2. QUERY PARAMETERS
+    // 2. LEGACY/DEPRECATED PATHS
+    '/category/',
+    '/tag/',
+    '/author/',
+    
+    // 3. QUERY PARAMETERS
     '/*?s=',
     '/*?ref=',
     '/*?utm_',
     '/*?fbclid',
     '/*?gclid',
+    '/*?noamp',
     
-    // 3. UTILITY PAGES
+    // 4. UTILITY PAGES
     '/search/',
     '/thank-you',
     '/phpinfo.php',

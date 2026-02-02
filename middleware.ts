@@ -3,9 +3,9 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export const config = {
-  // Exclude static assets/api from middleware to save performance
+  // ✅ CLOUDFLARE OPTIMIZED: Exclude static assets, API, and Next.js internals
   matcher: [
-    '/((?!api|_next/static|_next/image|studio|favicon.ico|icon.svg|icon-v2.svg|apple-icon.png|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!api|_next/static|_next/image|_next/data|studio|favicon.ico|icon.svg|icon-v2.svg|apple-icon.png|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf|eot|js|css|json)$).*)',
   ],
 };
 
@@ -24,7 +24,7 @@ export function middleware(request: NextRequest) {
     hostname.startsWith('www.webmail.') ||
     hostname.startsWith('www.mail.')
   ) {
-    return new NextResponse('Gone', { status: 410 });
+    return new NextResponse('Forbidden', { status: 403 });
   }
 
   // Block PHP files and suspicious paths
@@ -35,13 +35,12 @@ export function middleware(request: NextRequest) {
     pathname === '/docs/index.html' ||
     pathname.includes('/page_does_not_exist')
   ) {
-    return new NextResponse('Gone', { status: 410 });
+    return new NextResponse('Not Found', { status: 404 });
   }
 
   // ========================================================================
-  // 2. CRITICAL FIX: Catch Duplicate URL Bug
+  // 2. FIX: Malformed URLs (Cloudflare Compatible)
   // ========================================================================
-  // Example: /best-electric-shaver-uae/https://toptenuae.com/...
   if (pathname.includes('://')) {
     const httpsIndex = pathname.indexOf('https://');
     const httpIndex = pathname.indexOf('http://');
@@ -51,6 +50,7 @@ export function middleware(request: NextRequest) {
       const nextSlashIndex = afterHttps.indexOf('/');
       if (nextSlashIndex !== -1) {
         const cleanPath = afterHttps.substring(nextSlashIndex);
+        // ✅ Cloudflare Pages: Use absolute URL
         return NextResponse.redirect(new URL(cleanPath, request.url), 301);
       }
     } else if (httpIndex !== -1) {
@@ -58,10 +58,11 @@ export function middleware(request: NextRequest) {
       const nextSlashIndex = afterHttp.indexOf('/');
       if (nextSlashIndex !== -1) {
         const cleanPath = afterHttp.substring(nextSlashIndex);
+        // ✅ Cloudflare Pages: Use absolute URL
         return NextResponse.redirect(new URL(cleanPath, request.url), 301);
       }
     }
-    return NextResponse.redirect(new URL('/', request.url), 301);
+    return new NextResponse('Bad Request', { status: 400 });
   }
 
   // ❌ REMOVED: Section 3 (legacyRedirects)
@@ -77,28 +78,30 @@ export function middleware(request: NextRequest) {
   }
 
   // ========================================================================
-  // 5. SEO: URL Normalization
+  // 4. URL CLEANUP & CANONICAL ENFORCEMENT
   // ========================================================================
   let needsRedirect = false;
+  let isWWWRedirect = false;
 
-  // A. Force WWW → Non-WWW
+  // A. Force WWW → Non-WWW (Critical for canonical URLs & GSC)
   if (hostname.startsWith('www.')) {
-    return NextResponse.redirect(
-      new URL(
-        `https://${hostname.replace('www.', '')}${pathname}${url.search}`,
-        request.url
-      ),
-      301
-    );
+    url.hostname = hostname.replace('www.', '');
+    needsRedirect = true;
+    isWWWRedirect = true;
   }
 
-  // B. Force Lowercase
+  // B. Block Legacy WordPress Paths (Return 410 Gone for SEO)
+  if (pathname.startsWith('/category/') || pathname.startsWith('/tag/') || pathname.startsWith('/author/')) {
+    return new NextResponse('Gone', { status: 410 });
+  }
+
+  // C. Force Lowercase
   if (pathname !== pathname.toLowerCase()) {
     url.pathname = pathname.toLowerCase();
     needsRedirect = true;
   }
 
-  // C. Clean Dirty URLs
+  // D. Clean Dirty URLs
   if (url.pathname.includes('%20') || url.pathname.includes(' ')) {
     url.pathname = url.pathname
       .replace(/%20/g, '-')
@@ -110,16 +113,22 @@ export function middleware(request: NextRequest) {
     needsRedirect = true;
   }
 
-  // D. Remove Tracking Params & Legacy URL patterns
-  const badParams = ['noamp', 'amp', 'm', 'feed', 'cat', 'fbclid', 'gclid', 'utm_source', 'utm_medium', 'utm_campaign'];
+  // E. Remove Tracking Params & Legacy URL patterns
+  const badParams = ['noamp', 'amp', 'm', 'feed', 'cat', 'fbclid', 'gclid', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
 
   if (pathname.endsWith('/feed') || pathname.endsWith('/feed/')) {
-    url.pathname = pathname.replace(/\/feed\/?$/, '');
+    url.pathname = pathname.replace(/\/feed\/?$/, '/');
     needsRedirect = true;
   }
 
   if (pathname.endsWith('/amp') || pathname.endsWith('/amp/')) {
-    url.pathname = pathname.replace(/\/amp\/?$/, '');
+    url.pathname = pathname.replace(/\/amp\/?$/, '/');
+    needsRedirect = true;
+  }
+
+  // Block /amp/ anywhere in path (e.g., /thank-you/amp/)
+  if (pathname.includes('/amp/') && !pathname.includes('_next')) {
+    url.pathname = pathname.replace(/\/amp\//g, '/');
     needsRedirect = true;
   }
 
@@ -135,8 +144,31 @@ export function middleware(request: NextRequest) {
     needsRedirect = true;
   }
 
+  // F. TRAILING SLASH ENFORCEMENT (Critical for Cloudflare Pages + trailingSlash: true)
+  // Check if URL is missing trailing slash (after all cleanup)
+  const hasFileExtension = /\.[a-zA-Z0-9]+$/.test(url.pathname);
+  const isRoot = url.pathname === '/';
+  const hasTrailingSlash = url.pathname.endsWith('/');
+
+  // Only add trailing slash if:
+  // 1. Not a file (no .jpg, .css, etc.)
+  // 2. Not root (already has slash)
+  // 3. Doesn't already have trailing slash
+  if (!hasFileExtension && !isRoot && !hasTrailingSlash) {
+    url.pathname = url.pathname + '/';
+    needsRedirect = true;
+  }
+
+  // G. Perform Redirect if needed
   if (needsRedirect) {
-    return NextResponse.redirect(url, 301);
+    // ✅ Cloudflare Pages: Construct absolute URL for proper edge caching
+    const redirectUrl = new URL(url.pathname + url.search, request.url);
+    
+    // Use 308 for trailing slash enforcement (SEO best practice)
+    // Use 301 for all other redirects
+    const statusCode = isWWWRedirect ? 301 : 308;
+    
+    return NextResponse.redirect(redirectUrl, statusCode);
   }
 
   // ========================================================================
