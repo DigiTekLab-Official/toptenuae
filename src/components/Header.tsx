@@ -30,7 +30,7 @@ const NAV_LINKS: NavLink[] = [
   { name: "What's On", href: "/events-holidays", title: "UAE Events & Holidays", badge: null },
   
   // ✅ UPDATED: Removed "Hot" badge text, kept Flame icon
-  { name: "Offers", href: "/deals", title: "Latest Offers", isHighlight: true, badge: null }, 
+  { name: "Ramadan Deals", href: "/deals", title: "Latest Deals", isHighlight: true, badge: null }, 
 ];
 
 export default function Header() {
@@ -53,7 +53,7 @@ export default function Header() {
   useEffect(() => {
     setIsMobileMenuOpen(false);
     setIsSearchOpen(false);
-  }, [pathname]);
+  }, [pathname]); 
 
   useEffect(() => {
     if (isMobileMenuOpen) {

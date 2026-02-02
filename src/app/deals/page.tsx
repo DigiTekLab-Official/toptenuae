@@ -95,7 +95,7 @@ export default async function DealsPage() {
             <h1 className="text-3xl md:text-5xl font-black mb-6 tracking-tight leading-tight">
               Save Big with <br className="md:hidden"/>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-orange-400">
-                Super Saver Week & ADCB
+                Ramadan Sale 2026
               </span>
             </h1>
             
