@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
             exclude: ["error", "warn"], 
           }
         : false,
-  },
+        },
 
   // ============================================================================
   // 2. IMAGES – CLOUDFLARE PAGES CONFIGURATION
