@@ -35,7 +35,7 @@ export default function PriceWidget({
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden hover:border-slate-300 transition-colors">
         
         {/* Left: Product Context */}
-        <div className="flex-grow p-4 sm:p-5 flex flex-col justify-center border-b sm:border-b-0 sm:border-r border-slate-100 bg-slate-50/50">
+        <div className="grow p-4 sm:p-5 flex flex-col justify-center border-b sm:border-b-0 sm:border-r border-slate-100 bg-slate-50/50">
           {badge && (
             <span className="inline-block text-[13px] font-bold uppercase tracking-wider text-[#4b0082] bg-purple-50 px-2 py-0.5 rounded-md w-fit mb-2">
               {badge}
@@ -52,7 +52,7 @@ export default function PriceWidget({
         </div>
 
         {/* Right: Price & CTA */}
-        <div className="p-4 sm:p-5 flex items-center justify-between sm:justify-end gap-4 sm:gap-6 min-w-[200px]">
+        <div className="p-4 sm:p-5 flex items-center justify-between sm:justify-end gap-4 sm:gap-6 min-w-50">
           <div className="text-right">
             <span className="block text-2xl font-black text-slate-900 whitespace-nowrap">
               {currency} {safePrice}

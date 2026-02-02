@@ -41,7 +41,7 @@ export const PRODUCT_BY_SLUG_QUERY = groq`
     reviewCount,
     verdict,
     mainImage { "url": asset->url, alt },
-    itemDescription,
+    // itemDescription[] { _type, _key, style, children[] { _type, _key, text, marks }, markDefs[] { _type, _key } },
     "seoTitle": coalesce(seo.metaTitle, title),
     "seoDescription": coalesce(seo.metaDescription, description)
   }
@@ -58,39 +58,25 @@ export const TOP_TEN_LIST_QUERY = groq`
     publishedAt,
     "updatedAt": _updatedAt, 
     "seoTitle": coalesce(seo.metaTitle, title),
-    "seoDescription": coalesce(seo.metaDescription, intro),
-    "socialShareImage": seo.shareGraphic.asset->url,
-    intro,
-    body[] { ..., _type == "image" => { ..., asset-> }, _type == "relatedLink" => { ..., targetPost->{ title, "slug": slug.current } } },
-    closingContent[] { ..., _type == "image" => { ..., asset-> }, _type == "relatedLink" => { ..., targetPost->{ title, "slug": slug.current } } },
-    showAffiliateDisclosure,
+    "seoDescription": "",
     mainImage { "url": asset->url, alt },
+    intro,
+    "body": body[],
+    closingContent,
+    showAffiliateDisclosure,
     faqs[] { _key, question, answer },
-    
     listItems[] | order(rank asc) {
       _key, rank, badgeLabel, whySelected, customVerdict,
       product->{
         _type, title, brand, "slug": slug.current,
         priceTier, retailer, price, currency, availability, 
         affiliateLink, customerRating, reviewCount, verdict,
-        keyFeatures, pros, cons, itemDescription,
         location, address, curriculum, feeRange, realityCheck, website,
         "rating": coalesce(rating, customerRating),
         entityType, code, country,
-        mainImage { "url": asset->url, alt }
+        mainImage { "url": asset->url, alt },
+        heroFeature, keyFeatures[], pros[], cons[]
       }
-    },
-
-    "relatedLists": *[_type == "topTenList" && _id != ^._id][0...3] {
-      title, "slug": slug.current, intro,
-      mainImage { "url": asset->url, alt },
-      "category": coalesce(categories[0]->slug.current, "reviews")
-    },
-
-    "relatedProducts": *[_type == "product" && customerRating >= 4.5][0...4] {
-      title, brand, "slug": slug.current,
-      price, currency, customerRating,
-      mainImage { "url": asset->url, alt }
     }
   }
 `
@@ -136,33 +122,17 @@ export const GENERIC_POST_QUERY = groq`
     _type,
     "slug": slug.current, _id, title, description,
     "seoTitle": coalesce(seo.metaTitle, title),
-    "seoDescription": coalesce(seo.metaDescription, intro, description),
-    "socialShareImage": seo.shareGraphic.asset->url,
+    "seoDescription": "",
     "mainImage": coalesce(mainImage, image, coverImage, product->mainImage) { "url": asset->url, alt },
     "category": coalesce(categories[0], category)->{ "title": title, "slug": slug.current, "menuLabel": menuLabel },
-    "publishedAt": _createdAt, "_updatedAt": _updatedAt, 
-    intro,
-    
-    // Explicitly fetch content arrays for How-To and Holidays
-    procedure[] { ..., _type == "image" => { ..., asset-> } },
-    content[] { ..., _type == "image" => { ..., asset-> } },
-    
-    body[] { ..., _type == "image" => { ..., asset-> }, _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current } } },
-    closingContent[] { ..., _type == "image" => { ..., asset-> }, _type == "relatedLink" => { _type, label, preText, targetPost->{ title, "slug": slug.current } } },
-    
+    "publishedAt": _createdAt, "_updatedAt": _updatedAt,
+    "intro": intro,
+    "body": body,
+    "content": content,
+    "procedure": procedure,
+    "closingContent": closingContent,
     faqs[] { _key, question, answer },
-    startDate, endDate, locationName, address, ticketPrice,
-    
-    listItems[] { 
-      _key, rank, badgeLabel, whySelected, customVerdict, 
-      product->{ 
-        _type, title, "slug": slug.current, 
-        "mainImage": mainImage { "url": asset->url, alt },
-        affiliateLink, price, currency, customerRating, verdict,
-        entityType, code, country, website, rating,
-        location, address, curriculum, feeRange
-      } 
-    }
+    startDate, endDate, locationName, address, ticketPrice
   }
 `
 
@@ -186,7 +156,7 @@ export const CATEGORY_PAGE_QUERY = groq`
     ] | order(publishedAt desc) {
       _type, title, "slug": slug.current, publishedAt,
       "mainImage": coalesce(mainImage, image, product->mainImage) { "url": asset->url, alt },
-      "rawExcerpt": coalesce(intro, description, itemDescription, body[0...1])
+      "rawExcerpt": coalesce(description, "", "")
     }
   }
 `

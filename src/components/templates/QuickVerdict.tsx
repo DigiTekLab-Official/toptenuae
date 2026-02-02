@@ -45,14 +45,14 @@ export default function QuickVerdict({ picks }: { picks: QuickPick[] }) {
               
               {/* --- FIX 1 & 2: Uniform Height & Primary Color --- */}
               {/* min-h-[4rem] ensures alignment even if text breaks to 2 lines */}
-              <div className="bg-primary text-white text-base font-bold uppercase tracking-wider px-4 py-2 text-center min-h-[4rem] flex items-center justify-center">
+              <div className="bg-primary text-white text-base font-bold uppercase tracking-wider px-4 py-2 text-center min-h-16 flex items-center justify-center">
                 {pick.tag}
               </div>
 
               <div className="p-6 flex flex-col flex-1">
                 
                 {/* Product Title */}
-                <h3 className="text-lg font-bold text-gray-900 leading-snug mb-4 min-h-[3.5rem] flex-shrink-0">
+                <h3 className="text-lg font-bold text-gray-900 leading-snug mb-4 min-h-14 shrink-0">
                    {pick.title}
                 </h3>
 

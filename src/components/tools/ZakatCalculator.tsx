@@ -1,3 +1,4 @@
+// src/components/tools/ZakatCalculator.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -81,7 +82,7 @@ export default function ZakatCalculator() {
       {/* SECTION 1: RATES CARD (High Visibility) */}
       <div className="bg-white rounded-2xl shadow-lg border border-slate-300 overflow-hidden">
         {/* Header Strip */}
-        <div className="bg-gradient-to-r from-amber-300 via-amber-400 to-amber-300 p-4 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="bg-linear-to-r from-amber-300 via-amber-400 to-amber-300 p-4 flex flex-col md:flex-row justify-between items-center gap-4">
           <h2 className="text-[#4b0082] font-black text-lg flex items-center gap-2">
             <Coins className="w-6 h-6" />
             Today's Gold & Silver Rate
@@ -94,7 +95,7 @@ export default function ZakatCalculator() {
 
         <div className="p-6">
           <div className="bg-amber-50 p-4 rounded-xl border border-amber-500 mb-6 flex gap-3">
-            <Info className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+            <Info className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
             <p className="text-base text-gray-900 leading-relaxed">
               <strong>Mentor Tip:</strong> For Nisab threshold calculation, always use the <strong>24K</strong> rate. For your jewelry value, use the rate matching your gold purity (e.g., 22K).
             </p>
@@ -113,7 +114,7 @@ export default function ZakatCalculator() {
         <div className="bg-white rounded-2xl shadow-lg border border-slate-300 overflow-hidden flex flex-col h-full">
           <button
             onClick={() => setIsAssetsOpen(!isAssetsOpen)}
-            className="w-full flex items-center justify-between p-5 bg-gradient-to-br from-emerald-50 to-white border-b border-emerald-100 hover:bg-emerald-50 transition-colors group"
+            className="w-full flex items-center justify-between p-5 bg-linear-to-br from-emerald-50 to-white border-b border-emerald-100 hover:bg-emerald-50 transition-colors group"
           >
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
@@ -170,7 +171,7 @@ export default function ZakatCalculator() {
         <div className="bg-white rounded-2xl shadow-lg border border-slate-300 overflow-hidden flex flex-col h-full">
           <button
             onClick={() => setIsLiabilitiesOpen(!isLiabilitiesOpen)}
-            className="w-full flex items-center justify-between p-5 bg-gradient-to-br from-rose-50 to-white border-b border-rose-100 hover:bg-rose-50 transition-colors group"
+            className="w-full flex items-center justify-between p-5 bg-linear-to-br from-rose-50 to-white border-b border-rose-100 hover:bg-rose-50 transition-colors group"
           >
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
@@ -205,7 +206,7 @@ export default function ZakatCalculator() {
       <div className="bg-white rounded-2xl text-center shadow-2xl shadow-purple-900/50 border border-white/10 relative overflow-hidden">
         {/* Subtle Glow Effect */}
         <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/20 blur-[50px] rounded-full pointer-events-none"></div>
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-300 via-amber-500 to-amber-300"></div>
+        <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-amber-300 via-amber-500 to-amber-300"></div>
         <div className=" w-full bg-[#4b0082] text-white p-4 ">
 
           <span className="uppercase text-xl font-bold">Total Zakat Payable</span>

@@ -30,7 +30,7 @@ interface TopTenListData {
   seoTitle?: string;
   seoDescription?: string;
   socialShareImage?: string;
-  intro?: string;
+  intro?: any[];
   body?: any[];
   closingContent?: any[];
   showAffiliateDisclosure?: boolean;

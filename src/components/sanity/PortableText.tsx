@@ -1,4 +1,6 @@
 // src/components/PortableText.tsx
+"use client";
+
 import { PortableText as PortableTextComponent, PortableTextComponents } from "@portabletext/react";
 import { ExternalLink } from "lucide-react";
 import RelatedLinkCard from "@/components/ui/RelatedLinkCard";
@@ -242,5 +244,60 @@ const components: PortableTextComponents = {
 };
 
 export default function PortableText({ value }: { value: any }) {
-  return <PortableTextComponent value={value} components={components} />;
+  // Check if value is valid before processing
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  // Ensure we always work with an array
+  let normalizedValue: any[] = [];
+
+  if (Array.isArray(value)) {
+    // Already an array - use it directly
+    normalizedValue = value.filter(item => item !== null && item !== undefined);
+  } else if (typeof value === 'object' && value !== null) {
+    // Single object - check if it looks like a Portable Text block
+    // This check is CRITICAL: if it has _type or children, it's definitely a block
+    const hasBlockSignature = value._type !== undefined || value.children !== undefined || value._key !== undefined || value.style !== undefined;
+    
+    if (hasBlockSignature) {
+      // This is a Portable Text block object - MUST wrap in array
+      console.log('[PortableText] Wrapping single block in array:', { _type: value._type, _key: value._key, keys: Object.keys(value) });
+      normalizedValue = [value];
+    } else if (value.asset || value.url || value._ref) {
+      // Image or reference object - don't render
+      return null;
+    } else {
+      // Some other unknown object
+      console.warn('[PortableText] Received unexpected object:', Object.keys(value));
+      return null;
+    }
+  } else if (typeof value === 'string') {
+    // Strings shouldn't be passed to PortableText  
+    console.warn('[PortableText] Received string value, expected array or block');
+    return null;
+  } else {
+    // Unexpected type
+    console.warn('[PortableText] Unexpected value type:', typeof value);
+    return null;
+  }
+
+  // Final validation - ensure we have a non-empty array of objects
+  if (normalizedValue.length === 0) {
+    return null;
+  }
+
+  // Safety: Filter out any non-block items that slipped through
+  normalizedValue = normalizedValue.filter(item => {
+    if (typeof item === 'object' && item !== null && (item._type || item.children || item._key)) {
+      return true;
+    }
+    return false;
+  });
+
+  if (normalizedValue.length === 0) {
+    return null;
+  }
+
+  return <PortableTextComponent value={normalizedValue} components={components} />;
 }

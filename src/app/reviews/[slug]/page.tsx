@@ -47,6 +47,8 @@ interface ProductData {
   _updatedAt?: string;
   _createdAt?: string;
   publishedAt?: string;
+  category?: { slug?: { current?: string } };
+  categories?: Array<{ slug?: { current?: string } }>;
 }
 
 // ----------------------------
@@ -129,6 +131,13 @@ export default async function ReviewPage({ params }: PageProps) {
   }
   if (data._type === 'holiday' || data._type === 'event' || data._type === 'article') {
     permanentRedirect(`/events-holidays/${slug}`);
+  }
+  if (data._type === 'howTo' || data._type === 'tool') {
+    // Determine the correct category for redirecting
+    const category = data.category?.slug?.current || 
+                     data.categories?.[0]?.slug?.current || 
+                     (data._type === 'howTo' ? 'how-to-guides' : 'finance-tools');
+    permanentRedirect(`/${category}/${slug}`);
   }
 
   // FORCE "REVIEW" SUFFIX FOR H1

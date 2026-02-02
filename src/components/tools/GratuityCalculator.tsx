@@ -59,7 +59,7 @@ export default function GratuityCalculator() {
       
       {/* Header */}
       <div className="bg-[#4b0082] p-5 text-center relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-300 via-amber-500 to-amber-300"></div>
+        <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-amber-300 via-amber-500 to-amber-300"></div>
         {/* WAVE FIX: Heading structure safe */}
         <h2 className="text-xl font-bold text-white relative z-10">UAE Gratuity Calculator</h2>
         <p className="text-amber-300 text-sm uppercase tracking-wider font-semibold mt-1 relative z-10">

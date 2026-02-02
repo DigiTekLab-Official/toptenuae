@@ -145,7 +145,7 @@ export default function ComparisonSummaryTable({ items }: { items: ListItem[] })
             >
               <div className="p-4 border-b border-gray-100 bg-gray-50/50 flex items-start gap-3">
                  {/* ✅ UPDATED: bg-primary */}
-                 <span className="bg-primary text-white font-black text-sm w-8 h-8 flex items-center justify-center rounded-lg shadow-sm flex-shrink-0">
+                 <span className="bg-primary text-white font-black text-sm w-8 h-8 flex items-center justify-center rounded-lg shadow-sm shrink-0">
                     #{item.rank}
                  </span>
                  <h4 className="font-bold text-gray-900 leading-tight">
@@ -154,7 +154,7 @@ export default function ComparisonSummaryTable({ items }: { items: ListItem[] })
               </div>
 
               <div className="p-4 flex items-center gap-4">
-                 <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg border border-gray-200 bg-white flex items-center justify-center">
+                 <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-gray-200 bg-white flex items-center justify-center">
                    {imageUrl ? (
                       <Image 
                         src={imageUrl} 

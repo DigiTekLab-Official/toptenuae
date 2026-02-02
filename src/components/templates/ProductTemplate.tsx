@@ -92,7 +92,7 @@ export default function ProductTemplate({ data }: ProductTemplateProps) {
             
             {/* Main Product Image */}
             <div className="bg-white rounded-3xl p-8 shadow-xl border border-slate-100 flex items-center justify-center relative overflow-hidden group">
-                <div className="w-full h-[300px] md:h-[500px] p-8 flex items-center justify-center relative">
+                <div className="w-full h-75 md:h-125 p-8 flex items-center justify-center relative">
                   {mainImage?.url ? (
                     <Image
                       src={mainImage.url}
@@ -108,7 +108,7 @@ export default function ProductTemplate({ data }: ProductTemplateProps) {
                     </div>
                   )}
                 </div>
-                <div className="absolute top-0 right-0 bg-gradient-to-bl from-amber-400 to-orange-500 text-white px-6 py-2 rounded-bl-3xl font-bold shadow-lg z-10">
+                <div className="absolute top-0 right-0 bg-linear-to-bl from-amber-400 to-orange-500 text-white px-6 py-2 rounded-bl-3xl font-bold shadow-lg z-10">
                    Editor's Review
                 </div>
             </div>

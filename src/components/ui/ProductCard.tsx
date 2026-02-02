@@ -59,7 +59,7 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
         {/* --- HEADER --- */}
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-3 mb-4">
           <div className="flex items-start gap-3">
-            <span className="flex-shrink-0 bg-primary-50 text-primary text-xl font-black px-3 py-1 rounded-lg border-2 border-primary-100 shadow-sm">
+            <span className="shrink-0 bg-primary-50 text-primary text-xl font-black px-3 py-1 rounded-lg border-2 border-primary-100 shadow-sm">
               #{item.rank}
             </span>
             <div>
@@ -78,8 +78,8 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
         {/* --- BADGE --- */}
         {item.badgeLabel && (
           <div className="mb-6 flex">
-            <div className="relative bg-primary text-white px-5 py-1.5 rounded-lg shadow-lg overflow-hidden border-t border-white/20 border-b border-black/20">
-              <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/30 to-transparent pointer-events-none"></div>
+            <div className="relative bg-primary text-white px-5 py-1.5 rounded-lg shadow-lg overflow-hidden border-t border-white/20 border-b border-white/20">
+              <div className="absolute inset-x-0 top-0 h-1/2 bg-linear-to-b from-white/30 to-transparent pointer-events-none"></div>
               <div className="relative flex items-center gap-2 font-black tracking-wide uppercase text-sm">
                 <LogoIcon className="w-5 h-5" /> 
                 <span className="drop-shadow-sm">{item.badgeLabel}</span>
@@ -110,7 +110,7 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
         )}
 
         {/* --- VERDICT --- */}
-        {finalVerdict && (
+        {finalVerdict && typeof finalVerdict === 'string' && (
           <div className="mb-6 bg-primary-50 border-l-4 border-primary p-4 md:p-5 rounded-r-xl shadow-sm">
             <div className="flex items-center gap-2 mb-2">
               <Info className="w-4 h-4 text-primary" />
@@ -179,7 +179,7 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
         )}
 
         {/* --- WHY WE PICKED THIS --- */}
-        {item.whySelected && (
+        {item.whySelected && typeof item.whySelected === 'string' && (
           <div className="mb-4 p-4 bg-slate-100 rounded-xl border border-slate-300 border-l-4 border-l-slate-600">
             <div className="flex items-center gap-2 mb-1">
               <Info className="w-3 h-3 text-primary" />
@@ -213,7 +213,7 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
                  >
                     Check Price on {product.retailer || 'Amazon'} <ExternalLink className="w-4 h-4" />
                  </a>
-                 {product.retailer && (
+                 {product.retailer && product.retailer.toLowerCase() !== 'amazon.ae' && (
                     <div className="text-center mt-1 text-xs text-gray-500 uppercase tracking-widest font-semibold flex items-center justify-center gap-1">
                       <Shield className="w-3 h-3 text-gray-400" /> via {product.retailer}
                     </div>

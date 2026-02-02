@@ -1,3 +1,4 @@
+// src/components/templates/TopTenTemplate.tsx
 "use client";
 
 import React from "react";
@@ -228,7 +229,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
 
       {isEducationPost && (
          <div className="bg-slate-50 border-b border-gray-100 py-2 px-4 mb-6 text-sm text-gray-600 flex items-start gap-2 leading-relaxed">
-           <Shield className="w-4 h-4 mt-0.5 flex-shrink-0 opacity-80" />
+           <Shield className="w-4 h-4 mt-0.5 shrink-0 opacity-80" />
            <p>
              <strong>Transparency Note:</strong> Independent school rankings based on research and KHDA reports.
            </p>
@@ -237,7 +238,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
 
       {/* HERO IMAGE */}
       {heroImageUrl && (
-        <div className="relative w-full aspect-[3/2] lg:aspect-[16/9] overflow-hidden rounded-xl shadow-lg mb-8">
+        <div className="relative w-full aspect-3/2 lg:aspect-video overflow-hidden rounded-xl shadow-lg mb-8">
           <Image
             src={heroImageUrl}
             alt={data.title}
@@ -267,7 +268,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
                   <span className="bg-primary text-white text-xs font-black w-5 h-5 flex items-center justify-center rounded-full" aria-hidden="true">
                     {item.rank}
                   </span>
-                  <span className="text-sm font-bold text-gray-700 group-hover:text-primary transition-colors line-clamp-1 max-w-[150px]">
+                  <span className="text-sm font-bold text-gray-700 group-hover:text-primary transition-colors line-clamp-1 max-w-37.5">
                     {item.product.title.split(" ").slice(0, 3).join(" ")}...
                   </span>
                 </a>
@@ -278,8 +279,13 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
 
       <div className="space-y-2">
           {/* INTRO CONTENT */}
-          <div className="prose prose-lg max-w-none text-slate-800 leading-relaxed bg-gradient-to-b from-slate-100 to-white px-6 py-0 rounded-2xl border border-slate-200 shadow-inner mb-6">
-             <PortableText value={data.body || data.intro} />
+          <div className="prose prose-lg max-w-none text-slate-800 leading-relaxed bg-linear-to-b from-slate-100 to-white px-6 py-0 rounded-2xl border border-slate-200 shadow-inner mb-6">
+             {(() => {
+               // Only render body, skip intro which might be problematic
+               const content = data.body;
+               const normalizedContent = Array.isArray(content) ? content : (content ? [content] : []);
+               return <PortableText value={normalizedContent} />;
+             })()}
           </div>
 
           {/* --- 3. QUICK VERDICT (Hide for Schools & Aviation) --- */}
@@ -326,7 +332,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
         {/* COMPARISON TABLE */}
         {data.listItems && data.listItems.length > 0 && !isEducationPost && !isAviationPost && (
           <div className="w-full overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0">
-             <div className="min-w-[600px]"> 
+             <div className="min-w-150"> 
                <ComparisonSummaryTable items={data.listItems} />
              </div>
           </div>
@@ -348,11 +354,19 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
                   </h2>
                 </div>
                 
-                <PortableText value={data.closingContent} />
+                {(() => {
+                  const content = data.closingContent;
+                  const normalizedContent = Array.isArray(content) ? content : (content ? [content] : []);
+                  return <PortableText value={normalizedContent} />;
+                })()}
               </div>
             ) : (
               <div className="mt-4 pt-4 border-t border-gray-100 prose prose-lg max-w-none text-gray-800 leading-relaxed prose-headings:first:mt-0 prose-p:first:mt-0">
-                <PortableText value={data.closingContent} />
+                {(() => {
+                  const content = data.closingContent;
+                  const normalizedContent = Array.isArray(content) ? content : (content ? [content] : []);
+                  return <PortableText value={normalizedContent} />;
+                })()}
               </div>
             )}
           </div>

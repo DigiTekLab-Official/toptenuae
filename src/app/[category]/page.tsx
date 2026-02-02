@@ -90,7 +90,7 @@ const categoryQuery = `
         category._ref == ^._id ||
         categories[]._ref == ^._id
       )
-    ] | order(publishedAt desc) {
+    ] | order(publishedAt desc)[0...50] {
       _type,
       title,
       "slug": slug.current,

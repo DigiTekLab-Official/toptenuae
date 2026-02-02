@@ -174,7 +174,7 @@ export default function InstitutionCard({ item }: InstitutionCardProps) {
         </div>
 
         {/* --- WHY SELECTED --- */}
-        {item.whySelected && (
+        {item.whySelected && typeof item.whySelected === 'string' && (
           <div className="mb-6 p-5 bg-slate-50 rounded-xl border border-slate-200">
              <h4 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2">
                <Info className="w-4 h-4" /> Why Selected

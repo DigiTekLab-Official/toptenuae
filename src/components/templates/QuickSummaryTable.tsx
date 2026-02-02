@@ -49,7 +49,7 @@ export default function QuickSummaryTable({ items }: { items: ListItem[] }) {
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       {imageUrl && (
-                        <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 bg-white">
+                        <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md border border-gray-200 bg-white">
                           <Image 
                             src={imageUrl} 
                             alt={item.itemName} 

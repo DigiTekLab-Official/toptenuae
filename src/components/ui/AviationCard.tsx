@@ -33,7 +33,7 @@ interface AviationCardProps {
 export default function AviationCard({ item }: AviationCardProps) {
   const entity = item.product || {};
   const imageUrl = entity.mainImage?.url || null;
-  const verdictText = item.customVerdict || entity.verdict || item.whySelected;
+  const verdictText = (typeof (item.customVerdict || entity.verdict || item.whySelected) === 'string') ? (item.customVerdict || entity.verdict || item.whySelected) : null;
   const isAirport = entity.entityType === 'airport';
 
   // Labels
