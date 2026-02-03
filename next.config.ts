@@ -1,3 +1,4 @@
+// next.config.ts
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -6,7 +7,9 @@ const nextConfig: NextConfig = {
   // ============================================================================
 
   productionBrowserSourceMaps: false, 
-  trailingSlash: true, // ✅ CLOUDFLARE PAGES REQUIREMENT
+  // ⚠️ CRITICAL SEO FIX: GSC has indexed URLs WITHOUT slashes. 
+  // We must match that. Do not change to true.
+  trailingSlash: false, 
   reactStrictMode: true, 
   poweredByHeader: false, 
 
@@ -17,7 +20,7 @@ const nextConfig: NextConfig = {
             exclude: ["error", "warn"], 
           }
         : false,
-        },
+  },
 
   // ============================================================================
   // 2. IMAGES – CLOUDFLARE PAGES CONFIGURATION
@@ -109,36 +112,6 @@ const nextConfig: NextConfig = {
           { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
         ],
       },
-      {
-        source: "/_next/static/:path*",
-        headers: [
-          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
-        ],
-      },
-      {
-        source: "/fonts/:path*",
-        headers: [
-          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
-        ],
-      },
-      {
-        source: "/images/brand/:path*",
-        headers: [
-          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
-        ],
-      },
-      {
-        source: "/_next/static/css/:path*",
-        headers: [
-          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
-        ],
-      },
-      {
-        source: "/_next/static/chunks/:path*",
-        headers: [
-          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
-        ],
-      },
     ];
   },
 
@@ -148,13 +121,16 @@ const nextConfig: NextConfig = {
 
   async redirects() {
     return [
+      // 1. Force Remove Trailing Slashes (The "Slash Cleaner")
+      {
+        source: '/:path+/',
+        destination: '/:path+',
+        permanent: true,
+      },
       // ========================================================================
       // A. SECURITY PATHS (Return 410 Gone via /410 page)
       // ========================================================================
-      // ✅ USER REQUEST: Remove 'thank-you' permanently
       { source: '/thank-you', destination: '/410', permanent: false },
-      
-      // Standard security blocks
       { source: '/webmail/:path*', destination: '/410', permanent: false },
       { source: '/cpanel/:path*', destination: '/410', permanent: false },
       { source: '/cgi-bin/:path*', destination: '/410', permanent: false },
@@ -166,8 +142,6 @@ const nextConfig: NextConfig = {
       // ========================================================================
       // B. CATEGORY MIGRATIONS
       // ========================================================================
-      // ✅ USER REQUEST: Keep '/smart-home' (Redirect Removed)
-      
       { source: '/tech', destination: '/reviews', permanent: true },
       { source: '/parenting-kids', destination: '/reviews', permanent: true },
       { source: '/lifestyle', destination: '/how-to-guides', permanent: true },
@@ -177,9 +151,8 @@ const nextConfig: NextConfig = {
       { source: '/category/public-holidays-events', destination: '/events-holidays', permanent: true },
 
       // ========================================================================
-      // C. DEEPSEEK CONTENT CONSOLIDATION (3 Pages -> 1 Survivor)
+      // C. DEEPSEEK CONTENT CONSOLIDATION
       // ========================================================================
-      // Consolidating all DeepSeek traffic to the "How To Use" Master Guide
       { 
         source: '/how-to-guides/deepseek-ai-revolutionary-data-retrieval-method', 
         destination: '/how-to-guides/how-to-use-deepseek-ai-data-extraction-analysis', 
@@ -206,12 +179,12 @@ const nextConfig: NextConfig = {
       // ========================================================================
       
       // 1. Audio (Headphones/Earbuds) - GSC Cleanups
-      { source: '/reviews/jbl-tune-770nc', destination: '/reviews/jbl-tune-770nc-wireless-headphone', permanent: true }, // ✅ GSC Fix
-      { source: '/reviews/apple-airpods-max-usb-c', destination: '/reviews/apple-airpods-max-usb-c-wireless-headphone', permanent: true }, // ✅ GSC Fix
-      { source: '/reviews/apple-airpods-pro-3-review', destination: '/reviews/apple-airpods-pro-3', permanent: true }, // ✅ GSC Fix
+      { source: '/reviews/jbl-tune-770nc', destination: '/reviews/jbl-tune-770nc-wireless-headphone', permanent: true },
+      { source: '/reviews/apple-airpods-max-usb-c', destination: '/reviews/apple-airpods-max-usb-c-wireless-headphone', permanent: true },
+      { source: '/reviews/apple-airpods-pro-3-review', destination: '/reviews/apple-airpods-pro-3', permanent: true },
       
       // 2. Tech & Console - GSC Cleanups
-      { source: '/reviews/ps5-slim-digital-ea-sports-fc-26-bundle', destination: '/reviews/ps5-slim-digital-ea-sports-fc-26-bundle-console', permanent: true }, // ✅ GSC Fix
+      { source: '/reviews/ps5-slim-digital-ea-sports-fc-26-bundle', destination: '/reviews/ps5-slim-digital-ea-sports-fc-26-bundle-console', permanent: true },
       
       // 3. Baby Monitors & Security
       { source: '/reviews/tp-link-tapo-c200-monitor', destination: '/reviews/tp-link-tapo-c200-baby-monitor', permanent: true },
@@ -238,7 +211,7 @@ const nextConfig: NextConfig = {
       { source: '/reviews/olov-for-man-grooming-kit-review', destination: '/reviews/olov-for-man-grooming-kit-trimmer', permanent: true },
       { source: '/reviews/skull-shaver-pitbull-gold-pro-review', destination: '/reviews/skull-shaver-pitbull-gold-pro', permanent: true },
 
-      // 5. General Cleanup (Headphones etc)
+      // 5. General Cleanup
       { source: '/reviews/ugreen-clipbuds-open-ear-review', destination: '/reviews/ugreen-clipbuds-open-earbuds', permanent: true },
       { source: '/reviews/sony-wh-ch720n', destination: '/reviews/sony-wh-ch720n-wireless-headphone', permanent: true },
       { source: '/reviews/sony-wh-1000xm6-headphones', destination: '/reviews/sony-wh-1000xm6-wireless-headphone', permanent: true },
@@ -254,10 +227,10 @@ const nextConfig: NextConfig = {
       { source: '/reviews/samsung-galaxy-buds3-pro-review', destination: '/reviews/samsung-galaxy-buds3-pro-earbuds', permanent: true },
       { source: '/reviews/soundcore-life-q30', destination: '/reviews/soundcore-life-q30-wireless-headphone', permanent: true },
 
-      // 6. Kitchen & Home (Air Fryers)
+      // 6. Kitchen & Home
       { source: '/reviews/philips-dual-basket-airfryer-3000-review', destination: '/reviews/philips-dual-basket-air-fryer-3000', permanent: true },
 
-      // 7. Baby Care Cleanups
+      // 7. Baby Care
       { source: '/reviews/mustela-vitamin-barrier-cream-123-review', destination: '/reviews/mustela-vitamin-barrier-cream-123', permanent: true },
       { source: '/reviews/sebamed-baby-body-lotion-ph5-5-review', destination: '/reviews/sebamed-ph5-5-baby-body-lotion', permanent: true },
 
@@ -271,17 +244,14 @@ const nextConfig: NextConfig = {
       // E. GENERAL SEO CLEANUP (GSC Jan 24 Fixes)
       // ========================================================================
       
-      // Tech -> Reviews/How-To
       { source: '/tech/samsung-galaxy-s26-ultra-specs-uae-price', destination: '/reviews/samsung-galaxy-s26-ultra-specs-uae-price', permanent: true },
       { source: '/tech/state-of-ai-december-2025-uae-report', destination: '/how-to-guides/state-of-ai-december-2025-uae-report', permanent: true },
       { source: '/tech/quantum-computing-guide-uae', destination: '/how-to-guides/quantum-computing-guide-uae', permanent: true },
       { source: '/tech/quantum-computing-strategy-uae-2026', destination: '/how-to-guides/quantum-computing-strategy-uae-2026', permanent: true },
       { source: '/tech/gmail-gemini-ai-features-2026', destination: '/how-to-guides/gmail-gemini-ai-features-2026', permanent: true },
       
-      // Smart Home (Category kept, but articles moved)
       { source: '/smart-home/how-to-clean-washing-machine', destination: '/how-to-guides/how-to-clean-washing-machine', permanent: true },
       
-      // Reviews -> Top Ten Consolidation
       { source: '/travel-tourism/world-safest-airlines-2026', destination: '/top-ten/world-safest-airlines-2026', permanent: true },
       { source: '/reviews/best-wireless-earbuds-uae', destination: '/top-ten/best-wireless-earbuds-uae', permanent: true },
       { source: '/reviews/best-beard-trimmers-uae', destination: '/top-ten/best-beard-trimmers-uae', permanent: true },
@@ -289,26 +259,21 @@ const nextConfig: NextConfig = {
       { source: '/reviews/best-air-fryers-uae-2026', destination: '/top-ten/best-air-fryers-uae-2026', permanent: true },
       { source: '/reviews/new-year-tech-upgrades-uae-2026', destination: '/top-ten/new-year-tech-upgrades-uae-2026', permanent: true },
       
-      // Parenting Cleanups
       { source: '/parenting-kids/best-baby-skincare-uae', destination: '/top-ten/best-baby-skincare-uae', permanent: true },
       { source: '/parenting-kids/best-baby-monitors-uae', destination: '/top-ten/best-baby-monitors-uae', permanent: true },
       { source: '/parenting-kids/top-10-schools-dubai-2026-khda-fees-reviews', destination: '/top-ten/top-10-schools-dubai-2026-khda-fees-reviews', permanent: true },
       { source: '/parenting-kids/where-to-donate-used-toys-uae', destination: '/how-to-guides/where-to-donate-used-toys-uae', permanent: true },
       
-      // Lifestyle & Events
       { source: '/lifestyle/charity-organizations-uae-donations', destination: '/how-to-guides/charity-organizations-uae-donations', permanent: true },
       { source: '/lifestyle/how-to-pay-zakat-in-uae-online', destination: '/how-to-guides/how-to-pay-zakat-in-uae-online', permanent: true },
       { source: '/events-holidays/ramadan-2026-uae', destination: '/ramadan-2026', permanent: true },
       { source: '/best-places-visit-uae-eid-holidays', destination: '/events-holidays/eid-holidays-uae-2026-best-places-to-visit', permanent: true },
       { source: '/eid-al-fitr-uae-prayer-timings-free-events', destination: '/events-holidays/eid-al-fitr-uae-prayer-timings-free-events', permanent: true },
       
-      // Loose End Fixes
       { source: '/best-baby-monitors-uae', destination: '/top-ten/best-baby-monitors-uae', permanent: true },
       { source: '/best-electric-shaver-uae', destination: '/top-ten/best-electric-shaver-uae', permanent: true },
       { source: '/best-baby-skincare-uae', destination: '/top-ten/best-baby-skincare-uae', permanent: true },
       { source: '/deepseek-ai-revolutionary-data-retrieval-method', destination: '/how-to-guides/deepseek-ai-revolutionary-data-retrieval-method', permanent: true },
-      
-      // ✅ USER REQUEST: Remove Core Page Aliases (Done: /about, /contact, /terms rules deleted)
     ];
   },
 };

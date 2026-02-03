@@ -14,30 +14,30 @@ const BASE_URL = 'https://toptenuae.com';
 const CURRENT_DATE = new Date();
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // 1. Static Pages (with trailing slashes for Cloudflare)
+  // 1. Static Pages (NO TRAILING SLASHES)
   const staticRoutes: MetadataRoute.Sitemap = [
-    { url: `${BASE_URL}/`, lastModified: CURRENT_DATE },
-    { url: `${BASE_URL}/top-ten/`, lastModified: CURRENT_DATE },
-    { url: `${BASE_URL}/how-to-guides/`, lastModified: CURRENT_DATE },
-    { url: `${BASE_URL}/reviews/`, lastModified: CURRENT_DATE },
-    { url: `${BASE_URL}/deals/`, lastModified: CURRENT_DATE },
-    { url: `${BASE_URL}/finance-tools/`, lastModified: CURRENT_DATE },
-    { url: `${BASE_URL}/events-holidays/`, lastModified: CURRENT_DATE },
-    { url: `${BASE_URL}/travel-tourism/`, lastModified: CURRENT_DATE },
-    { url: `${BASE_URL}/ramadan-2026/`, lastModified: CURRENT_DATE },
+    { url: `${BASE_URL}`, lastModified: CURRENT_DATE }, // Root is exception
+    { url: `${BASE_URL}/top-ten`, lastModified: CURRENT_DATE },
+    { url: `${BASE_URL}/how-to-guides`, lastModified: CURRENT_DATE },
+    { url: `${BASE_URL}/reviews`, lastModified: CURRENT_DATE },
+    { url: `${BASE_URL}/deals`, lastModified: CURRENT_DATE },
+    { url: `${BASE_URL}/finance-tools`, lastModified: CURRENT_DATE },
+    { url: `${BASE_URL}/events-holidays`, lastModified: CURRENT_DATE },
+    { url: `${BASE_URL}/travel-tourism`, lastModified: CURRENT_DATE },
+    { url: `${BASE_URL}/ramadan-2026`, lastModified: CURRENT_DATE },
     
     // Core & Legal Pages
-    { url: `${BASE_URL}/about-us/`, lastModified: new Date('2025-01-15') },
-    { url: `${BASE_URL}/contact-us/`, lastModified: new Date('2025-01-15') },
-    { url: `${BASE_URL}/privacy-policy/`, lastModified: new Date('2025-01-29') },
-    { url: `${BASE_URL}/terms-and-conditions/`, lastModified: new Date('2025-12-27') },
-    { url: `${BASE_URL}/affiliate-disclosure/`, lastModified: new Date('2025-01-15') },
-    { url: `${BASE_URL}/disclaimer/`, lastModified: new Date('2025-01-15') },
-    { url: `${BASE_URL}/cookies-policy/`, lastModified: new Date('2025-12-27') },
+    { url: `${BASE_URL}/about-us`, lastModified: new Date('2025-01-15') },
+    { url: `${BASE_URL}/contact-us`, lastModified: new Date('2025-01-15') },
+    { url: `${BASE_URL}/privacy-policy`, lastModified: new Date('2025-01-29') },
+    { url: `${BASE_URL}/terms-and-conditions`, lastModified: new Date('2025-12-27') },
+    { url: `${BASE_URL}/affiliate-disclosure`, lastModified: new Date('2025-01-15') },
+    { url: `${BASE_URL}/disclaimer`, lastModified: new Date('2025-01-15') },
+    { url: `${BASE_URL}/cookies-policy`, lastModified: new Date('2025-12-27') },
   ];
 
   try {
-    // 2. Fetch Dynamic Data - All content types including articles and tools
+    // 2. Fetch Dynamic Data
     const posts = await client.fetch(`
       *[
         _type in ["topTenList", "article", "howTo", "tool", "holiday", "deal", "product", "event"]
@@ -53,13 +53,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }
     `);
 
-    // 3. Generate Dynamic Routes with Trailing Slashes
+    // 3. Generate Dynamic Routes (NO TRAILING SLASHES)
     const postRoutes = posts.map((post: any) => {
       let folder = '/reviews'; // Default fallback
 
       // --- SIMPLIFIED TYPE-FIRST LOGIC ---
-      
-      // 1. Type-Based Routing (Primary)
       switch (post._type) {
         case 'tool':
           folder = '/finance-tools';
@@ -71,7 +69,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           folder = '/how-to-guides';
           break;
         case 'article':
-          // Articles can be in different categories
           if (['how-to-guides', 'guides'].includes(post.category)) {
             folder = '/how-to-guides';
           } else if (['travel-tourism', 'travel', 'tourism'].includes(post.category)) {
@@ -79,7 +76,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           } else if (['events-holidays', 'events', 'holidays'].includes(post.category)) {
             folder = '/events-holidays';
           } else {
-            folder = '/reviews'; // Default for articles
+            folder = '/reviews';
           }
           break;
         case 'holiday':
@@ -93,7 +90,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           folder = '/reviews';
           break;
         default:
-          // Fallback to category-based routing
           if (['travel-tourism', 'travel', 'tourism'].includes(post.category)) {
             folder = '/travel-tourism';
           } else if (['events-holidays', 'events', 'holidays'].includes(post.category)) {
@@ -104,7 +100,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }
 
       return {
-        url: `${BASE_URL}${folder}/${post.slug}/`,
+        // ✅ CORRECT: No trailing slash
+        url: `${BASE_URL}${folder}/${post.slug}`,
         lastModified: new Date(post._updatedAt),
       };
     });
