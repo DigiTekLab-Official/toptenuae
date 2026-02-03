@@ -107,7 +107,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
 
     return [...staticRoutes, ...postRoutes];
-
+    
   } catch (error) {
     console.error("⚠️ Sitemap Error:", error);
     return staticRoutes;
