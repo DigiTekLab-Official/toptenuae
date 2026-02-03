@@ -1,4 +1,4 @@
-// toptenuae/next.config.ts
+// next.config.ts
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
