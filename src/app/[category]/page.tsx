@@ -2,7 +2,7 @@
 
 // Cloudflare Pages: Fully static generation (no ISR)
 export const dynamicParams = true;
-export const dynamic = "force-static";
+export const revalidate = 60; // Checks for new Sanity content every 60 seconds
 
 import { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
@@ -228,9 +228,9 @@ const getToolConfig = (slug: string) => {
 export default async function CategoryPage({ params }: PageProps) {
   const { category } = await params;
 
-  if (CUSTOM_PAGES.includes(category)) {
-    redirect(`/${category}`);
-  }
+  // if (CUSTOM_PAGES.includes(category)) {
+  //  redirect(`/${category}`);
+  //}
 
   let data;
   try {
