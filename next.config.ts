@@ -61,7 +61,7 @@ const nextConfig: NextConfig = {
       "@sanity/image-url",
       "next/image"
     ],
-    optimizeCss: true,
+    optimizeCss: false,
     serverActions: {
       bodySizeLimit: '2mb',
       allowedOrigins: ['toptenuae.com', 'www.toptenuae.com'],
