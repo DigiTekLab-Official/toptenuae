@@ -7,6 +7,7 @@ interface CountdownTimerProps {
   endDate: string;
 }
 
+
 export default function CountdownTimer({ endDate }: CountdownTimerProps) {
   // 1. Initialize with specific "loading" state to prevent hydration errors
   const [mounted, setMounted] = useState(false);
