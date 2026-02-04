@@ -1,4 +1,3 @@
-// src/sanity/lib/queries.ts
 import { groq } from 'next-sanity'
 
 // =============================================================================
@@ -19,7 +18,7 @@ export const SITE_SETTINGS_QUERY = groq`
 `
 
 // =============================================================================
-// 2. SINGLE PRODUCT PAGE (FIXED: Allow ALL types to prevent 404s on redirects)
+// 2. SINGLE PRODUCT PAGE
 // =============================================================================
 export const PRODUCT_BY_SLUG_QUERY = groq`
   *[slug.current == $slug][0] {
@@ -37,11 +36,13 @@ export const PRODUCT_BY_SLUG_QUERY = groq`
     pros,
     cons,
     keyFeatures,
+    // ✅ NEW: Fetch Tech Specs
+    specifications[] { specLabel, specValue },
     customerRating,
     reviewCount,
     verdict,
     mainImage { "url": asset->url, alt },
-    // itemDescription[] { _type, _key, style, children[] { _type, _key, text, marks }, markDefs[] { _type, _key } },
+    itemDescription, 
     "seoTitle": coalesce(seo.metaTitle, title),
     "seoDescription": coalesce(seo.metaDescription, description)
   }
@@ -75,7 +76,9 @@ export const TOP_TEN_LIST_QUERY = groq`
         "rating": coalesce(rating, customerRating),
         entityType, code, country,
         mainImage { "url": asset->url, alt },
-        heroFeature, keyFeatures[], pros[], cons[]
+        heroFeature, keyFeatures[], pros[], cons[],
+        // ✅ NEW: Fetch Tech Specs
+        specifications[] { specLabel, specValue }
       }
     }
   }

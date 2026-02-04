@@ -1,4 +1,3 @@
-// src/components/templates/TopTenTemplate.tsx
 "use client";
 
 import React from "react";
@@ -19,7 +18,7 @@ import ProductCard from "../ui/ProductCard";
 import InstitutionCard from "../ui/InstitutionCard"; 
 import AviationCard from "../ui/AviationCard";
 
-// DEBUG: Log component mount
+// DEBUG: Log component mount to verify client-side hydration
 if (typeof window !== "undefined") {
   console.log("[TopTenTemplate] Client component mounted");
 } 
@@ -30,7 +29,6 @@ interface TopTenData {
   intro: any; 
   body: any; 
   closingContent?: any;
-  // ✅ MATCHED QUERY: simple object with url string
   mainImage?: { url: string; alt?: string }; 
   category?: { title: string; slug: string; menuLabel?: string } | string;
   publishedAt?: string;
@@ -42,21 +40,24 @@ interface TopTenData {
 interface Product {
   _type?: "product" | "institution" | "aviationEntity";
   
-  // Aviation fields
+  // Aviation specific fields
   entityType?: "airline" | "airport"; 
   code?: string;     
   country?: string; 
   
-  // Common fields
+  // Common Product fields
   title: string;
   slug?: { current: string }; 
-  // ✅ MATCHED QUERY: simple object with url string
   mainImage?: { url: string; alt?: string };
   affiliateLink?: string;
   retailer?: string;
   priceTier?: string;  
   itemDescription?: any;
   keyFeatures?: string[];
+  
+  // ✅ ADDED: Tech Specs Support (Label/Value pairs)
+  specifications?: { specLabel: string; specValue: string }[];
+  
   pros?: string[];
   cons?: string[];
   customerRating?: number;
@@ -65,6 +66,8 @@ interface Product {
   price?: number;         
   currency?: string;      
   availability?: string;  
+  
+  // Education/Location fields
   location?: string;
   address?: string;      
   curriculum?: string;    
@@ -86,27 +89,28 @@ interface ListItem {
 
 // --- MAIN TEMPLATE ---
 export default function TopTenTemplate({ data }: { data: TopTenData }) {
-  // ✅ DIRECT ACCESS: No more asset checks needed
-  const heroImageUrl = data.mainImage?.url || null;
-  const showDisclaimer = (data.showAffiliateDisclosure ?? true);
+  // ✅ SAFE ACCESS: Check if mainImage exists before accessing url
+  const heroImageUrl = data?.mainImage?.url || null;
+  const showDisclaimer = (data?.showAffiliateDisclosure ?? true);
 
   // DEBUG LOGGING
-  console.log("[TopTenTemplate] Received data:", {
-    title: data.title,
-    listItemsCount: data.listItems?.length || 0,
-    hasFirstItem: !!data.listItems?.[0],
-    firstItemProductTitle: data.listItems?.[0]?.product?.title,
-    firstItemHasImage: !!data.listItems?.[0]?.product?.mainImage?.url,
-  });
+  if (typeof window !== "undefined") {
+    console.log("[TopTenTemplate] Received data:", {
+      title: data?.title,
+      listItemsCount: data?.listItems?.length || 0,
+    });
+  }
 
   // --- 2. SMART DETECTION LOGIC ---
+  // Detects if this is a School, Airline, or Medical post to adjust layout
   const categoryString = typeof data.category === 'string' 
     ? data.category 
     : data.category?.slug || "";
 
   const normalizedCat = categoryString === 'baby-kid' ? 'parenting-kids' : categoryString;
-  const checkText = (data.title + " " + normalizedCat).toLowerCase();
+  const checkText = ((data.title || "") + " " + normalizedCat).toLowerCase();
   
+  // Safe access to first item type
   const firstItemType = data.listItems?.[0]?.product?._type;
 
   const isAviationPost = 
@@ -130,17 +134,18 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
   const isMedicalPost = hasMedicalKeywords && !checkText.includes("trimmer");
 
   // --- QUICK VERDICT DATA ---
+  // Extract top 3 picks for the "Quick Verdict" component
   const quickPicks = data.listItems?.slice(0, 3).map(item => ({
     tag: item.badgeLabel || (item.rank === 1 ? "Best Overall" : item.rank === 2 ? "Runner Up" : "Great Value"),
     title: item.product.title,
     rating: item.product.customerRating || 0,
     priceEstimate: item.product.price ? `${item.product.currency || 'AED'} ${item.product.price}` : undefined,
-    // ✅ DIRECT ACCESS:
     imageUrl: item.product.mainImage?.url || "",
     affiliateLink: item.product.affiliateLink
   })) || [];
 
   // --- SCHEMA.ORG JSON-LD GENERATOR ---
+  // Google Structured Data for Rich Snippets
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -151,7 +156,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
       const entity = item.product;
       const isInstitution = entity._type === 'institution' || isEducationPost;
       
-      // LOGIC A: Aviation
+      // LOGIC A: Aviation Schema
       if (entity._type === 'aviationEntity') {
         const schemaType = entity.entityType === 'airport' ? 'Airport' : 'Airline';
         return {
@@ -171,7 +176,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
           }
         };
       }
-      // LOGIC B: Schools
+      // LOGIC B: School Schema
       else if (isInstitution) {
         return {
           "@type": "ListItem",
@@ -190,7 +195,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
           }
         };
       } 
-      // LOGIC C: Products
+      // LOGIC C: Product Schema (Laptops, Tech, etc.)
       else {
         return {
           "@type": "ListItem",
@@ -205,7 +210,13 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
               "price": entity.price || "0", 
               "priceCurrency": entity.currency || "AED",
               "availability": "http://schema.org/InStock"
-            }
+            },
+            // ✅ SEO BOOST: Include Tech Specs in Schema
+            "additionalProperty": entity.specifications?.map(spec => ({
+              "@type": "PropertyValue",
+              "name": spec.specLabel,
+              "value": spec.specValue
+            }))
           }
         };
       }
@@ -241,7 +252,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
         <div className="relative w-full aspect-3/2 lg:aspect-video overflow-hidden rounded-xl shadow-lg mb-8">
           <Image
             src={heroImageUrl}
-            alt={data.title}
+            alt={data.title || "Top 10 List"}
             fill
             priority
             className="object-cover hover:scale-105 transition-transform duration-700"
@@ -250,7 +261,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
         </div>
       )}
 
-      {/* QUICK JUMP */}
+      {/* QUICK JUMP NAVIGATION */}
       {data.listItems && data.listItems.length > 0 && (
         <div className="mb-8 p-4 bg-gray-50/50 border border-gray-100 rounded-2xl">
           <h2 className="text-sm font-bold text-gray-800 uppercase tracking-widest mb-2 flex items-center gap-2 ml-1">
@@ -278,10 +289,9 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
       )}
 
       <div className="space-y-2">
-          {/* INTRO CONTENT */}
+          {/* INTRO CONTENT BLOCK */}
           <div className="prose prose-lg max-w-none text-slate-800 leading-relaxed bg-linear-to-b from-slate-100 to-white px-6 py-0 rounded-2xl border border-slate-200 shadow-inner mb-6">
              {(() => {
-               // Only render body, skip intro which might be problematic
                const content = data.body;
                const normalizedContent = Array.isArray(content) ? content : (content ? [content] : []);
                return <PortableText value={normalizedContent} />;
@@ -309,7 +319,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
               {data.listItems.map((item) => (
                 <React.Fragment key={item._key}>
                   
-                  {/* CARD SWITCHER */}
+                  {/* CARD SWITCHER LOGIC */}
                   {item.product._type === 'aviationEntity' ? (
                      <AviationCard item={item} />
                   ) 
@@ -317,9 +327,11 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
                      <InstitutionCard item={item} />
                   ) 
                   : (
+                     // ✅ PASSES ITEM + SPECS TO PRODUCT CARD
                      <ProductCard item={item} />
                   )}
 
+                  {/* Visual Separator */}
                   <div className="flex items-center justify-center py-2 opacity-40">
                     <div className="w-12 h-1 bg-gray-200 rounded-full"></div>
                   </div>
@@ -329,7 +341,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
           </div>
         )}
 
-        {/* COMPARISON TABLE */}
+        {/* COMPARISON TABLE (Only for Products) */}
         {data.listItems && data.listItems.length > 0 && !isEducationPost && !isAviationPost && (
           <div className="w-full overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0">
              <div className="min-w-150"> 
@@ -338,7 +350,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
           </div>
         )}
 
-        {/* CLOSING CONTENT */}
+        {/* CLOSING CONTENT & BUYER'S GUIDE */}
         {data.closingContent && (
           <div className="mb-12"> 
             {data.listItems && data.listItems.length > 0 ? (
@@ -361,6 +373,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
                 })()}
               </div>
             ) : (
+              // Fallback for standard articles without list items
               <div className="mt-4 pt-4 border-t border-gray-100 prose prose-lg max-w-none text-gray-800 leading-relaxed prose-headings:first:mt-0 prose-p:first:mt-0">
                 {(() => {
                   const content = data.closingContent;
@@ -372,6 +385,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
           </div>
         )}
 
+        {/* FAQ ACCORDION */}
         {data.faqs && data.faqs.length > 0 && <FAQAccordion faqs={data.faqs} />}
         
         {/* DISCLAIMER FOOTER */}

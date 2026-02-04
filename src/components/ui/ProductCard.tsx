@@ -1,4 +1,3 @@
-// src/components/ui/ProductCard.tsx
 "use client";
 
 import React from "react";
@@ -7,7 +6,7 @@ import LogoIcon from "@/components/icons/LogoIcon";
 import { 
   CheckCircle2, XCircle, Info, Star, ExternalLink, Shield, Tag,
   BatteryMedium, Wifi, Zap, Monitor, Camera, Headphones, Droplets,
-  Clock, Box, Award, Layers, Truck
+  Clock, Box, Award, Layers, Truck, Settings // ✅ Added Settings Icon
 } from "lucide-react";
 
 // --- 1. HELPER FUNCTION: ICONS ---
@@ -48,6 +47,9 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
   const imageUrl = product.mainImage?.url || null;
   const displayName = product.title || "Product Name Unavailable";
   const finalVerdict = item.customVerdict || product.verdict; 
+  
+  // ✅ Access the specifications data passed from TopTenTemplate
+  const specifications = product.specifications || [];
 
   return (
     <article
@@ -97,11 +99,8 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
                 alt={displayName}
                 fill
                 className="object-contain p-3 hover:scale-105 transition-transform duration-500"
-                // ✅ CRITICAL: Priority for first product only
                 priority={index === 0}
-                // ✅ Lazy load for products below the fold
                 loading={index === 0 ? undefined : "lazy"}
-                // ✅ Responsive sizing
                 sizes="(max-width: 768px) 100vw, 400px"
                 quality={85}
               />
@@ -113,7 +112,7 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
         {finalVerdict && typeof finalVerdict === 'string' && (
           <div className="mb-6 bg-primary-50 border-l-4 border-primary p-4 md:p-5 rounded-r-xl shadow-sm">
             <div className="flex items-center gap-2 mb-2">
-              <Info className="w-4 h-4 text-primary" />
+              <Info className="w-5 h-5 text-primary" />
               <h3 className="text-sm font-black text-primary uppercase tracking-wider">The Verdict</h3>
             </div>
             <p className="text-gray-900 leading-relaxed font-medium text-sm md:text-base">
@@ -122,14 +121,14 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
           </div>
         )}
 
-        {/* --- KEY FEATURES --- */}
+        {/* --- KEY FEATURES (Tags) --- */}
         {product.keyFeatures && product.keyFeatures.length > 0 && (
           <div className="mb-6 bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50 p-4 rounded-xl shadow-sm border border-amber-100">
              <div className="flex items-center gap-3 mb-3 text-gray-900 pb-2 border-b border-amber-200/50">
               <div className="bg-gradient-to-br from-yellow-400 to-amber-500 p-1 rounded-md shadow-sm">
                 <Star className="w-3 h-3 text-white fill-white" />
               </div>
-              <h3 className="font-bold uppercase tracking-wider text-sm text-amber-700">Key Specs</h3>
+              <h3 className="font-bold uppercase tracking-wider text-sm text-amber-700">Highlights</h3>
             </div>
             <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
               {product.keyFeatures.map((feat: string, i: number) => (
@@ -139,6 +138,26 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
                 </li>
               ))}
             </ul>
+          </div>
+        )}
+        
+        {/* ✅ NEW: TECHNICAL SPECIFICATIONS TABLE (Compact & Clean) */}
+        {specifications.length > 0 && (
+          <div className="mb-6 border border-slate-200 rounded-xl overflow-hidden shadow-xs">
+             <div className="bg-slate-50 px-4 py-2 border-b border-slate-200 flex items-center gap-2">
+               <Settings className="w-5 h-5 text-slate-900" />
+               <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest">Tech Specs</h3>
+             </div>
+             <table className="w-full text-sm">
+               <tbody className="divide-y divide-slate-100">
+                 {specifications.map((spec: any, i: number) => (
+                   <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-slate-50/30'}>
+                     <td className="px-4 py-2 text-slate-500 font-medium w-1/3 border-r border-slate-100">{spec.specLabel}</td>
+                     <td className="px-4 py-2 text-slate-900 font-semibold">{spec.specValue}</td>
+                   </tr>
+                 ))}
+               </tbody>
+             </table>
           </div>
         )}
 

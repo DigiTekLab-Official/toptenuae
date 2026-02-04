@@ -1,4 +1,3 @@
-// src/components/templates/ProductTemplate.tsx
 import Image from 'next/image';
 import { 
   CheckCircle2, 
@@ -9,10 +8,10 @@ import {
   ShieldCheck,
   Zap,
   Tag,
-  Info
+  Info,
+  Settings // ✅ Imported for Specs
 } from 'lucide-react';
 import PortableText from '@/components/sanity/PortableText';
-import LogoIcon from '@/components/icons/LogoIcon';
 
 interface ProductTemplateProps {
   data: any;
@@ -33,6 +32,7 @@ export default function ProductTemplate({ data }: ProductTemplateProps) {
     verdict,
     customVerdict,
     keyFeatures,
+    specifications, // ✅ Destructured
     pros,
     cons,
     itemDescription,
@@ -98,7 +98,6 @@ export default function ProductTemplate({ data }: ProductTemplateProps) {
                       src={mainImage.url}
                       alt={title || "Product image"}
                       fill
-                      // ✅ THIS IS THE FIX: scale-[1.02] is a very subtle 2% zoom.
                       className="object-contain group-hover:scale-[1.02] transition-transform duration-500"
                       priority
                     />
@@ -146,6 +145,31 @@ export default function ProductTemplate({ data }: ProductTemplateProps) {
                     </ul>
                   </div>
                 )}
+              </div>
+            )}
+            
+            {/* ✅ NEW: Technical Specifications Table */}
+            {specifications && specifications.length > 0 && (
+              <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-100">
+                <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                  <Settings className="w-6 h-6 text-purple-600" /> Technical Specifications
+                </h3>
+                <div className="overflow-hidden rounded-xl border border-slate-200">
+                  <table className="w-full text-sm text-left">
+                    <tbody className="divide-y divide-slate-100">
+                      {specifications.map((spec: any, i: number) => (
+                        <tr key={i} className={i % 2 === 0 ? 'bg-slate-50/50' : 'bg-white'}>
+                          <td className="px-4 py-3 font-semibold text-slate-700 w-1/3 md:w-1/4 align-top">
+                            {spec.specLabel}
+                          </td>
+                          <td className="px-4 py-3 text-slate-600 font-medium">
+                            {spec.specValue}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
             
@@ -207,7 +231,7 @@ export default function ProductTemplate({ data }: ProductTemplateProps) {
                   rel="nofollow sponsored noopener"
                   className="group flex items-center justify-center gap-2 w-full bg-[#0071e3] hover:bg-[#0076df] text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-blue-200 transition-all hover:-translate-y-1 hover:shadow-xl text-lg mb-4"
                 >
-                  View on Amazon
+                  View on {retailer || 'Amazon'}
                   <ExternalLink className="w-5 h-5 opacity-80" />
                 </a>
               )}
@@ -222,7 +246,7 @@ export default function ProductTemplate({ data }: ProductTemplateProps) {
             {keyFeatures?.length > 0 && (
               <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
                 <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
-                   <Zap className="w-5 h-5 text-purple-600" /> Key Specs
+                   <Zap className="w-5 h-5 text-purple-600" /> Key Features
                 </h3>
                 <ul className="space-y-3">
                   {keyFeatures.map((feature: string, i: number) => (
@@ -267,7 +291,7 @@ export default function ProductTemplate({ data }: ProductTemplateProps) {
              rel="nofollow sponsored noopener"
              className="bg-[#0071e3] text-white font-bold py-3 px-6 rounded-xl shadow-md hover:bg-[#0076df] active:scale-95 transition-transform flex items-center gap-2"
            >
-             View on Amazon
+             View on {retailer || 'Amazon'}
              <ExternalLink className="w-4 h-4" />
            </a>
         </div>
