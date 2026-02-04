@@ -2,12 +2,15 @@ name = "toptenuae"
 compatibility_date = "2025-11-22"
 compatibility_flags = ["nodejs_compat"]
 
+# ⚠️ CRITICAL: OpenNext outputs to this specific directory.
+pages_build_output_dir = ".open-next/assets"
+
 # ------------------------------------------------------------------------------
 # BUILD CONFIGURATION
 # ------------------------------------------------------------------------------
-# ⚠️ CRITICAL: OpenNext outputs to this specific directory. 
-# Do not change this back to .vercel/output/static
-pages_build_output_dir = ".open-next/assets"
+# This prevents Cloudflare from running the old "npx @cloudflare/next-on-pages"
+[build]
+command = "pnpm run build"
 
 # ------------------------------------------------------------------------------
 # PUBLIC VARIABLES (Safe to commit)

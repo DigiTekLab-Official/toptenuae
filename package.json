@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build && opennextjs-cloudflare",
+    "build": "next build && opennextjs-cloudflare build",
     "preview": "opennextjs-cloudflare preview",
     "deploy": "pnpm run build && wrangler pages deploy .open-next/assets --project-name=toptenuae",
     "start": "next start",
