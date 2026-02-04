@@ -8,13 +8,9 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "pages:build": "opennextjs-cloudflare build",
-    "pages:deploy": "wrangler pages deploy .open-next --project-name=toptenuae",
-    "pages:deploy:production": "wrangler pages deploy .open-next --project-name=toptenuae --branch=main",
+    "build": "next build && opennextjs-cloudflare",
     "preview": "opennextjs-cloudflare preview",
-    "deploy": "pnpm run pages:build && pnpm run pages:deploy",
-    "deploy:prod": "pnpm run pages:build && pnpm run pages:deploy:production",
+    "deploy": "pnpm run build && wrangler pages deploy .open-next/assets --project-name=toptenuae",
     "start": "next start",
     "lint": "eslint"
   },
@@ -47,6 +43,7 @@
     "baseline-browser-mapping": "^2.9.19",
     "eslint": "^9",
     "eslint-config-next": "16.0.10",
+    "opennextjs-cloudflare": "^1.0.0",
     "tailwindcss": "^4.0.0",
     "typescript": "^5"
   },
