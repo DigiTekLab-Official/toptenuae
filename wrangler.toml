@@ -2,16 +2,11 @@ name = "toptenuae"
 compatibility_date = "2025-11-22"
 compatibility_flags = ["nodejs_compat"]
 
-# ⚠️ CRITICAL: OpenNext outputs to this specific directory.
+# ✅ CHANGE THIS LINE. This updates the grayed-out box in your dashboard.
 pages_build_output_dir = ".open-next/assets"
 
-# ------------------------------------------------------------------------------
-# BUILD CONFIGURATION
-# ------------------------------------------------------------------------------
-# This runs the adapter script, which internally runs 'next build' first.
-# This prevents the "infinite loop" issue.
-[build]
-command = "pnpm run build:worker"
+# ❌ DELETE the [build] section entirely. 
+# Pages does not allow it here.
 
 # ------------------------------------------------------------------------------
 # PUBLIC VARIABLES (Safe to commit)
