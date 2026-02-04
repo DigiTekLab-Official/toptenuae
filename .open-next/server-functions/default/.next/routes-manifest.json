@@ -1,0 +1,867 @@
+{
+  "version": 3,
+  "pages404": true,
+  "appType": "app",
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "priority": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    },
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "statusCode": 308,
+      "regex": "^(?!/_next)(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/(?:/)?$"
+    },
+    {
+      "source": "/thank-you",
+      "destination": "/410",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/thank-you(?:/)?$"
+    },
+    {
+      "source": "/webmail/:path*",
+      "destination": "/410",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/webmail(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+    },
+    {
+      "source": "/cpanel/:path*",
+      "destination": "/410",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/cpanel(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+    },
+    {
+      "source": "/cgi-bin/:path*",
+      "destination": "/410",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/cgi-bin(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+    },
+    {
+      "source": "/phpinfo.php",
+      "destination": "/410",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/phpinfo\\.php(?:/)?$"
+    },
+    {
+      "source": "/wp-admin/:path*",
+      "destination": "/410",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/wp-admin(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+    },
+    {
+      "source": "/wp-content/:path*",
+      "destination": "/410",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/wp-content(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+    },
+    {
+      "source": "/wp-includes/:path*",
+      "destination": "/410",
+      "statusCode": 307,
+      "regex": "^(?!/_next)/wp-includes(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+    },
+    {
+      "source": "/tech",
+      "destination": "/reviews",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/tech(?:/)?$"
+    },
+    {
+      "source": "/parenting-kids",
+      "destination": "/reviews",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/parenting-kids(?:/)?$"
+    },
+    {
+      "source": "/lifestyle",
+      "destination": "/how-to-guides",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/lifestyle(?:/)?$"
+    },
+    {
+      "source": "/category/how-to-guides",
+      "destination": "/how-to-guides",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/category/how-to-guides(?:/)?$"
+    },
+    {
+      "source": "/category/buyers-guide",
+      "destination": "/reviews",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/category/buyers-guide(?:/)?$"
+    },
+    {
+      "source": "/category/education",
+      "destination": "/how-to-guides",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/category/education(?:/)?$"
+    },
+    {
+      "source": "/category/public-holidays-events",
+      "destination": "/events-holidays",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/category/public-holidays-events(?:/)?$"
+    },
+    {
+      "source": "/how-to-guides/deepseek-ai-revolutionary-data-retrieval-method",
+      "destination": "/how-to-guides/how-to-use-deepseek-ai-data-extraction-analysis",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/how-to-guides/deepseek-ai-revolutionary-data-retrieval-method(?:/)?$"
+    },
+    {
+      "source": "/how-to-guides/deepseek-ai-startup-disrupting-big-tech-with-innovation",
+      "destination": "/how-to-guides/how-to-use-deepseek-ai-data-extraction-analysis",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/how-to-guides/deepseek-ai-startup-disrupting-big-tech-with-innovation(?:/)?$"
+    },
+    {
+      "source": "/tech/deepseek-ai-revolutionary-data-retrieval-method",
+      "destination": "/how-to-guides/how-to-use-deepseek-ai-data-extraction-analysis",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/tech/deepseek-ai-revolutionary-data-retrieval-method(?:/)?$"
+    },
+    {
+      "source": "/tech/deepseek-ai-startup-disrupting-big-tech-with-innovation",
+      "destination": "/how-to-guides/how-to-use-deepseek-ai-data-extraction-analysis",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/tech/deepseek-ai-startup-disrupting-big-tech-with-innovation(?:/)?$"
+    },
+    {
+      "source": "/reviews/jbl-tune-770nc",
+      "destination": "/reviews/jbl-tune-770nc-wireless-headphone",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/jbl-tune-770nc(?:/)?$"
+    },
+    {
+      "source": "/reviews/apple-airpods-max-usb-c",
+      "destination": "/reviews/apple-airpods-max-usb-c-wireless-headphone",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/apple-airpods-max-usb-c(?:/)?$"
+    },
+    {
+      "source": "/reviews/apple-airpods-pro-3-review",
+      "destination": "/reviews/apple-airpods-pro-3",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/apple-airpods-pro-3-review(?:/)?$"
+    },
+    {
+      "source": "/reviews/ps5-slim-digital-ea-sports-fc-26-bundle",
+      "destination": "/reviews/ps5-slim-digital-ea-sports-fc-26-bundle-console",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/ps5-slim-digital-ea-sports-fc-26-bundle(?:/)?$"
+    },
+    {
+      "source": "/reviews/tp-link-tapo-c200-monitor",
+      "destination": "/reviews/tp-link-tapo-c200-baby-monitor",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/tp-link-tapo-c200-monitor(?:/)?$"
+    },
+    {
+      "source": "/reviews/hellobaby-monitor-hb6550",
+      "destination": "/reviews/hellobaby-hb6550-baby-monitor",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/hellobaby-monitor-hb6550(?:/)?$"
+    },
+    {
+      "source": "/reviews/imou-1080p-security-camera-dk2",
+      "destination": "/reviews/imou-1080p-security-camera-dk2--baby-monitor",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/imou-1080p-security-camera-dk2(?:/)?$"
+    },
+    {
+      "source": "/reviews/reolink-e1-pro-2k-camera",
+      "destination": "/reviews/reolink-e1-pro-2k-camera-baby-monitor",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/reolink-e1-pro-2k-camera(?:/)?$"
+    },
+    {
+      "source": "/reviews/ezviz-c6n-security-camera",
+      "destination": "/reviews/ezviz-c6n--baby-monitor",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/ezviz-c6n-security-camera(?:/)?$"
+    },
+    {
+      "source": "/reviews/yi-security-home-camera",
+      "destination": "/reviews/yi-security-home-camera-baby-monitor",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/yi-security-home-camera(?:/)?$"
+    },
+    {
+      "source": "/reviews/eufy-baby-monitor-e21-4k",
+      "destination": "/reviews/eufy-e21-4k-baby-monitor",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/eufy-baby-monitor-e21-4k(?:/)?$"
+    },
+    {
+      "source": "/reviews/lollipop-baby-camera-turquoise",
+      "destination": "/reviews/lollipop-turquoise-baby-monitor",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/lollipop-baby-camera-turquoise(?:/)?$"
+    },
+    {
+      "source": "/reviews/kemei-2299-professional-trimmer-review",
+      "destination": "/reviews/kemei-2299-professional-trimmer",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/kemei-2299-professional-trimmer-review(?:/)?$"
+    },
+    {
+      "source": "/reviews/philips-multigroom-series-3000-mg3720",
+      "destination": "/reviews/philips-multigroom-series-3000-mg3720-trimmer",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/philips-multigroom-series-3000-mg3720(?:/)?$"
+    },
+    {
+      "source": "/reviews/braun-series-5-51-b1000s-review",
+      "destination": "/reviews/braun-series-5-51-b1000s-shaver",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/braun-series-5-51-b1000s-review(?:/)?$"
+    },
+    {
+      "source": "/reviews/philips-series-7000-mg7920-review",
+      "destination": "/reviews/philips-series-7000-mg7920-trimmer",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/philips-series-7000-mg7920-review(?:/)?$"
+    },
+    {
+      "source": "/reviews/braun-series-9-pro-plus-review",
+      "destination": "/reviews/braun-series-9-pro-plus-shaver",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/braun-series-9-pro-plus-review(?:/)?$"
+    },
+    {
+      "source": "/reviews/panasonic-er2051-trimmer-review",
+      "destination": "/reviews/panasonic-er2051-trimmer",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/panasonic-er2051-trimmer-review(?:/)?$"
+    },
+    {
+      "source": "/reviews/philips-norelco-shaver-9800-senseiq",
+      "destination": "/reviews/philips-norelco-9800-senseiq-shaver",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/philips-norelco-shaver-9800-senseiq(?:/)?$"
+    },
+    {
+      "source": "/reviews/pritech-3-in-1-grooming-set",
+      "destination": "/reviews/pritech-3-in-1-grooming-set-shaver",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/pritech-3-in-1-grooming-set(?:/)?$"
+    },
+    {
+      "source": "/reviews/philips-oneblade-pro-qp6542-review",
+      "destination": "/reviews/philips-oneblade-pro-qp6542-trimmer",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/philips-oneblade-pro-qp6542-review(?:/)?$"
+    },
+    {
+      "source": "/reviews/wahl-travel-shaver-3615-1027-review",
+      "destination": "/reviews/wahl-travel-shaver-3615-1027",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/wahl-travel-shaver-3615-1027-review(?:/)?$"
+    },
+    {
+      "source": "/reviews/panasonic-es-sa40-pro-curve-review",
+      "destination": "/reviews/panasonic-es-sa40-pro-curve-shaver",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/panasonic-es-sa40-pro-curve-review(?:/)?$"
+    },
+    {
+      "source": "/reviews/olov-for-man-grooming-kit-review",
+      "destination": "/reviews/olov-for-man-grooming-kit-trimmer",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/olov-for-man-grooming-kit-review(?:/)?$"
+    },
+    {
+      "source": "/reviews/skull-shaver-pitbull-gold-pro-review",
+      "destination": "/reviews/skull-shaver-pitbull-gold-pro",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/skull-shaver-pitbull-gold-pro-review(?:/)?$"
+    },
+    {
+      "source": "/reviews/ugreen-clipbuds-open-ear-review",
+      "destination": "/reviews/ugreen-clipbuds-open-earbuds",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/ugreen-clipbuds-open-ear-review(?:/)?$"
+    },
+    {
+      "source": "/reviews/sony-wh-ch720n",
+      "destination": "/reviews/sony-wh-ch720n-wireless-headphone",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/sony-wh-ch720n(?:/)?$"
+    },
+    {
+      "source": "/reviews/sony-wh-1000xm6-headphones",
+      "destination": "/reviews/sony-wh-1000xm6-wireless-headphone",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/sony-wh-1000xm6-headphones(?:/)?$"
+    },
+    {
+      "source": "/reviews/sony-wf-1000xm5-earbuds-review",
+      "destination": "/reviews/sony-wf-1000xm5-earbuds",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/sony-wf-1000xm5-earbuds-review(?:/)?$"
+    },
+    {
+      "source": "/reviews/xiaomi-redmi-buds-6-play-review",
+      "destination": "/reviews/xiaomi-redmi-buds-6-play-earbuds",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/xiaomi-redmi-buds-6-play-review(?:/)?$"
+    },
+    {
+      "source": "/reviews/soundcore-anker-p20i-earbuds-review",
+      "destination": "/reviews/soundcore-anker-p20i-earbuds",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/soundcore-anker-p20i-earbuds-review(?:/)?$"
+    },
+    {
+      "source": "/reviews/bose-quietcomfort-ultra-headphones",
+      "destination": "/reviews/bose-quietcomfort-ultra-wireless-headphone",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/bose-quietcomfort-ultra-headphones(?:/)?$"
+    },
+    {
+      "source": "/reviews/marshall-major-v-bluetooth",
+      "destination": "/reviews/marshall-major-v-bluetooth-headphone",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/marshall-major-v-bluetooth(?:/)?$"
+    },
+    {
+      "source": "/reviews/soundcore-space-q45",
+      "destination": "/reviews/soundcore-space-q45-wireless-headphone",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/soundcore-space-q45(?:/)?$"
+    },
+    {
+      "source": "/reviews/jbl-tune-780nc",
+      "destination": "/reviews/jbl-tune-780nc-wireless-headphone",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/jbl-tune-780nc(?:/)?$"
+    },
+    {
+      "source": "/reviews/sennheiser-momentum-4-wireless",
+      "destination": "/reviews/sennheiser-momentum-4-wireless-headphone",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/sennheiser-momentum-4-wireless(?:/)?$"
+    },
+    {
+      "source": "/reviews/huawei-freebuds-se-3-review",
+      "destination": "/reviews/huawei-freebuds-se-3-earbuds",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/huawei-freebuds-se-3-review(?:/)?$"
+    },
+    {
+      "source": "/reviews/samsung-galaxy-buds3-pro-review",
+      "destination": "/reviews/samsung-galaxy-buds3-pro-earbuds",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/samsung-galaxy-buds3-pro-review(?:/)?$"
+    },
+    {
+      "source": "/reviews/soundcore-life-q30",
+      "destination": "/reviews/soundcore-life-q30-wireless-headphone",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/soundcore-life-q30(?:/)?$"
+    },
+    {
+      "source": "/reviews/philips-dual-basket-airfryer-3000-review",
+      "destination": "/reviews/philips-dual-basket-air-fryer-3000",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/philips-dual-basket-airfryer-3000-review(?:/)?$"
+    },
+    {
+      "source": "/reviews/mustela-vitamin-barrier-cream-123-review",
+      "destination": "/reviews/mustela-vitamin-barrier-cream-123",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/mustela-vitamin-barrier-cream-123-review(?:/)?$"
+    },
+    {
+      "source": "/reviews/sebamed-baby-body-lotion-ph5-5-review",
+      "destination": "/reviews/sebamed-ph5-5-baby-body-lotion",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/sebamed-baby-body-lotion-ph5-5-review(?:/)?$"
+    },
+    {
+      "source": "/deals/magic-bullet-blender-deal",
+      "destination": "/deals/magic-bullet-MB4-0612)-blender",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/deals/magic-bullet-blender-deal(?:/)?$"
+    },
+    {
+      "source": "/deals/lattafa-khamrah-perfume-deal",
+      "destination": "/deals/lattafa-khamrah-perfume",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/deals/lattafa-khamrah-perfume-deal(?:/)?$"
+    },
+    {
+      "source": "/deals/sihoo-m18-ergonomic-chair-deal",
+      "destination": "/deals/sihoo-m18-ergonomic-chair",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/deals/sihoo-m18-ergonomic-chair-deal(?:/)?$"
+    },
+    {
+      "source": "/deals/coodoo-100pcs-magnetic-tiles-deal",
+      "destination": "/deals/coodoo-100pcs-magnetic-tiles-game",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/deals/coodoo-100pcs-magnetic-tiles-deal(?:/)?$"
+    },
+    {
+      "source": "/tech/samsung-galaxy-s26-ultra-specs-uae-price",
+      "destination": "/reviews/samsung-galaxy-s26-ultra-specs-uae-price",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/tech/samsung-galaxy-s26-ultra-specs-uae-price(?:/)?$"
+    },
+    {
+      "source": "/tech/state-of-ai-december-2025-uae-report",
+      "destination": "/how-to-guides/state-of-ai-december-2025-uae-report",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/tech/state-of-ai-december-2025-uae-report(?:/)?$"
+    },
+    {
+      "source": "/tech/quantum-computing-guide-uae",
+      "destination": "/how-to-guides/quantum-computing-guide-uae",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/tech/quantum-computing-guide-uae(?:/)?$"
+    },
+    {
+      "source": "/tech/quantum-computing-strategy-uae-2026",
+      "destination": "/how-to-guides/quantum-computing-strategy-uae-2026",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/tech/quantum-computing-strategy-uae-2026(?:/)?$"
+    },
+    {
+      "source": "/tech/gmail-gemini-ai-features-2026",
+      "destination": "/how-to-guides/gmail-gemini-ai-features-2026",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/tech/gmail-gemini-ai-features-2026(?:/)?$"
+    },
+    {
+      "source": "/smart-home/how-to-clean-washing-machine",
+      "destination": "/how-to-guides/how-to-clean-washing-machine",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/smart-home/how-to-clean-washing-machine(?:/)?$"
+    },
+    {
+      "source": "/travel-tourism/world-safest-airlines-2026",
+      "destination": "/top-ten/world-safest-airlines-2026",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/travel-tourism/world-safest-airlines-2026(?:/)?$"
+    },
+    {
+      "source": "/reviews/best-wireless-earbuds-uae",
+      "destination": "/top-ten/best-wireless-earbuds-uae",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/best-wireless-earbuds-uae(?:/)?$"
+    },
+    {
+      "source": "/reviews/best-beard-trimmers-uae",
+      "destination": "/top-ten/best-beard-trimmers-uae",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/best-beard-trimmers-uae(?:/)?$"
+    },
+    {
+      "source": "/reviews/best-electric-shaver-uae",
+      "destination": "/top-ten/best-electric-shaver-uae",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/best-electric-shaver-uae(?:/)?$"
+    },
+    {
+      "source": "/reviews/best-air-fryers-uae-2026",
+      "destination": "/top-ten/best-air-fryers-uae-2026",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/best-air-fryers-uae-2026(?:/)?$"
+    },
+    {
+      "source": "/reviews/new-year-tech-upgrades-uae-2026",
+      "destination": "/top-ten/new-year-tech-upgrades-uae-2026",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/reviews/new-year-tech-upgrades-uae-2026(?:/)?$"
+    },
+    {
+      "source": "/parenting-kids/best-baby-skincare-uae",
+      "destination": "/top-ten/best-baby-skincare-uae",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/parenting-kids/best-baby-skincare-uae(?:/)?$"
+    },
+    {
+      "source": "/parenting-kids/best-baby-monitors-uae",
+      "destination": "/top-ten/best-baby-monitors-uae",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/parenting-kids/best-baby-monitors-uae(?:/)?$"
+    },
+    {
+      "source": "/parenting-kids/top-10-schools-dubai-2026-khda-fees-reviews",
+      "destination": "/top-ten/top-10-schools-dubai-2026-khda-fees-reviews",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/parenting-kids/top-10-schools-dubai-2026-khda-fees-reviews(?:/)?$"
+    },
+    {
+      "source": "/parenting-kids/where-to-donate-used-toys-uae",
+      "destination": "/how-to-guides/where-to-donate-used-toys-uae",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/parenting-kids/where-to-donate-used-toys-uae(?:/)?$"
+    },
+    {
+      "source": "/lifestyle/charity-organizations-uae-donations",
+      "destination": "/how-to-guides/charity-organizations-uae-donations",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/lifestyle/charity-organizations-uae-donations(?:/)?$"
+    },
+    {
+      "source": "/lifestyle/how-to-pay-zakat-in-uae-online",
+      "destination": "/how-to-guides/how-to-pay-zakat-in-uae-online",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/lifestyle/how-to-pay-zakat-in-uae-online(?:/)?$"
+    },
+    {
+      "source": "/events-holidays/ramadan-2026-uae",
+      "destination": "/ramadan-2026",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/events-holidays/ramadan-2026-uae(?:/)?$"
+    },
+    {
+      "source": "/best-places-visit-uae-eid-holidays",
+      "destination": "/events-holidays/eid-holidays-uae-2026-best-places-to-visit",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/best-places-visit-uae-eid-holidays(?:/)?$"
+    },
+    {
+      "source": "/eid-al-fitr-uae-prayer-timings-free-events",
+      "destination": "/events-holidays/eid-al-fitr-uae-prayer-timings-free-events",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/eid-al-fitr-uae-prayer-timings-free-events(?:/)?$"
+    },
+    {
+      "source": "/best-baby-monitors-uae",
+      "destination": "/top-ten/best-baby-monitors-uae",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/best-baby-monitors-uae(?:/)?$"
+    },
+    {
+      "source": "/best-electric-shaver-uae",
+      "destination": "/top-ten/best-electric-shaver-uae",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/best-electric-shaver-uae(?:/)?$"
+    },
+    {
+      "source": "/best-baby-skincare-uae",
+      "destination": "/top-ten/best-baby-skincare-uae",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/best-baby-skincare-uae(?:/)?$"
+    },
+    {
+      "source": "/deepseek-ai-revolutionary-data-retrieval-method",
+      "destination": "/how-to-guides/deepseek-ai-revolutionary-data-retrieval-method",
+      "statusCode": 308,
+      "regex": "^(?!/_next)/deepseek-ai-revolutionary-data-retrieval-method(?:/)?$"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/:path*",
+      "headers": [
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
+        },
+        {
+          "key": "X-DNS-Prefetch-Control",
+          "value": "on"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=()"
+        },
+        {
+          "key": "Link",
+          "value": "<https://cdn.sanity.io>; rel=preconnect; crossorigin, <https://www.googletagmanager.com>; rel=preconnect"
+        }
+      ],
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+    },
+    {
+      "source": "/:path*",
+      "headers": [
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin-allow-popups"
+        },
+        {
+          "key": "Cross-Origin-Resource-Policy",
+          "value": "same-site"
+        },
+        {
+          "key": "Cross-Origin-Embedder-Policy",
+          "value": "unsafe-none"
+        }
+      ],
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "query",
+          "key": "_rsc"
+        }
+      ],
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "private, no-cache, no-store, must-revalidate"
+        },
+        {
+          "key": "Vary",
+          "value": "RSC, Next-Router-State-Tree, Next-Router-Prefetch"
+        }
+      ],
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(?:/)?$"
+    },
+    {
+      "source": "/:all*(svg|jpg|jpeg|png|webp|avif|gif|ico|woff|woff2|ttf|eot)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ],
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))?(svg|jpg|jpeg|png|webp|avif|gif|ico|woff|woff2|ttf|eot)(?:/)?$"
+    }
+  ],
+  "rewrites": {
+    "beforeFiles": [],
+    "afterFiles": [],
+    "fallback": []
+  },
+  "dynamicRoutes": [
+    {
+      "page": "/reviews/[slug]",
+      "regex": "^/reviews/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPslug": "nxtPslug"
+      },
+      "namedRegex": "^/reviews/(?<nxtPslug>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/top-ten/[slug]",
+      "regex": "^/top\\-ten/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPslug": "nxtPslug"
+      },
+      "namedRegex": "^/top\\-ten/(?<nxtPslug>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/[category]",
+      "regex": "^/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPcategory": "nxtPcategory"
+      },
+      "namedRegex": "^/(?<nxtPcategory>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/[category]/[slug]",
+      "regex": "^/([^/]+?)/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPcategory": "nxtPcategory",
+        "nxtPslug": "nxtPslug"
+      },
+      "namedRegex": "^/(?<nxtPcategory>[^/]+?)/(?<nxtPslug>[^/]+?)(?:/)?$"
+    }
+  ],
+  "staticRoutes": [
+    {
+      "page": "/",
+      "regex": "^/(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/_global-error",
+      "regex": "^/_global\\-error(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_global\\-error(?:/)?$"
+    },
+    {
+      "page": "/_not-found",
+      "regex": "^/_not\\-found(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_not\\-found(?:/)?$"
+    },
+    {
+      "page": "/410",
+      "regex": "^/410(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/410(?:/)?$"
+    },
+    {
+      "page": "/about-us",
+      "regex": "^/about\\-us(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/about\\-us(?:/)?$"
+    },
+    {
+      "page": "/affiliate-disclosure",
+      "regex": "^/affiliate\\-disclosure(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/affiliate\\-disclosure(?:/)?$"
+    },
+    {
+      "page": "/api/amazon-sync",
+      "regex": "^/api/amazon\\-sync(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/amazon\\-sync(?:/)?$"
+    },
+    {
+      "page": "/api/rates",
+      "regex": "^/api/rates(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/rates(?:/)?$"
+    },
+    {
+      "page": "/api/subscribe",
+      "regex": "^/api/subscribe(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/subscribe(?:/)?$"
+    },
+    {
+      "page": "/contact-us",
+      "regex": "^/contact\\-us(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/contact\\-us(?:/)?$"
+    },
+    {
+      "page": "/cookies-policy",
+      "regex": "^/cookies\\-policy(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/cookies\\-policy(?:/)?$"
+    },
+    {
+      "page": "/deals",
+      "regex": "^/deals(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/deals(?:/)?$"
+    },
+    {
+      "page": "/disclaimer",
+      "regex": "^/disclaimer(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/disclaimer(?:/)?$"
+    },
+    {
+      "page": "/icon.svg",
+      "regex": "^/icon\\.svg(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/icon\\.svg(?:/)?$"
+    },
+    {
+      "page": "/newsletter/confirm",
+      "regex": "^/newsletter/confirm(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/newsletter/confirm(?:/)?$"
+    },
+    {
+      "page": "/privacy-policy",
+      "regex": "^/privacy\\-policy(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/privacy\\-policy(?:/)?$"
+    },
+    {
+      "page": "/ramadan-2026",
+      "regex": "^/ramadan\\-2026(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/ramadan\\-2026(?:/)?$"
+    },
+    {
+      "page": "/report",
+      "regex": "^/report(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/report(?:/)?$"
+    },
+    {
+      "page": "/reviews",
+      "regex": "^/reviews(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/reviews(?:/)?$"
+    },
+    {
+      "page": "/robots.txt",
+      "regex": "^/robots\\.txt(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/robots\\.txt(?:/)?$"
+    },
+    {
+      "page": "/search",
+      "regex": "^/search(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/search(?:/)?$"
+    },
+    {
+      "page": "/sitemap.xml",
+      "regex": "^/sitemap\\.xml(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/sitemap\\.xml(?:/)?$"
+    },
+    {
+      "page": "/subscribe",
+      "regex": "^/subscribe(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/subscribe(?:/)?$"
+    },
+    {
+      "page": "/terms-and-conditions",
+      "regex": "^/terms\\-and\\-conditions(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/terms\\-and\\-conditions(?:/)?$"
+    },
+    {
+      "page": "/thank-you",
+      "regex": "^/thank\\-you(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/thank\\-you(?:/)?$"
+    },
+    {
+      "page": "/top-ten",
+      "regex": "^/top\\-ten(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/top\\-ten(?:/)?$"
+    }
+  ],
+  "dataRoutes": [],
+  "rsc": {
+    "header": "rsc",
+    "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+    "prefetchHeader": "next-router-prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSegmentHeader": "next-router-segment-prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments",
+    "clientParamParsing": false,
+    "dynamicRSCPrerender": false
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  }
+}
