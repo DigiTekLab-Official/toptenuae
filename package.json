@@ -8,8 +8,8 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build && opennextjs-cloudflare build",
-    "preview": "opennextjs-cloudflare preview",
+    "build": "next build && pnpm exec open-next build --provider cloudflare",
+    "preview": "pnpm exec open-next dev",
     "deploy": "pnpm run build && wrangler pages deploy .open-next/assets --project-name=toptenuae",
     "start": "next start",
     "lint": "eslint"
