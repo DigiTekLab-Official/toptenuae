@@ -10,6 +10,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { client } from "@/sanity/lib/client";
+import { CATEGORY_PAGE_QUERY } from "@/sanity/lib/queries"; // ✅ IMPORTED QUERY
 import Sidebar from "@/components/Sidebar";
 import { generateSeoMetadata } from "@/utils/seo-manager";
 import { cleanText } from "@/lib/utils/sanity-text";
@@ -56,55 +57,6 @@ export async function generateStaticParams() {
   }
 }
 
-// ============================================================================
-// QUERY
-// ============================================================================
-const categoryQuery = `
-  *[_type == "category" && slug.current == $slug][0]{
-    _id,
-    _type,
-    title,
-    description,
-    "slug": slug.current,
-    "seo": seo {
-      metaTitle,
-      metaDescription,
-      keywords,
-      canonicalUrl,
-      noIndex,
-      ogImage
-    },
-    "items": *[
-      _type in [
-        "topTenList",
-        "howTo",
-        "tool",
-        "holiday",
-        "charity",
-        "deal",
-        "event"
-      ] &&
-      (
-        references(^._id) ||
-        category._ref == ^._id ||
-        categories[]._ref == ^._id
-      )
-    ] | order(publishedAt desc)[0...50] {
-      _type,
-      title,
-      "slug": slug.current,
-      mainImage,
-      publishedAt,
-      "rawExcerpt": coalesce(
-        intro,
-        description,
-        itemDescription,
-        body[0...1]
-      )
-    }
-  }
-`;
-
 interface PageProps {
   params: Promise<{ category: string }>;
 }
@@ -145,7 +97,7 @@ export async function generateMetadata({
 }
 
 // ============================================================================
-// HELPERS (Now actually used!)
+// HELPERS
 // ============================================================================
 const getToolConfig = (slug: string) => {
   if (!slug) {
@@ -228,13 +180,16 @@ const getToolConfig = (slug: string) => {
 export default async function CategoryPage({ params }: PageProps) {
   const { category } = await params;
 
-  // if (CUSTOM_PAGES.includes(category)) {
-  //  redirect(`/${category}`);
-  //}
+  // ✅ Fixed: Removed infinite redirect loop logic
+  if (CUSTOM_PAGES.includes(category)) {
+    // Optionally: return notFound() if you want to strictly block these
+    // return notFound(); 
+  }
 
   let data;
   try {
-    data = await client.fetch(categoryQuery, { slug: category });
+    // ✅ Fixed: Using the Imported Query from queries.ts
+    data = await client.fetch(CATEGORY_PAGE_QUERY, { slug: category });
   } catch (error) {
     console.error("Error fetching category data:", error);
     return notFound();

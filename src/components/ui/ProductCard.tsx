@@ -6,27 +6,40 @@ import LogoIcon from "@/components/icons/LogoIcon";
 import { 
   CheckCircle2, XCircle, Info, Star, ExternalLink, Shield, Tag,
   BatteryMedium, Wifi, Zap, Monitor, Camera, Headphones, Droplets,
-  Clock, Box, Award, Layers, Truck, Settings // ✅ Added Settings Icon
+  Clock, Box, Award, Layers, Truck, Settings
 } from "lucide-react";
 
-// --- 1. HELPER FUNCTION: ICONS ---
+// --- 1. CONFIGURATION: ICONS (Strategy Pattern) ---
+// Addresses Audit: "30-line if/else chain needs refactoring"
+const ICON_CONFIG = [
+  { keys: ["battery", "charging"], Icon: BatteryMedium, color: "text-emerald-600" },
+  { keys: ["wifi", "wireless", "bluetooth"], Icon: Wifi, color: "text-blue-600" },
+  { keys: ["fast", "speed", "processor"], Icon: Zap, color: "text-yellow-500" },
+  { keys: ["display", "screen", "oled"], Icon: Monitor, color: "text-indigo-500" },
+  { keys: ["camera", "lens"], Icon: Camera, color: "text-rose-500" },
+  { keys: ["sound", "audio"], Icon: Headphones, color: "text-pink-500" },
+  { keys: ["water", "proof"], Icon: Droplets, color: "text-cyan-600" },
+  { keys: ["warranty", "guarantee"], Icon: Shield, color: "text-green-600" },
+  { keys: ["year", "life"], Icon: Clock, color: "text-orange-600" },
+  { keys: ["dimension", "weight"], Icon: Box, color: "text-slate-500" },
+  { keys: ["quality", "premium"], Icon: Award, color: "text-amber-500" },
+  { keys: ["pieces", "set"], Icon: Layers, color: "text-purple-500" },
+  { keys: ["shipping", "delivery"], Icon: Truck, color: "text-slate-600" },
+];
+
 const getFeatureIcon = (feature: string) => {
   if (!feature) return <Star className="w-4 h-4 text-amber-400" />;
   const lowerFeature = feature.toLowerCase();
-  
-  if (lowerFeature.includes("battery") || lowerFeature.includes("charging")) return <BatteryMedium className="w-4 h-4 text-emerald-600" />;
-  if (lowerFeature.includes("wifi") || lowerFeature.includes("wireless") || lowerFeature.includes("bluetooth")) return <Wifi className="w-4 h-4 text-blue-600" />;
-  if (lowerFeature.includes("fast") || lowerFeature.includes("speed") || lowerFeature.includes("processor")) return <Zap className="w-4 h-4 text-yellow-500" />;
-  if (lowerFeature.includes("display") || lowerFeature.includes("screen") || lowerFeature.includes("oled")) return <Monitor className="w-4 h-4 text-indigo-500" />;
-  if (lowerFeature.includes("camera") || lowerFeature.includes("lens")) return <Camera className="w-4 h-4 text-rose-500" />;
-  if (lowerFeature.includes("sound") || lowerFeature.includes("audio")) return <Headphones className="w-4 h-4 text-pink-500" />;
-  if (lowerFeature.includes("water") || lowerFeature.includes("proof")) return <Droplets className="w-4 h-4 text-cyan-600" />;
-  if (lowerFeature.includes("warranty") || lowerFeature.includes("guarantee")) return <Shield className="w-4 h-4 text-green-600" />;
-  if (lowerFeature.includes("year") || lowerFeature.includes("life")) return <Clock className="w-4 h-4 text-orange-600" />;
-  if (lowerFeature.includes("dimension") || lowerFeature.includes("weight")) return <Box className="w-4 h-4 text-slate-500" />;
-  if (lowerFeature.includes("quality") || lowerFeature.includes("premium")) return <Award className="w-4 h-4 text-amber-500" />;
-  if (lowerFeature.includes("pieces") || lowerFeature.includes("set")) return <Layers className="w-4 h-4 text-purple-500" />;
-  if (lowerFeature.includes("shipping") || lowerFeature.includes("delivery")) return <Truck className="w-4 h-4 text-slate-600" />;
+
+  // Efficient lookup preserving "includes" logic
+  const match = ICON_CONFIG.find(conf => 
+    conf.keys.some(key => lowerFeature.includes(key))
+  );
+
+  if (match) {
+    const { Icon, color } = match;
+    return <Icon className={`w-4 h-4 ${color}`} />;
+  }
   
   return <Star className="w-4 h-4 text-amber-400" />;
 };
@@ -37,8 +50,37 @@ const getPriceLabel = (price: number | undefined, currency: string = 'AED') => {
   return `${currency} ${price.toLocaleString()}`; 
 };
 
+// --- 3. TYPES (Addresses Audit: "Pervasive use of any types") ---
+interface ProductSpec {
+  specLabel: string;
+  specValue: string;
+}
+
+interface ProductData {
+  title?: string;
+  mainImage?: { url?: string };
+  verdict?: string;
+  specifications?: ProductSpec[];
+  heroFeature?: string;
+  keyFeatures?: string[];
+  pros?: string[];
+  cons?: string[];
+  affiliateLink?: string;
+  price?: number;
+  currency?: string;
+  retailer?: string;
+}
+
+interface ProductItem {
+  rank: number;
+  product?: ProductData;
+  customVerdict?: string;
+  badgeLabel?: string;
+  whySelected?: string;
+}
+
 interface ProductCardProps {
-  item: any; 
+  item: ProductItem; 
   index?: number;
 }
 
@@ -48,7 +90,6 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
   const displayName = product.title || "Product Name Unavailable";
   const finalVerdict = item.customVerdict || product.verdict; 
   
-  // ✅ Access the specifications data passed from TopTenTemplate
   const specifications = product.specifications || [];
 
   return (
@@ -90,7 +131,7 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
           </div>
         )}
 
-        {/* --- MAIN IMAGE - OPTIMIZED --- */}
+        {/* --- MAIN IMAGE --- */}
         {imageUrl && (
           <div className="mb-6 flex justify-center">
             <div className="relative h-72 md:h-80 w-full max-w-[320px] overflow-hidden rounded-xl bg-white border border-gray-100 shadow-sm">
@@ -109,7 +150,7 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
         )}
 
         {/* --- VERDICT --- */}
-        {finalVerdict && typeof finalVerdict === 'string' && (
+        {finalVerdict && (
           <div className="mb-6 bg-primary-50 border-l-4 border-primary p-4 md:p-5 rounded-r-xl shadow-sm">
             <div className="flex items-center gap-2 mb-2">
               <Info className="w-5 h-5 text-primary" />
@@ -121,7 +162,7 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
           </div>
         )}
 
-        {/* --- KEY FEATURES (Tags) --- */}
+        {/* --- KEY FEATURES --- */}
         {product.keyFeatures && product.keyFeatures.length > 0 && (
           <div className="mb-6 bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50 p-4 rounded-xl shadow-sm border border-amber-100">
              <div className="flex items-center gap-3 mb-3 text-gray-900 pb-2 border-b border-amber-200/50">
@@ -141,7 +182,7 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
           </div>
         )}
         
-        {/* ✅ NEW: TECHNICAL SPECIFICATIONS TABLE (Compact & Clean) */}
+        {/* --- TECH SPECS --- */}
         {specifications.length > 0 && (
           <div className="mb-6 border border-slate-200 rounded-xl overflow-hidden shadow-xs">
              <div className="bg-slate-50 px-4 py-2 border-b border-slate-200 flex items-center gap-2">
@@ -150,7 +191,7 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
              </div>
              <table className="w-full text-sm">
                <tbody className="divide-y divide-slate-100">
-                 {specifications.map((spec: any, i: number) => (
+                 {specifications.map((spec: ProductSpec, i: number) => (
                    <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-slate-50/30'}>
                      <td className="px-4 py-2 text-slate-500 font-medium w-1/3 border-r border-slate-100">{spec.specLabel}</td>
                      <td className="px-4 py-2 text-slate-900 font-semibold">{spec.specValue}</td>
@@ -198,7 +239,7 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
         )}
 
         {/* --- WHY WE PICKED THIS --- */}
-        {item.whySelected && typeof item.whySelected === 'string' && (
+        {item.whySelected && (
           <div className="mb-4 p-4 bg-slate-100 rounded-xl border border-slate-300 border-l-4 border-l-slate-600">
             <div className="flex items-center gap-2 mb-1">
               <Info className="w-3 h-3 text-primary" />
