@@ -8,9 +8,10 @@ pages_build_output_dir = ".open-next/assets"
 # ------------------------------------------------------------------------------
 # BUILD CONFIGURATION
 # ------------------------------------------------------------------------------
-# This prevents Cloudflare from running the old "npx @cloudflare/next-on-pages"
+# This runs the adapter script, which internally runs 'next build' first.
+# This prevents the "infinite loop" issue.
 [build]
-command = "pnpm run build"
+command = "pnpm run build:worker"
 
 # ------------------------------------------------------------------------------
 # PUBLIC VARIABLES (Safe to commit)

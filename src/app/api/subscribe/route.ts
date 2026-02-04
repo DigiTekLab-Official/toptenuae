@@ -5,7 +5,7 @@ import { SignJWT } from 'jose';
 
 // Configuration for Edge
 export const dynamic = 'force-dynamic';
-export const runtime = 'edge';
+
 
 const SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 

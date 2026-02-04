@@ -7,13 +7,14 @@
     "pnpm": ">=8"
   },
   "scripts": {
-    "dev": "next dev",
-    "build": "next build && pnpm exec open-next build --provider cloudflare",
-    "preview": "pnpm exec open-next dev",
-    "deploy": "pnpm run build && wrangler pages deploy .open-next/assets --project-name=toptenuae",
-    "start": "next start",
-    "lint": "eslint"
-  },
+  "dev": "next dev",
+  "build": "next build",
+  "build:worker": "opennextjs-cloudflare build",
+  "preview": "opennextjs-cloudflare preview",
+  "deploy": "pnpm run build:worker && wrangler pages deploy .open-next/assets --project-name=toptenuae",
+  "start": "next start",
+  "lint": "eslint"
+},
   "dependencies": {
     "@formspree/react": "^3.0.0",
     "@marsidev/react-turnstile": "^1.4.1",
