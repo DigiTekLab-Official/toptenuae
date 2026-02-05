@@ -13,7 +13,9 @@ export const projectId = assertValue(
   'Missing environment variable: NEXT_PUBLIC_SANITY_PROJECT_ID'
 )
 
-export const useCdn = false
+// CHANGE: It is safer to use CDN in production for speed.
+// Only set to false if you need instant updates on the frontend immediately after editing.
+export const useCdn = true 
 
 function assertValue<T>(v: T | undefined, errorMessage: string): T {
   if (v === undefined) {

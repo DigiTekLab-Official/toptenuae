@@ -42,13 +42,15 @@ const nextConfig: NextConfig = {
   // ============================================================================
 
   images: {
-    // ✅ CRITICAL: Disable image optimization for Cloudflare static deployment
-    // Static HTML pages don't have access to /_next/image API
-    unoptimized: true,
+    // ⚠️ RECOMMENDATION: Comment out 'unoptimized: true' if you want Next.js to 
+    // resize and format images automatically. Keep it ONLY if you are hitting 
+    // limits or using a purely static host (like Cloudflare Pages).
+    // unoptimized: true,
     
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    // ❌ REMOVED: CSP is handled better in Middleware globally
+    // contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     
     // ✅ Quality levels for responsive images
     qualities: [70, 75, 80, 85, 90],
@@ -59,7 +61,7 @@ const nextConfig: NextConfig = {
     
     // Remote patterns for external images
     remotePatterns: [
-      { protocol: "https", hostname: "cdn.sanity.io", pathname: "/images/**" },
+      { protocol: "https", hostname: "cdn.sanity.io" },
       { protocol: "https", hostname: "placehold.co" },
       { protocol: "https", hostname: "toptenuae.com" },
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
