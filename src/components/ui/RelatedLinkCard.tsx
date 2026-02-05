@@ -1,6 +1,6 @@
 // src/components/ui/RelatedLinkCard.tsx
 import Link from "next/link";
-import { ArrowRight, ExternalLink } from "lucide-react"; 
+import { ArrowRight, ExternalLink } from "@/components/icons"; 
 
 interface RelatedLinkProps {
   label: string;

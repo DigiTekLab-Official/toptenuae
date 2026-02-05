@@ -1,5 +1,9 @@
 // next.config.ts
 import type { NextConfig } from "next";
+import { validateEnv } from "./src/lib/validateEnv";
+
+// ✅ Validate environment variables at build time
+validateEnv('build');
 
 const nextConfig: NextConfig = {
   // ============================================================================
@@ -28,16 +32,26 @@ const nextConfig: NextConfig = {
   },
 
   // ============================================================================
-  // 2. IMAGES – CLOUDFLARE PAGES CONFIGURATION
+  // 2. IMAGES – OPTIMIZED FOR PERFORMANCE (Cloudflare-compatible)
   // ============================================================================
 
   images: {
-    unoptimized: true, 
+    // ✅ CRITICAL: Enable image optimization (was unoptimized: true)
+    // This enables Next.js automatic format/size selection
+    unoptimized: false,
+    
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    qualities: [75, 80, 85],
+    
+    // ✅ Quality levels for responsive images
+    qualities: [70, 75, 80, 85, 90],
+    
+    // ✅ Modern formats (Next.js Image Optimization supports avif/webp only)
+    // Note: Original formats are automatically served as fallback
     formats: ["image/avif", "image/webp"],
+    
+    // Remote patterns for external images
     remotePatterns: [
       { protocol: "https", hostname: "cdn.sanity.io", pathname: "/images/**" },
       { protocol: "https", hostname: "placehold.co" },
@@ -45,8 +59,12 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
       { protocol: "https", hostname: "m.media-amazon.com" },
     ],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    
+    // ✅ Expanded device sizes for better responsive coverage
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 192, 256, 384, 512, 640, 750],
+    
+    // Cache 1 year for versioned assets
     minimumCacheTTL: 31536000,
   },
 

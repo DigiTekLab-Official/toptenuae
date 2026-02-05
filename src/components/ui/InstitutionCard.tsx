@@ -8,7 +8,7 @@ import LogoIcon from "@/components/icons/LogoIcon";
 import { 
   MapPin, GraduationCap, Coins, AlertTriangle, 
   ExternalLink, Globe, Info, Award, CheckCircle2 
-} from "lucide-react";
+} from "@/components/icons";
 
 // ✅ 1. Update Interface
 interface SchoolData {

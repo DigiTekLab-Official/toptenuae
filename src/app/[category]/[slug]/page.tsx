@@ -7,27 +7,51 @@ import { generateSeoMetadata } from "@/utils/seo-manager";
 import { generateSchema } from "@/lib/schemaGenerator";
 import JsonLd from '@/components/sanity/JsonLd';
 import ArticleView from "@/components/views/ArticleView";
-import { GENERIC_POST_QUERY } from "@/sanity/lib/queries";
+import { GENERIC_POST_QUERY, TOP_TEN_LIST_QUERY } from "@/sanity/lib/queries";
+import { groq } from 'next-sanity';
 
 // Cloudflare Pages: Fully static generation (no ISR)
 export const dynamicParams = true;
 
-// Helper: Normalize Categories
+// Helper: Normalize Categories (Validates against actual Sanity categories)
 const normalizeCategory = (categorySlug: string) => {
   const map: Record<string, string> = {
     'travel-tourism': 'events-holidays',
     'health-fitness': 'lifestyle',
     'baby-kid': 'parenting-kids',
     'buyers-guide': 'reviews',
-    'tech': 'tech',
   };
+  // Remove identity mappings (tech -> tech)
   return map[categorySlug] || categorySlug;
 };
 
-// ✅ OPTIMIZATION: Cached fetch function
-// This ensures that even though we call this in generateMetadata AND Page,
-// Sanity is only queried ONCE per request.
+// ✅ FIX: Cache category validation
+const getCategoryValidation = cache(async () => {
+  try {
+    const categories = await client.fetch(groq`
+      *[_type == "category"]{ "slug": slug.current }
+    `);
+    return new Set(categories.map((c: any) => c.slug));
+  } catch {
+    return new Set();
+  }
+});
+
+// ✅ OPTIMIZATION: Cached fetch function with type detection
+// Detects document type and uses appropriate query (TOP_TEN_LIST_QUERY for top ten lists)
 const getPostData = cache(async (slug: string) => {
+  // First, detect the document type
+  const docType = await client.fetch(
+    groq`*[slug.current == $slug][0]._type`,
+    { slug }
+  );
+  
+  // Use TOP_TEN_LIST_QUERY for top ten lists (includes listItems with images)
+  if (docType === 'topTenList') {
+    return await client.fetch(TOP_TEN_LIST_QUERY, { slug });
+  }
+  
+  // Use GENERIC_POST_QUERY for all other types
   return await client.fetch(GENERIC_POST_QUERY, { slug });
 });
 
@@ -101,6 +125,9 @@ export default async function Page({ params }: PageProps) {
 
   if (!data) notFound();
 
+  // ✅ FIX: Validate category exists in Sanity
+  const validCategories = await getCategoryValidation();
+  
   // Smart Fallback Logic
   let defaultCat = 'reviews';
   if (data._type === 'holiday' || data._type === 'event') defaultCat = 'events-holidays';
@@ -113,6 +140,11 @@ export default async function Page({ params }: PageProps) {
                       defaultCat;
                       
   const correctCategory = normalizeCategory(rawCategory);
+
+  // ✅ FIX: Validate against actual Sanity categories, return 404 if not found
+  if (validCategories.size > 0 && !validCategories.has(correctCategory)) {
+    notFound();
+  }
 
   // Redirect if URL category doesn't match canonical category
   if (correctCategory !== category) {

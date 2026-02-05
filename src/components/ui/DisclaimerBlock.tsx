@@ -1,6 +1,6 @@
 // src/components/ui/DisclaimerBlock.tsx
 import React from "react";
-import { AlertTriangle, ShieldCheck } from "lucide-react";
+import { AlertTriangle, ShieldCheck } from "@/components/icons";
 
 interface DisclaimerProps {
   type?: 'medical' | 'general'; 

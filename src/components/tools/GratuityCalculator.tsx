@@ -1,7 +1,7 @@
 // src/components/tools/GratuityCalculator.tsx
 'use client';
 
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react'; 
 
 export default function GratuityCalculator() {
   // Inputs

@@ -2,18 +2,20 @@
 // Cloudflare Pages: Fully static generation (no ISR)
 export const runtime = 'nodejs';
 
-import { client } from "@/sanity/lib/client";
+import { client } from "@/sanity/lib";
+import { HOME_QUERY } from "@/sanity/lib"; // ✅ Query is now imported (saves ~55 lines here)
 import Link from "next/link";
 import Image from "next/image";
 import { Metadata } from "next";
 import { generateSeoMetadata } from "@/utils/seo-manager";
 import JsonLd from "@/components/sanity/JsonLd"; 
 import HomeNewsletter from "@/components/HomeNewsletter";
-import { cleanText } from "@/lib/utils/sanity-text";
-import { mainImage, listImage, blurImage } from "@/sanity/lib/image";
+import { cleanText, formatDate, getConciseAlt } from "@/lib/utils/sanity-text";
+import { mainImage, listImage, blurImage } from "@/sanity/lib";
 import { generateSchema } from "@/lib/schemaGenerator";
 import LogoIcon from "@/components/icons/LogoIcon";
 
+// ✅ OPTIMIZED IMPORTS (Tree-Shaking)
 import { 
   ArrowRight, 
   Zap, 
@@ -22,20 +24,19 @@ import {
   Percent, 
   Coins, 
   CreditCard, 
-  PieChart,
-  ShoppingBag,
-  Sparkles,
-  BookOpen,
-  Calendar,
-  Baby,
-  Trophy,
-  Rocket
-} from "lucide-react";
+  PieChart, 
+  ShoppingBag, 
+  Sparkles, 
+  BookOpen, 
+  Calendar, 
+  Baby, 
+  Trophy, 
+  Rocket 
+} from "@/components/icons";
 
 // =============================================================================
 // CONFIGURATION
 // =============================================================================
-// Standard Categories (Upcoming is handled separately to sit on top)
 const SELECTED_CATEGORIES = [
   "tech", "top-ten", "reviews", "how-to-guides",
   "events-holidays", "parenting-kids", "finance-tools"
@@ -124,103 +125,16 @@ const getCategoryIcon = (slug: string) => {
 };
 
 // =============================================================================
-// HELPER: UTILS
-// =============================================================================
-const formatDate = (date: string) => {
-  return new Date(date).toLocaleDateString("en-AE", { 
-    year: 'numeric', 
-    month: 'long', 
-    day: '2-digit',
-    timeZone: 'Asia/Dubai'
-  });
-};
-
-const getConciseAlt = (altText: string | undefined, title: string): string => {
-  if (altText && altText.length > 0) {
-    return altText.length > 120 ? altText.substring(0, 117) + '...' : altText;
-  }
-  return title.length > 120 ? title.substring(0, 117) + '...' : title;
-};
-
-// =============================================================================
-// DATA QUERY
-// =============================================================================
-const HOME_QUERY = `
-{
-  "heroPost": *[_type in ["topTenList", "howTo", "article", "news"] && defined(slug.current)] | order(publishedAt desc)[0] {
-    title,
-    "slug": slug.current,
-    "categorySlug": coalesce(categories[0]->slug.current, category->slug.current, "general"), 
-    "categoryTitle": coalesce(categories[0]->title, category->title, "Featured"),
-    mainImage {
-      asset->{
-        _id,
-        url,
-        metadata { dimensions, lqip }
-      },
-      alt,
-      hotspot,
-      crop
-    }, 
-    intro,
-    publishedAt,
-    _type
-  },
-  
-  "upcomingPosts": *[
-    _type in ["article", "news", "product", "howTo", "topTenList"] && (
-      subCategory->slug.current == "upcoming" || 
-      "upcoming" in displayCategories[]->slug.current ||
-      "upcoming" in categories[]->slug.current ||
-      category->slug.current == "upcoming"
-    )
-  ] | order(publishedAt desc)[0...4] {
-    title,
-    "slug": slug.current,
-    "categorySlug": "upcoming", 
-    mainImage {
-      asset->{
-        _id,
-        url,
-        metadata { dimensions, lqip }
-      },
-      alt
-    },
-    publishedAt,
-    _type,
-    intro
-  },
-
-  "sections": *[_type == "category" && slug.current in ${JSON.stringify(SELECTED_CATEGORIES)}] | order(orderRank) {
-    title,
-    "slug": slug.current,
-    description,
-    "posts": *[_type in ["holiday", "topTenList", "howTo", "tool", "product", "article", "news"] && references(^._id) && !(_id in path("drafts.**"))] | order(publishedAt desc)[0...4] {
-      title,
-      "slug": slug.current,
-      mainImage {
-        asset->{
-          _id,
-          url,
-          metadata { dimensions, lqip }
-        },
-        alt
-      },
-      publishedAt,
-      _type,
-      intro
-    }
-  }
-}`;
-
-// =============================================================================
 // MAIN PAGE COMPONENT
 // =============================================================================
 export default async function Home() {
   // 1. Safe Data Fetching
   let data;
   try {
-    data = await client.fetch(HOME_QUERY, {}, {
+    // ✅ Use Centralized Query with Parameters
+    data = await client.fetch(HOME_QUERY, { 
+      categories: SELECTED_CATEGORIES 
+    }, {
       cache: 'force-cache',
       next: { 
         tags: ['homepage']
@@ -252,7 +166,6 @@ export default async function Home() {
   }
 
   // 3. Process Logic
-  // Sort sections strictly by the SELECTED_CATEGORIES array order
   const sortedSections = SELECTED_CATEGORIES
     .map(slug => sections?.find((s: any) => s.slug === slug))
     .filter(Boolean);
@@ -260,12 +173,10 @@ export default async function Home() {
   const heroDescription = cleanText(heroPost?.intro) || 
     "Expert reviews and comprehensive rankings for the UAE market.";
     
-  // Secure image resolution
   const heroImageUrl = heroPost.mainImage ? mainImage(heroPost.mainImage) : null;
   const heroBlurUrl = heroPost.mainImage ? blurImage(heroPost.mainImage) : undefined;
 
   // 4. Schema Generation
-  // Collect featured posts for structured data
   const featuredPosts = [
     ...(upcomingPosts || []),
     ...sortedSections.flatMap((section: any) => 
@@ -286,7 +197,7 @@ export default async function Home() {
     <>
       <JsonLd data={allSchemas} />
 
-      <main className="font-sans bg-white">
+      <main className="font-sans bg-white w-full">
       
         <h1 className="sr-only">
           TopTenUAE - The Best of the UAE, Ranked, Reviewed & Smart Tools
@@ -296,7 +207,7 @@ export default async function Home() {
         {/* 1. HERO SECTION - MAGAZINE LAYOUT                                    */}
         {/* ===================================================================== */}
         <section 
-          className="relative bg-slate-900 text-white overflow-hidden"
+          className="relative w-full bg-slate-900 text-white overflow-hidden"
           style={{ minHeight: '550px' }} 
           aria-labelledby="hero-title"
         >
@@ -307,7 +218,8 @@ export default async function Home() {
                 src={heroImageUrl}
                 alt="" 
                 fill
-                className="object-cover opacity-20 blur-sm scale-105" 
+                style={{ objectFit: 'cover' }}
+                className="opacity-30"
                 priority
                 quality={85}
                 sizes="100vw"
@@ -319,7 +231,7 @@ export default async function Home() {
             <div className="absolute inset-0 bg-linear-to-r from-slate-900 via-slate-900/95 to-slate-900/40" />
           </div>
 
-          <div className="container mx-auto px-4 py-12 lg:py-20 relative z-10 max-w-7xl h-full flex flex-col justify-center">
+          <div className="container mx-auto px-4 py-12 lg:py-20 relative z-20 max-w-7xl w-full h-full flex flex-col justify-center">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
               
               {/* LEFT COLUMN: Main Feature */}

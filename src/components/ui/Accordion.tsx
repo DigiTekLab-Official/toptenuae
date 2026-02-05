@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Minus } from "lucide-react";
+import { Plus, Minus } from "@/components/icons";
 import PortableText from "@/components/sanity/PortableText";
 
 interface FAQItem {

@@ -3,9 +3,10 @@
 
 import React from "react";
 import Image from "next/image";
-import { Calendar, MapPin, Ticket } from "lucide-react";
+import { Calendar, MapPin, Ticket } from "@/components/icons";
 import PortableText from "@/components/sanity/PortableText";
 import FAQAccordion from "@/components/FAQAccordion";
+import { formatDate, formatTime } from "@/lib/utils/sanity-text";
 
 // 1. ROBUST INTERFACES
 export interface EventSanityData {
@@ -52,25 +53,6 @@ export default function EventTemplate({ data }: { data: EventSanityData }) {
   );
 
   const showKeyDetails = !isYearlyList && (!!data.startDate || hasVenue);
-
-  // --- HELPERS ---
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return null;
-    try {
-      return new Date(dateString).toLocaleDateString("en-AE", { 
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
-      });
-    } catch (e) { return null; }
-  };
-
-  const formatTime = (dateString?: string) => {
-    if (!dateString) return null;
-    try {
-      return new Date(dateString).toLocaleTimeString("en-AE", { 
-        hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Dubai' 
-      });
-    } catch (e) { return null; }
-  };
 
   const getAddressString = (addr: any) => {
     if (!addr) return null;

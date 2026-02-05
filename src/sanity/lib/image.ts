@@ -1,4 +1,4 @@
-// src/sanity/lib/image.ts - 2026 PERFORMANCE OPTIMIZED
+// src/sanity/lib/image.ts
 import { createImageUrlBuilder } from '@sanity/image-url'
 import type { SanityImageSource } from '@sanity/image-url'
 import { dataset, projectId } from './client'

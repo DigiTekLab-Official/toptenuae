@@ -2,7 +2,7 @@
 "use client";
 
 import { PortableText as PortableTextComponent, PortableTextComponents } from "@portabletext/react";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink } from "@/components/icons";
 import RelatedLinkCard from "@/components/ui/RelatedLinkCard";
 import CodeBlock from "@/components/ui/CodeBlock";
 import Image from "next/image";

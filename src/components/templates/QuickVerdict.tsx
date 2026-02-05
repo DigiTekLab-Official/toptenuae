@@ -3,7 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Star, Trophy } from "lucide-react";
+import { ArrowRight, Star, Trophy } from "@/components/icons";
 
 interface QuickPick {
   tag: string;

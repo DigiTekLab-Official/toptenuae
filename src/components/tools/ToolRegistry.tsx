@@ -2,7 +2,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from "@/components/icons";
 
 // ✅ FIX: Import VAT Calculator directly so it renders on the Server
 import VatCalculator from './VatCalculator';

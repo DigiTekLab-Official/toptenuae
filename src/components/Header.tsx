@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
-import { Menu, X, Search, Flame, Moon } from "lucide-react";
+import { Menu, X, Search, Flame, Moon } from "@/components/icons";
 
 // Define the shape of our links to avoid TS errors
 type NavLink = {

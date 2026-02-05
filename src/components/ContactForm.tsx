@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { useForm, ValidationError } from '@formspree/react';
-import { Send, CheckCircle } from 'lucide-react';
+import { Send, CheckCircle } from '@/components/icons';
 
 export default function ContactForm() {
   const [state, handleSubmit] = useForm("xjknjnqv");

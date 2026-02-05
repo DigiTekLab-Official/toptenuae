@@ -1,8 +1,28 @@
 "use client";
 
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-// We use the CJS import path which is often more stable in Next.js
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+import dynamic from 'next/dynamic';
+
+const SyntaxHighlighter = dynamic(
+  () => import('react-syntax-highlighter').then(mod => mod.Prism),
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="my-8 rounded-lg overflow-hidden bg-[#1e1e1e] p-6 text-gray-400 text-sm">
+        Loading code block...
+      </div>
+    )
+  }
+);
+
+const vscDarkPlus = {
+  'hljs': {
+    'display': 'block',
+    'overflowX': 'auto',
+    'padding': '0.5em',
+    'background': '#1e1e1e',
+    'color': '#d4d4d4'
+  }
+} as const;
 
 interface CodeBlockProps {
   value: {
@@ -40,7 +60,7 @@ export default function CodeBlock({ value }: CodeBlockProps) {
           padding: '1.5rem',
           fontSize: '0.9rem',
           lineHeight: '1.6',
-          backgroundColor: 'transparent', // Use our container background
+          backgroundColor: '#1e1e1e',
         }}
         showLineNumbers={true}
         wrapLines={true}

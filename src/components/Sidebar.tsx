@@ -2,7 +2,7 @@
 import { client } from "@/sanity/lib/client";
 import Link from "next/link";
 import Image from "next/image";
-import { Clock, TrendingUp, ShieldCheck } from "lucide-react";
+import { Clock, TrendingUp, ShieldCheck } from "@/components/icons";
 
 // Query remains the same...
 const SIDEBAR_QUERY = `

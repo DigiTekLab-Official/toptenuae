@@ -3,7 +3,7 @@
 
 import React from "react";
 import Image from "next/image";
-import { ExternalLink, ShieldCheck, Star, Minus } from "lucide-react";
+import { ExternalLink, ShieldCheck, Star, Minus } from "@/components/icons";
 // 🗑️ DELETED: listImage import (We use direct URL from query)
 
 // --- 1. UPDATED INTERFACES ---

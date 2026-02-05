@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { RefreshCcw, Info, ExternalLink, ChevronDown, ChevronUp, Wallet, TrendingUp, TrendingDown, Coins } from "lucide-react";
+import { RefreshCcw, Info, ExternalLink, ChevronDown, ChevronUp, Wallet, TrendingUp, TrendingDown, Coins } from "@/components/icons";
 import Link from "next/link";
 
 export default function ZakatCalculator() {

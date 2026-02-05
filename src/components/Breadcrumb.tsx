@@ -1,6 +1,6 @@
 // src/components/Breadcrumb.tsx
 import Link from 'next/link';
-import { ChevronRight, Home } from 'lucide-react';
+import { ChevronRight, Home } from '@/components/icons';
 
 interface BreadcrumbProps {
   categoryName: string;

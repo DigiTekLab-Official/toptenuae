@@ -1,6 +1,6 @@
 // src/components/FAQAccordion.tsx
 import Accordion from "@/components/ui/Accordion";
-import { HelpCircle } from "lucide-react";
+import { HelpCircle } from "@/components/icons";
 
 interface FAQAccordionProps {
   faqs: { _key: string; question: string; answer: string }[];

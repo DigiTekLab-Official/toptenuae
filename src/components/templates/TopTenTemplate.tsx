@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import { ArrowDown, Shield } from "lucide-react";
+import { ArrowDown, Shield } from "@/components/icons";
 
 // --- COMPONENTS ---
 import ComparisonSummaryTable from "./ComparisonSummaryTable";
@@ -38,7 +38,11 @@ interface TopTenData {
 }
 
 interface Product {
+  _id?: string;
   _type?: "product" | "institution" | "aviationEntity";
+  _createdAt?: string;
+  _updatedAt?: string;
+  _rev?: string;
   
   // Aviation specific fields
   entityType?: "airline" | "airport"; 
@@ -328,7 +332,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
                   ) 
                   : (
                      // ✅ PASSES ITEM + SPECS TO PRODUCT CARD
-                     <ProductCard item={item} />
+                     <ProductCard item={item as any} />
                   )}
 
                   {/* Visual Separator */}

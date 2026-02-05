@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import { ArrowRight, Trophy, Zap, Leaf, ShieldCheck } from "lucide-react";
+import { ArrowRight, Trophy, Zap, Leaf, ShieldCheck } from "@/components/icons";
 import { listImage } from "@/sanity/lib/image"; // Ensure this path matches yours
 
 interface ListItem {

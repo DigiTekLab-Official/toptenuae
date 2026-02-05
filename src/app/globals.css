@@ -1,7 +1,11 @@
 @import "tailwindcss";
 
 @theme {
-  /* Define the Primary Brand Color: Royal Indigo */
+  /* --- FONTS --- */
+  /* Links to the variable defined in your layout.tsx */
+  --font-sans: var(--font-ibm-plex-sans), ui-sans-serif, system-ui, sans-serif;
+
+  /* --- BRAND COLORS (Royal Indigo) --- */
   --color-primary: #4b0082;
   --color-primary-50: #f5f3ff;
   --color-primary-100: #ede9fe;
@@ -14,39 +18,46 @@
   --color-primary-800: #5b21b6;
   --color-primary-900: #4b0082; 
   --color-primary-950: #2e1065;
-
-  /* Link the Next.js Font Variable */
-  --font-sans: var(--font-ibm-plex-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
-/* Base Styles & Custom UX */
+/* --- BASE STYLES --- */
 @layer base {
-  /* ✅ CRITICAL FIX: Prevent horizontal scrolling globally */
+  /* Prevent horizontal scrolling (Critical for mobile) */
   html, body {
-    overflow-x: hidden; /* Cuts off any element sticking out to the right */
-    max-width: 100vw;   /* Ensures the container never exceeds the screen width */
+    overflow-x: hidden;
+    max-width: 100vw;
   }
 
   body {
     font-family: var(--font-sans);
-    background-color: #f8fafc;
-    color: var(--color-slate-900);
+    background-color: #f8fafc; /* Slate-50 equivalent */
+    color: #0f172a;            /* Slate-900 equivalent */
     
-    /* Ensure flex column layout from layout.tsx works correctly */
+    /* Sticky Footer Setup */
     display: flex;
     flex-direction: column;
     min-height: 100vh;
   }
 
-  /* Custom Selection Color */
+  /* Brand Selection Color */
   ::selection {
     background-color: var(--color-primary);
     color: white;
   }
 }
 
+/* --- COMPATIBILITY UTILITIES --- */
+/* These help if any legacy code still uses v3 names */
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  
+  /* Fallbacks for v3 -> v4 transition */
+  .bg-gradient-to-r {
+    background-image: linear-gradient(to right, var(--tw-gradient-stops));
+  }
+  .bg-gradient-to-br {
+    background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
   }
 }

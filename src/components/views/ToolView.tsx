@@ -1,6 +1,6 @@
 // src/components/views/ToolView.tsx
 import Link from "next/link";
-import { Calculator, Percent, Coins, HeartHandshake, Car, Plane, TrendingUp, ArrowRight } from "lucide-react";
+import { Calculator, Percent, Coins, HeartHandshake, Car, Plane, TrendingUp, ArrowRight } from "@/components/icons";
 import ClientToolRenderer from "@/components/tools/ClientToolRenderer";
 import Breadcrumb from "@/components/Breadcrumb";
 import PortableText from "@/components/sanity/PortableText";

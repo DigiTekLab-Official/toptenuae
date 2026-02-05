@@ -94,7 +94,7 @@ export default async function DealsPage() {
             {/* 2. Main Headline */}
             <h1 className="text-3xl md:text-5xl font-black mb-6 tracking-tight leading-tight">
               Save Big with <br className="md:hidden"/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-orange-400">
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-amber-300 to-orange-400">
                 Ramadan Sale 2026
               </span>
             </h1>

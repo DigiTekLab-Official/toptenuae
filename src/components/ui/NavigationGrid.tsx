@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, CornerDownRight } from 'lucide-react';
+import { ArrowRight, CornerDownRight } from '@/components/icons';
 
 interface GridItem {
   label: string;

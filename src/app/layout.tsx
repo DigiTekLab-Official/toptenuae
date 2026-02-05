@@ -1,47 +1,51 @@
-// src/app/layout.tsx - 2026 OPTIMIZED
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { IBM_Plex_Sans } from "next/font/google";
+import { GoogleTagManager } from '@next/third-parties/google'; // ✅ 1. Import Official GTM
 import "./globals.css";
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import GTM from "@/components/analytics/GTM";
-import Clarity from "@/components/analytics/Clarity";
+import Clarity from "@/components/analytics/Clarity"; // ✅ 3. Keep Custom Clarity
+import { initializeSentry } from "@/lib/monitoring"; // ✅ Initialize Sentry for error tracking
+
+// Initialize Sentry for error tracking and monitoring
+initializeSentry();
 
 // =============================================================================
-// FONT CONFIGURATION (2026 Optimized)
+// FONT CONFIGURATION - OPTIMIZED FOR PERFORMANCE
 // =============================================================================
+// ✅ FIXED: Improved fallback fonts for better font-swap behavior
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   variable: "--font-ibm-plex-sans",
-  display: "swap",
+  display: "swap", // ✅ Show fallback while font loads (no FOUT)
   preload: true,
-  adjustFontFallback: true, // Auto-generates metrics to reduce CLS
-  fallback: ['system-ui', 'sans-serif'],
+  adjustFontFallback: true,
+  fallback: [
+    'system-ui', 
+    '-apple-system', 
+    'BlinkMacSystemFont', 
+    'Segoe UI', 
+    'sans-serif'
+  ], // ✅ Better system font stack
 });
 
 // =============================================================================
-// GLOBAL METADATA (SEO Foundation)
+// GLOBAL METADATA
 // =============================================================================
 export const metadata: Metadata = {
   metadataBase: new URL("https://toptenuae.com"),
-
-  // PWA Manifest
   manifest: "/manifest.json",
-
-  // Application Name (Brand Signal)
   applicationName: "TopTenUAE",
   
-  // Apple Web App Configuration
   appleWebApp: {
     title: "TopTenUAE",
     statusBarStyle: "default",
     capable: true,
   },
 
-  // Title Template
   title: {
     template: "%s | TopTenUAE",
     default: "TopTenUAE - The Best of the UAE, Ranked",
@@ -64,7 +68,6 @@ export const metadata: Metadata = {
     "Gratuity Calculator"
   ],
 
-  // Icons (Optimized for Google Search)
   icons: {
     icon: [
       { url: "/icon.png", type: "image/png", sizes: "192x192" },
@@ -84,12 +87,10 @@ export const metadata: Metadata = {
     ],
   },
 
-  // Canonical URL
   alternates: {
     canonical: "./",
   },
 
-  // OpenGraph
   openGraph: {
     title: "TopTenUAE - The Best of the UAE, Ranked",
     description:
@@ -108,7 +109,6 @@ export const metadata: Metadata = {
     type: "website",
   },
 
-  // Twitter Card
   twitter: {
     card: "summary_large_image",
     title: "TopTenUAE - The Best of the UAE, Ranked",
@@ -118,7 +118,6 @@ export const metadata: Metadata = {
     site: "@toptenuae",
   },
 
-  // Robots Configuration
   robots: {
     index: true,
     follow: true,
@@ -132,25 +131,18 @@ export const metadata: Metadata = {
     },
   },
 
-  // Verification (Fill these if using Meta Tag verification)
-  verification: {
-    // google: '...', 
-    // yandex: '...',
-  },
-
-  // Additional Metadata
   category: 'Shopping & Reviews',
   creator: 'TopTenUAE Editorial Team',
   publisher: 'TopTenUAE',
 };
 
 // =============================================================================
-// VIEWPORT CONFIGURATION
+// VIEWPORT
 // =============================================================================
 export const viewport: Viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#4b0082" },
-    { media: "(prefers-color-scheme: dark)", color: "#0f172a" }, // Matches Slate-900
+    { media: "(prefers-color-scheme: dark)", color: "#0f172a" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -160,7 +152,7 @@ export const viewport: Viewport = {
 };
 
 // =============================================================================
-// ROOT LAYOUT COMPONENT
+// ROOT LAYOUT
 // =============================================================================
 export default function RootLayout({
   children,
@@ -168,7 +160,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   
-  // Organization Schema (Brand Authority)
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -207,24 +198,20 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* ================================================================= */}
-        {/* CRITICAL RESOURCE HINTS (LCP & Speed)                            */}
-        {/* ================================================================= */}
-        
-        {/* Sanity CDN */}
+        {/* ✅ OPTIMIZED: Preconnect to critical resources */}
         <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
         
-        {/* Google Analytics & GTM */}
-        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        {/* ✅ DNS-only prefetch for non-critical domains */}
         <link rel="dns-prefetch" href="https://www.google-analytics.com" />
-        
-        {/* Clarity & Cloudflare */}
         <link rel="dns-prefetch" href="https://scripts.clarity.ms" />
         <link rel="dns-prefetch" href="https://static.cloudflareinsights.com" />
+        
+        {/* ✅ Prefetch important routes for faster navigation */}
+        <link rel="prefetch" href="/" />
+        <link rel="prefetch" href="/reviews" />
+        <link rel="prefetch" href="/top-ten" />
 
-        {/* ================================================================= */}
-        {/* STRUCTURED DATA (JSON-LD)                                        */}
-        {/* ================================================================= */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -237,9 +224,11 @@ export default function RootLayout({
         className={`${ibmPlexSans.className} ${ibmPlexSans.variable} font-sans text-slate-900 bg-slate-50 antialiased min-h-screen flex flex-col overflow-x-hidden`}
         suppressHydrationWarning={true}
       >
-        {/* ================================================================= */}
-        {/* TRUSTED TYPES POLYFILL (Security)                                */}
-        {/* ================================================================= */}
+        {/* ✅ OPTIMIZED: GTM with proper script strategy */}
+        {/* The @next/third-parties component handles deferring automatically */}
+        <GoogleTagManager gtmId="GTM-N3PB47W" />
+
+        {/* TRUSTED TYPES POLYFILL */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -260,9 +249,8 @@ export default function RootLayout({
           }}
         />
 
-        {/* ================================================================= */}
-        {/* GOOGLE TAG MANAGER (No-Script Fallback)                          */}
-        {/* ================================================================= */}
+        {/* ✅ 2. MANUAL NOSCRIPT FALLBACK */}
+        {/* The official component doesn't always render this for you, so we keep it manual for robustness */}
         <noscript>
           <iframe
             src="https://www.googletagmanager.com/ns.html?id=GTM-N3PB47W"
@@ -273,30 +261,18 @@ export default function RootLayout({
           />
         </noscript>
 
-        {/* ================================================================= */}
-        {/* ANALYTICS COMPONENTS (Lazy Loaded)                               */}
-        {/* ================================================================= */}
+        {/* ✅ 3. CUSTOM CLARITY SETUP */}
+        {/* We wrap it in Suspense to ensure it doesn't block the UI */}
         <Suspense fallback={null}>
-          <GTM />
           <Clarity />
         </Suspense>
 
-        {/* ================================================================= */}
-        {/* HEADER (Sticky Navigation)                                       */}
-        {/* ================================================================= */}
         <Header />
 
-        {/* ================================================================= */}
-        {/* MAIN CONTENT AREA                                                */}
-        {/* ================================================================= */}
         <main className="grow w-full max-w-[100vw]" id="main-content">
           {children}
         </main>
 
-        {/* ================================================================= */}
-        {/* FOOTER (CLS Prevention)                                          */}
-        {/* ================================================================= */}
-        {/* ✅ FIX: Responsive min-height prevents layout shifts on load */}
         <div className="relative min-h-[300px] lg:min-h-[450px]">
           <Footer />
         </div>

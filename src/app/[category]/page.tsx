@@ -26,7 +26,7 @@ import {
   Plane,
   TrendingUp,
   HeartHandshake,
-} from "lucide-react";
+} from "@/components/icons";
 
 // ============================================================================
 // CUSTOM PAGES CONFIG
@@ -350,7 +350,7 @@ export default async function CategoryPage({ params }: PageProps) {
 
                 // Standard Article Card (Existing Logic)
                 const optimizedImageUrl = post.mainImage
-                  ? listImage(post.mainImage)
+                  ? (post.mainImage as any).url || listImage(post.mainImage)
                   : null;
 
                 return (

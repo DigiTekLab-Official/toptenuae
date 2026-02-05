@@ -2,10 +2,23 @@
 import { createClient } from 'next-sanity'
 
 // --- CONFIGURATION ---
-// 1. PROJECT ID: Matches your "Top Ten UAE" workspace
-export const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'kxdjzy8e'
-export const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production'
-export const apiVersion = process.env.NEXT_PUBLIC_SANITY_API_VERSION || '2025-11-22' // Updated to current date context
+// 1. Validate required environment variables
+const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
+const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production'
+const apiVersion = process.env.NEXT_PUBLIC_SANITY_API_VERSION || '2025-11-22'
+
+// 2. Fail fast if projectId is missing
+if (!projectId) {
+  throw new Error(
+    '❌ SANITY CONFIG ERROR: Missing NEXT_PUBLIC_SANITY_PROJECT_ID\n\n' +
+    'Please add to your .env.local file:\n' +
+    'NEXT_PUBLIC_SANITY_PROJECT_ID=your-project-id\n\n' +
+    'Get your project ID from: https://sanity.io/manage'
+  )
+}
+
+// Export validated config
+export { projectId, dataset, apiVersion }
 
 // --- CLIENT CREATION ---
 export const client = createClient({
@@ -16,15 +29,12 @@ export const client = createClient({
   // 2. CDN STRATEGY
   // true = Faster, cheaper (cached on Sanity's Edge).
   // false = Always fresh, but slower and costs more API calls.
-  // RECOMMENDATION: Use 'true' for production, 'false' for development.
   useCdn: process.env.NODE_ENV === 'production', 
   
   // 3. PERSPECTIVE
-  // 'published' ensures you never accidentally show drafts to visitors.
   perspective: 'published',
   
   // 4. STEGA (Visual Editing)
-  // Kept false as per your request, unless you start using Sanity Presentation.
   stega: {
     enabled: false,
     studioUrl: '/studio',
@@ -33,8 +43,12 @@ export const client = createClient({
 
 /**
  * HELPER: Fetch with Revalidation
- * Use this function in your page.tsx files to ensure data refreshes every 60s
- * even when using the CDN.
+ * 
+ * @template QueryResponse - The expected return type of the query
+ * @param query - GROQ query string
+ * @param params - Query parameters (type-safe in TypeScript)
+ * @param tags - Revalidation tags for ISR
+ * @returns Promise with typed response
  */
 export async function sanityFetch<QueryResponse>({
   query,
@@ -42,12 +56,12 @@ export async function sanityFetch<QueryResponse>({
   tags,
 }: {
   query: string
-  params?: any
+  params?: Record<string, unknown>
   tags?: string[]
 }): Promise<QueryResponse> {
   return client.fetch<QueryResponse>(query, params, {
     next: {
-      revalidate: 60, // Revalidate every 60 seconds
+      revalidate: 60, 
       tags,
     },
   })

@@ -16,8 +16,38 @@ type Props = {
 }
 
 export default async function ConfirmPage(props: Props) {
-  // ⏳ CRITICAL FIX: Await the searchParams Promise
-  const searchParams = await props.searchParams;
+  // ⏳ FIX: Await searchParams with 5-second timeout to prevent hanging requests
+  let searchParams: { [key: string]: string | string[] | undefined };
+  
+  try {
+    searchParams = await Promise.race([
+      props.searchParams,
+      new Promise<never>((_, reject) => 
+        setTimeout(() => reject(new Error('Request timeout: 5 seconds')), 5000)
+      ),
+    ]);
+  } catch (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 text-center border border-gray-100">
+          <div className="flex justify-center mb-4">
+            <XCircle className="w-16 h-16 text-red-500" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Request Timeout</h1>
+          <p className="text-gray-600 mb-6">
+            The verification process took too long. Please request a new confirmation link.
+          </p>
+          <Link 
+            href="/newsletter"
+            className="inline-flex items-center gap-2 text-[#4b0082] font-semibold hover:underline"
+          >
+            Subscribe Again <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   const token = searchParams.token as string | undefined;
 
   let status: 'success' | 'error' = 'success';

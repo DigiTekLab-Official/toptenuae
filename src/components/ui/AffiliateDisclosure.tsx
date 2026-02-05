@@ -1,5 +1,5 @@
 // src/components/ui/AffiliateDisclosure.tsx
-import { Info } from "lucide-react";
+import { Info } from "@/components/icons";
 
 export default function AffiliateDisclosure() {
   return (

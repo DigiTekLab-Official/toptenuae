@@ -10,7 +10,7 @@ import {
   Tag,
   Info,
   Settings // ✅ Imported for Specs
-} from 'lucide-react';
+} from "@/components/icons";
 import PortableText from '@/components/sanity/PortableText';
 
 interface ProductTemplateProps {

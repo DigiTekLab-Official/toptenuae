@@ -1,5 +1,5 @@
 // src/utils/tool-helpers.ts
-import { Calculator, Percent, Coins, HeartHandshake, Car, Plane, TrendingUp } from "lucide-react";
+import { Calculator, Percent, Coins, HeartHandshake, Car, Plane, TrendingUp } from "@/components/icons";
 
 export const getToolConfig = (slug: string) => {
   if (!slug) return { icon: Calculator, iconColor: '', iconBg: '', ctaLabel: 'View' };

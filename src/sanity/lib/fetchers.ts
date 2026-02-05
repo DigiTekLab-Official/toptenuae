@@ -2,10 +2,10 @@
 
 import { client } from "@/sanity/lib/client";
 import {
-  PRODUCT_BY_SLUG_QUERY,
-  TOP_TEN_LIST_QUERY,
+  PRODUCT_BY_SLUG,
+  TOP_TEN_BY_SLUG,
   SITE_SETTINGS_QUERY,
-  ALL_DEALS_QUERY,
+  ALL_ACTIVE_DEALS,
 } from "@/sanity/lib/queries";
 
 // =============================================================================
@@ -103,7 +103,7 @@ const DEFAULT_FETCH_OPTIONS = {
 export async function fetchProductBySlug(slug: string): Promise<Product | null> {
   if (!slug) return null;
   try {
-    return await client.fetch<Product>(PRODUCT_BY_SLUG_QUERY, { slug }, DEFAULT_FETCH_OPTIONS);
+    return await client.fetch<Product>(PRODUCT_BY_SLUG, { slug }, DEFAULT_FETCH_OPTIONS);
   } catch (error) {
     console.error(`Error fetching product [${slug}]:`, error);
     return null;
@@ -113,7 +113,7 @@ export async function fetchProductBySlug(slug: string): Promise<Product | null> 
 export async function fetchTopTenListBySlug(slug: string): Promise<TopTenList | null> {
   if (!slug) return null;
   try {
-    return await client.fetch<TopTenList>(TOP_TEN_LIST_QUERY, { slug }, DEFAULT_FETCH_OPTIONS);
+    return await client.fetch<TopTenList>(TOP_TEN_BY_SLUG, { slug }, DEFAULT_FETCH_OPTIONS);
   } catch (error) {
     console.error(`Error fetching list [${slug}]:`, error);
     return null;
@@ -122,7 +122,7 @@ export async function fetchTopTenListBySlug(slug: string): Promise<TopTenList | 
 
 export async function fetchAllDeals(): Promise<Deal[]> {
   try {
-    return await client.fetch<Deal[]>(ALL_DEALS_QUERY, {}, DEFAULT_FETCH_OPTIONS);
+    return await client.fetch<Deal[]>(ALL_ACTIVE_DEALS, {}, DEFAULT_FETCH_OPTIONS);
   } catch (error) {
     console.error("Error fetching deals:", error);
     return [];

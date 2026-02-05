@@ -7,7 +7,7 @@ import LogoIcon from "@/components/icons/LogoIcon";
 import { 
   MapPin, Tag, Globe, ExternalLink, Info, 
   Shield
-} from "lucide-react";
+} from "@/components/icons";
 
 interface AviationData {
   title: string;

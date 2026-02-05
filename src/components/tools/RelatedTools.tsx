@@ -1,6 +1,6 @@
 // src/components/tools/RelatedTools.tsx
 import Link from 'next/link';
-import { Calculator, Percent, Coins, HeartHandshake } from 'lucide-react';
+import { Calculator, Percent, Coins, HeartHandshake } from "@/components/icons";
 
 interface RelatedToolsProps {
   currentTool: string;

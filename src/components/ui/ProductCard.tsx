@@ -2,15 +2,19 @@
 
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import LogoIcon from "@/components/icons/LogoIcon"; 
 import { 
   CheckCircle2, XCircle, Info, Star, ExternalLink, Shield, Tag,
   BatteryMedium, Wifi, Zap, Monitor, Camera, Headphones, Droplets,
   Clock, Box, Award, Layers, Truck, Settings
-} from "lucide-react";
+} from "@/components/icons";
+import { listImage, blurImage } from "@/sanity/lib/image";
 
-// --- 1. CONFIGURATION: ICONS (Strategy Pattern) ---
-// Addresses Audit: "30-line if/else chain needs refactoring"
+// ✅ IMPORT GENERATED TYPES
+import type { Product } from "@/sanity.types";
+
+// --- 1. CONFIGURATION: ICONS ---
 const ICON_CONFIG = [
   { keys: ["battery", "charging"], Icon: BatteryMedium, color: "text-emerald-600" },
   { keys: ["wifi", "wireless", "bluetooth"], Icon: Wifi, color: "text-blue-600" },
@@ -31,7 +35,6 @@ const getFeatureIcon = (feature: string) => {
   if (!feature) return <Star className="w-4 h-4 text-amber-400" />;
   const lowerFeature = feature.toLowerCase();
 
-  // Efficient lookup preserving "includes" logic
   const match = ICON_CONFIG.find(conf => 
     conf.keys.some(key => lowerFeature.includes(key))
   );
@@ -44,53 +47,55 @@ const getFeatureIcon = (feature: string) => {
   return <Star className="w-4 h-4 text-amber-400" />;
 };
 
-// --- 2. HELPER FUNCTION: PRICING ---
-const getPriceLabel = (price: number | undefined, currency: string = 'AED') => {
+const getPriceLabel = (price: number | undefined | null, currency: string = 'AED') => {
   if (!price || isNaN(price)) return "Check Price";
   return `${currency} ${price.toLocaleString()}`; 
 };
 
-// --- 3. TYPES (Addresses Audit: "Pervasive use of any types") ---
-interface ProductSpec {
-  specLabel: string;
-  specValue: string;
-}
-
-interface ProductData {
-  title?: string;
-  mainImage?: { url?: string };
-  verdict?: string;
-  specifications?: ProductSpec[];
-  heroFeature?: string;
-  keyFeatures?: string[];
-  pros?: string[];
-  cons?: string[];
-  affiliateLink?: string;
-  price?: number;
-  currency?: string;
-  retailer?: string;
-}
-
-interface ProductItem {
-  rank: number;
-  product?: ProductData;
-  customVerdict?: string;
-  badgeLabel?: string;
-  whySelected?: string;
+// --- 2. TYPES ---
+interface Specification {
+  specLabel?: string;
+  specValue?: string;
 }
 
 interface ProductCardProps {
-  item: ProductItem; 
+  item: {
+    rank: number;
+    badgeLabel?: string;
+    customVerdict?: string;
+    whySelected?: string;
+    product?: Product & {
+      heroFeature?: string;
+      specifications?: Specification[];
+    };
+  };
   index?: number;
 }
 
 export default function ProductCard({ item, index = 0 }: ProductCardProps) {
-  const product = item.product || {};
-  const imageUrl = product.mainImage?.url || null;
-  const displayName = product.title || "Product Name Unavailable";
-  const finalVerdict = item.customVerdict || product.verdict; 
+  const product = item.product;
   
-  const specifications = product.specifications || [];
+  // ✅ OPTIMIZED IMAGES
+  let imageUrl: string | null = null;
+  let blurUrl: string | null = null;
+  
+  if (product?.mainImage) {
+    if ((product.mainImage as any).url) {
+      imageUrl = (product.mainImage as any).url;
+    } else {
+      imageUrl = listImage(product.mainImage) || null;
+      blurUrl = blurImage(product.mainImage) || null;
+    }
+  }
+  
+  const displayName = product?.title || "Product Name Unavailable";
+  const finalVerdict = item.customVerdict || product?.verdict; 
+  
+  // Safe access for arrays
+  const specifications = product?.specifications || [];
+  const keyFeatures = product?.keyFeatures || [];
+  const pros = product?.pros || [];
+  const cons = product?.cons || [];
 
   return (
     <article
@@ -109,7 +114,7 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
                <h2 className="text-lg md:text-2xl font-bold text-gray-900 leading-tight mt-1">
                  {displayName}
                </h2>
-               {product.heroFeature && (
+               {product?.heroFeature && (
                  <p className="text-sm font-medium text-primary mt-1 flex items-center gap-1">
                    <Star className="w-3 h-3 fill-current" /> Best For: {product.heroFeature}
                  </p>
@@ -119,22 +124,27 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
         </div>
 
         {/* --- BADGE --- */}
-        {item.badgeLabel && (
-          <div className="mb-6 flex">
-            <div className="relative bg-primary text-white px-5 py-1.5 rounded-lg shadow-lg overflow-hidden border-t border-white/20 border-b border-white/20">
+        {/* ✅ FIXED: Reserve space to prevent layout shift when badge appears */}
+        <div className="mb-6 flex h-[40px]">
+          {item.badgeLabel && (
+            <div className="relative bg-primary text-white px-5 py-1.5 rounded-lg shadow-lg overflow-hidden border-y border-white/20">
               <div className="absolute inset-x-0 top-0 h-1/2 bg-linear-to-b from-white/30 to-transparent pointer-events-none"></div>
               <div className="relative flex items-center gap-2 font-black tracking-wide uppercase text-sm">
                 <LogoIcon className="w-5 h-5" /> 
                 <span className="drop-shadow-sm">{item.badgeLabel}</span>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* --- MAIN IMAGE --- */}
         {imageUrl && (
           <div className="mb-6 flex justify-center">
-            <div className="relative h-72 md:h-80 w-full max-w-[320px] overflow-hidden rounded-xl bg-white border border-gray-100 shadow-sm">
+            {/* ✅ FIXED: Add aspect ratio container to prevent CLS */}
+            <div 
+              className="relative w-full max-w-[320px] overflow-hidden rounded-xl bg-white border border-gray-100 shadow-sm"
+              style={{ aspectRatio: '1' }}
+            >
               <Image
                 src={imageUrl}
                 alt={displayName}
@@ -142,8 +152,10 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
                 className="object-contain p-3 hover:scale-105 transition-transform duration-500"
                 priority={index === 0}
                 loading={index === 0 ? undefined : "lazy"}
-                sizes="(max-width: 768px) 100vw, 400px"
+                sizes="(max-width: 640px) 280px, (max-width: 1024px) 320px, 400px"
                 quality={85}
+                placeholder="blur"
+                blurDataURL={blurUrl || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg=='}
               />
             </div>
           </div>
@@ -163,18 +175,18 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
         )}
 
         {/* --- KEY FEATURES --- */}
-        {product.keyFeatures && product.keyFeatures.length > 0 && (
-          <div className="mb-6 bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50 p-4 rounded-xl shadow-sm border border-amber-100">
+        {keyFeatures.length > 0 && (
+          <div className="mb-6 bg-linear-to-br from-yellow-50 via-amber-50 to-orange-50 p-4 rounded-xl shadow-sm border border-amber-100">
              <div className="flex items-center gap-3 mb-3 text-gray-900 pb-2 border-b border-amber-200/50">
-              <div className="bg-gradient-to-br from-yellow-400 to-amber-500 p-1 rounded-md shadow-sm">
+              <div className="bg-linear-to-br from-yellow-400 to-amber-500 p-1 rounded-md shadow-sm">
                 <Star className="w-3 h-3 text-white fill-white" />
               </div>
               <h3 className="font-bold uppercase tracking-wider text-sm text-amber-700">Highlights</h3>
             </div>
             <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-              {product.keyFeatures.map((feat: string, i: number) => (
+              {keyFeatures.map((feat: string, i: number) => (
                 <li key={i} className="flex items-center gap-2 py-1.5 px-2.5 bg-white/70 rounded-md border border-white/50 shadow-sm text-sm font-medium text-gray-700">
-                  <span className="flex-shrink-0">{getFeatureIcon(feat)}</span>
+                  <span className="shrink-0">{getFeatureIcon(feat)}</span>
                   <span className="leading-snug">{feat}</span>
                 </li>
               ))}
@@ -191,7 +203,7 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
              </div>
              <table className="w-full text-sm">
                <tbody className="divide-y divide-slate-100">
-                 {specifications.map((spec: ProductSpec, i: number) => (
+                 {specifications.map((spec, i: number) => (
                    <tr key={i} className={i % 2 === 0 ? 'bg-white' : 'bg-slate-50/30'}>
                      <td className="px-4 py-2 text-slate-500 font-medium w-1/3 border-r border-slate-100">{spec.specLabel}</td>
                      <td className="px-4 py-2 text-slate-900 font-semibold">{spec.specValue}</td>
@@ -203,32 +215,32 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
         )}
 
         {/* --- PROS & CONS --- */}
-        {(product.pros?.length || product.cons?.length) && (
+        {(pros.length > 0 || cons.length > 0) && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            {product.pros && product.pros.length > 0 && (
+            {pros.length > 0 && (
               <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
                 <h3 className="font-bold text-emerald-900 text-sm mb-2 flex items-center gap-2">
                    <CheckCircle2 className="w-4 h-4" /> The Good
                 </h3>
                 <ul className="space-y-1">
-                  {product.pros.map((pro: string, i: number) => (
+                  {pros.map((pro: string, i: number) => (
                     <li key={i} className="flex items-start gap-2 text-sm text-gray-800 leading-snug">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                       <span className={i < 2 ? "font-semibold" : ""}>{pro}</span>
                     </li>
                   ))}
                 </ul>
               </div>
             )}
-            {product.cons && product.cons.length > 0 && (
+            {cons.length > 0 && (
               <div className="bg-rose-50 rounded-xl p-4 border border-rose-100">
                 <h3 className="font-bold text-rose-900 text-sm mb-2 flex items-center gap-2">
                    <XCircle className="w-4 h-4" /> Watch Out
                 </h3>
                 <ul className="space-y-1">
-                  {product.cons.map((con: string, i: number) => (
+                  {cons.map((con: string, i: number) => (
                     <li key={i} className="flex items-start gap-2 text-sm text-gray-800 leading-snug">
-                       <XCircle className="w-4 h-4 text-rose-500 flex-shrink-0 mt-0.5" />
+                       <XCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
                        <span>{con}</span>
                     </li>
                   ))}
@@ -251,29 +263,29 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
       </div>
 
       {/* --- FOOTER CTA --- */}
-      {product.affiliateLink && (
-        <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-t border-amber-200 p-5">
+      {product?.affiliateLink && (
+        <div className="bg-linear-to-r from-amber-50 to-orange-50 border-t border-amber-200 p-5">
            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex flex-col gap-0.5 w-full sm:w-auto text-center sm:text-left">
                   <span className="text-[14px] font-black text-gray-800 uppercase tracking-tight flex items-center justify-center sm:justify-start gap-1">
                     <Tag className="w-4 h-4" />
-                    {product.price ? "Approx. Price:" : "Price Level:"}
+                    {product?.price ? "Approx. Price:" : "Price Level:"}
                   </span>
                   <span className="text-2xl font-black text-emerald-700 tracking-tight">
-                    {getPriceLabel(product.price, product.currency)}
+                    {getPriceLabel(product?.price, product?.currency)}
                   </span>
               </div>
               
               <div className="w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95 duration-200">
-                 <a 
-                    href={product.affiliateLink}
+                 <Link 
+                    href={product?.affiliateLink || '#'}
                     target="_blank"
                     rel="nofollow noopener"
                     className="flex items-center justify-center gap-2 w-full sm:w-auto bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-3 px-8 rounded-lg shadow-sm text-center transition-colors"
                  >
-                    Check Price on {product.retailer || 'Amazon'} <ExternalLink className="w-4 h-4" />
-                 </a>
-                 {product.retailer && product.retailer.toLowerCase() !== 'amazon.ae' && (
+                    Check Price on {product?.retailer || 'Amazon'} <ExternalLink className="w-4 h-4" />
+                 </Link>
+                 {product?.retailer && product.retailer.toLowerCase() !== 'amazon.ae' && (
                     <div className="text-center mt-1 text-xs text-gray-500 uppercase tracking-widest font-semibold flex items-center justify-center gap-1">
                       <Shield className="w-3 h-3 text-gray-400" /> via {product.retailer}
                     </div>

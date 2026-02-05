@@ -1,0 +1,8 @@
+{
+  "schema": "./src/sanity/schemaTypes/index.ts",
+  "generates": {
+    "./src/sanity/types.generated.ts": {
+      "generator": "@sanity/codegen"
+    }
+  }
+}
