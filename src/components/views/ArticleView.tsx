@@ -1,10 +1,27 @@
 // src/components/views/ArticleView.tsx
+import dynamic from "next/dynamic";
+import { Suspense } from "react";
 import Image from "next/image";
 import Breadcrumb from "@/components/Breadcrumb";
 import Sidebar from "@/components/Sidebar";
-import TopTenTemplate from "@/components/templates/TopTenTemplate";
-import ArticleTemplate from "@/components/templates/ArticleTemplate";
-import EventTemplate from "@/components/templates/EventTemplate";
+// ✅ CODE-SPLIT: Dynamic imports for heavy templates
+const TopTenTemplate = dynamic(() => import("@/components/templates/TopTenTemplate"), {
+  loading: () => (
+    <div className="flex items-center justify-center h-[400px]">
+      <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600" />
+    </div>
+  ),
+  ssr: true,
+});
+
+const ArticleTemplate = dynamic(() => import("@/components/templates/ArticleTemplate"), {
+  ssr: true,
+});
+
+const EventTemplate = dynamic(() => import("@/components/templates/EventTemplate"), {
+  ssr: true,
+});
+
 // ✅ IMPORT TOOL VIEW
 import ToolView from "@/components/views/ToolView";
 

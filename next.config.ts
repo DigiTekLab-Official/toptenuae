@@ -32,6 +32,12 @@ const nextConfig: NextConfig = {
   },
 
   // ============================================================================
+  // 1.5. COMPRESSION & BUILD OPTIMIZATION
+  // ============================================================================
+  
+  compress: true,  // ✅ Enable Gzip/Brotli compression
+
+  // ============================================================================
   // 2. IMAGES – OPTIMIZED FOR PERFORMANCE (Cloudflare-compatible)
   // ============================================================================
 
@@ -79,7 +85,7 @@ const nextConfig: NextConfig = {
       "@sanity/image-url",
       "next/image"
     ],
-    optimizeCss: false,
+    optimizeCss: true,  // ✅ CHANGED: Enable critical CSS extraction
     serverActions: {
       bodySizeLimit: '2mb',
       allowedOrigins: ['toptenuae.com', 'www.toptenuae.com'],

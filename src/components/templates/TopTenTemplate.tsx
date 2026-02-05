@@ -258,9 +258,11 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
             src={heroImageUrl}
             alt={data.title || "Top 10 List"}
             fill
-            priority
+            priority={false}
+            loading="lazy"
             className="object-cover hover:scale-105 transition-transform duration-700"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1200px"
+            quality={75}
           />
         </div>
       )}

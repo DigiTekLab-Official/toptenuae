@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
-import { IBM_Plex_Sans } from "next/font/google";
+import { IBM_Plex_Sans, Inter } from "next/font/google";
 import { GoogleTagManager } from '@next/third-parties/google'; // ✅ 1. Import Official GTM
 import "./globals.css";
 
@@ -30,6 +30,14 @@ const ibmPlexSans = IBM_Plex_Sans({
     'Segoe UI', 
     'sans-serif'
   ], // ✅ Better system font stack
+});
+
+// ✅ NEW: System font for faster initial render
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+  preload: true,
 });
 
 // =============================================================================
@@ -221,7 +229,7 @@ export default function RootLayout({
       </head>
 
       <body
-        className={`${ibmPlexSans.className} ${ibmPlexSans.variable} font-sans text-slate-900 bg-slate-50 antialiased min-h-screen flex flex-col overflow-x-hidden`}
+        className={`${ibmPlexSans.className} ${ibmPlexSans.variable} ${inter.variable} font-sans text-slate-900 bg-slate-50 antialiased min-h-screen flex flex-col overflow-x-hidden`}
         suppressHydrationWarning={true}
       >
         {/* ✅ OPTIMIZED: GTM with proper script strategy */}
@@ -230,6 +238,7 @@ export default function RootLayout({
 
         {/* TRUSTED TYPES POLYFILL */}
         <script
+          async
           dangerouslySetInnerHTML={{
             __html: `
               if (typeof window !== 'undefined' && window.trustedTypes && window.trustedTypes.createPolicy) {
