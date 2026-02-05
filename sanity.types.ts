@@ -2089,7 +2089,7 @@ export type PRODUCT_SEARCHResult = Array<{
 
 // Source: ./src/sanity/queries/topten.queries.ts
 // Variable: TOP_TEN_BY_SLUG
-// Query: *[_type == "topTenList" && slug.current == $slug][0] {    _type,    title,    "slug": slug.current,    publishedAt,    "updatedAt": _updatedAt,     "seoTitle": coalesce(seo.metaTitle, title),    "seoDescription": "",    mainImage { "url": asset->url, alt },    intro,    "body": body[],    closingContent,    showAffiliateDisclosure,    faqs[] { _key, question, answer },    listItems[] | order(rank asc) {      _key, rank, badgeLabel, whySelected, customVerdict,      product->{        _type, title, brand, "slug": slug.current,        priceTier, retailer, price, currency, availability,         affiliateLink, customerRating, reviewCount, verdict,        location, address, curriculum, feeRange, realityCheck, website,        "rating": coalesce(rating, customerRating),        entityType, code, country,        mainImage { "url": asset->url, alt },        heroFeature, keyFeatures[], pros[], cons[],        specifications[] { specLabel, specValue }      }    }  }
+// Query: *[_type == "topTenList" && slug.current == $slug][0] {    _type,    title,    "slug": slug.current,    publishedAt,    "updatedAt": _updatedAt,     "seoTitle": coalesce(seo.metaTitle, title),    "seoDescription": "",    mainImage { "url": asset->url, alt },    intro,    "body": body[],    closingContent,    showAffiliateDisclosure,    faqs[] { _key, question, answer },    listItems[] | order(rank asc) {      _key, rank, badgeLabel, whySelected, customVerdict,      product->{        _type, title,        "slug": slug.current,        priceTier, price, currency, availability,         affiliateLink, customerRating, verdict,        location, curriculum, feeRange, realityCheck, website,        "rating": coalesce(rating, customerRating),        entityType, code, country,        mainImage { "url": asset->url, alt },        heroFeature, keyFeatures[], pros[], cons[],        specifications[] { specLabel, specValue }      }    }  }
 export type TOP_TEN_BY_SLUGResult = {
   _type: "topTenList";
   title: string | null;
@@ -2218,19 +2218,15 @@ export type TOP_TEN_BY_SLUGResult = {
     product: {
       _type: "aviationEntity";
       title: string | null;
-      brand: null;
       slug: string | null;
       priceTier: null;
-      retailer: null;
       price: null;
       currency: null;
       availability: null;
       affiliateLink: null;
       customerRating: null;
-      reviewCount: null;
       verdict: null;
       location: null;
-      address: null;
       curriculum: null;
       feeRange: null;
       realityCheck: null;
@@ -2251,19 +2247,15 @@ export type TOP_TEN_BY_SLUGResult = {
     } | {
       _type: "institution";
       title: string | null;
-      brand: null;
       slug: string | null;
       priceTier: null;
-      retailer: null;
       price: null;
       currency: null;
       availability: null;
       affiliateLink: null;
       customerRating: null;
-      reviewCount: null;
       verdict: string | null;
       location: string | null;
-      address: string | null;
       curriculum: "American" | "British" | "Dual (British / IB)" | "Dual (Indian / IB)" | "French" | "IB" | "Indian (CBSE)" | "Indian (ICSE)" | null;
       feeRange: string | null;
       realityCheck: Array<string> | null;
@@ -2284,19 +2276,15 @@ export type TOP_TEN_BY_SLUGResult = {
     } | {
       _type: "product";
       title: string | null;
-      brand: string | null;
       slug: string | null;
       priceTier: "Budget" | "Mid-Range" | "Premium" | null;
-      retailer: "Amazon.ae" | "Noon" | "Official Site" | "Sharaf DG" | null;
       price: number | null;
       currency: "AED" | "EUR" | "SAR" | "USD" | null;
       availability: "https://schema.org/InStock" | "https://schema.org/LimitedAvailability" | "https://schema.org/OutOfStock" | "https://schema.org/PreOrder" | null;
       affiliateLink: string | null;
       customerRating: number | null;
-      reviewCount: number | null;
       verdict: string | null;
       location: null;
-      address: null;
       curriculum: null;
       feeRange: null;
       realityCheck: null;
@@ -2369,7 +2357,7 @@ declare module "@sanity/client" {
     "\n  *[_type == \"product\"] | order(publishedAt desc)[0...100]{\n    _id,\n    title,\n    \"slug\": slug.current,\n    price,\n    currency,\n    mainImage { \"url\": asset->url, alt },\n    customerRating,\n    reviewCount,\n    publishedAt\n  }\n": ALL_PRODUCTSResult;
     "\n  *[_type == \"product\" && category->slug.current == $categorySlug] \n    | order(publishedAt desc)[0...50]{\n      _id,\n      title,\n      \"slug\": slug.current,\n      price,\n      currency,\n      mainImage { \"url\": asset->url, alt },\n      customerRating,\n      reviewCount,\n      publishedAt\n    }\n": PRODUCTS_BY_CATEGORYResult;
     "\n  *[_type == \"product\" && (title match $searchTerm || brand match $searchTerm)]\n    | order(publishedAt desc)[0...50]{\n      _id,\n      title,\n      \"slug\": slug.current,\n      brand,\n      price,\n      currency,\n      mainImage { \"url\": asset->url, alt },\n      customerRating,\n      reviewCount\n    }\n": PRODUCT_SEARCHResult;
-    "\n  *[_type == \"topTenList\" && slug.current == $slug][0] {\n    _type,\n    title,\n    \"slug\": slug.current,\n    publishedAt,\n    \"updatedAt\": _updatedAt, \n    \"seoTitle\": coalesce(seo.metaTitle, title),\n    \"seoDescription\": \"\",\n    mainImage { \"url\": asset->url, alt },\n    intro,\n    \"body\": body[],\n    closingContent,\n    showAffiliateDisclosure,\n    faqs[] { _key, question, answer },\n    listItems[] | order(rank asc) {\n      _key, rank, badgeLabel, whySelected, customVerdict,\n      product->{\n        _type, title, brand, \"slug\": slug.current,\n        priceTier, retailer, price, currency, availability, \n        affiliateLink, customerRating, reviewCount, verdict,\n        location, address, curriculum, feeRange, realityCheck, website,\n        \"rating\": coalesce(rating, customerRating),\n        entityType, code, country,\n        mainImage { \"url\": asset->url, alt },\n        heroFeature, keyFeatures[], pros[], cons[],\n        specifications[] { specLabel, specValue }\n      }\n    }\n  }\n": TOP_TEN_BY_SLUGResult;
+    "\n  *[_type == \"topTenList\" && slug.current == $slug][0] {\n    _type,\n    title,\n    \"slug\": slug.current,\n    publishedAt,\n    \"updatedAt\": _updatedAt, \n    \"seoTitle\": coalesce(seo.metaTitle, title),\n    \"seoDescription\": \"\",\n    mainImage { \"url\": asset->url, alt },\n    intro,\n    \"body\": body[],\n    closingContent,\n    showAffiliateDisclosure,\n    faqs[] { _key, question, answer },\n    listItems[] | order(rank asc) {\n      _key, rank, badgeLabel, whySelected, customVerdict,\n      product->{\n        _type, title,\n        \"slug\": slug.current,\n        priceTier, price, currency, availability, \n        affiliateLink, customerRating, verdict,\n        location, curriculum, feeRange, realityCheck, website,\n        \"rating\": coalesce(rating, customerRating),\n        entityType, code, country,\n        mainImage { \"url\": asset->url, alt },\n        heroFeature, keyFeatures[], pros[], cons[],\n        specifications[] { specLabel, specValue }\n      }\n    }\n  }\n": TOP_TEN_BY_SLUGResult;
     "\n  *[_type == \"topTenList\"] | order(publishedAt desc)[0...100]{\n    _id,\n    title,\n    \"slug\": slug.current,\n    publishedAt,\n    mainImage { \"url\": asset->url, alt },\n    intro\n  }\n": ALL_TOP_TEN_LISTSResult;
     "\n  *[_type == \"topTenList\" && category->slug.current == $categorySlug]\n    | order(publishedAt desc)[0...50]{\n      _id,\n      title,\n      \"slug\": slug.current,\n      publishedAt,\n      mainImage { \"url\": asset->url, alt },\n      intro\n    }\n": TOP_TEN_LISTS_BY_CATEGORYResult;
   }

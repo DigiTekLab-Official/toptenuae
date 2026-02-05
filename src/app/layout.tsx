@@ -236,6 +236,25 @@ export default function RootLayout({
         {/* The @next/third-parties component handles deferring automatically */}
         <GoogleTagManager gtmId="GTM-N3PB47W" />
 
+        {/* ✅ SERVICE WORKER REGISTRATION - Enables offline support & caching */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                  navigator.serviceWorker.register('/sw.js')
+                    .then(reg => {
+                      console.log('[SW] Service Worker registered:', reg.scope);
+                      // Check for updates every hour
+                      setInterval(() => reg.update(), 3600000);
+                    })
+                    .catch(err => console.warn('[SW] Registration failed:', err));
+                });
+              }
+            `,
+          }}
+        />
+
         {/* TRUSTED TYPES POLYFILL */}
         <script
           async

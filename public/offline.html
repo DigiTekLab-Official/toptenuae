@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline - TopTenUAE</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #4b0082 0%, #0f172a 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      padding: 20px;
+    }
+    .container {
+      text-align: center;
+      max-width: 500px;
+    }
+    .icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+      opacity: 0.9;
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    p {
+      font-size: 16px;
+      opacity: 0.8;
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .primary {
+      background: #4b0082;
+      color: white;
+      border: 2px solid white;
+    }
+    .primary:hover {
+      background: white;
+      color: #4b0082;
+    }
+    .secondary {
+      background: transparent;
+      color: white;
+      border: 2px solid white;
+    }
+    .secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .cached-pages {
+      margin-top: 40px;
+      padding-top: 30px;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+      font-size: 14px;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">📶</div>
+    <h1>You're Offline</h1>
+    <p>
+      It looks like you've lost your internet connection. 
+      You can still access previously visited pages from your cache.
+    </p>
+    <div class="actions">
+      <button class="primary" onclick="location.reload()">
+        Try Again
+      </button>
+      <button class="secondary" onclick="goHome()">
+        Go to Homepage
+      </button>
+    </div>
+    <div class="cached-pages">
+      <p>Tip: Previously visited pages are still available offline.</p>
+    </div>
+  </div>
+
+  <script>
+    function goHome() {
+      location.href = '/';
+    }
+    
+    // Check connection periodically
+    setInterval(() => {
+      fetch('/manifest.json', { method: 'HEAD' })
+        .then(() => {
+          // Connection restored
+          console.log('Connection restored');
+          // Optionally reload the page
+        })
+        .catch(() => {
+          // Still offline
+        });
+    }, 5000);
+  </script>
+</body>
+</html>

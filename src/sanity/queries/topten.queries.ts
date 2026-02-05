@@ -22,10 +22,11 @@ export const TOP_TEN_BY_SLUG = groq`
     listItems[] | order(rank asc) {
       _key, rank, badgeLabel, whySelected, customVerdict,
       product->{
-        _type, title, brand, "slug": slug.current,
-        priceTier, retailer, price, currency, availability, 
-        affiliateLink, customerRating, reviewCount, verdict,
-        location, address, curriculum, feeRange, realityCheck, website,
+        _type, title,
+        "slug": slug.current,
+        priceTier, price, currency, availability, 
+        affiliateLink, customerRating, verdict,
+        location, curriculum, feeRange, realityCheck, website,
         "rating": coalesce(rating, customerRating),
         entityType, code, country,
         mainImage { "url": asset->url, alt },

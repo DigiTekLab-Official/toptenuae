@@ -63,7 +63,11 @@ export default function QuickVerdict({ picks }: { picks: QuickPick[] }) {
                        src={pick.imageUrl} 
                        alt={pick.title} 
                        fill 
-                       className="object-contain hover:scale-105 transition-transform duration-300" 
+                       className="object-contain hover:scale-105 transition-transform duration-300"
+                       width={300}
+                       height={300}
+                       sizes="(max-width: 768px) 100%, 33vw"
+                       quality={80}
                      />
                    ) : (
                      <div className="w-full h-full bg-gray-50 flex items-center justify-center text-gray-300 text-xs">No Image</div>
