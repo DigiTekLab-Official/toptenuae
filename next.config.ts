@@ -42,22 +42,14 @@ const nextConfig: NextConfig = {
   // ============================================================================
 
   images: {
-    // ⚠️ RECOMMENDATION: Comment out 'unoptimized: true' if you want Next.js to 
-    // resize and format images automatically. Keep it ONLY if you are hitting 
-    // limits or using a purely static host (like Cloudflare Pages).
-    // unoptimized: true,
+    // ✅ FIX: Set to TRUE for Cloudflare Workers.
+    // This forces the browser to load images directly from Sanity's CDN
+    // instead of trying to process them through the Cloudflare Worker.
+    // Without this, /_next/image requests timeout/fail on Edge workers.
+    unoptimized: true,
     
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
-    // ❌ REMOVED: CSP is handled better in Middleware globally
-    // contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    
-    // ✅ Quality levels for responsive images
-    qualities: [70, 75, 80, 85, 90],
-    
-    // ✅ Modern formats (Next.js Image Optimization supports avif/webp only)
-    // Note: Original formats are automatically served as fallback
-    formats: ["image/avif", "image/webp"],
     
     // Remote patterns for external images
     remotePatterns: [
