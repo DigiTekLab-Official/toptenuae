@@ -53,9 +53,19 @@ self.addEventListener('fetch', (event) => {
   // Only handle GET requests
   if (method !== 'GET') return;
 
-  // Skip Sanity API, Google Analytics, external scripts
+  // ✅ CRITICAL FIX: Pass through Sanity images directly without caching
+  // This prevents hydration mismatch on initial page load
+  if (url.includes('cdn.sanity.io')) {
+    event.respondWith(
+      fetch(request, { credentials: 'omit' })
+        .then(response => response.ok ? response : null)
+        .catch(() => null)
+    );
+    return;
+  }
+
+  // Skip Google Analytics, external scripts
   if (
-    url.includes('cdn.sanity.io') ||
     url.includes('google-analytics') ||
     url.includes('googletagmanager') ||
     url.includes('clarity.ms') ||
