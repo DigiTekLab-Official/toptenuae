@@ -161,8 +161,6 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
                 loading={index === 0 ? undefined : "lazy"}
                 sizes="(max-width: 640px) 280px, (max-width: 1024px) 320px, 400px"
                 quality={85}
-                placeholder="blur"
-                blurDataURL={blurUrl || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg=='}
               />
             </div>
           </div>

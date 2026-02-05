@@ -223,8 +223,6 @@ export default async function Home() {
                 priority
                 quality={85}
                 sizes="100vw"
-                placeholder={heroBlurUrl ? "blur" : "empty"}
-                blurDataURL={heroBlurUrl}
                 aria-hidden="true"
               />
             )}
@@ -472,8 +470,6 @@ export default async function Home() {
                                 }`}
                                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                                 quality={80}
-                                placeholder={cardBlurUrl ? "blur" : "empty"}
-                                blurDataURL={cardBlurUrl}
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center text-gray-300 bg-gray-50">

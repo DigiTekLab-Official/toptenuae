@@ -48,8 +48,6 @@ export default function OptimizedImage({
         className="object-cover"
         quality={85}
         priority={priority}
-        placeholder={blurDataURL ? 'blur' : 'empty'}
-        blurDataURL={blurDataURL}
         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         {...props}
       />
