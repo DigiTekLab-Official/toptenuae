@@ -339,8 +339,6 @@ export default async function Home() {
                           fill
                           className="object-cover group-hover:scale-105 transition-transform duration-700"
                           sizes="(max-width: 640px) 100vw, 25vw"
-                          placeholder={cardBlurUrl ? "blur" : "empty"}
-                          blurDataURL={cardBlurUrl}
                         />
                       )}
                       <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm text-primary text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm">
