@@ -237,6 +237,9 @@ export default function RootLayout({
         <GoogleTagManager gtmId="GTM-N3PB47W" />
 
         {/* ✅ SERVICE WORKER REGISTRATION - Enables offline support & caching */}
+        {/* SERVICE WORKER TEMPORARILY DISABLED - Causing image loading issues */}
+        {/* Re-enable after fixing hydration mismatch */}
+        {/* 
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -254,6 +257,7 @@ export default function RootLayout({
             `,
           }}
         />
+        */}
 
         {/* TRUSTED TYPES POLYFILL */}
         <script
