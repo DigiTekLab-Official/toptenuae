@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Star, Trophy } from "@/components/icons";
@@ -15,7 +15,14 @@ interface QuickPick {
 }
 
 export default function QuickVerdict({ picks }: { picks: QuickPick[] }) {
-  if (!picks || picks.length === 0) return null;
+  // ✅ HYDRATION FIX: Only render after hydration
+  const [isMounted, setIsMounted] = useState(false);
+  
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+  
+  if (!isMounted || !picks || picks.length === 0) return null;
 
   return (
     <div className="mb-12 bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden font-sans">
@@ -64,8 +71,6 @@ export default function QuickVerdict({ picks }: { picks: QuickPick[] }) {
                        alt={pick.title} 
                        fill 
                        className="object-contain hover:scale-105 transition-transform duration-300"
-                       width={300}
-                       height={300}
                        sizes="(max-width: 768px) 100%, 33vw"
                        quality={80}
                      />

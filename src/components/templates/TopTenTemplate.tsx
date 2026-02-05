@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import Image from "next/image";
 import { ArrowDown, Shield } from "@/components/icons";
 
@@ -93,17 +93,25 @@ interface ListItem {
 
 // --- MAIN TEMPLATE ---
 export default function TopTenTemplate({ data }: { data: TopTenData }) {
-  // ✅ SAFE ACCESS: Check if mainImage exists before accessing url
-  const heroImageUrl = data?.mainImage?.url || null;
-  const showDisclaimer = (data?.showAffiliateDisclosure ?? true);
+  // ✅ FIXED: Use useMemo to stabilize heroImageUrl across re-renders
+  const heroImageUrl = useMemo(() => {
+    return data?.mainImage?.url || null;
+  }, [data?.mainImage?.url]);
+  
+  const showDisclaimer = useMemo(() => {
+    return data?.showAffiliateDisclosure ?? true;
+  }, [data?.showAffiliateDisclosure]);
 
   // DEBUG LOGGING
-  if (typeof window !== "undefined") {
-    console.log("[TopTenTemplate] Received data:", {
-      title: data?.title,
-      listItemsCount: data?.listItems?.length || 0,
-    });
-  }
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      console.log("[TopTenTemplate] Received data:", {
+        title: data?.title,
+        listItemsCount: data?.listItems?.length || 0,
+        heroImageUrl,
+      });
+    }
+  }, [data?.title, data?.listItems?.length, heroImageUrl]);
 
   // --- 2. SMART DETECTION LOGIC ---
   // Detects if this is a School, Airline, or Medical post to adjust layout

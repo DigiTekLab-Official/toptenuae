@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import LogoIcon from "@/components/icons/LogoIcon"; 
@@ -73,6 +73,13 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ item, index = 0 }: ProductCardProps) {
+  // ✅ HYDRATION FIX: Track if component is mounted to prevent hydration mismatch
+  const [isMounted, setIsMounted] = useState(false);
+  
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+  
   const product = item.product;
   
   // ✅ OPTIMIZED IMAGES
@@ -138,7 +145,7 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
         </div>
 
         {/* --- MAIN IMAGE --- */}
-        {imageUrl && (
+        {isMounted && imageUrl && (
           <div className="mb-6 flex justify-center">
             {/* ✅ FIXED: Add aspect ratio container to prevent CLS */}
             <div 
