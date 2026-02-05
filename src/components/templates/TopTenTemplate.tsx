@@ -253,7 +253,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
 
       {/* HERO IMAGE */}
       {heroImageUrl && (
-        <div className="relative w-full aspect-3/2 lg:aspect-video overflow-hidden rounded-xl shadow-lg mb-8">
+        <div className="relative w-full aspect-video overflow-hidden rounded-xl shadow-lg mb-6">
           <Image
             src={heroImageUrl}
             alt={data.title || "Top 10 List"}

@@ -36,9 +36,9 @@ const nextConfig: NextConfig = {
   // ============================================================================
 
   images: {
-    // ✅ CRITICAL: Enable image optimization (was unoptimized: true)
-    // This enables Next.js automatic format/size selection
-    unoptimized: false,
+    // ✅ CRITICAL: Disable image optimization for Cloudflare static deployment
+    // Static HTML pages don't have access to /_next/image API
+    unoptimized: true,
     
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',

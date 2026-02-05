@@ -9,7 +9,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "pnpm run sanity:typegen && next build",
-    "build:worker": "pnpm run sanity:typegen && opennextjs-cloudflare build",
+    "build:worker": "pnpm run sanity:typegen && next build && opennextjs-cloudflare build && pnpm run copy-prerendered-pages",
+    "copy-prerendered-pages": "node scripts/copy-prerendered-pages.js",
     "preview": "opennextjs-cloudflare preview",
     "deploy": "pnpm run build:worker && wrangler pages deploy .open-next/assets --project-name=toptenuae",
     "start": "next start",
