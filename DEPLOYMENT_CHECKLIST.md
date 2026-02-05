@@ -7,6 +7,24 @@
 
 ---
 
+## 🔧 BUILD FIX (COMPLETED)
+
+**Issue Found in Cloudflare Build:** Sanity CLI was missing from devDependencies  
+**Status:** ✅ **FIXED**
+
+**What was done:**
+- Added `@sanity/cli: ^3.49.0` to devDependencies
+- Ran `pnpm install` to update lock file
+- Verified `pnpm build` succeeds locally (✅ PASS)
+- Verified `pnpm run build:worker` succeeds locally (✅ PASS)
+- Verified `.open-next/` directory created with all artifacts
+
+**Why it happened:**
+- Cloudflare build environment doesn't have Sanity CLI installed globally
+- The build command `pnpm run sanity:typegen` requires it as a dependency
+
+---
+
 ## PHASE 1: PRE-DEPLOYMENT (5 minutes)
 
 ### Step 1: Verify Local Build ✅
