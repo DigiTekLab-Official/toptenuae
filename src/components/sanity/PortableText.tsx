@@ -257,12 +257,10 @@ export default function PortableText({ value }: { value: any }) {
     normalizedValue = value.filter(item => item !== null && item !== undefined);
   } else if (typeof value === 'object' && value !== null) {
     // Single object - check if it looks like a Portable Text block
-    // This check is CRITICAL: if it has _type or children, it's definitely a block
     const hasBlockSignature = value._type !== undefined || value.children !== undefined || value._key !== undefined || value.style !== undefined;
     
     if (hasBlockSignature) {
       // This is a Portable Text block object - MUST wrap in array
-      console.log('[PortableText] Wrapping single block in array:', { _type: value._type, _key: value._key, keys: Object.keys(value) });
       normalizedValue = [value];
     } else if (value.asset || value.url || value._ref) {
       // Image or reference object - don't render
@@ -273,12 +271,24 @@ export default function PortableText({ value }: { value: any }) {
       return null;
     }
   } else if (typeof value === 'string') {
-    // Strings shouldn't be passed to PortableText  
-    console.warn('[PortableText] Received string value, expected array or block');
-    return null;
+    // ✅ FIX: Gracefully handle simple strings by converting them to a block
+    // This fixes the "Received string value, expected array or block" warning
+    if (value.trim() === '') return null;
+    
+    normalizedValue = [{
+      _key: `generated-${Date.now()}`,
+      _type: 'block',
+      children: [{
+        _key: `generated-span-${Date.now()}`,
+        _type: 'span',
+        text: value,
+        marks: []
+      }],
+      markDefs: [],
+      style: 'normal'
+    }];
   } else {
     // Unexpected type
-    console.warn('[PortableText] Unexpected value type:', typeof value);
     return null;
   }
 
