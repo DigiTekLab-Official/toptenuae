@@ -41,6 +41,7 @@
   },
   "devDependencies": {
     "@opennextjs/cloudflare": "^1.16.2",
+    "@sanity/cli": "^3.49.0",
     "@sanity/codegen": "^5.9.2",
     "@tailwindcss/postcss": "^4.1.18",
     "@types/aws4": "^1.11.6",
