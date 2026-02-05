@@ -1,14 +1,15 @@
-// src/sanity/lib/client.ts
 import { createClient } from 'next-sanity'
 import { apiVersion, dataset, projectId, useCdn } from '../env'
+
+// ✅ ADD THIS SECTION: Re-export the variables so index.ts can see them
+export { apiVersion, dataset, projectId, useCdn }
 
 // --- CLIENT CREATION ---
 export const client = createClient({
   projectId,
   dataset,
   apiVersion,
-  // Use the useCdn logic centralized in your env.ts, or override here if needed
-  useCdn, 
+  useCdn,
   perspective: 'published',
   stega: {
     enabled: false,
@@ -30,7 +31,7 @@ export async function sanityFetch<QueryResponse>({
 }): Promise<QueryResponse> {
   return client.fetch<QueryResponse>(query, params, {
     next: {
-      revalidate: 60, // Consider using false or 0 for real-time, or 60 for cache
+      revalidate: 60,
       tags,
     },
   })
