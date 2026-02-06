@@ -65,11 +65,11 @@ const nextConfig: NextConfig = {
   },
 
   // ============================================================================
-  // 4. TURBOPACK
+  // 4. TURBOPACK (Disabled for production builds due to Cloudflare compatibility)
   // ============================================================================
-  turbopack: {
-    resolveAlias: {},
-  },
+  // turbopack: {
+  //   resolveAlias: {},
+  // },
 
   // ============================================================================
   // 5. HEADERS (Security & Caching)
