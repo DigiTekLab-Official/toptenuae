@@ -1,105 +1,103 @@
 import { MetadataRoute } from 'next';
-import { client } from '@/sanity/lib/client';
+import { client } from '@/lib/sanity/client';
+import { groq } from 'next-sanity';
 
-// GOOGLE SITEMAP PROTOCOL COMPLIANCE (2026):
-// 1. Structure: Compliant with <urlset> namespace standard.
-// 2. Optimization: Removed <priority> and <changefreq> (Ignored by Google).
-// 3. Encoding: UTF-8 enforced by Next.js.
+// =====================================================================
+// CONSTANTS & CONFIG
+// =====================================================================
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://toptenuae.com';
 
-export const revalidate = 3600;
+// 1. Static Routes (Core Pages)
+const STATIC_ROUTES = [
+  { url: '', priority: 1.0, changeFrequency: 'daily' },
+  { url: '/top-ten', priority: 0.9, changeFrequency: 'daily' },
+  { url: '/reviews', priority: 0.9, changeFrequency: 'daily' },
+  { url: '/how-to-guides', priority: 0.9, changeFrequency: 'weekly' },
+  { url: '/deals', priority: 0.9, changeFrequency: 'hourly' }, // Deals update often
+  { url: '/finance-tools', priority: 0.8, changeFrequency: 'monthly' },
+  { url: '/events-holidays', priority: 0.8, changeFrequency: 'weekly' },
+  { url: '/travel-tourism', priority: 0.8, changeFrequency: 'weekly' },
+  { url: '/ramadan-2026', priority: 0.8, changeFrequency: 'weekly' },
+  // Legal & Info Pages (Lower Priority)
+  { url: '/about-us', priority: 0.5, changeFrequency: 'yearly' },
+  { url: '/contact-us', priority: 0.5, changeFrequency: 'yearly' },
+  { url: '/privacy-policy', priority: 0.3, changeFrequency: 'yearly' },
+  { url: '/terms-and-conditions', priority: 0.3, changeFrequency: 'yearly' },
+  { url: '/affiliate-disclosure', priority: 0.3, changeFrequency: 'yearly' },
+  { url: '/disclaimer', priority: 0.3, changeFrequency: 'yearly' },
+  { url: '/cookies-policy', priority: 0.3, changeFrequency: 'yearly' },
+];
 
-const BASE_URL = 'https://toptenuae.com';
-const CURRENT_DATE = new Date();
-
+// =====================================================================
+// DATA FETCHING
+// =====================================================================
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // 1. Static Pages
-  const staticRoutes: MetadataRoute.Sitemap = [
-    { url: `${BASE_URL}`, lastModified: CURRENT_DATE },
-    { url: `${BASE_URL}/top-ten`, lastModified: CURRENT_DATE },
-    { url: `${BASE_URL}/how-to-guides`, lastModified: CURRENT_DATE },
-    { url: `${BASE_URL}/reviews`, lastModified: CURRENT_DATE },
-    { url: `${BASE_URL}/deals`, lastModified: CURRENT_DATE }, // ✅ Main Deals page stays
-    { url: `${BASE_URL}/finance-tools`, lastModified: CURRENT_DATE },
-    { url: `${BASE_URL}/events-holidays`, lastModified: CURRENT_DATE },
-    { url: `${BASE_URL}/travel-tourism`, lastModified: CURRENT_DATE },
-    { url: `${BASE_URL}/ramadan-2026`, lastModified: CURRENT_DATE },
-    
-    // Core & Legal Pages
-    { url: `${BASE_URL}/about-us`, lastModified: new Date('2025-01-15') },
-    { url: `${BASE_URL}/contact-us`, lastModified: new Date('2025-01-15') },
-    { url: `${BASE_URL}/privacy-policy`, lastModified: new Date('2025-01-29') },
-    { url: `${BASE_URL}/terms-and-conditions`, lastModified: new Date('2025-12-27') },
-    { url: `${BASE_URL}/affiliate-disclosure`, lastModified: new Date('2025-01-15') },
-    { url: `${BASE_URL}/disclaimer`, lastModified: new Date('2025-01-15') },
-    { url: `${BASE_URL}/cookies-policy`, lastModified: new Date('2025-12-27') },
-  ];
+  // Use current date as fallback, but prefer actual article dates
+  const fallbackDate = new Date();
+
+  // Fetch all dynamic slugs from Sanity
+  // We fetch _updatedAt to give Google precise modification times
+  const query = groq`{
+    "articles": *[_type in ["article", "product", "deal", "howTo", "topTenList"] && defined(slug.current)] {
+      _type,
+      "slug": slug.current,
+      _updatedAt,
+      "category": category->slug.current
+    }
+  }`;
+
+  let dynamicRoutes: MetadataRoute.Sitemap = [];
 
   try {
-    // 2. Fetch Dynamic Data
-    // ✅ FIX: Removed "deal" from the list below.
-    // This ensures NO individual /deals/slug pages are generated in the sitemap.
-    const posts = await client.fetch(`
-      *[
-        _type in ["topTenList", "article", "howTo", "tool", "holiday", "product", "event"]
-        && defined(slug.current)
-        && (seo.noIndex != true)
-      ]{
-        _type,
-        "slug": slug.current,
-        _updatedAt,
-        "category": coalesce(categories[0]->slug.current, category->slug.current)
-      }
-    `);
+    const data = await client.fetch(query);
 
-    // 3. Generate Dynamic Routes
-    const postRoutes = posts.map((post: any) => {
-      const category = post.category || '';
-      let folder = '/reviews'; // Default Fallback
+    dynamicRoutes = data.map((item: any) => {
+      let path = '';
 
-      // A. Finance Tools
-      if (post._type === 'tool' || ['finance-tools', 'tools'].includes(category)) {
-        folder = '/finance-tools';
-      }
-      
-      // B. How-To Guides
-      else if (
-        post._type === 'howTo' || 
-        ['how-to-guides', 'guides', 'how-to', 'education'].includes(category)
-      ) {
-        folder = '/how-to-guides';
-      }
-
-      // C. Events & Holidays
-      else if (
-        post._type === 'holiday' || 
-        post._type === 'event' || 
-        ['events-holidays', 'events', 'holidays', 'ramadan'].includes(category)
-      ) {
-        folder = '/events-holidays';
-      }
-
-      // D. Travel
-      else if (['travel-tourism', 'travel', 'tourism'].includes(category)) {
-        folder = '/travel-tourism';
-      }
-
-      // E. Deals (REMOVED) - We do not want individual deal pages indexed.
-      
-      // F. Top Ten Lists
-      else if (post._type === 'topTenList') {
-        folder = '/top-ten';
+      // Logic to match your App Router structure
+      switch (item._type) {
+        case 'article':
+          // Articles live under their category or default to 'reviews' if missing
+          path = `/${item.category || 'reviews'}/${item.slug}`;
+          break;
+        case 'product':
+          path = `/reviews/${item.slug}`;
+          break;
+        case 'deal':
+          path = `/deals/${item.slug}`;
+          break;
+        case 'howTo':
+          path = `/how-to-guides/${item.slug}`;
+          break;
+        case 'topTenList':
+          path = `/top-ten/${item.slug}`;
+          break;
+        default:
+          path = `/${item.slug}`;
       }
 
       return {
-        url: `${BASE_URL}${folder}/${post.slug}`,
-        lastModified: new Date(post._updatedAt),
+        url: `${BASE_URL}${path}`,
+        lastModified: new Date(item._updatedAt || fallbackDate),
+        changeFrequency: item._type === 'deal' ? 'daily' : 'weekly',
+        priority: item._type === 'topTenList' ? 0.8 : 0.7, // Top Ten lists are high value
       };
     });
 
-    return [...staticRoutes, ...postRoutes];
-    
   } catch (error) {
-    console.error("⚠️ Sitemap Error:", error);
-    return staticRoutes;
+    console.error('❌ Sitemap Error: Failed to fetch Sanity paths', error);
+    // Continue with just static routes if Sanity fails
   }
+
+  // =====================================================================
+  // MERGE STATIC & DYNAMIC
+  // =====================================================================
+  const staticMap = STATIC_ROUTES.map((route) => ({
+    url: `${BASE_URL}${route.url}`,
+    lastModified: fallbackDate,
+    changeFrequency: route.changeFrequency as 'daily' | 'weekly' | 'monthly' | 'yearly' | 'always' | 'hourly' | 'never',
+    priority: route.priority,
+  }));
+
+  return [...staticMap, ...dynamicRoutes];
 }
