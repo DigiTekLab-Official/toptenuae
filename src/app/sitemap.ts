@@ -83,5 +83,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 }
 
-// Force revalidation every 24 hours
-export const revalidate = 86400;
+// Revalidate every hour (3600 seconds)
+export const revalidate = 3600;
