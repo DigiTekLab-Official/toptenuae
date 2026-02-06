@@ -105,16 +105,7 @@ export function middleware(request: NextRequest) {
     needsRedirect = true;
   }
 
-  // F. TRAILING SLASH REMOVAL (Corrected for your GSC data)
-  // Logic: If path ends with / and is not root, REMOVE it.
-  const isRoot = url.pathname === '/';
-  const hasTrailingSlash = url.pathname.endsWith('/');
-
-  if (!isRoot && hasTrailingSlash) {
-    url.pathname = url.pathname.slice(0, -1); // Remove last character
-    needsRedirect = true;
-  }
-
+  
   // G. Perform Redirect
   if (needsRedirect) {
     const redirectUrl = new URL(url.pathname + url.search, request.url);

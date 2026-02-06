@@ -230,7 +230,7 @@ export default async function Home() {
           </div>
 
           <div className="container mx-auto px-4 py-12 lg:py-20 relative z-20 max-w-7xl w-full h-full flex flex-col justify-center">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center min-h-[calc(100vh-80px)] content-stretch">
               
               {/* LEFT COLUMN: Main Feature */}
               <div className="lg:col-span-8">

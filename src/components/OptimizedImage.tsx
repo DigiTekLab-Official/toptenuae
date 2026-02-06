@@ -5,7 +5,6 @@ interface OptimizedImageProps extends Omit<ImageProps, 'src'> {
   src: string;
   aspectRatio?: 'square' | 'video' | '3/2' | '16/9' | number;
   containerClassName?: string;
-  blurDataURL?: string;
 }
 
 const ASPECT_RATIOS = {
@@ -18,17 +17,16 @@ const ASPECT_RATIOS = {
 /**
  * OptimizedImage: High-performance image component with:
  * - Automatic aspect ratio enforcement (prevents CLS)
- * - Modern format support (AVIF/WebP)
- * - Blur placeholder for perceived performance
+ * - Modern format support via Sanity CDN (AVIF/WebP)
  * - Responsive sizing with intelligent breakpoints
  * - Quality optimization (85 by default)
+ * - Direct Sanity CDN loading (unoptimized mode)
  */
 export default function OptimizedImage({
   src,
   alt,
   aspectRatio = 'square',
   containerClassName = '',
-  blurDataURL,
   priority = false,
   ...props
 }: OptimizedImageProps) {

@@ -1,4 +1,3 @@
-// next.config.ts
 import type { NextConfig } from "next";
 import { validateEnv } from "./src/lib/validateEnv";
 
@@ -38,16 +37,16 @@ const nextConfig: NextConfig = {
   compress: true,  // ✅ Enable Gzip/Brotli compression
 
   // ============================================================================
-  // 2. IMAGES – OPTIMIZED FOR PERFORMANCE (Cloudflare-compatible)
+  // 2. IMAGES – OPTIMIZED FOR PERFORMANCE (Sanity CDN)
   // ============================================================================
 
   images: {
-    // ✅ FIX: Set to TRUE for Cloudflare Workers.
-    // This forces the browser to load images directly from Sanity's CDN
-    // instead of trying to process them through the Cloudflare Worker.
-    // Without this, /_next/image requests timeout/fail on Edge workers.
-    unoptimized: true,
-    
+    // ✅ CRITICAL ARCHITECTURE FIX: Custom Sanity Loader
+    // This bypasses Next.js image optimization (which fails on Cloudflare Workers)
+    // and offloads all resizing/formatting to Sanity's Global CDN.
+    loader: 'custom',
+    loaderFile: './src/sanity/lib/image.ts',
+
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
     
@@ -79,7 +78,7 @@ const nextConfig: NextConfig = {
       "@sanity/image-url",
       "next/image"
     ],
-    optimizeCss: true,  // ✅ CHANGED: Enable critical CSS extraction
+    optimizeCss: true,  // ✅ Enable critical CSS extraction
     serverActions: {
       bodySizeLimit: '2mb',
       allowedOrigins: ['toptenuae.com', 'www.toptenuae.com'],
