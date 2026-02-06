@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 import Image from 'next/image';
 
-import { TopTenItem } from './HeroSection';
+import { TopTenItem } from '@/types/sanity';
 
 import PortableText from '@/components/sanity/PortableText';
 

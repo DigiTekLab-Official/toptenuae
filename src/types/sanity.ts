@@ -131,3 +131,19 @@ export interface Deal {
   /** Any raw Sanity payload you want to keep for debugging (avoid in production) */
   _raw?: unknown;
 }
+
+/**
+ * Interface for Top Ten Lists / Article Previews
+ * Used in Home Page, Category Pages, and Related Posts
+ */
+export interface TopTenItem {
+  _id: string;
+  title: string;
+  slug: string;
+  // 'intro' is often Portable Text or a string summary
+  intro: any; 
+  imageUrl?: string;
+  category?: string;      
+  categorySlug?: string;  
+  publishedAt?: string;
+}

@@ -282,7 +282,7 @@ export default async function Home() {
                     <Link href="/how-to-guides" className="group block border-t border-white/10 pt-4">
                       <span className="text-xs font-bold text-emerald-400 mb-1 block uppercase">Smart Living</span>
                       <h4 className="text-white font-bold leading-snug group-hover:text-amber-400 transition-colors">
-                        How to Calculate Your Gratuity Correctly in 2026
+                        Where to Donate Used Touys in UAE 2026 Guide
                       </h4>
                     </Link>
 

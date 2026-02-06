@@ -1,3 +1,4 @@
+// src/sanity/queries/category.queries.ts
 import { groq } from 'next-sanity';
 
 // =============================================================================
@@ -26,7 +27,7 @@ export const CATEGORY_BY_SLUG = groq`
 `;
 
 export const CATEGORY_POSTS = groq`
-  *[_type in ["article", "product", "topTenList"] 
+  *[_type in ["article", "product", "topTenList", "howTo"] 
     && references(*[_type == "category" && slug.current == $category]._id)]
     | order(publishedAt desc)[0...50]{
       _id,
@@ -48,6 +49,7 @@ export const CATEGORY_PRODUCTS = groq`
       currency,
       mainImage { "url": asset->url, alt },
       customerRating,
+      intro,
       reviewCount
     }
 `;

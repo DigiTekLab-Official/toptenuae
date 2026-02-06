@@ -26,7 +26,7 @@ const NAV_LINKS: NavLink[] = [
   // ✅ ADDED: Ramadan 2026 with Moon Icon
   { name: "Ramadan 2026", href: "/ramadan-2026", title: "Ramadan 2026 Guide", badge: null, icon: Moon },
   
-  { name: "Travel", href: "/travel-tourism", title: "UAE Travel Guides", badge: null },
+  { name: "Finance Tools", href: "/finance-tools", title: "UAE Finance Tools", badge: null },
   { name: "What's On", href: "/events-holidays", title: "UAE Events & Holidays", badge: null },
   
   // ✅ UPDATED: Removed "Hot" badge text, kept Flame icon

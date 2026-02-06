@@ -1,3 +1,4 @@
+// src/sanity/queries/index.ts
 // Barrel export for all Sanity queries
 export * from './category.queries';
 export * from './product.queries';
