@@ -17,8 +17,6 @@ const routes = {
     '/newsletter/*',
     '/search',
     '/report',
-    // ✅ CRITICAL FIX: Force these to the Worker so Next.js generates them
-    '/robots.txt',
     '/sitemap.xml' 
   ],
   exclude: [
