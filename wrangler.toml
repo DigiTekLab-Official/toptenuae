@@ -8,6 +8,15 @@ pages_build_output_dir = ".open-next/assets"
 # ❌ DELETE the [build] section entirely. 
 # Pages does not allow it here.
 
+# ✅ CRITICAL: Routes to handle API paths through the Worker (not static assets)
+[[routes]]
+pattern = "toptenuae.com/api/*"
+zone_name = "toptenuae.com"
+
+[[routes]]
+pattern = "*.toptenuae.com/api/*"
+zone_name = "toptenuae.com"
+
 # ------------------------------------------------------------------------------
 # PUBLIC VARIABLES (Safe to commit)
 # ------------------------------------------------------------------------------
