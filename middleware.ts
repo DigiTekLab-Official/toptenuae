@@ -1,12 +1,18 @@
-// middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// ✅ SIMPLIFIED MATCHER
-// We match everything to ensure our redirect logic applies globally.
-// We will manually exclude API/Static files inside the function for better control.
+// ========================================================================
+// ✅ CORRECTED MATCHER (The Fix)
+// ========================================================================
+// This pattern tells Next.js to ignore this middleware for:
+// 1. /api/ routes
+// 2. /_next/ (internal static files)
+// 3. /studio/ (Sanity Studio)
+// 4. Static files: favicon.ico, sitemap.xml, robots.txt
 export const config = {
-  matcher: '/:path*',
+  matcher: [
+    '/((?!api|studio|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
+  ],
 };
 
 export function middleware(request: NextRequest) {
@@ -15,14 +21,16 @@ export function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || '';
 
   // ========================================================================
-  // 0. BYPASS: API, ASSETS, NEXT INTERNALS
+  // 0. DOUBLE-CHECK BYPASS (Safety Net)
   // ========================================================================
+  // Even though the matcher above handles most of this, we keep your original
+  // check here to be absolutely safe for other static file types.
   if (
     pathname.startsWith('/api') || 
     pathname.startsWith('/studio') || 
     pathname.startsWith('/_next') ||
     pathname.startsWith('/static') ||
-    pathname.includes('.') // Exclude files like .jpg, .xml, .txt
+    pathname.includes('.') // Exclude files like .jpg, .css, etc.
   ) {
     return NextResponse.next();
   }
