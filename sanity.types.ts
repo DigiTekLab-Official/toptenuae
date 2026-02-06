@@ -1016,6 +1016,119 @@ export type Geopoint = {
 
 export type AllSanitySchemaTypes = SanityImageAssetReference | GridItemImage | SiteSettings | SanityImageCrop | SanityImageHotspot | PriceWidget | TopTenListReference | HowToReference | NavigationGrid | Separator | Seo | ToolReference | HolidayReference | RelatedLink | CategoryReference | Holiday | Slug | ProductReference | Deal | Tool | AuthorReference | InstitutionReference | AviationEntityReference | TopTenList | AviationEntity | Institution | Product | Category | HowTo | Author | Code | Table | TableRow | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageMetadata | SanityFileAsset | SanityAssetSourceData | SanityImageAsset | Geopoint;
 export declare const internalGroqTypeReferenceTo: unique symbol;
+// Source: ./src/app/[category]/[slug]/page.tsx
+// Variable: HOW_TO_QUERY
+// Query: *[_type == "howTo" && slug.current == $slug][0]{    _id,    _type,    title,    "slug": slug.current,    publishedAt,    intro,    body,    // Fetch the new FAQ section we just added    faqs,     // Schema has 'howToSteps', fetch them if they exist    howToSteps,    // Schema uses Capital 'Author', map it to lowercase 'author' for the View    "author": Author->{ name, image, bio },    mainImage {       alt,      "url": asset->url,      "lqip": asset->metadata.lqip,      "dimensions": asset->metadata.dimensions    },    // Map categories correctly    "categories": categories[]->{ "slug": slug.current, title },    // Get SEO metadata    seo { metaTitle, metaDescription, shareImage }  }
+export type HOW_TO_QUERYResult = {
+  _id: string;
+  _type: "howTo";
+  title: string | null;
+  slug: string | null;
+  publishedAt: string | null;
+  intro: string | null;
+  body: Array<{
+    _key: string;
+  } & Code | {
+    _key: string;
+  } & NavigationGrid | {
+    _key: string;
+  } & RelatedLink | {
+    _key: string;
+  } & Separator | {
+    _key: string;
+  } & Table | {
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "blockquote" | "h2" | "h3" | "h4" | "h5" | "normal";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      blank?: boolean;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  } | {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    caption?: string;
+    display?: "full" | "left" | "right";
+    _type: "image";
+    _key: string;
+  }> | null;
+  faqs: Array<{
+    question?: string;
+    answer?: Array<{
+      children?: Array<{
+        marks?: Array<string>;
+        text?: string;
+        _type: "span";
+        _key: string;
+      }>;
+      style?: "normal";
+      listItem?: "bullet";
+      markDefs?: Array<{
+        href?: string;
+        _type: "link";
+        _key: string;
+      }>;
+      level?: number;
+      _type: "block";
+      _key: string;
+    }>;
+    _type: "faq";
+    _key: string;
+  }> | null;
+  howToSteps: Array<{
+    title?: string;
+    instruction?: string;
+    image?: {
+      asset?: SanityImageAssetReference;
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      _type: "image";
+    };
+    _type: "step";
+    _key: string;
+  }> | null;
+  author: {
+    name: string | null;
+    image: {
+      asset?: SanityImageAssetReference;
+      media?: unknown;
+      hotspot?: SanityImageHotspot;
+      crop?: SanityImageCrop;
+      _type: "image";
+    } | null;
+    bio: string | null;
+  } | null;
+  mainImage: {
+    alt: string | null;
+    url: string | null;
+    lqip: string | null;
+    dimensions: SanityImageDimensions | null;
+  } | null;
+  categories: Array<{
+    slug: string | null;
+    title: string | null;
+  }> | null;
+  seo: {
+    metaTitle: string | null;
+    metaDescription: string | null;
+    shareImage: null;
+  } | null;
+} | null;
+
 // Source: ./src/sanity/queries/category.queries.ts
 // Variable: ALL_CATEGORIES
 // Query: *[_type == "category" && defined(slug.current)] | order(title asc){    _id,    title,    "slug": slug.current,    description,    mainImage { "url": asset->url, alt }  }
@@ -1037,8 +1150,18 @@ export type CATEGORY_BY_SLUGResult = {
   seo: null;
 } | null;
 // Variable: CATEGORY_POSTS
-// Query: *[_type in ["article", "product", "topTenList"]     && references(*[_type == "category" && slug.current == $category]._id)]    | order(publishedAt desc)[0...50]{      _id,      _type,      title,      "slug": slug.current,      mainImage { "url": asset->url, alt },      publishedAt    }
+// Query: *[_type in ["article", "product", "topTenList", "howTo"]     && references(*[_type == "category" && slug.current == $category]._id)]    | order(publishedAt desc)[0...50]{      _id,      _type,      title,      "slug": slug.current,      mainImage { "url": asset->url, alt },      publishedAt    }
 export type CATEGORY_POSTSResult = Array<{
+  _id: string;
+  _type: "howTo";
+  title: string | null;
+  slug: string | null;
+  mainImage: {
+    url: string | null;
+    alt: string | null;
+  } | null;
+  publishedAt: string | null;
+} | {
   _id: string;
   _type: "product";
   title: string | null;
@@ -1060,7 +1183,7 @@ export type CATEGORY_POSTSResult = Array<{
   publishedAt: string | null;
 }>;
 // Variable: CATEGORY_PRODUCTS
-// Query: *[_type == "product" && category->slug.current == $slug]    | order(publishedAt desc)[0...50]{      _id,      title,      "slug": slug.current,      price,      currency,      mainImage { "url": asset->url, alt },      customerRating,      reviewCount    }
+// Query: *[_type == "product" && category->slug.current == $slug]    | order(publishedAt desc)[0...50]{      _id,      title,      "slug": slug.current,      price,      currency,      mainImage { "url": asset->url, alt },      customerRating,      intro,      reviewCount    }
 export type CATEGORY_PRODUCTSResult = Array<{
   _id: string;
   title: string | null;
@@ -1072,6 +1195,7 @@ export type CATEGORY_PRODUCTSResult = Array<{
     alt: string | null;
   } | null;
   customerRating: number | null;
+  intro: null;
   reviewCount: number | null;
 }>;
 
@@ -2339,10 +2463,11 @@ export type TOP_TEN_LISTS_BY_CATEGORYResult = Array<{
 import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
+    "\n  *[_type == \"howTo\" && slug.current == $slug][0]{\n    _id,\n    _type,\n    title,\n    \"slug\": slug.current,\n    publishedAt,\n    intro,\n    body,\n    // Fetch the new FAQ section we just added\n    faqs, \n    // Schema has 'howToSteps', fetch them if they exist\n    howToSteps,\n    // Schema uses Capital 'Author', map it to lowercase 'author' for the View\n    \"author\": Author->{ name, image, bio },\n    mainImage { \n      alt,\n      \"url\": asset->url,\n      \"lqip\": asset->metadata.lqip,\n      \"dimensions\": asset->metadata.dimensions\n    },\n    // Map categories correctly\n    \"categories\": categories[]->{ \"slug\": slug.current, title },\n    // Get SEO metadata\n    seo { metaTitle, metaDescription, shareImage }\n  }\n": HOW_TO_QUERYResult;
     "\n  *[_type == \"category\" && defined(slug.current)] | order(title asc){\n    _id,\n    title,\n    \"slug\": slug.current,\n    description,\n    mainImage { \"url\": asset->url, alt }\n  }\n": ALL_CATEGORIESResult;
     "\n  *[_type == \"category\" && slug.current == $slug][0]{\n    _id,\n    title,\n    \"slug\": slug.current,\n    description,\n    mainImage { \"url\": asset->url, alt },\n    seo { metaTitle, metaDescription }\n  }\n": CATEGORY_BY_SLUGResult;
-    "\n  *[_type in [\"article\", \"product\", \"topTenList\"] \n    && references(*[_type == \"category\" && slug.current == $category]._id)]\n    | order(publishedAt desc)[0...50]{\n      _id,\n      _type,\n      title,\n      \"slug\": slug.current,\n      mainImage { \"url\": asset->url, alt },\n      publishedAt\n    }\n": CATEGORY_POSTSResult;
-    "\n  *[_type == \"product\" && category->slug.current == $slug]\n    | order(publishedAt desc)[0...50]{\n      _id,\n      title,\n      \"slug\": slug.current,\n      price,\n      currency,\n      mainImage { \"url\": asset->url, alt },\n      customerRating,\n      reviewCount\n    }\n": CATEGORY_PRODUCTSResult;
+    "\n  *[_type in [\"article\", \"product\", \"topTenList\", \"howTo\"] \n    && references(*[_type == \"category\" && slug.current == $category]._id)]\n    | order(publishedAt desc)[0...50]{\n      _id,\n      _type,\n      title,\n      \"slug\": slug.current,\n      mainImage { \"url\": asset->url, alt },\n      publishedAt\n    }\n": CATEGORY_POSTSResult;
+    "\n  *[_type == \"product\" && category->slug.current == $slug]\n    | order(publishedAt desc)[0...50]{\n      _id,\n      title,\n      \"slug\": slug.current,\n      price,\n      currency,\n      mainImage { \"url\": asset->url, alt },\n      customerRating,\n      intro,\n      reviewCount\n    }\n": CATEGORY_PRODUCTSResult;
     "\n  *[_type == \"deal\" && isActive == true] | order(featured desc, _createdAt desc) {\n    _type, _id, _createdAt,\n    \"title\": coalesce(title, product->title),\n    description,\n    \"image\": coalesce(image.asset->url, product->mainImage.asset->url),\n    \"affiliateLink\": coalesce(affiliateLink, product->affiliateLink),\n    originalPrice, dealPrice, discountPercentage, category,\n    dealEndDate, isPrimeExclusive, featured, couponCode, couponNote,\n    \"rating\": coalesce(rating, product->customerRating),\n    \"reviewCount\": coalesce(reviewCount, product->reviewCount)\n  }\n": ALL_ACTIVE_DEALSResult;
     "\n  *[_type == \"deal\" && isActive == true && featured == true] \n    | order(_createdAt desc)[0...10] {\n      _type, _id, _createdAt,\n      \"title\": coalesce(title, product->title),\n      description,\n      \"image\": coalesce(image.asset->url, product->mainImage.asset->url),\n      \"affiliateLink\": coalesce(affiliateLink, product->affiliateLink),\n      originalPrice, dealPrice, discountPercentage, category,\n      dealEndDate, isPrimeExclusive, couponCode, couponNote,\n      \"rating\": coalesce(rating, product->customerRating),\n      \"reviewCount\": coalesce(reviewCount, product->reviewCount)\n    }\n": FEATURED_DEALSResult;
     "\n  *[_type == \"deal\" && isActive == true && category == $category] \n    | order(_createdAt desc)[0...50] {\n      _type, _id, _createdAt,\n      \"title\": coalesce(title, product->title),\n      description,\n      \"image\": coalesce(image.asset->url, product->mainImage.asset->url),\n      \"affiliateLink\": coalesce(affiliateLink, product->affiliateLink),\n      originalPrice, dealPrice, discountPercentage,\n      dealEndDate, isPrimeExclusive, couponCode, couponNote,\n      \"rating\": coalesce(rating, product->customerRating),\n      \"reviewCount\": coalesce(reviewCount, product->reviewCount)\n    }\n": DEALS_BY_CATEGORYResult;

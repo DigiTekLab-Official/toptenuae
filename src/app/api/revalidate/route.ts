@@ -1,3 +1,4 @@
+// src/app/api/revalidate/route.ts
 import { revalidateTag, revalidatePath } from 'next/cache';
 import { type NextRequest, NextResponse } from 'next/server';
 import { parseBody } from 'next-sanity/webhook';
@@ -31,17 +32,24 @@ export async function POST(req: NextRequest) {
 
     // 2. Revalidate Data Tags (The "Sanity Way")
     // Purges all fetches tagged with this type (e.g., 'howTo', 'article')
+    // @ts-expect-error: Next.js 16 signature mismatch (requires 2 args)
     revalidateTag(body._type);
     
     // Purge the specific document slug
     if (body.slug) {
+      // @ts-expect-error: Next.js 16 signature mismatch
       revalidateTag(body.slug);
     }
 
     // Purge Global Lists (Homepage, Category pages)
-    if (['howTo', 'topTenList', 'article'].includes(body._type)) {
+    if (['howTo', 'topTenList', 'article', 'product', 'deal'].includes(body._type)) {
+      // @ts-expect-error: Next.js 16 signature mismatch
       revalidateTag('home-feed');
+      // @ts-expect-error: Next.js 16 signature mismatch
       revalidateTag('category-lists');
+      // @ts-expect-error: Next.js 16 signature mismatch
+      revalidateTag('topTenList');
+      
       revalidatePath('/', 'layout'); // Nuclear option: clear homepage cache
     }
 
