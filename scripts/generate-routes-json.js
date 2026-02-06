@@ -17,8 +17,8 @@ const routes = {
     '/newsletter/*',
     '/search',
     '/report',
-    '/sitemap.xml',
-    '/robots.txt',
+    '/sitemap.xml', // ✅ Essential: Routes request to Worker
+    '/robots.txt',  // ✅ Essential: Routes request to Worker
   ],
   exclude: [
     '/_next/*',
@@ -41,7 +41,6 @@ const routes = {
 };
 
 try {
-  // Ensure the directory exists before writing
   if (!fs.existsSync(assetsDir)) {
     fs.mkdirSync(assetsDir, { recursive: true });
   }

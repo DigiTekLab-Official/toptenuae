@@ -29,8 +29,6 @@ const STATIC_ROUTES = [
 
 const SITEMAP_HEADERS: Record<string, string> = {
   'Content-Type': 'application/xml; charset=utf-8',
-  // Prevent Cloudflare (and other CDNs) from caching a bad/stale response.
-  // If you want caching later, increase s-maxage, but purge any old cache first.
   'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0, s-maxage=0',
   'CDN-Cache-Control': 'no-store, max-age=0',
   'Surrogate-Control': 'no-store',
@@ -39,7 +37,7 @@ const SITEMAP_HEADERS: Record<string, string> = {
 export async function GET() {
   const fallbackDate = new Date().toISOString();
 
-  // 1. Fetch Data (Renamed variable to avoid conflicts)
+  // 1. Fetch Data
   const sitemapQuery = groq`{
     "articles": *[_type in ["article", "product", "deal", "howTo", "topTenList"] && defined(slug.current)] {
       _type,
@@ -52,16 +50,12 @@ export async function GET() {
   let dynamicRoutes = '';
 
   try {
-    // Use the unique query name here
     const response = await client.fetch(sitemapQuery);
-    
-    // Handle cases where response might be wrapped or just an array
     const data = Array.isArray(response) ? response : (response.articles || []);
 
     if (Array.isArray(data)) {
       dynamicRoutes = data.map((item: any) => {
         let path = '';
-        // Map Sanity types to your URL structure
         switch (item._type) {
           case 'article': path = `/${item.category || 'reviews'}/${item.slug}`; break;
           case 'product': path = `/reviews/${item.slug}`; break;
@@ -104,7 +98,6 @@ ${staticXml}
 ${dynamicRoutes}
 </urlset>`;
 
-  // 4. Return with correct Headers
   return new NextResponse(xml, {
     status: 200,
     headers: SITEMAP_HEADERS,
@@ -112,15 +105,12 @@ ${dynamicRoutes}
 }
 
 export async function HEAD() {
-  // Some CDNs can behave differently for HEAD vs GET.
-  // Explicitly returning the same headers ensures `curl -I` doesn't fall back.
   return new NextResponse(null, {
     status: 200,
     headers: SITEMAP_HEADERS,
   });
 }
 
-// Helper to prevent XML errors with special characters like '&'
 function escapeXml(unsafe: string): string {
   return unsafe.replace(/[<>&'"]/g, (char) => {
     switch (char) {
