@@ -1,8 +1,8 @@
-// middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export const config = {
+  // Matcher: Run on everything EXCEPT these paths
   matcher: [
     '/((?!api|_next/static|_next/image|_next/data|studio|favicon.ico|icon.svg|icon-v2.svg|apple-icon.png|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf|eot|js|css|json)$).*)',
   ],
@@ -12,6 +12,18 @@ export function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
   const { pathname, searchParams } = url;
   const hostname = request.headers.get('host') || '';
+
+  // ========================================================================
+  // 0. CRITICAL: API & STUDIO BYPASS (The Safety Net)
+  // ========================================================================
+  // Even if the matcher regex misses something, this explicitly allows APIs to pass.
+  if (
+    pathname.startsWith('/api') || 
+    pathname.startsWith('/studio') || 
+    pathname.startsWith('/_next')
+  ) {
+    return NextResponse.next();
+  }
 
   // ========================================================================
   // 1. SECURITY
@@ -45,7 +57,7 @@ export function middleware(request: NextRequest) {
   }
 
   // ========================================================================
-  // 3. SEO BLOCKING
+  // 3. SEO BLOCKING (Spam Params)
   // ========================================================================
   if (searchParams.has('s') && searchParams.get('s') !== '') {
     const response = NextResponse.next();
@@ -59,14 +71,15 @@ export function middleware(request: NextRequest) {
   let needsRedirect = false;
   let isWWWRedirect = false;
 
-  // A. Force WWW → Non-WWW
+  // A. Force WWW → Non-WWW (Or Non-WWW → WWW depending on preference)
+  // Current logic: Removes WWW
   if (hostname.startsWith('www.')) {
     url.hostname = hostname.replace('www.', '');
     needsRedirect = true;
     isWWWRedirect = true;
   }
 
-  // B. Block Legacy
+  // B. Block Legacy Wordpress Paths
   if (pathname.startsWith('/category/') || pathname.startsWith('/tag/') || pathname.startsWith('/author/')) {
     return new NextResponse('Gone', { status: 410 });
   }
@@ -77,14 +90,22 @@ export function middleware(request: NextRequest) {
     needsRedirect = true;
   }
 
-  // D. Clean Dirty URLs
+  // D. Clean Dirty URLs (Spaces, encoded chars)
   if (url.pathname.includes('%20') || url.pathname.includes(' ')) {
-    url.pathname = url.pathname.replace(/%20|\s+/g, '-').replace(/&/g, 'and').replace(/-+/g, '-').toLowerCase();
+    url.pathname = url.pathname
+      .replace(/%20|\s+/g, '-')
+      .replace(/&/g, 'and')
+      .replace(/-+/g, '-')
+      .toLowerCase();
     needsRedirect = true;
   }
 
-  // E. Remove Params
-  const badParams = ['noamp', 'amp', 'm', 'feed', 'cat', 'fbclid', 'gclid', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+  // E. Remove Tracking/Legacy Params
+  const badParams = [
+    'noamp', 'amp', 'm', 'feed', 'cat', 
+    'fbclid', 'gclid', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'
+  ];
+  
   if (pathname.endsWith('/feed') || pathname.endsWith('/feed/')) {
     url.pathname = pathname.replace(/\/feed\/?$/, '');
     needsRedirect = true;
@@ -93,6 +114,7 @@ export function middleware(request: NextRequest) {
     url.pathname = pathname.replace(/\/amp\/?$/, '');
     needsRedirect = true;
   }
+  
   badParams.forEach((param) => {
     if (searchParams.has(param)) {
       searchParams.delete(param);
@@ -105,8 +127,7 @@ export function middleware(request: NextRequest) {
     needsRedirect = true;
   }
 
-  
-  // G. Perform Redirect
+  // F. Perform Redirect if needed
   if (needsRedirect) {
     const redirectUrl = new URL(url.pathname + url.search, request.url);
     const statusCode = isWWWRedirect ? 301 : 308;
@@ -114,7 +135,7 @@ export function middleware(request: NextRequest) {
   }
 
   // ========================================================================
-  // 6. HEADERS
+  // 5. HEADERS
   // ========================================================================
   const response = NextResponse.next();
 
@@ -126,7 +147,7 @@ export function middleware(request: NextRequest) {
     response.headers.set('Vary', 'RSC, Next-Router-State-Tree, Next-Router-Prefetch');
   }
 
-  // CSP Header (Compressed)
+  // CSP Header (Updated with connect-src for Sanity)
   const cspHeader = `default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://www.clarity.ms https://*.clarity.ms https://static.cloudflareinsights.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' blob: data: https://cdn.sanity.io https://placehold.co https://toptenuae.com https://lh3.googleusercontent.com https://www.googletagmanager.com https://www.google-analytics.com https://*.clarity.ms https://c.bing.com https://m.media-amazon.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://cdn.sanity.io https://*.sanity.io https://www.google-analytics.com https://www.googletagmanager.com https://*.clarity.ms https://static.cloudflareinsights.com https://challenges.cloudflare.com; frame-src 'self' https://www.googletagmanager.com https://challenges.cloudflare.com; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;`;
   
   response.headers.set('Content-Security-Policy', cspHeader);
