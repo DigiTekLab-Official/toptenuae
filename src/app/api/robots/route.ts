@@ -1,11 +1,10 @@
-// src/app/api/robots/route.ts
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
-// ✅ CORRECT CONFIG: Force dynamic, but let OpenNext manage the runtime.
-// DO NOT add "export const runtime = 'edge';" here.
+// ✅ RESTORED: Required for Cloudflare
+export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://toptenuae.com';
 
   const robotsTxt = `# TopTenUAE.com Robots.txt
@@ -44,7 +43,7 @@ User-agent: Slurp
 Disallow: /studio/
 Disallow: /api/
 
-# AI Bots - Allowed (but restricted from private/admin areas)
+# AI Bots
 User-agent: GPTBot
 Disallow: /studio/
 Disallow: /api/
@@ -73,7 +72,7 @@ User-agent: ClaudeBot
 Disallow: /studio/
 Disallow: /api/
 
-# Throttled Bots (Aggressive crawlers)
+# Throttled Bots
 User-agent: AhrefsBot
 Crawl-delay: 10
 Disallow: /studio/
@@ -104,7 +103,7 @@ Crawl-delay: 10
 Disallow: /studio/
 Disallow: /api/
 
-# Blocked Bots (Junk/Spam)
+# Blocked Bots
 User-agent: ia_archiver
 Disallow: /
 
@@ -126,8 +125,8 @@ Disallow: /
 User-agent: PC6spider
 Disallow: /
 
-# Sitemap
-Sitemap: ${baseUrl}/sitemap.xml
+# Sitemap - Pointing directly to API to bypass static cache issues
+Sitemap: ${baseUrl}/api/sitemap
 `;
 
   return new NextResponse(robotsTxt, {

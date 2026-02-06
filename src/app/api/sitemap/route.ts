@@ -1,9 +1,10 @@
-// src/app/api/sitemap/route.ts
 import { client } from '@/sanity/lib/client';
 import { groq } from 'next-sanity';
 import { NextResponse } from 'next/server';
 
-export const dynamic = 'force-dynamic';
+// ✅ RESTORED: This is required for the API to run on Cloudflare
+export const runtime = 'edge'; 
+export const dynamic = 'force-dynamic'; 
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://toptenuae.com';
 
@@ -36,7 +37,6 @@ const SITEMAP_HEADERS: Record<string, string> = {
 export async function GET() {
   const fallbackDate = new Date().toISOString();
 
-  // 1. Fetch Data
   const sitemapQuery = groq`{
     "articles": *[_type in ["article", "product", "deal", "howTo", "topTenList"] && defined(slug.current)] {
       _type,
@@ -81,7 +81,6 @@ export async function GET() {
     console.error('Sitemap Generation Error:', error);
   }
 
-  // 2. Generate Static XML
   const staticXml = STATIC_ROUTES.map(route => `
   <url>
     <loc>${BASE_URL}${route.url}</loc>
@@ -90,7 +89,6 @@ export async function GET() {
     <priority>${route.priority}</priority>
   </url>`).join('');
 
-  // 3. Construct Final XML
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${staticXml}
