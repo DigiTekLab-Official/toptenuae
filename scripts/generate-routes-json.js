@@ -17,7 +17,8 @@ const routes = {
     '/newsletter/*',
     '/search',
     '/report',
-    '/sitemap.xml' 
+    '/sitemap.xml',
+    '/robots.txt',
   ],
   exclude: [
     '/_next/*',
