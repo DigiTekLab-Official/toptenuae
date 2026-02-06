@@ -1,139 +1,111 @@
-// src/app/sitemap.xml/route.ts
-import { NextRequest, NextResponse } from 'next/server';
 import { client } from '@/sanity/lib/client';
 import { groq } from 'next-sanity';
+import { NextResponse } from 'next/server';
 
-// =====================================================================
-// FORCE EDGE RUNTIME & DYNAMIC GENERATION
-// =====================================================================
-export const runtime = 'edge';
-export const dynamic = 'force-dynamic';
+// ✅ FORCE DYNAMIC: Always run on the server (Edge/Worker)
+export const runtime = 'edge'; 
+export const dynamic = 'force-dynamic'; 
 
-// =====================================================================
-// CONFIGURATION
-// =====================================================================
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://toptenuae.com';
 
-// Static Routes
 const STATIC_ROUTES = [
-  { url: '', priority: 1.0, changeFrequency: 'daily' },
-  { url: '/top-ten', priority: 0.9, changeFrequency: 'daily' },
-  { url: '/reviews', priority: 0.9, changeFrequency: 'daily' },
-  { url: '/how-to-guides', priority: 0.9, changeFrequency: 'weekly' },
-  { url: '/deals', priority: 0.9, changeFrequency: 'hourly' }, 
-  { url: '/finance-tools', priority: 0.8, changeFrequency: 'monthly' },
-  { url: '/events-holidays', priority: 0.8, changeFrequency: 'weekly' },
-  { url: '/travel-tourism', priority: 0.8, changeFrequency: 'weekly' },
-  { url: '/ramadan-2026', priority: 0.8, changeFrequency: 'weekly' },
-  { url: '/about-us', priority: 0.5, changeFrequency: 'yearly' },
-  { url: '/contact-us', priority: 0.5, changeFrequency: 'yearly' },
-  { url: '/privacy-policy', priority: 0.3, changeFrequency: 'yearly' },
-  { url: '/terms-and-conditions', priority: 0.3, changeFrequency: 'yearly' },
-  { url: '/affiliate-disclosure', priority: 0.3, changeFrequency: 'yearly' },
-  { url: '/disclaimer', priority: 0.3, changeFrequency: 'yearly' },
-  { url: '/cookies-policy', priority: 0.3, changeFrequency: 'yearly' },
+  { url: '', priority: '1.0', changefreq: 'daily' },
+  { url: '/top-ten', priority: '0.9', changefreq: 'daily' },
+  { url: '/reviews', priority: '0.9', changefreq: 'daily' },
+  { url: '/how-to-guides', priority: '0.9', changefreq: 'weekly' },
+  { url: '/deals', priority: '0.9', changefreq: 'hourly' },
+  { url: '/finance-tools', priority: '0.8', changefreq: 'monthly' },
+  { url: '/events-holidays', priority: '0.8', changefreq: 'weekly' },
+  { url: '/travel-tourism', priority: '0.8', changefreq: 'weekly' },
+  { url: '/ramadan-2026', priority: '0.8', changefreq: 'weekly' },
+  { url: '/about-us', priority: '0.5', changefreq: 'yearly' },
+  { url: '/contact-us', priority: '0.5', changefreq: 'yearly' },
+  { url: '/privacy-policy', priority: '0.3', changefreq: 'yearly' },
+  { url: '/terms-and-conditions', priority: '0.3', changefreq: 'yearly' },
+  { url: '/affiliate-disclosure', priority: '0.3', changefreq: 'yearly' },
+  { url: '/disclaimer', priority: '0.3', changefreq: 'yearly' },
+  { url: '/cookies-policy', priority: '0.3', changefreq: 'yearly' },
 ];
 
-// =====================================================================
-// SITEMAP GENERATION
-// =====================================================================
-export async function GET(request: NextRequest) {
+export async function GET() {
   const fallbackDate = new Date().toISOString();
-  
-  let dynamicUrls: Array<{
-    loc: string;
-    lastmod: string;
-    changefreq: string;
-    priority: number;
-  }> = [];
 
-  // =====================================================================
-  // FETCH DYNAMIC CONTENT FROM SANITY
-  // =====================================================================
-  try {
-    const query = groq`*[_type in ["article", "product", "deal", "howTo", "topTenList"] && defined(slug.current)] {
+  // 1. Fetch Data (Renamed variable to avoid conflicts)
+  const sitemapQuery = groq`{
+    "articles": *[_type in ["article", "product", "deal", "howTo", "topTenList"] && defined(slug.current)] {
       _type,
       "slug": slug.current,
       _updatedAt,
       "category": category->slug.current
-    }`;
+    }
+  }`;
 
-    const data = await client.fetch(query);
+  let dynamicRoutes = '';
+
+  try {
+    // Use the unique query name here
+    const response = await client.fetch(sitemapQuery);
+    
+    // Handle cases where response might be wrapped or just an array
+    const data = Array.isArray(response) ? response : (response.articles || []);
 
     if (Array.isArray(data)) {
-      dynamicUrls = data.map((item: any) => {
+      dynamicRoutes = data.map((item: any) => {
         let path = '';
-
+        // Map Sanity types to your URL structure
         switch (item._type) {
-          case 'article':
-            path = `/${item.category || 'reviews'}/${item.slug}`;
-            break;
-          case 'product':
-            path = `/reviews/${item.slug}`;
-            break;
-          case 'deal':
-            path = `/deals/${item.slug}`;
-            break;
-          case 'howTo':
-            path = `/how-to-guides/${item.slug}`;
-            break;
-          case 'topTenList':
-            path = `/top-ten/${item.slug}`;
-            break;
-          default:
-            path = `/${item.slug}`;
+          case 'article': path = `/${item.category || 'reviews'}/${item.slug}`; break;
+          case 'product': path = `/reviews/${item.slug}`; break;
+          case 'deal': path = `/deals/${item.slug}`; break;
+          case 'howTo': path = `/how-to-guides/${item.slug}`; break;
+          case 'topTenList': path = `/top-ten/${item.slug}`; break;
+          default: path = `/${item.slug}`;
         }
+        
+        const lastmod = item._updatedAt ? new Date(item._updatedAt).toISOString() : fallbackDate;
+        const priority = item._type === 'topTenList' ? '0.9' : '0.8';
+        const changefreq = item._type === 'deal' ? 'daily' : 'weekly';
 
-        return {
-          loc: `${BASE_URL}${path}`,
-          lastmod: new Date(item._updatedAt || fallbackDate).toISOString(),
-          changefreq: item._type === 'deal' ? 'daily' : 'weekly',
-          priority: item._type === 'topTenList' ? 0.8 : 0.7,
-        };
-      });
+        return `
+  <url>
+    <loc>${BASE_URL}${escapeXml(path)}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>${changefreq}</changefreq>
+    <priority>${priority}</priority>
+  </url>`;
+      }).join('');
     }
   } catch (error) {
-    console.error('❌ Sitemap: Failed to fetch Sanity data', error);
-    // Continue with static routes only
+    console.error('Sitemap Generation Error:', error);
   }
 
-  // =====================================================================
-  // GENERATE XML
-  // =====================================================================
-  const staticUrls = STATIC_ROUTES.map((route) => ({
-    loc: `${BASE_URL}${route.url}`,
-    lastmod: fallbackDate,
-    changefreq: route.changeFrequency,
-    priority: route.priority,
-  }));
+  // 2. Generate Static XML
+  const staticXml = STATIC_ROUTES.map(route => `
+  <url>
+    <loc>${BASE_URL}${route.url}</loc>
+    <lastmod>${fallbackDate}</lastmod>
+    <changefreq>${route.changefreq}</changefreq>
+    <priority>${route.priority}</priority>
+  </url>`).join('');
 
-  const allUrls = [...staticUrls, ...dynamicUrls];
-
+  // 3. Construct Final XML
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${allUrls.map((url) => `  <url>
-    <loc>${escapeXml(url.loc)}</loc>
-    <lastmod>${url.lastmod}</lastmod>
-    <changefreq>${url.changefreq}</changefreq>
-    <priority>${url.priority}</priority>
-  </url>`).join('\n')}
+${staticXml}
+${dynamicRoutes}
 </urlset>`;
 
-  // =====================================================================
-  // RETURN XML RESPONSE
-  // =====================================================================
+  // 4. Return with correct Headers
   return new NextResponse(xml, {
     status: 200,
     headers: {
       'Content-Type': 'application/xml',
-      'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
+      'Cache-Control': 'public, max-age=3600, s-maxage=3600',
     },
   });
 }
 
-// =====================================================================
-// XML ESCAPING UTILITY
-// =====================================================================
+// Helper to prevent XML errors with special characters like '&'
 function escapeXml(unsafe: string): string {
   return unsafe.replace(/[<>&'"]/g, (char) => {
     switch (char) {
