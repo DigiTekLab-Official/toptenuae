@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     console.log(`🔄 Revalidating: ${body._type} | Slug: ${body.slug}`);
 
     // 2. Revalidate Data Tags (The "Sanity Way")
-    // Purges all fetches tagged with this type (e.g., 'howTo', 'article')
+    // Purges all fetches tagged with this type.
     // @ts-expect-error: Next.js 16 signature mismatch (requires 2 args)
     revalidateTag(body._type);
     
@@ -40,40 +40,48 @@ export async function POST(req: NextRequest) {
       revalidateTag(body.slug);
     }
 
-    // Purge Global Lists (Homepage, Category pages)
+    // Purge Global Lists & Related Content
+    // ✅ CRITICAL: When a Product changes, we must purge Articles/Reviews too.
     if (['howTo', 'topTenList', 'article', 'product', 'deal'].includes(body._type)) {
       // @ts-expect-error: Next.js 16 signature mismatch
       revalidateTag('home-feed');
       // @ts-expect-error: Next.js 16 signature mismatch
       revalidateTag('category-lists');
+      
+      // Force refresh of Lists and Review Pages
       // @ts-expect-error: Next.js 16 signature mismatch
       revalidateTag('topTenList');
       // @ts-expect-error: Next.js 16 signature mismatch
-      revalidateTag('article'); // <--- Added this
+      revalidateTag('article'); 
       // @ts-expect-error: Next.js 16 signature mismatch
-      revalidateTag('howTo');   // <--- Added this
+      revalidateTag('howTo');   
       
       revalidatePath('/', 'layout'); // Nuclear option: clear homepage cache
     }
 
-    // 3. Attempt to Revalidate the Specific Page Path (HTML)
-    // We construct the path based on the category sent in the payload
+    // 3. "Shotgun" Path Revalidation (Aggressive Cache Clearing)
+    // We attempt to purge ALL possible URL structures for this slug to guarantee
+    // the page updates, even if the category mapping is tricky.
     if (body.slug) {
+      const slug = body.slug;
       // ✅ FIX: Force String() to prevent "Type {} cannot be used as index" error
-      const category = String(body.category || 'reviews'); 
-      
-      // Normalize category (Quick map to match your page.tsx logic)
-      const catMap: Record<string, string> = {
-        'travel-tourism': 'events-holidays',
-        'health-fitness': 'lifestyle',
-        'buyers-guide': 'reviews',
-      };
-      
-      const finalCat = catMap[category] || category;
+      const category = String(body.category || 'reviews');
 
-      const path = `/${finalCat}/${body.slug}`;
-      console.log(`📍 Purging Path: ${path}`);
-      revalidatePath(path);
+      // List of all possible URL prefixes your site uses
+      const possiblePaths = [
+        `/${category}/${slug}`,       // The detected category
+        `/reviews/${slug}`,           // Common fallback
+        `/tech/${slug}`,              // Common fallback
+        `/top-ten/${slug}`,           // Common fallback
+        `/how-to-guides/${slug}`,     // Common fallback
+        `/smartwatches/${slug}`       // Specific niche fallback
+      ];
+
+      // Purge every single one
+      possiblePaths.forEach((path) => {
+        // console.log(`🔫 Shotgun Purge: ${path}`);
+        revalidatePath(path);
+      });
     }
 
     return NextResponse.json({
