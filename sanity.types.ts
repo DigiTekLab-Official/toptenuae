@@ -1129,7 +1129,7 @@ export type HOW_TO_QUERYResult = {
   } | null;
 } | null;
 
-// Source: ./src/app/sitemap.xml/route.ts
+// Source: ./src/app/api/sitemap/route.ts
 // Variable: sitemapQuery
 // Query: {    "articles": *[_type in ["article", "product", "deal", "howTo", "topTenList"] && defined(slug.current)] {      _type,      "slug": slug.current,      _updatedAt,      "category": category->slug.current    }  }
 export type SitemapQueryResult = {

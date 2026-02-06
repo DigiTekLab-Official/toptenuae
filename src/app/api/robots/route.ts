@@ -1,15 +1,10 @@
-// src/app/robots.txt/route.ts
+// src/app/api/robots/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 
-// =====================================================================
-// FORCE EDGE RUNTIME & DYNAMIC GENERATION
-// =====================================================================
-export const runtime = 'edge';
+// ✅ CORRECT CONFIG: Force dynamic, but let OpenNext manage the runtime.
+// DO NOT add "export const runtime = 'edge';" here.
 export const dynamic = 'force-dynamic';
 
-// =====================================================================
-// ROBOTS.TXT GENERATION
-// =====================================================================
 export async function GET(request: NextRequest) {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://toptenuae.com';
 
@@ -43,6 +38,7 @@ Disallow: /sample-page/
 User-agent: Bingbot
 Disallow: /studio/
 Disallow: /api/
+Disallow: /search/
 
 User-agent: Slurp
 Disallow: /studio/
@@ -138,7 +134,7 @@ Sitemap: ${baseUrl}/sitemap.xml
     status: 200,
     headers: {
       'Content-Type': 'text/plain',
-      'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=604800',
+      'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
     },
   });
 }

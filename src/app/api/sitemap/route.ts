@@ -1,10 +1,9 @@
+// src/app/api/sitemap/route.ts
 import { client } from '@/sanity/lib/client';
 import { groq } from 'next-sanity';
 import { NextResponse } from 'next/server';
 
-// ✅ FORCE DYNAMIC: Always run on the server (Edge/Worker)
-export const runtime = 'edge'; 
-export const dynamic = 'force-dynamic'; 
+export const dynamic = 'force-dynamic';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://toptenuae.com';
 
