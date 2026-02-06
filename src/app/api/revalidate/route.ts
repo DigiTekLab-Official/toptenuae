@@ -1,4 +1,3 @@
-// src/app/api/revalidate/route.ts
 import { revalidateTag, revalidatePath } from 'next/cache';
 import { type NextRequest, NextResponse } from 'next/server';
 import { parseBody } from 'next-sanity/webhook';
@@ -56,7 +55,8 @@ export async function POST(req: NextRequest) {
     // 3. Attempt to Revalidate the Specific Page Path (HTML)
     // We construct the path based on the category sent in the payload
     if (body.slug) {
-      const category = body.category || 'reviews'; // Default fallback
+      // ✅ FIX: Force String() to prevent "Type {} cannot be used as index" error
+      const category = String(body.category || 'reviews'); 
       
       // Normalize category (Quick map to match your page.tsx logic)
       const catMap: Record<string, string> = {
@@ -64,6 +64,7 @@ export async function POST(req: NextRequest) {
         'health-fitness': 'lifestyle',
         'buyers-guide': 'reviews',
       };
+      
       const finalCat = catMap[category] || category;
 
       const path = `/${finalCat}/${body.slug}`;
