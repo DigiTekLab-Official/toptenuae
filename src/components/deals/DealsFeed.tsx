@@ -1,4 +1,3 @@
-// src/components/deals/DealsFeed.tsx
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -36,7 +35,7 @@ export default function DealsFeed({ initialDeals }: DealsFeedProps) {
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       result = result.filter(deal => 
-        deal.title.toLowerCase().includes(query) || 
+        deal.title?.toLowerCase().includes(query) || 
         deal.description?.toLowerCase().includes(query)
       );
     }
@@ -44,19 +43,20 @@ export default function DealsFeed({ initialDeals }: DealsFeedProps) {
     // 3. Sorting
     switch (sortBy) {
       case 'discount':
-        // Safe access with || 0
+        // Sort by highest discount first
         result.sort((a, b) => (b.discountPercentage || 0) - (a.discountPercentage || 0));
         break;
       case 'price-low':
-        // ✅ FIX: Use (a.dealPrice || 0) to handle potential undefined values
+        // Sort by lowest price first
         result.sort((a, b) => (a.dealPrice || 0) - (b.dealPrice || 0));
         break;
       case 'rating':
-        // Safe access with || 0
+        // Sort by highest rating first
         result.sort((a, b) => (b.rating || 0) - (a.rating || 0));
         break;
       case 'latest':
       default:
+        // Sort by newest date first
         result.sort((a, b) => new Date(b._createdAt).getTime() - new Date(a._createdAt).getTime());
         break;
     }

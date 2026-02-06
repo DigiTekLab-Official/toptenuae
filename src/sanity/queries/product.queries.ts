@@ -1,3 +1,4 @@
+// src/sanity/queries/product.queries.ts
 import { groq } from 'next-sanity';
 
 // =============================================================================
@@ -26,8 +27,11 @@ export const PRODUCT_BY_SLUG = groq`
     verdict,
     mainImage { "url": asset->url, alt },
     itemDescription, 
+    // SEO Data
     "seoTitle": coalesce(seo.metaTitle, title),
-    "seoDescription": coalesce(seo.metaDescription, description)
+    "seoDescription": coalesce(seo.metaDescription, description, intro),
+    "seoImage": coalesce(seo.openGraphImage.asset->url, mainImage.asset->url),
+    "category": category->{title, "slug": slug.current}
   }
 `;
 
@@ -39,11 +43,13 @@ export const ALL_PRODUCTS = groq`
     _id,
     title,
     "slug": slug.current,
+    brand,
     price,
     currency,
     mainImage { "url": asset->url, alt },
     customerRating,
     reviewCount,
+    "category": category->title,
     publishedAt
   }
 `;
@@ -54,6 +60,7 @@ export const PRODUCTS_BY_CATEGORY = groq`
       _id,
       title,
       "slug": slug.current,
+      brand,
       price,
       currency,
       mainImage { "url": asset->url, alt },

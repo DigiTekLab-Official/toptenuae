@@ -1,4 +1,3 @@
-// src/app/sitemap.ts
 import { MetadataRoute } from 'next';
 import { client } from '@/sanity/lib/client';
 
@@ -6,7 +5,6 @@ import { client } from '@/sanity/lib/client';
 // 1. Structure: Compliant with <urlset> namespace standard.
 // 2. Optimization: Removed <priority> and <changefreq> (Ignored by Google).
 // 3. Encoding: UTF-8 enforced by Next.js.
-// 4. Escaping: URLs are auto-escaped by Next.js internals.
 
 export const revalidate = 3600;
 
@@ -14,13 +12,13 @@ const BASE_URL = 'https://toptenuae.com';
 const CURRENT_DATE = new Date();
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // 1. Static Pages (NO TRAILING SLASHES)
+  // 1. Static Pages
   const staticRoutes: MetadataRoute.Sitemap = [
-    { url: `${BASE_URL}`, lastModified: CURRENT_DATE }, // Root is exception
+    { url: `${BASE_URL}`, lastModified: CURRENT_DATE },
     { url: `${BASE_URL}/top-ten`, lastModified: CURRENT_DATE },
     { url: `${BASE_URL}/how-to-guides`, lastModified: CURRENT_DATE },
     { url: `${BASE_URL}/reviews`, lastModified: CURRENT_DATE },
-    { url: `${BASE_URL}/deals`, lastModified: CURRENT_DATE },
+    { url: `${BASE_URL}/deals`, lastModified: CURRENT_DATE }, // ✅ Main Deals page stays
     { url: `${BASE_URL}/finance-tools`, lastModified: CURRENT_DATE },
     { url: `${BASE_URL}/events-holidays`, lastModified: CURRENT_DATE },
     { url: `${BASE_URL}/travel-tourism`, lastModified: CURRENT_DATE },
@@ -38,13 +36,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     // 2. Fetch Dynamic Data
+    // ✅ FIX: Removed "deal" from the list below.
+    // This ensures NO individual /deals/slug pages are generated in the sitemap.
     const posts = await client.fetch(`
       *[
-        _type in ["topTenList", "article", "howTo", "tool", "holiday", "deal", "product", "event"]
+        _type in ["topTenList", "article", "howTo", "tool", "holiday", "product", "event"]
         && defined(slug.current)
         && (seo.noIndex != true)
-        && !(_type == "deal" && isActive == false)
-        && slug.current != "ramadan-2026-uae" 
       ]{
         _type,
         "slug": slug.current,
@@ -53,54 +51,46 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }
     `);
 
-    // 3. Generate Dynamic Routes (NO TRAILING SLASHES)
+    // 3. Generate Dynamic Routes
     const postRoutes = posts.map((post: any) => {
-      let folder = '/reviews'; // Default fallback
+      const category = post.category || '';
+      let folder = '/reviews'; // Default Fallback
 
-      // --- SIMPLIFIED TYPE-FIRST LOGIC ---
-      switch (post._type) {
-        case 'tool':
-          folder = '/finance-tools';
-          break;
-        case 'topTenList':
-          folder = '/top-ten';
-          break;
-        case 'howTo':
-          folder = '/how-to-guides';
-          break;
-        case 'article':
-          if (['how-to-guides', 'guides'].includes(post.category)) {
-            folder = '/how-to-guides';
-          } else if (['travel-tourism', 'travel', 'tourism'].includes(post.category)) {
-            folder = '/travel-tourism';
-          } else if (['events-holidays', 'events', 'holidays'].includes(post.category)) {
-            folder = '/events-holidays';
-          } else {
-            folder = '/reviews';
-          }
-          break;
-        case 'holiday':
-        case 'event':
-          folder = '/events-holidays';
-          break;
-        case 'deal':
-          folder = '/deals';
-          break;
-        case 'product':
-          folder = '/reviews';
-          break;
-        default:
-          if (['travel-tourism', 'travel', 'tourism'].includes(post.category)) {
-            folder = '/travel-tourism';
-          } else if (['events-holidays', 'events', 'holidays'].includes(post.category)) {
-            folder = '/events-holidays';
-          } else {
-            folder = '/reviews';
-          }
+      // A. Finance Tools
+      if (post._type === 'tool' || ['finance-tools', 'tools'].includes(category)) {
+        folder = '/finance-tools';
+      }
+      
+      // B. How-To Guides
+      else if (
+        post._type === 'howTo' || 
+        ['how-to-guides', 'guides', 'how-to', 'education'].includes(category)
+      ) {
+        folder = '/how-to-guides';
+      }
+
+      // C. Events & Holidays
+      else if (
+        post._type === 'holiday' || 
+        post._type === 'event' || 
+        ['events-holidays', 'events', 'holidays', 'ramadan'].includes(category)
+      ) {
+        folder = '/events-holidays';
+      }
+
+      // D. Travel
+      else if (['travel-tourism', 'travel', 'tourism'].includes(category)) {
+        folder = '/travel-tourism';
+      }
+
+      // E. Deals (REMOVED) - We do not want individual deal pages indexed.
+      
+      // F. Top Ten Lists
+      else if (post._type === 'topTenList') {
+        folder = '/top-ten';
       }
 
       return {
-        // ✅ CORRECT: No trailing slash
         url: `${BASE_URL}${folder}/${post.slug}`,
         lastModified: new Date(post._updatedAt),
       };

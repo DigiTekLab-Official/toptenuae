@@ -1,4 +1,3 @@
-// src/sanity/queries/category.queries.ts
 import { groq } from 'next-sanity';
 
 // =============================================================================

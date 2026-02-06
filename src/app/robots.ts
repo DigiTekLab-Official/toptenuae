@@ -1,4 +1,3 @@
-// src/app/robots.ts
 import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
@@ -15,9 +14,12 @@ export default function robots(): MetadataRoute.Robots {
     '/wp-admin/',
     '/wp-includes/',
     '/wp-content/',
-    '/category/',
-    '/tag/',
-    '/author/',
+    
+    // ✅ CRITICAL FIX: Removed /category/, /tag/, and /author/
+    // We MUST allow bots to crawl these paths so they can hit the 
+    // 301 Redirects defined in next.config.ts. 
+    // If we block them here, the redirects will never be seen by Google.
+    
     '/*?s=',
     '/*?ref=',
     '/*?utm_',
@@ -37,6 +39,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
+        allow: '/', // Explicitly allow root
         disallow: sharedDisallow,
       },
       {
@@ -47,11 +50,7 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: 'Slurp',
         disallow: sharedDisallow,
       },
-      {
-        userAgent: 'Microsoft-Werbe-Robot',
-        disallow: sharedDisallow,
-      },
-      // AI Bots - Allowed
+      // AI Bots - Allowed (but restricted from private/admin areas)
       { userAgent: 'GPTBot', disallow: sharedDisallow },
       { userAgent: 'ChatGPT-User', disallow: sharedDisallow },
       { userAgent: 'OAI-SearchBot', disallow: sharedDisallow },
@@ -59,13 +58,17 @@ export default function robots(): MetadataRoute.Robots {
       { userAgent: 'Applebot', disallow: sharedDisallow },
       { userAgent: 'PerplexityBot', disallow: sharedDisallow },
       { userAgent: 'ClaudeBot', disallow: sharedDisallow },
-      // Throttled Bots
+      
+      // Throttled Bots (Aggressive crawlers)
       {
         userAgent: ['AhrefsBot', 'SemrushBot', 'DotBot', 'MJ12bot', 'BLEXBot', 'Bytespider'],
         disallow: sharedDisallow,
-        crawlDelay: 10,
+        // Note: crawlDelay is not officially in standard robots.txt spec for Google, 
+        // but is respected by some bots like Bing/Yandex.
+        crawlDelay: 10, 
       },
-      // Blocked Bots
+      
+      // Blocked Bots (Junk/Spam)
       {
         userAgent: ['ia_archiver', 'MegaIndex', 'SeznamBot', 'Uptimebot', 'Mauibot', 'LieBaoFast', 'PC6spider'],
         disallow: '/',
