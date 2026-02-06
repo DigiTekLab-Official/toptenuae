@@ -1,9 +1,26 @@
+// src/app/api/sanity-hook/route.ts
 import { revalidateTag, revalidatePath } from 'next/cache';
 import { type NextRequest, NextResponse } from 'next/server';
 import { parseBody } from 'next-sanity/webhook';
 
 // Force dynamic to prevent static HTML generation
 export const dynamic = 'force-dynamic';
+
+/**
+ * GET Handler
+ * Returns a helpful message (this endpoint is for webhooks only)
+ */
+export async function GET() {
+  return NextResponse.json(
+    { 
+      message: 'Sanity Webhook Endpoint',
+      status: 'ready',
+      methods: ['POST', 'OPTIONS'],
+      description: 'This endpoint receives webhooks from Sanity CMS for cache revalidation'
+    },
+    { status: 200 }
+  );
+}
 
 /**
  * OPTIONS Handler
