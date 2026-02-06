@@ -2,10 +2,15 @@ import { revalidateTag, revalidatePath } from 'next/cache';
 import { type NextRequest, NextResponse } from 'next/server';
 import { parseBody } from 'next-sanity/webhook';
 
+// ✅ CRITICAL FIX: Forces this route to be dynamic.
+// Without this, Next.js/Cloudflare may treat it as a static page, 
+// causing the "405 Method Not Allowed" error on POST requests.
+export const dynamic = 'force-dynamic';
+
 /**
- * SANITY WEBHOOK HANDLER (Best Practice 2026)
+ * SANITY WEBHOOK HANDLER (Production Ready 2026)
  * * Triggered by: Sanity Webhook (Manage -> API -> Webhooks)
- * Security: Verifies the 'sanity-webhook-signature' header
+ * * Security: Verifies the 'sanity-webhook-signature' header
  * * Required Env Var: SANITY_WEBHOOK_SECRET
  */
 
@@ -56,7 +61,8 @@ export async function POST(req: NextRequest) {
       // @ts-expect-error: Next.js 16 signature mismatch
       revalidateTag('howTo');   
       
-      revalidatePath('/', 'layout'); // Nuclear option: clear homepage cache
+      // Nuclear option: clear homepage cache to be absolutely sure
+      revalidatePath('/', 'layout'); 
     }
 
     // 3. "Shotgun" Path Revalidation (Aggressive Cache Clearing)
