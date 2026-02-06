@@ -3,6 +3,11 @@ import { MetadataRoute } from 'next';
 import { client } from '@/sanity/lib/client';
 import { groq } from 'next-sanity';
 
+// ✅ FORCE DYNAMIC: Tells Next.js to generate this on every request (Worker)
+// instead of looking for a static file that might be missing.
+export const dynamic = 'force-dynamic';
+export const runtime = 'edge'; 
+
 const BASE_URL = 'https://toptenuae.com';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -82,6 +87,3 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ];
   }
 }
-
-// Revalidate every hour (3600 seconds)
-export const revalidate = 3600;

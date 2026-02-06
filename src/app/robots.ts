@@ -1,6 +1,10 @@
 // src/app/robots.ts
 import { MetadataRoute } from 'next';
 
+// ✅ FORCE DYNAMIC: Ensures this runs as a Worker
+export const dynamic = 'force-dynamic';
+export const runtime = 'edge';
+
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
