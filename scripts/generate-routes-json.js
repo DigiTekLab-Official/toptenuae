@@ -17,6 +17,9 @@ const routes = {
     '/newsletter/*',
     '/search',
     '/report',
+    // ✅ CRITICAL FIX: Force these to the Worker so Next.js generates them
+    '/robots.txt',
+    '/sitemap.xml' 
   ],
   exclude: [
     '/_next/*',
@@ -39,6 +42,11 @@ const routes = {
 };
 
 try {
+  // Ensure the directory exists before writing
+  if (!fs.existsSync(assetsDir)) {
+    fs.mkdirSync(assetsDir, { recursive: true });
+  }
+
   fs.writeFileSync(routesFile, JSON.stringify(routes, null, 2));
   console.log(`✓ Generated _routes.json at ${routesFile}`);
 } catch (err) {
