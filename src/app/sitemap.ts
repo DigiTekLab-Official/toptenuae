@@ -2,12 +2,16 @@ import { MetadataRoute } from 'next';
 import { client } from '@/sanity/lib/client';
 import { groq } from 'next-sanity';
 
+// ✅ FORCE DYNAMIC: This ensures the sitemap is generated on-demand
+// and prevents the "Static File Not Found" error on Cloudflare.
+export const dynamic = 'force-dynamic'; 
+
 // =====================================================================
 // 1. CONFIGURATION
 // =====================================================================
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://toptenuae.com';
 
-// 2. Static Routes
+// 2. Static Routes (Core Pages)
 const STATIC_ROUTES = [
   { url: '', priority: 1.0, changeFrequency: 'daily' },
   { url: '/top-ten', priority: 0.9, changeFrequency: 'daily' },
@@ -18,6 +22,7 @@ const STATIC_ROUTES = [
   { url: '/events-holidays', priority: 0.8, changeFrequency: 'weekly' },
   { url: '/travel-tourism', priority: 0.8, changeFrequency: 'weekly' },
   { url: '/ramadan-2026', priority: 0.8, changeFrequency: 'weekly' },
+  // Legal & Info Pages
   { url: '/about-us', priority: 0.5, changeFrequency: 'yearly' },
   { url: '/contact-us', priority: 0.5, changeFrequency: 'yearly' },
   { url: '/privacy-policy', priority: 0.3, changeFrequency: 'yearly' },
@@ -33,6 +38,7 @@ const STATIC_ROUTES = [
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const fallbackDate = new Date();
 
+  // Fetch all dynamic slugs + their update times
   const query = groq`{
     "articles": *[_type in ["article", "product", "deal", "howTo", "topTenList"] && defined(slug.current)] {
       _type,
@@ -47,8 +53,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const response = await client.fetch(query);
     
-    // ✅ SAFETY CHECK: Extract the array correctly
-    // Sometimes the query returns { articles: [...] } instead of just [...]
+    // Safety check for array data
     const data = Array.isArray(response) ? response : (response.articles || []);
 
     if (Array.isArray(data)) {
@@ -82,14 +87,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           priority: item._type === 'topTenList' ? 0.8 : 0.7,
         };
       });
-    } else {
-        console.error('❌ Sitemap Error: Data is not an array:', data);
     }
 
   } catch (error) {
     console.error('❌ Sitemap Error: Failed to fetch Sanity paths', error);
   }
 
+  // Merge Static & Dynamic
   const staticMap = STATIC_ROUTES.map((route) => ({
     url: `${BASE_URL}${route.url}`,
     lastModified: fallbackDate,
