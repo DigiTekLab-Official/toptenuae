@@ -3,20 +3,28 @@ import { revalidateTag, revalidatePath } from 'next/cache';
 import { type NextRequest, NextResponse } from 'next/server';
 import { parseBody } from 'next-sanity/webhook';
 
-// Force dynamic to prevent static HTML generation
+// =====================================================================
+// ✅ CLOUDFLARE CONFIGURATION
+// =====================================================================
+// 1. Force dynamic: Prevents static HTML generation
 export const dynamic = 'force-dynamic';
+
+// 2. Force Edge Runtime: This is CRITICAL for Cloudflare Pages.
+// 'nodejs' runtime (Claude's suggestion) is meant for Vercel/AWS.
+export const runtime = 'edge'; 
+// =====================================================================
 
 /**
  * GET Handler
- * Returns a helpful message (this endpoint is for webhooks only)
+ * Verification endpoint - Verify this works in browser!
  */
 export async function GET() {
   return NextResponse.json(
     { 
       message: 'Sanity Webhook Endpoint',
-      status: 'ready',
-      methods: ['POST', 'OPTIONS'],
-      description: 'This endpoint receives webhooks from Sanity CMS for cache revalidation'
+      status: 'active',
+      platform: 'Cloudflare Edge', // Just to confirm we are live
+      timestamp: new Date().toISOString()
     },
     { status: 200 }
   );
@@ -24,8 +32,7 @@ export async function GET() {
 
 /**
  * OPTIONS Handler
- * Fixes "405 Method Not Allowed" by telling Cloudflare/Sanity 
- * that POST requests are definitely allowed here.
+ * Fixes "405 Method Not Allowed" errors
  */
 export async function OPTIONS() {
   return new NextResponse(null, {
@@ -69,6 +76,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 2. Global List Revalidation
+    // When a product/deal changes, refresh the lists that display them
     if (['howTo', 'topTenList', 'article', 'product', 'deal'].includes(body._type)) {
       const tags = ['home-feed', 'category-lists', 'topTenList', 'article', 'howTo', 'product', 'deal'];
       tags.forEach(tag => {
@@ -78,7 +86,8 @@ export async function POST(req: NextRequest) {
       revalidatePath('/', 'layout');
     }
 
-    // 3. Path Revalidation
+    // 3. Path Revalidation (Shotgun approach)
+    // Clears all possible URLs where this content might appear
     if (body.slug) {
       const slug = body.slug;
       const category = String(body.category || 'reviews');
