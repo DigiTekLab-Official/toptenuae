@@ -8,8 +8,8 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "pnpm run sanity:typegen && next build && node scripts/fix-opennext-css.js && opennextjs-cloudflare build --skipNextBuild && pnpm run copy-prerendered-pages",
-    "build:worker": "pnpm run sanity:typegen && next build && node scripts/fix-opennext-css.js && opennextjs-cloudflare build --skipNextBuild && pnpm run copy-prerendered-pages",
+    "build": "pnpm run sanity:typegen && next build && node scripts/fix-opennext-css.js && opennextjs-cloudflare build --skipNextBuild && pnpm run copy-prerendered-pages && node scripts/generate-routes-json.js",
+    "build:worker": "pnpm run sanity:typegen && next build && node scripts/fix-opennext-css.js && opennextjs-cloudflare build --skipNextBuild && pnpm run copy-prerendered-pages && node scripts/generate-routes-json.js",
     "copy-prerendered-pages": "node scripts/copy-prerendered-pages.js",
     "preview": "opennextjs-cloudflare preview",
     "deploy": "pnpm run build && wrangler pages deploy .open-next/assets --project-name=toptenuae",
