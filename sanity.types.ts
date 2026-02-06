@@ -1201,7 +1201,7 @@ export type CATEGORY_PRODUCTSResult = Array<{
 
 // Source: ./src/sanity/queries/deal.queries.ts
 // Variable: ALL_ACTIVE_DEALS
-// Query: *[_type == "deal" && isActive == true] | order(featured desc, _createdAt desc) {    _type, _id, _createdAt,    "title": coalesce(title, product->title),    description,    "image": coalesce(image.asset->url, product->mainImage.asset->url),    "affiliateLink": coalesce(affiliateLink, product->affiliateLink),    originalPrice, dealPrice, discountPercentage, category,    dealEndDate, isPrimeExclusive, featured, couponCode, couponNote,    "rating": coalesce(rating, product->customerRating),    "reviewCount": coalesce(reviewCount, product->reviewCount)  }
+// Query: *[_type == "deal" && isActive == true] | order(featured desc, _createdAt desc) {    _type, _id, _createdAt,    "title": coalesce(title, product->title),    description,    "image": coalesce(image.asset->url, product->mainImage.asset->url),    "affiliateLink": coalesce(affiliateLink, product->affiliateLink),    // ✅ CRITICAL ADDITION: Fetch the slug of the related product review    "reviewSlug": product->slug.current,     originalPrice, dealPrice, discountPercentage, category,    dealEndDate, isPrimeExclusive, featured, couponCode, couponNote,    "rating": coalesce(rating, product->customerRating),    "reviewCount": coalesce(reviewCount, product->reviewCount)  }
 export type ALL_ACTIVE_DEALSResult = Array<{
   _type: "deal";
   _id: string;
@@ -1210,6 +1210,7 @@ export type ALL_ACTIVE_DEALSResult = Array<{
   description: string | null;
   image: string | null;
   affiliateLink: string | null;
+  reviewSlug: string | null;
   originalPrice: number | null;
   dealPrice: number | null;
   discountPercentage: number | null;
@@ -1223,7 +1224,7 @@ export type ALL_ACTIVE_DEALSResult = Array<{
   reviewCount: number | null;
 }>;
 // Variable: FEATURED_DEALS
-// Query: *[_type == "deal" && isActive == true && featured == true]     | order(_createdAt desc)[0...10] {      _type, _id, _createdAt,      "title": coalesce(title, product->title),      description,      "image": coalesce(image.asset->url, product->mainImage.asset->url),      "affiliateLink": coalesce(affiliateLink, product->affiliateLink),      originalPrice, dealPrice, discountPercentage, category,      dealEndDate, isPrimeExclusive, couponCode, couponNote,      "rating": coalesce(rating, product->customerRating),      "reviewCount": coalesce(reviewCount, product->reviewCount)    }
+// Query: *[_type == "deal" && isActive == true && featured == true]     | order(_createdAt desc)[0...10] {      _type, _id, _createdAt,      "title": coalesce(title, product->title),      description,      "image": coalesce(image.asset->url, product->mainImage.asset->url),      "affiliateLink": coalesce(affiliateLink, product->affiliateLink),      "reviewSlug": product->slug.current,      originalPrice, dealPrice, discountPercentage, category,      dealEndDate, isPrimeExclusive, couponCode, couponNote,      "rating": coalesce(rating, product->customerRating),      "reviewCount": coalesce(reviewCount, product->reviewCount)    }
 export type FEATURED_DEALSResult = Array<{
   _type: "deal";
   _id: string;
@@ -1232,6 +1233,7 @@ export type FEATURED_DEALSResult = Array<{
   description: string | null;
   image: string | null;
   affiliateLink: string | null;
+  reviewSlug: string | null;
   originalPrice: number | null;
   dealPrice: number | null;
   discountPercentage: number | null;
@@ -1244,7 +1246,7 @@ export type FEATURED_DEALSResult = Array<{
   reviewCount: number | null;
 }>;
 // Variable: DEALS_BY_CATEGORY
-// Query: *[_type == "deal" && isActive == true && category == $category]     | order(_createdAt desc)[0...50] {      _type, _id, _createdAt,      "title": coalesce(title, product->title),      description,      "image": coalesce(image.asset->url, product->mainImage.asset->url),      "affiliateLink": coalesce(affiliateLink, product->affiliateLink),      originalPrice, dealPrice, discountPercentage,      dealEndDate, isPrimeExclusive, couponCode, couponNote,      "rating": coalesce(rating, product->customerRating),      "reviewCount": coalesce(reviewCount, product->reviewCount)    }
+// Query: *[_type == "deal" && isActive == true && category == $category]     | order(_createdAt desc)[0...50] {      _type, _id, _createdAt,      "title": coalesce(title, product->title),      description,      "image": coalesce(image.asset->url, product->mainImage.asset->url),      "affiliateLink": coalesce(affiliateLink, product->affiliateLink),      "reviewSlug": product->slug.current,      originalPrice, dealPrice, discountPercentage,      dealEndDate, isPrimeExclusive, couponCode, couponNote,      "rating": coalesce(rating, product->customerRating),      "reviewCount": coalesce(reviewCount, product->reviewCount)    }
 export type DEALS_BY_CATEGORYResult = Array<{
   _type: "deal";
   _id: string;
@@ -1253,6 +1255,7 @@ export type DEALS_BY_CATEGORYResult = Array<{
   description: string | null;
   image: string | null;
   affiliateLink: string | null;
+  reviewSlug: string | null;
   originalPrice: number | null;
   dealPrice: number | null;
   discountPercentage: number | null;
@@ -2105,7 +2108,7 @@ export type REVIEWS_HUB_QUERYResult = {
 
 // Source: ./src/sanity/queries/product.queries.ts
 // Variable: PRODUCT_BY_SLUG
-// Query: *[_type == "product" && slug.current == $slug][0] {    _type,    _id,    title,    brand,    "slug": slug.current,    price,    currency,    availability,    priceTier,    retailer,    affiliateLink,    pros,    cons,    keyFeatures,    specifications[] { specLabel, specValue },    customerRating,    reviewCount,    verdict,    mainImage { "url": asset->url, alt },    itemDescription,     "seoTitle": coalesce(seo.metaTitle, title),    "seoDescription": coalesce(seo.metaDescription, description)  }
+// Query: *[_type == "product" && slug.current == $slug][0] {    _type,    _id,    title,    brand,    "slug": slug.current,    price,    currency,    availability,    priceTier,    retailer,    affiliateLink,    pros,    cons,    keyFeatures,    specifications[] { specLabel, specValue },    customerRating,    reviewCount,    verdict,    mainImage { "url": asset->url, alt },    itemDescription,     // SEO Data    "seoTitle": coalesce(seo.metaTitle, title),    "seoDescription": coalesce(seo.metaDescription, description, intro),    "seoImage": coalesce(seo.openGraphImage.asset->url, mainImage.asset->url),    "category": category->{title, "slug": slug.current}  }
 export type PRODUCT_BY_SLUGResult = {
   _type: "product";
   _id: string;
@@ -2161,13 +2164,16 @@ export type PRODUCT_BY_SLUGResult = {
   }> | null;
   seoTitle: string | null;
   seoDescription: string | null;
+  seoImage: string | null;
+  category: null;
 } | null;
 // Variable: ALL_PRODUCTS
-// Query: *[_type == "product"] | order(publishedAt desc)[0...100]{    _id,    title,    "slug": slug.current,    price,    currency,    mainImage { "url": asset->url, alt },    customerRating,    reviewCount,    publishedAt  }
+// Query: *[_type == "product"] | order(publishedAt desc)[0...100]{    _id,    title,    "slug": slug.current,    brand,    price,    currency,    mainImage { "url": asset->url, alt },    customerRating,    reviewCount,    "category": category->title,    publishedAt  }
 export type ALL_PRODUCTSResult = Array<{
   _id: string;
   title: string | null;
   slug: string | null;
+  brand: string | null;
   price: number | null;
   currency: "AED" | "EUR" | "SAR" | "USD" | null;
   mainImage: {
@@ -2176,14 +2182,16 @@ export type ALL_PRODUCTSResult = Array<{
   } | null;
   customerRating: number | null;
   reviewCount: number | null;
+  category: null;
   publishedAt: null;
 }>;
 // Variable: PRODUCTS_BY_CATEGORY
-// Query: *[_type == "product" && category->slug.current == $categorySlug]     | order(publishedAt desc)[0...50]{      _id,      title,      "slug": slug.current,      price,      currency,      mainImage { "url": asset->url, alt },      customerRating,      reviewCount,      publishedAt    }
+// Query: *[_type == "product" && category->slug.current == $categorySlug]     | order(publishedAt desc)[0...50]{      _id,      title,      "slug": slug.current,      brand,      price,      currency,      mainImage { "url": asset->url, alt },      customerRating,      reviewCount,      publishedAt    }
 export type PRODUCTS_BY_CATEGORYResult = Array<{
   _id: string;
   title: string | null;
   slug: string | null;
+  brand: string | null;
   price: number | null;
   currency: "AED" | "EUR" | "SAR" | "USD" | null;
   mainImage: {
@@ -2468,9 +2476,9 @@ declare module "@sanity/client" {
     "\n  *[_type == \"category\" && slug.current == $slug][0]{\n    _id,\n    title,\n    \"slug\": slug.current,\n    description,\n    mainImage { \"url\": asset->url, alt },\n    seo { metaTitle, metaDescription }\n  }\n": CATEGORY_BY_SLUGResult;
     "\n  *[_type in [\"article\", \"product\", \"topTenList\", \"howTo\"] \n    && references(*[_type == \"category\" && slug.current == $category]._id)]\n    | order(publishedAt desc)[0...50]{\n      _id,\n      _type,\n      title,\n      \"slug\": slug.current,\n      mainImage { \"url\": asset->url, alt },\n      publishedAt\n    }\n": CATEGORY_POSTSResult;
     "\n  *[_type == \"product\" && category->slug.current == $slug]\n    | order(publishedAt desc)[0...50]{\n      _id,\n      title,\n      \"slug\": slug.current,\n      price,\n      currency,\n      mainImage { \"url\": asset->url, alt },\n      customerRating,\n      intro,\n      reviewCount\n    }\n": CATEGORY_PRODUCTSResult;
-    "\n  *[_type == \"deal\" && isActive == true] | order(featured desc, _createdAt desc) {\n    _type, _id, _createdAt,\n    \"title\": coalesce(title, product->title),\n    description,\n    \"image\": coalesce(image.asset->url, product->mainImage.asset->url),\n    \"affiliateLink\": coalesce(affiliateLink, product->affiliateLink),\n    originalPrice, dealPrice, discountPercentage, category,\n    dealEndDate, isPrimeExclusive, featured, couponCode, couponNote,\n    \"rating\": coalesce(rating, product->customerRating),\n    \"reviewCount\": coalesce(reviewCount, product->reviewCount)\n  }\n": ALL_ACTIVE_DEALSResult;
-    "\n  *[_type == \"deal\" && isActive == true && featured == true] \n    | order(_createdAt desc)[0...10] {\n      _type, _id, _createdAt,\n      \"title\": coalesce(title, product->title),\n      description,\n      \"image\": coalesce(image.asset->url, product->mainImage.asset->url),\n      \"affiliateLink\": coalesce(affiliateLink, product->affiliateLink),\n      originalPrice, dealPrice, discountPercentage, category,\n      dealEndDate, isPrimeExclusive, couponCode, couponNote,\n      \"rating\": coalesce(rating, product->customerRating),\n      \"reviewCount\": coalesce(reviewCount, product->reviewCount)\n    }\n": FEATURED_DEALSResult;
-    "\n  *[_type == \"deal\" && isActive == true && category == $category] \n    | order(_createdAt desc)[0...50] {\n      _type, _id, _createdAt,\n      \"title\": coalesce(title, product->title),\n      description,\n      \"image\": coalesce(image.asset->url, product->mainImage.asset->url),\n      \"affiliateLink\": coalesce(affiliateLink, product->affiliateLink),\n      originalPrice, dealPrice, discountPercentage,\n      dealEndDate, isPrimeExclusive, couponCode, couponNote,\n      \"rating\": coalesce(rating, product->customerRating),\n      \"reviewCount\": coalesce(reviewCount, product->reviewCount)\n    }\n": DEALS_BY_CATEGORYResult;
+    "\n  *[_type == \"deal\" && isActive == true] | order(featured desc, _createdAt desc) {\n    _type, _id, _createdAt,\n    \"title\": coalesce(title, product->title),\n    description,\n    \"image\": coalesce(image.asset->url, product->mainImage.asset->url),\n    \"affiliateLink\": coalesce(affiliateLink, product->affiliateLink),\n    // \u2705 CRITICAL ADDITION: Fetch the slug of the related product review\n    \"reviewSlug\": product->slug.current, \n    originalPrice, dealPrice, discountPercentage, category,\n    dealEndDate, isPrimeExclusive, featured, couponCode, couponNote,\n    \"rating\": coalesce(rating, product->customerRating),\n    \"reviewCount\": coalesce(reviewCount, product->reviewCount)\n  }\n": ALL_ACTIVE_DEALSResult;
+    "\n  *[_type == \"deal\" && isActive == true && featured == true] \n    | order(_createdAt desc)[0...10] {\n      _type, _id, _createdAt,\n      \"title\": coalesce(title, product->title),\n      description,\n      \"image\": coalesce(image.asset->url, product->mainImage.asset->url),\n      \"affiliateLink\": coalesce(affiliateLink, product->affiliateLink),\n      \"reviewSlug\": product->slug.current,\n      originalPrice, dealPrice, discountPercentage, category,\n      dealEndDate, isPrimeExclusive, couponCode, couponNote,\n      \"rating\": coalesce(rating, product->customerRating),\n      \"reviewCount\": coalesce(reviewCount, product->reviewCount)\n    }\n": FEATURED_DEALSResult;
+    "\n  *[_type == \"deal\" && isActive == true && category == $category] \n    | order(_createdAt desc)[0...50] {\n      _type, _id, _createdAt,\n      \"title\": coalesce(title, product->title),\n      description,\n      \"image\": coalesce(image.asset->url, product->mainImage.asset->url),\n      \"affiliateLink\": coalesce(affiliateLink, product->affiliateLink),\n      \"reviewSlug\": product->slug.current,\n      originalPrice, dealPrice, discountPercentage,\n      dealEndDate, isPrimeExclusive, couponCode, couponNote,\n      \"rating\": coalesce(rating, product->customerRating),\n      \"reviewCount\": coalesce(reviewCount, product->reviewCount)\n    }\n": DEALS_BY_CATEGORYResult;
     "\n  *[_type == \"siteSettings\"][0] {\n    _type,\n    title,\n    description,\n    \"logoMain\": logoMain.asset->url,\n    \"logoIcon\": logoIcon.asset->url,\n    \"logoBimi\": logoBimi.asset->url,\n    \"ogImage\": ogImage.asset->url,\n    socialLinks[] { platform, url },\n    contactEmail\n  }\n": SITE_SETTINGS_QUERYResult;
     "\n  *[_type == \"navigationMenu\"][0] {\n    _id,\n    title,\n    items[] {\n      _key,\n      title,\n      url,\n      children[] {\n        _key,\n        title,\n        url\n      }\n    }\n  }\n": NAVIGATION_MENUResult;
     "\n  *[_type == \"footerSettings\"][0] {\n    _id,\n    companyInfo,\n    links[] { title, url },\n    socialLinks[] { platform, url },\n    copyrightText\n  }\n": FOOTER_DATAResult;
@@ -2478,9 +2486,9 @@ declare module "@sanity/client" {
     "\n  *[_type == \"category\" && slug.current == $slug][0]{\n    title, \n    description, \n    \"slug\": slug.current,\n    \"seo\": seo { metaTitle, metaDescription },\n    \"mainImage\": coalesce(\n      mainImage, \n      image,\n      *[references(^._id)][0].mainImage\n    ) { \"url\": asset->url, alt },\n    \"items\": *[\n      _type in [\"topTenList\", \"howTo\", \"tool\", \"holiday\", \"deal\", \"article\"] &&\n      (references(^._id) || category._ref == ^._id || categories[]._ref == ^._id)\n    ] | order(publishedAt desc)[0...100] { \n      _type, title, \"slug\": slug.current, publishedAt,\n      \"mainImage\": coalesce(mainImage, image, product->mainImage) { \"url\": asset->url, alt },\n      \"rawExcerpt\": coalesce(description, \"\", \"\")\n    }\n  }\n": CATEGORY_PAGE_QUERYResult;
     "\n  *[slug.current == $slug][0]{\n    _type,\n    \"slug\": slug.current, _id, title, description,\n    \"seoTitle\": coalesce(seo.metaTitle, title),\n    \"seoDescription\": \"\",\n    \"mainImage\": coalesce(mainImage, image, coverImage, product->mainImage) { \"url\": asset->url, alt },\n    \"category\": coalesce(categories[0], category)->{ \"title\": title, \"slug\": slug.current, \"menuLabel\": menuLabel },\n    \"publishedAt\": _createdAt, \"_updatedAt\": _updatedAt,\n    \"intro\": intro,\n    \"body\": body,\n    \"content\": content,\n    \"procedure\": procedure,\n    \"closingContent\": closingContent,\n    faqs[] { _key, question, answer },\n    startDate, endDate, locationName, address, ticketPrice\n  }\n": GENERIC_POST_QUERYResult;
     "{\n  \"featured\": *[_type == \"product\" && isFeaturedReview == true] | order(_updatedAt desc) [0...8] {\n    _id, title, \"rating\": customerRating, \"slug\": slug.current,\n    \"imageUrl\": coalesce(image.asset->url, mainImage.asset->url)\n  },\n  \"reviews\": *[_type == \"product\"] | order(_createdAt desc) [0...50] {\n    _id, title, \"rating\": customerRating, \"slug\": slug.current,\n    \"section\": reviewSection,\n    \"subCategoryTitle\": subCategory->menuLabel,\n    \"imageUrl\": coalesce(image.asset->url, mainImage.asset->url)\n  }\n}": REVIEWS_HUB_QUERYResult;
-    "\n  *[_type == \"product\" && slug.current == $slug][0] {\n    _type,\n    _id,\n    title,\n    brand,\n    \"slug\": slug.current,\n    price,\n    currency,\n    availability,\n    priceTier,\n    retailer,\n    affiliateLink,\n    pros,\n    cons,\n    keyFeatures,\n    specifications[] { specLabel, specValue },\n    customerRating,\n    reviewCount,\n    verdict,\n    mainImage { \"url\": asset->url, alt },\n    itemDescription, \n    \"seoTitle\": coalesce(seo.metaTitle, title),\n    \"seoDescription\": coalesce(seo.metaDescription, description)\n  }\n": PRODUCT_BY_SLUGResult;
-    "\n  *[_type == \"product\"] | order(publishedAt desc)[0...100]{\n    _id,\n    title,\n    \"slug\": slug.current,\n    price,\n    currency,\n    mainImage { \"url\": asset->url, alt },\n    customerRating,\n    reviewCount,\n    publishedAt\n  }\n": ALL_PRODUCTSResult;
-    "\n  *[_type == \"product\" && category->slug.current == $categorySlug] \n    | order(publishedAt desc)[0...50]{\n      _id,\n      title,\n      \"slug\": slug.current,\n      price,\n      currency,\n      mainImage { \"url\": asset->url, alt },\n      customerRating,\n      reviewCount,\n      publishedAt\n    }\n": PRODUCTS_BY_CATEGORYResult;
+    "\n  *[_type == \"product\" && slug.current == $slug][0] {\n    _type,\n    _id,\n    title,\n    brand,\n    \"slug\": slug.current,\n    price,\n    currency,\n    availability,\n    priceTier,\n    retailer,\n    affiliateLink,\n    pros,\n    cons,\n    keyFeatures,\n    specifications[] { specLabel, specValue },\n    customerRating,\n    reviewCount,\n    verdict,\n    mainImage { \"url\": asset->url, alt },\n    itemDescription, \n    // SEO Data\n    \"seoTitle\": coalesce(seo.metaTitle, title),\n    \"seoDescription\": coalesce(seo.metaDescription, description, intro),\n    \"seoImage\": coalesce(seo.openGraphImage.asset->url, mainImage.asset->url),\n    \"category\": category->{title, \"slug\": slug.current}\n  }\n": PRODUCT_BY_SLUGResult;
+    "\n  *[_type == \"product\"] | order(publishedAt desc)[0...100]{\n    _id,\n    title,\n    \"slug\": slug.current,\n    brand,\n    price,\n    currency,\n    mainImage { \"url\": asset->url, alt },\n    customerRating,\n    reviewCount,\n    \"category\": category->title,\n    publishedAt\n  }\n": ALL_PRODUCTSResult;
+    "\n  *[_type == \"product\" && category->slug.current == $categorySlug] \n    | order(publishedAt desc)[0...50]{\n      _id,\n      title,\n      \"slug\": slug.current,\n      brand,\n      price,\n      currency,\n      mainImage { \"url\": asset->url, alt },\n      customerRating,\n      reviewCount,\n      publishedAt\n    }\n": PRODUCTS_BY_CATEGORYResult;
     "\n  *[_type == \"product\" && (title match $searchTerm || brand match $searchTerm)]\n    | order(publishedAt desc)[0...50]{\n      _id,\n      title,\n      \"slug\": slug.current,\n      brand,\n      price,\n      currency,\n      mainImage { \"url\": asset->url, alt },\n      customerRating,\n      reviewCount\n    }\n": PRODUCT_SEARCHResult;
     "\n  *[_type == \"topTenList\" && slug.current == $slug][0] {\n    _type,\n    title,\n    \"slug\": slug.current,\n    publishedAt,\n    \"updatedAt\": _updatedAt, \n    \"seoTitle\": coalesce(seo.metaTitle, title),\n    \"seoDescription\": \"\",\n    mainImage { \"url\": asset->url, alt },\n    intro,\n    \"body\": body[],\n    closingContent,\n    showAffiliateDisclosure,\n    faqs[] { _key, question, answer },\n    listItems[] | order(rank asc) {\n      _key, rank, badgeLabel, whySelected, customVerdict,\n      product->{\n        _type, title,\n        \"slug\": slug.current,\n        priceTier, price, currency, availability, \n        affiliateLink, customerRating, verdict,\n        location, curriculum, feeRange, realityCheck, website,\n        \"rating\": coalesce(rating, customerRating),\n        entityType, code, country,\n        mainImage { \"url\": asset->url, alt },\n        heroFeature, keyFeatures[], pros[], cons[],\n        specifications[] { specLabel, specValue }\n      }\n    }\n  }\n": TOP_TEN_BY_SLUGResult;
     "\n  *[_type == \"topTenList\"] | order(publishedAt desc)[0...100]{\n    _id,\n    title,\n    \"slug\": slug.current,\n    publishedAt,\n    mainImage { \"url\": asset->url, alt },\n    intro\n  }\n": ALL_TOP_TEN_LISTSResult;

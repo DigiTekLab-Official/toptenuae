@@ -16,6 +16,15 @@ export default function DealCard({ deal }: DealCardProps) {
   const [copied, setCopied] = useState(false);
   
   // =========================================================================
+  // 0. SAFETY FIX: Handle Union Type (string | AffiliateLink)
+  // =========================================================================
+  // We check if it is a string. If it's an object, we fallback to '#' 
+  // (or you can access a property like .href if your schema requires it).
+  const safeAffiliateLink = typeof deal.affiliateLink === 'string' 
+    ? deal.affiliateLink 
+    : '#';
+
+  // =========================================================================
   // 1. SMART LINK LOGIC
   // =========================================================================
   const hasReview = Boolean(deal.reviewSlug);
@@ -24,7 +33,7 @@ export default function DealCard({ deal }: DealCardProps) {
   // otherwise straight to Amazon.
   const mainLinkUrl = hasReview 
     ? `/reviews/${deal.reviewSlug}` 
-    : (deal.affiliateLink || '#');
+    : safeAffiliateLink;
 
   const mainLinkTarget = hasReview ? undefined : '_blank';
   const mainLinkRel = hasReview ? undefined : 'nofollow sponsored noopener noreferrer';
@@ -58,8 +67,8 @@ export default function DealCard({ deal }: DealCardProps) {
   // 4. BUTTON TEXT LOGIC (For the External Link)
   // =========================================================================
   const getAffiliateLabel = () => {
-    const url = deal.affiliateLink || '';
-    const lowerUrl = url.toLowerCase();
+    // Use the safe string variable we created at the top
+    const lowerUrl = safeAffiliateLink.toLowerCase();
 
     if (lowerUrl.includes('amazon') || lowerUrl.includes('amzn')) return 'View on Amazon';
     if (lowerUrl.includes('noon')) return 'View on Noon';
@@ -198,7 +207,7 @@ export default function DealCard({ deal }: DealCardProps) {
           
           {/* 1. Primary Action: BUY (Amazon/Noon) */}
           <a
-            href={deal.affiliateLink || '#'}
+            href={safeAffiliateLink}
             target="_blank"
             rel="nofollow sponsored noopener noreferrer"
             className="w-full flex items-center justify-center gap-2 bg-[#4b0082] hover:bg-[#3a006b] text-white text-sm font-bold py-2 rounded-lg transition-colors shadow-md hover:shadow-lg"
