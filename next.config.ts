@@ -1,3 +1,4 @@
+// next.config.ts
 import type { NextConfig } from "next";
 import { validateEnv } from "./src/lib/validateEnv";
 
@@ -24,6 +25,38 @@ const nextConfig: NextConfig = {
     ],
   },
 
+  // ✅ Add proper headers for sitemap
+  async headers() {
+    return [
+      {
+        source: '/sitemap.xml',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'application/xml; charset=utf-8',
+          },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=86400',
+          },
+        ],
+      },
+      {
+        source: '/robots.txt',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'text/plain; charset=utf-8',
+          },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400, s-maxage=86400',
+          },
+        ],
+      },
+    ];
+  },
+
   experimental: {
     optimizePackageImports: ["lucide-react", "@sanity/client", "@sanity/image-url", "next/image"],
     optimizeCss: true,
@@ -32,8 +65,6 @@ const nextConfig: NextConfig = {
       allowedOrigins: ['toptenuae.com', 'www.toptenuae.com'],
     },
   },
-
-  // ✅ NO REWRITES NEEDED ANYMORE
 };
 
 export default nextConfig;

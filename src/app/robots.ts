@@ -10,8 +10,8 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/studio/', '/api/', '/admin/'],
       },
       {
-        userAgent: ['GPTBot', 'ChatGPT-User', 'Google-Extended', 'CCBot'],
-        disallow: ['/studio/', '/api/'],
+        userAgent: ['GPTBot', 'ChatGPT-User', 'Google-Extended', 'CCBot', 'anthropic-ai'],
+        disallow: ['/studio/', '/api/', '/admin/'],
       },
     ],
     sitemap: 'https://toptenuae.com/sitemap.xml',

@@ -1131,7 +1131,7 @@ export type HOW_TO_QUERYResult = {
 
 // Source: ./src/app/sitemap.ts
 // Variable: query
-// Query: *[_type in ["article", "product", "deal", "howTo", "topTenList"] && defined(slug.current)] {    _type,    "slug": slug.current,    _updatedAt,    "category": category->slug.current  }
+// Query: *[_type in ["article", "product", "deal", "howTo", "topTenList"] && defined(slug.current)] {      _type,      "slug": slug.current,      _updatedAt,      "category": category->slug.current    }
 export type QueryResult = Array<{
   _type: "deal";
   slug: string | null;
@@ -2497,7 +2497,7 @@ import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
     "\n  *[_type == \"howTo\" && slug.current == $slug][0]{\n    _id,\n    _type,\n    title,\n    \"slug\": slug.current,\n    publishedAt,\n    intro,\n    body,\n    faqs, \n    howToSteps,\n    \"author\": Author->{ name, image, bio },\n    mainImage { \n      alt,\n      \"url\": asset->url,\n      \"lqip\": asset->metadata.lqip,\n      \"dimensions\": asset->metadata.dimensions\n    },\n    \"categories\": categories[]->{ \"slug\": slug.current, title },\n    seo { metaTitle, metaDescription, shareImage }\n  }\n": HOW_TO_QUERYResult;
-    "*[_type in [\"article\", \"product\", \"deal\", \"howTo\", \"topTenList\"] && defined(slug.current)] {\n    _type,\n    \"slug\": slug.current,\n    _updatedAt,\n    \"category\": category->slug.current\n  }": QueryResult;
+    "*[_type in [\"article\", \"product\", \"deal\", \"howTo\", \"topTenList\"] && defined(slug.current)] {\n      _type,\n      \"slug\": slug.current,\n      _updatedAt,\n      \"category\": category->slug.current\n    }": QueryResult;
     "\n  *[_type == \"category\" && defined(slug.current)] | order(title asc){\n    _id,\n    title,\n    \"slug\": slug.current,\n    description,\n    mainImage { \"url\": asset->url, alt }\n  }\n": ALL_CATEGORIESResult;
     "\n  *[_type == \"category\" && slug.current == $slug][0]{\n    _id,\n    title,\n    \"slug\": slug.current,\n    description,\n    mainImage { \"url\": asset->url, alt },\n    seo { metaTitle, metaDescription }\n  }\n": CATEGORY_BY_SLUGResult;
     "\n  *[_type in [\"article\", \"product\", \"topTenList\", \"howTo\"] \n    && references(*[_type == \"category\" && slug.current == $category]._id)]\n    | order(publishedAt desc)[0...50]{\n      _id,\n      _type,\n      title,\n      \"slug\": slug.current,\n      mainImage { \"url\": asset->url, alt },\n      publishedAt\n    }\n": CATEGORY_POSTSResult;

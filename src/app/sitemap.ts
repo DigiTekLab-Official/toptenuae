@@ -6,56 +6,82 @@ import { groq } from 'next-sanity';
 const BASE_URL = 'https://toptenuae.com';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // 1. Fetch all your dynamic content
-  const query = groq`*[_type in ["article", "product", "deal", "howTo", "topTenList"] && defined(slug.current)] {
-    _type,
-    "slug": slug.current,
-    _updatedAt,
-    "category": category->slug.current
-  }`;
+  try {
+    // Fetch all dynamic content
+    const query = groq`*[_type in ["article", "product", "deal", "howTo", "topTenList"] && defined(slug.current)] {
+      _type,
+      "slug": slug.current,
+      _updatedAt,
+      "category": category->slug.current
+    }`;
 
-  const data = await client.fetch(query);
+    const data = await client.fetch(query);
 
-  const dynamicRoutes = data.map((item: any) => {
-    let path = '';
-    switch (item._type) {
-      case 'article': path = `/${item.category || 'reviews'}/${item.slug}`; break;
-      case 'product': path = `/reviews/${item.slug}`; break;
-      case 'deal': path = `/deals/${item.slug}`; break;
-      case 'howTo': path = `/how-to-guides/${item.slug}`; break;
-      case 'topTenList': path = `/top-ten/${item.slug}`; break;
-      default: path = `/${item.slug}`;
-    }
+    const dynamicRoutes: MetadataRoute.Sitemap = data.map((item: any) => {
+      let path = '';
+      switch (item._type) {
+        case 'article': 
+          path = `/${item.category || 'reviews'}/${item.slug}`; 
+          break;
+        case 'product': 
+          path = `/reviews/${item.slug}`; 
+          break;
+        case 'deal': 
+          path = `/deals/${item.slug}`; 
+          break;
+        case 'howTo': 
+          path = `/how-to-guides/${item.slug}`; 
+          break;
+        case 'topTenList': 
+          path = `/top-ten/${item.slug}`; 
+          break;
+        default: 
+          path = `/${item.slug}`;
+      }
 
-    return {
-      url: `${BASE_URL}${path}`,
-      lastModified: item._updatedAt,
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    };
-  });
+      return {
+        url: `${BASE_URL}${path}`,
+        lastModified: new Date(item._updatedAt),
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+      };
+    });
 
-  // 2. Define your static routes
-  const staticRoutes = [
-    '',
-    '/top-ten',
-    '/reviews',
-    '/how-to-guides',
-    '/deals',
-    '/finance-tools',
-    '/events-holidays',
-    '/travel-tourism',
-    '/ramadan-2026',
-    '/about-us',
-    '/contact-us',
-    '/privacy-policy',
-  ].map((route) => ({
-    url: `${BASE_URL}${route}`,
-    lastModified: new Date().toISOString(),
-    changeFrequency: 'daily',
-    priority: 1.0,
-  }));
+    // Static routes
+    const staticRoutes: MetadataRoute.Sitemap = [
+      { route: '', priority: 1.0, changeFrequency: 'daily' as const },
+      { route: '/top-ten', priority: 0.9, changeFrequency: 'daily' as const },
+      { route: '/reviews', priority: 0.9, changeFrequency: 'daily' as const },
+      { route: '/how-to-guides', priority: 0.9, changeFrequency: 'weekly' as const },
+      { route: '/deals', priority: 0.9, changeFrequency: 'daily' as const },
+      { route: '/finance-tools', priority: 0.7, changeFrequency: 'weekly' as const },
+      { route: '/events-holidays', priority: 0.7, changeFrequency: 'weekly' as const },
+      { route: '/travel-tourism', priority: 0.7, changeFrequency: 'weekly' as const },
+      { route: '/ramadan-2026', priority: 0.8, changeFrequency: 'weekly' as const },
+      { route: '/about-us', priority: 0.5, changeFrequency: 'monthly' as const },
+      { route: '/contact-us', priority: 0.5, changeFrequency: 'monthly' as const },
+      { route: '/privacy-policy', priority: 0.3, changeFrequency: 'yearly' as const },
+    ].map((item) => ({
+      url: `${BASE_URL}${item.route}`,
+      lastModified: new Date(),
+      changeFrequency: item.changeFrequency,
+      priority: item.priority,
+    }));
 
-  // 3. Combine them
-  return [...staticRoutes, ...dynamicRoutes];
+    return [...staticRoutes, ...dynamicRoutes];
+  } catch (error) {
+    console.error('Sitemap generation error:', error);
+    // Return at least the homepage if fetch fails
+    return [
+      {
+        url: BASE_URL,
+        lastModified: new Date(),
+        changeFrequency: 'daily' as const,
+        priority: 1.0,
+      },
+    ];
+  }
 }
+
+// Force revalidation every 24 hours
+export const revalidate = 86400;
