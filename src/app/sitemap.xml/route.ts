@@ -27,6 +27,15 @@ const STATIC_ROUTES = [
   { url: '/cookies-policy', priority: '0.3', changefreq: 'yearly' },
 ];
 
+const SITEMAP_HEADERS: Record<string, string> = {
+  'Content-Type': 'application/xml; charset=utf-8',
+  // Prevent Cloudflare (and other CDNs) from caching a bad/stale response.
+  // If you want caching later, increase s-maxage, but purge any old cache first.
+  'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0, s-maxage=0',
+  'CDN-Cache-Control': 'no-store, max-age=0',
+  'Surrogate-Control': 'no-store',
+};
+
 export async function GET() {
   const fallbackDate = new Date().toISOString();
 
@@ -98,10 +107,16 @@ ${dynamicRoutes}
   // 4. Return with correct Headers
   return new NextResponse(xml, {
     status: 200,
-    headers: {
-      'Content-Type': 'application/xml',
-      'Cache-Control': 'public, max-age=3600, s-maxage=3600',
-    },
+    headers: SITEMAP_HEADERS,
+  });
+}
+
+export async function HEAD() {
+  // Some CDNs can behave differently for HEAD vs GET.
+  // Explicitly returning the same headers ensures `curl -I` doesn't fall back.
+  return new NextResponse(null, {
+    status: 200,
+    headers: SITEMAP_HEADERS,
   });
 }
 
