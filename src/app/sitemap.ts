@@ -1,24 +1,24 @@
 import { MetadataRoute } from 'next';
-import { client } from '@/lib/sanity/client';
+import { client } from '@/sanity/lib/client'; // ✅ Corrected Import Path
 import { groq } from 'next-sanity';
 
 // =====================================================================
-// CONSTANTS & CONFIG
+// 1. CONFIGURATION
 // =====================================================================
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://toptenuae.com';
 
-// 1. Static Routes (Core Pages)
+// 2. Static Routes (Core Pages)
 const STATIC_ROUTES = [
   { url: '', priority: 1.0, changeFrequency: 'daily' },
   { url: '/top-ten', priority: 0.9, changeFrequency: 'daily' },
   { url: '/reviews', priority: 0.9, changeFrequency: 'daily' },
   { url: '/how-to-guides', priority: 0.9, changeFrequency: 'weekly' },
-  { url: '/deals', priority: 0.9, changeFrequency: 'hourly' }, // Deals update often
+  { url: '/deals', priority: 0.9, changeFrequency: 'hourly' }, 
   { url: '/finance-tools', priority: 0.8, changeFrequency: 'monthly' },
   { url: '/events-holidays', priority: 0.8, changeFrequency: 'weekly' },
   { url: '/travel-tourism', priority: 0.8, changeFrequency: 'weekly' },
   { url: '/ramadan-2026', priority: 0.8, changeFrequency: 'weekly' },
-  // Legal & Info Pages (Lower Priority)
+  // Legal & Info Pages
   { url: '/about-us', priority: 0.5, changeFrequency: 'yearly' },
   { url: '/contact-us', priority: 0.5, changeFrequency: 'yearly' },
   { url: '/privacy-policy', priority: 0.3, changeFrequency: 'yearly' },
@@ -29,14 +29,12 @@ const STATIC_ROUTES = [
 ];
 
 // =====================================================================
-// DATA FETCHING
+// 3. SITEMAP GENERATION
 // =====================================================================
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // Use current date as fallback, but prefer actual article dates
   const fallbackDate = new Date();
 
-  // Fetch all dynamic slugs from Sanity
-  // We fetch _updatedAt to give Google precise modification times
+  // Fetch all dynamic slugs + their update times
   const query = groq`{
     "articles": *[_type in ["article", "product", "deal", "howTo", "topTenList"] && defined(slug.current)] {
       _type,
@@ -54,10 +52,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     dynamicRoutes = data.map((item: any) => {
       let path = '';
 
-      // Logic to match your App Router structure
       switch (item._type) {
         case 'article':
-          // Articles live under their category or default to 'reviews' if missing
           path = `/${item.category || 'reviews'}/${item.slug}`;
           break;
         case 'product':
@@ -80,22 +76,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         url: `${BASE_URL}${path}`,
         lastModified: new Date(item._updatedAt || fallbackDate),
         changeFrequency: item._type === 'deal' ? 'daily' : 'weekly',
-        priority: item._type === 'topTenList' ? 0.8 : 0.7, // Top Ten lists are high value
+        priority: item._type === 'topTenList' ? 0.8 : 0.7,
       };
     });
 
   } catch (error) {
     console.error('❌ Sitemap Error: Failed to fetch Sanity paths', error);
-    // Continue with just static routes if Sanity fails
   }
 
-  // =====================================================================
-  // MERGE STATIC & DYNAMIC
-  // =====================================================================
+  // Merge Static & Dynamic
   const staticMap = STATIC_ROUTES.map((route) => ({
     url: `${BASE_URL}${route.url}`,
     lastModified: fallbackDate,
-    changeFrequency: route.changeFrequency as 'daily' | 'weekly' | 'monthly' | 'yearly' | 'always' | 'hourly' | 'never',
+    changeFrequency: route.changeFrequency as 'daily' | 'weekly' | 'monthly' | 'yearly' | 'hourly',
     priority: route.priority,
   }));
 
