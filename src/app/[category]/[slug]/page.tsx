@@ -13,7 +13,7 @@ import { groq } from 'next-sanity';
 export const dynamicParams = true;
 
 // =============================================================================
-// ✅ NEW: Dedicated Query for How-To / News Articles
+// Dedicated Query for How-To / News Articles
 // =============================================================================
 const HOW_TO_QUERY = groq`
   *[_type == "howTo" && slug.current == $slug][0]{
@@ -24,11 +24,8 @@ const HOW_TO_QUERY = groq`
     publishedAt,
     intro,
     body,
-    // Fetch the new FAQ section we just added
     faqs, 
-    // Schema has 'howToSteps', fetch them if they exist
     howToSteps,
-    // Schema uses Capital 'Author', map it to lowercase 'author' for the View
     "author": Author->{ name, image, bio },
     mainImage { 
       alt,
@@ -36,9 +33,7 @@ const HOW_TO_QUERY = groq`
       "lqip": asset->metadata.lqip,
       "dimensions": asset->metadata.dimensions
     },
-    // Map categories correctly
     "categories": categories[]->{ "slug": slug.current, title },
-    // Get SEO metadata
     seo { metaTitle, metaDescription, shareImage }
   }
 `;
@@ -66,26 +61,34 @@ const getCategoryValidation = cache(async () => {
   }
 });
 
-// ✅ UPDATED: Fetch function with explicit 'howTo' support
+// ✅ UPDATED: Fetch function NOW INCLUDES TAGS
 const getPostData = cache(async (slug: string) => {
   // 1. Detect the document type first
   const docType = await client.fetch(
     groq`*[slug.current == $slug][0]._type`,
     { slug }
   );
+
+  // 2. Define Cache Tags
+  // We tag this fetch with the SLUG (specific) and Types (Global)
+  // This ensures revalidateTag('product') or revalidateTag(slug) actually works.
+  const fetchOptions = { 
+    next: { 
+      tags: [slug, 'article', 'product', 'howTo', 'topTenList'] 
+    } 
+  };
   
-  // 2. Route to the correct query
+  // 3. Route to the correct query WITH tags
   if (docType === 'topTenList') {
-    return await client.fetch(TOP_TEN_LIST_QUERY, { slug });
+    return await client.fetch(TOP_TEN_LIST_QUERY, { slug }, fetchOptions);
   }
   
-  // ✅ FIX: Explicitly handle the new 'howTo' type
   if (docType === 'howTo') {
-    return await client.fetch(HOW_TO_QUERY, { slug });
+    return await client.fetch(HOW_TO_QUERY, { slug }, fetchOptions);
   }
   
-  // Fallback for standard 'article' or 'tool'
-  return await client.fetch(GENERIC_POST_QUERY, { slug });
+  // Fallback
+  return await client.fetch(GENERIC_POST_QUERY, { slug }, fetchOptions);
 });
 
 interface PageProps {
@@ -103,7 +106,7 @@ export async function generateStaticParams() {
   return slugs.map((doc: any) => {
     let category = doc.category;
     
-    // Fallback logic if no category is assigned in Sanity
+    // Fallback logic
     if (!category) {
       switch(doc._type) {
         case 'howTo':
@@ -154,7 +157,6 @@ export default async function Page({ params }: PageProps) {
   // Validate category
   const validCategories = await getCategoryValidation();
   
-  // Logic to determine the "Canonical" category
   let defaultCat = 'reviews';
   if (data._type === 'holiday' || data._type === 'event') defaultCat = 'events-holidays';
   if (data._type === 'tool') defaultCat = 'finance-tools';
@@ -166,13 +168,10 @@ export default async function Page({ params }: PageProps) {
                       
   const correctCategory = normalizeCategory(rawCategory);
 
-  // If the user manually went to /tech/samsung... and the post is in 'tech', this passes.
   if (validCategories.size > 0 && !validCategories.has(correctCategory)) {
-    // If the category doesn't exist at all in Sanity, 404
     notFound();
   }
 
-  // Redirect /upcoming/slug -> /tech/slug (if Tech is the primary category)
   if (correctCategory !== category) {
     permanentRedirect(`/${correctCategory}/${slug}`);
   }

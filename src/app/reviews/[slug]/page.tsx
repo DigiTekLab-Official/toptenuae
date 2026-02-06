@@ -1,4 +1,3 @@
-// src/app/reviews/[slug]/page.tsx
 import { client } from "@/sanity/lib/client";
 import { notFound, permanentRedirect } from "next/navigation";
 import type { Metadata } from "next";
@@ -51,13 +50,10 @@ interface ProductData {
 }
 
 // ----------------------------
-// STATIC PARAMS GENERATION (THE FIX)
+// STATIC PARAMS GENERATION
 // ----------------------------
 export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
   try {
-    // ✅ OPTIMIZATION: Removed the [0...100] limit.
-    // This fetches ALL product slugs so Next.js generates static HTML for every review 
-    // at build time. This guarantees instant page loads for all users.
     const products = await client.fetch<Array<{ slug: string }>>(
       `*[_type == "product" && defined(slug.current)]{ "slug": slug.current }`
     );
@@ -80,7 +76,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const data = await client.fetch<ProductData | null>(
       PRODUCT_BY_SLUG_QUERY,
       { slug },
-      { cache: "force-cache" }
+      // ✅ FIX: Added Cache Tags for Metadata
+      { next: { tags: [`product:${slug}`, 'product'] } } 
     );
 
     if (!data) return { title: "Not Found", robots: { index: false } };
@@ -112,10 +109,12 @@ export default async function ReviewPage({ params }: PageProps) {
   let data: ProductData | null = null;
 
   try {
+    // ✅ FIX: Added Cache Tags for Page Content
+    // Now listens for 'product' updates from your Webhook
     data = await client.fetch<ProductData | null>(
       PRODUCT_BY_SLUG_QUERY,
       { slug },
-      { cache: "force-cache" }
+      { next: { tags: [`product:${slug}`, 'product', 'article'] } }
     );
   } catch (error) {
     console.error(`Error fetching product review [${slug}]:`, error);
@@ -132,14 +131,12 @@ export default async function ReviewPage({ params }: PageProps) {
     permanentRedirect(`/events-holidays/${slug}`);
   }
   if (data._type === 'howTo' || data._type === 'tool') {
-    // Determine the correct category for redirecting
     const category = data.category?.slug?.current || 
                      data.categories?.[0]?.slug?.current || 
                      (data._type === 'howTo' ? 'how-to-guides' : 'finance-tools');
     permanentRedirect(`/${category}/${slug}`);
   }
 
-  // FORCE "REVIEW" SUFFIX FOR H1
   const viewData = {
     ...data,
     title: data.title.toLowerCase().endsWith('review') 
@@ -147,7 +144,6 @@ export default async function ReviewPage({ params }: PageProps) {
       : `${data.title} Review`
   };
 
-  // Prepare Schema Data (Keep original title for Schema accuracy)
   const schemaData = generateSchema(
     {
       ...data, 
