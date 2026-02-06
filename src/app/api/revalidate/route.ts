@@ -1,122 +1,94 @@
-import { revalidatePath } from 'next/cache';
-import { NextRequest, NextResponse } from 'next/server';
+import { revalidateTag, revalidatePath } from 'next/cache';
+import { type NextRequest, NextResponse } from 'next/server';
+import { parseBody } from 'next-sanity/webhook';
 
 /**
- * On-Demand ISR (Incremental Static Regeneration)
- * 
- * Endpoint to manually revalidate cached pages and data
- * Triggered by Sanity webhooks when content is published
- * 
- * Security: Requires REVALIDATE_SECRET header
- * 
- * Usage:
- * POST /api/revalidate
- * Headers: { "x-revalidate-secret": "your-secret" }
- * Body: { "path": "/reviews/best-product" }
- * 
- * Response: { "revalidated": true, "message": "...", "timestamp": "..." }
+ * SANITY WEBHOOK HANDLER (Best Practice 2026)
+ * * Triggered by: Sanity Webhook (Manage -> API -> Webhooks)
+ * Security: Verifies the 'sanity-webhook-signature' header
+ * * Required Env Var: SANITY_WEBHOOK_SECRET
  */
 
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
-    // Verify the secret token
-    const secret = request.headers.get('x-revalidate-secret');
+    // 1. Secure Signature Verification
+    // This parses the body AND checks the cryptographic signature from Sanity
+    const { isValidSignature, body } = await parseBody(
+      req, 
+      process.env.SANITY_WEBHOOK_SECRET
+    );
 
-    if (!secret || secret !== process.env.REVALIDATE_SECRET) {
-      return NextResponse.json(
-        { error: 'Unauthorized: Invalid or missing revalidation secret' },
-        { status: 401 }
-      );
+    if (!isValidSignature) {
+      console.error('❌ Invalid Sanity Signature');
+      return new NextResponse('Unauthorized: Invalid Signature', { status: 401 });
     }
 
-    // Parse request body
-    const body = await request.json();
-    const { path } = body;
-
-    if (!path) {
-      return NextResponse.json(
-        { 
-          error: 'Bad Request: Provide "path" for revalidation',
-          example: { path: '/reviews/best-product' },
-        },
-        { status: 400 }
-      );
+    if (!body?._type) {
+      return new NextResponse('Bad Request: Missing _type', { status: 400 });
     }
 
-    // Revalidate by path
-    if (typeof path !== 'string') {
-      return NextResponse.json(
-        { error: 'Bad Request: "path" must be a string' },
-        { status: 400 }
-      );
-    }
+    console.log(`🔄 Revalidating: ${body._type} | Slug: ${body.slug}`);
 
-    revalidatePath(path);
+    // 2. Revalidate Data Tags (The "Sanity Way")
+    // Purges all fetches tagged with this type (e.g., 'howTo', 'article')
+    revalidateTag(body._type);
     
-    return NextResponse.json(
-      {
-        revalidated: true,
-        message: `Successfully revalidated path: ${path}`,
-        timestamp: new Date().toISOString(),
-      },
-      { status: 200 }
-    );
-  } catch (error) {
-    console.error('ISR Revalidation Error:', error);
+    // Purge the specific document slug
+    if (body.slug) {
+      revalidateTag(body.slug);
+    }
 
-    return NextResponse.json(
-      {
-        error: 'Internal Server Error',
-        message: error instanceof Error ? error.message : 'Unknown error occurred',
-      },
-      { status: 500 }
-    );
+    // Purge Global Lists (Homepage, Category pages)
+    if (['howTo', 'topTenList', 'article'].includes(body._type)) {
+      revalidateTag('home-feed');
+      revalidateTag('category-lists');
+      revalidatePath('/', 'layout'); // Nuclear option: clear homepage cache
+    }
+
+    // 3. Attempt to Revalidate the Specific Page Path (HTML)
+    // We construct the path based on the category sent in the payload
+    if (body.slug) {
+      const category = body.category || 'reviews'; // Default fallback
+      
+      // Normalize category (Quick map to match your page.tsx logic)
+      const catMap: Record<string, string> = {
+        'travel-tourism': 'events-holidays',
+        'health-fitness': 'lifestyle',
+        'buyers-guide': 'reviews',
+      };
+      const finalCat = catMap[category] || category;
+
+      const path = `/${finalCat}/${body.slug}`;
+      console.log(`📍 Purging Path: ${path}`);
+      revalidatePath(path);
+    }
+
+    return NextResponse.json({
+      status: 'success',
+      revalidated: true,
+      now: Date.now(),
+      body
+    });
+
+  } catch (err: any) {
+    console.error('⚡ Revalidation Error:', err.message);
+    return new NextResponse(err.message, { status: 500 });
   }
 }
 
-/**
- * GET handler for testing (optional)
- * Usage: GET /api/revalidate?path=/reviews
- */
+// Optional: Keep GET for manual testing if needed (Insecure mode)
 export async function GET(request: NextRequest) {
-  // Verify the secret token
   const secret = request.headers.get('x-revalidate-secret');
-
-  if (!secret || secret !== process.env.REVALIDATE_SECRET) {
-    return NextResponse.json(
-      { error: 'Unauthorized: Invalid or missing revalidation secret' },
-      { status: 401 }
-    );
-  }
-
   const path = request.nextUrl.searchParams.get('path');
 
-  if (!path) {
-    return NextResponse.json(
-      {
-        message: 'ISR Revalidation Endpoint',
-        usage: {
-          post: {
-            description: 'Trigger revalidation by path',
-            headers: { 'x-revalidate-secret': 'your-secret' },
-            body: { path: '/reviews' },
-          },
-          get: {
-            description: 'Test endpoint (GET method)',
-            queryParams: { path: '/reviews' },
-          },
-        },
-      },
-      { status: 200 }
-    );
+  if (secret !== process.env.SANITY_WEBHOOK_SECRET) {
+    return NextResponse.json({ error: 'Invalid Secret' }, { status: 401 });
   }
 
-  revalidatePath(path);
-  return NextResponse.json(
-    {
-      revalidated: true,
-      message: `Revalidated path: ${path}`,
-    },
-    { status: 200 }
-  );
+  if (path) {
+    revalidatePath(path);
+    return NextResponse.json({ revalidated: path, now: Date.now() });
+  }
+
+  return NextResponse.json({ message: 'Missing path param' }, { status: 400 });
 }
