@@ -48,6 +48,10 @@ export async function POST(req: NextRequest) {
       revalidateTag('category-lists');
       // @ts-expect-error: Next.js 16 signature mismatch
       revalidateTag('topTenList');
+      // @ts-expect-error: Next.js 16 signature mismatch
+      revalidateTag('article'); // <--- Added this
+      // @ts-expect-error: Next.js 16 signature mismatch
+      revalidateTag('howTo');   // <--- Added this
       
       revalidatePath('/', 'layout'); // Nuclear option: clear homepage cache
     }
