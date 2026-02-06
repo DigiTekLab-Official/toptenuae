@@ -8,11 +8,11 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "pnpm run sanity:typegen && next build",
+    "build": "pnpm run sanity:typegen && next build && node scripts/fix-opennext-css.js && opennextjs-cloudflare build --skipNextBuild && pnpm run copy-prerendered-pages",
     "build:worker": "pnpm run sanity:typegen && next build && node scripts/fix-opennext-css.js && opennextjs-cloudflare build --skipNextBuild && pnpm run copy-prerendered-pages",
     "copy-prerendered-pages": "node scripts/copy-prerendered-pages.js",
     "preview": "opennextjs-cloudflare preview",
-    "deploy": "pnpm run build:worker && wrangler pages deploy .open-next/assets --project-name=toptenuae",
+    "deploy": "pnpm run build && wrangler pages deploy .open-next/assets --project-name=toptenuae",
     "start": "next start",
     "lint": "eslint",
     "sanity:typegen": "sanity typegen generate"
