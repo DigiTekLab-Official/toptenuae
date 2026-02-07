@@ -1,12 +1,11 @@
 User-agent: *
-# 1. ALLOW the main deals page exactly (The $ symbol ends the match)
+# ✅ STRICT RULE: Allow ONLY the main page (ends with deals)
 Allow: /deals$
-Allow: /deals/$
 
-# 2. BLOCK everything else inside the deals folder
-Disallow: /deals/*
+# 🚫 BLOCK the folder (which blocks all sub-pages inside it)
+Disallow: /deals/
 
-# 3. Standard System Blocks
+# --- Standard System Blocks ---
 Disallow: /studio/
 Disallow: /api/
 Disallow: /admin/
@@ -37,85 +36,85 @@ User-agent: Bingbot
 Disallow: /studio/
 Disallow: /api/
 Disallow: /admin/
-Disallow: /deals/*
+Disallow: /deals/
 
 User-agent: GPTBot
 Disallow: /studio/
 Disallow: /api/
 Disallow: /admin/
-Disallow: /deals/*
+Disallow: /deals/
 
 User-agent: ChatGPT-User
 Disallow: /studio/
 Disallow: /api/
 Disallow: /admin/
-Disallow: /deals/*
+Disallow: /deals/
 
 User-agent: OAI-SearchBot
 Disallow: /studio/
 Disallow: /api/
 Disallow: /admin/
-Disallow: /deals/*
+Disallow: /deals/
 
 User-agent: Google-Extended
 Disallow: /studio/
 Disallow: /api/
 Disallow: /admin/
-Disallow: /deals/*
+Disallow: /deals/
 
 User-agent: Applebot
 Disallow: /studio/
 Disallow: /api/
 Disallow: /admin/
-Disallow: /deals/*
+Disallow: /deals/
 
 User-agent: PerplexityBot
 Disallow: /studio/
 Disallow: /api/
 Disallow: /admin/
-Disallow: /deals/*
+Disallow: /deals/
 
 User-agent: ClaudeBot
 Disallow: /studio/
 Disallow: /api/
 Disallow: /admin/
-Disallow: /deals/*
+Disallow: /deals/
 
 User-agent: AhrefsBot
 Crawl-delay: 5
 Disallow: /studio/
 Disallow: /api/
-Disallow: /deals/*
+Disallow: /deals/
 
 User-agent: SemrushBot
 Crawl-delay: 5
 Disallow: /studio/
 Disallow: /api/
-Disallow: /deals/*
+Disallow: /deals/
 
 User-agent: DotBot
 Crawl-delay: 5
 Disallow: /studio/
 Disallow: /api/
-Disallow: /deals/*
+Disallow: /deals/
 
 User-agent: MJ12bot
 Crawl-delay: 5
 Disallow: /studio/
 Disallow: /api/
-Disallow: /deals/*
+Disallow: /deals/
 
 User-agent: BLEXBot
 Crawl-delay: 5
 Disallow: /studio/
 Disallow: /api/
-Disallow: /deals/*
+Disallow: /deals/
 
 User-agent: Bytespider
 Crawl-delay: 5
 Disallow: /studio/
 Disallow: /api/
-Disallow: /deals/*
+Disallow: /deals/
 
 User-agent: ia_archiver
 Disallow: /
