@@ -41,6 +41,8 @@ async function generateSitemap() {
         case 'product': urlPath = `/reviews/${item.slug}`; break;
         case 'howTo': urlPath = `/how-to-guides/${item.slug}`; break;
         case 'topTenList': urlPath = `/top-ten/${item.slug}`; break;
+        case 'holiday': urlPath = `/events-holidays/${item.slug}`; break;
+        case 'tool': urlPath = `/finance-tools/${item.slug}`; break;
         default: urlPath = `/${item.slug}`;
       }
       return `
@@ -65,6 +67,12 @@ async function generateSitemap() {
       { url: '/travel-tourism', priority: 0.8, changeFrequency: 'weekly' },
       { url: '/ramadan-2026', priority: 0.8, changeFrequency: 'weekly' },
       { url: '/about-us', priority: 0.5, changeFrequency: 'yearly' },
+      { url: '/contact-us', priority: 0.5, changeFrequency: 'yearly' },
+      { url: '/privacy-policy', priority: 0.3, changeFrequency: 'yearly' },
+      { url: '/terms-and-conditions', priority: 0.3, changeFrequency: 'yearly' },
+      { url: '/affiliate-disclosure', priority: 0.3, changeFrequency: 'yearly' },
+      { url: '/disclaimer', priority: 0.3, changeFrequency: 'yearly' },
+      { url: '/cookies-policy', priority: 0.3, changeFrequency: 'yearly' },
     ];
 
     const staticXml = STATIC_ROUTES.map(route => `
