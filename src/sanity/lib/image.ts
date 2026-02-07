@@ -311,7 +311,7 @@ AFTER (Optimized):
 - listImage: 800px @ 80% = ~55KB (better quality)
 - Total Homepage: ~600KB images (-50%)
 
-CLOUDFLARE BENEFITS:
+CDN BENEFITS:
 ✅ Auto AVIF/WebP conversion
 ✅ Global CDN caching
 ✅ Automatic image optimization
@@ -395,7 +395,7 @@ const customUrl = optimizedImage(post.mainImage, {
 // ... existing code ...
 
 // =============================================================================
-// NEXT.JS IMAGE LOADER (Required for Cloudflare/OpenNext)
+// NEXT.JS IMAGE LOADER (Custom Sanity Loader for Vercel)
 // =============================================================================
 
 import type { ImageLoaderProps } from "next/image";

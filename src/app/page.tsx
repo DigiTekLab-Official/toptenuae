@@ -1,5 +1,4 @@
 // src/app/page.tsx
-// Cloudflare Pages: Fully static generation (no ISR)
 export const runtime = 'nodejs';
 
 import { client } from "@/sanity/lib";

@@ -8,7 +8,6 @@ import JsonLd from "@/components/sanity/JsonLd";
 import ProductView from "@/components/views/ProductView";
 import { PRODUCT_BY_SLUG_QUERY } from "@/sanity/lib/queries";
 
-// Cloudflare Pages: Fully static generation (no ISR)
 export const dynamicParams = true; 
 
 // ----------------------------

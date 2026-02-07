@@ -9,7 +9,6 @@ import ArticleView from "@/components/views/ArticleView";
 import { GENERIC_POST_QUERY, TOP_TEN_LIST_QUERY } from "@/sanity/lib/queries";
 import { groq } from 'next-sanity';
 
-// Cloudflare Pages: Fully static generation (no ISR)
 export const dynamicParams = true;
 
 // =============================================================================

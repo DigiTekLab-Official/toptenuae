@@ -8,8 +8,6 @@ import {
 } from 'lucide-react';
 import { client } from '@/sanity/lib/client';
 
-// Cloudflare Pages: Fully static generation (no ISR)
-
 export const metadata: Metadata = {
   title: 'Expert Product Reviews UAE | Real Tests & Verdicts',
   description: "Unbiased reviews of the latest electronics, appliances, and baby gear in the UAE market.",

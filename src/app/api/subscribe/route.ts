@@ -13,10 +13,10 @@ export const dynamic = 'force-dynamic';
 // ✅ FIXED: Use getEnv to fail fast if JWT_SECRET is missing
 const SECRET = new TextEncoder().encode(getEnv('JWT_SECRET'));
 
-// 🛡️ RATE LIMITING (In-Memory for Edge - with Cloudflare KV support)
+// Rate limiting (in-memory)
 const rateLimit = new Map<string, number>();
-const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
-const RATE_LIMIT_MAX_REQUESTS = 5; // Max 5 requests per IP per minute
+const RATE_LIMIT_WINDOW = 60 * 1000;
+const RATE_LIMIT_MAX_REQUESTS = 5;
 
 export async function POST(request: Request) {
   try {
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // 5. 🤖 TURNSTILE VERIFICATION (Cloudflare bot protection)
+    // 5. Turnstile verification (bot protection)
     const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
       method: 'POST',
       body: JSON.stringify({

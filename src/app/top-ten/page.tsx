@@ -8,8 +8,6 @@ import {
 } from 'lucide-react';
 import { client } from '@/sanity/lib/client';
 
-// Cloudflare Pages: Fully static generation (no ISR)
-
 export const metadata: Metadata = {
   title: 'Top 10 Lists & Buying Guides UAE | Best of UAE Ranked',
   description: "Discover the best products and services in the UAE. Unbiased Top 10 lists for Tech, Home, Parenting, and more, updated for 2026.",

@@ -3,6 +3,8 @@ import { Suspense } from "react";
 import { IBM_Plex_Sans, Inter } from "next/font/google";
 import { GoogleTagManager } from '@next/third-parties/google'; // ✅ 1. Import Official GTM
 import "./globals.css";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -206,16 +208,12 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* ✅ OPTIMIZED: Preconnect to critical resources */}
         <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
         
-        {/* ✅ DNS-only prefetch for non-critical domains */}
         <link rel="dns-prefetch" href="https://www.google-analytics.com" />
         <link rel="dns-prefetch" href="https://scripts.clarity.ms" />
-        <link rel="dns-prefetch" href="https://static.cloudflareinsights.com" />
         
-        {/* ✅ Prefetch important routes for faster navigation */}
         <link rel="prefetch" href="/" />
         <link rel="prefetch" href="/reviews" />
         <link rel="prefetch" href="/top-ten" />
@@ -308,7 +306,7 @@ export default function RootLayout({
         <div className="relative min-h-[300px] lg:min-h-[450px]">
           <Footer />
         </div>
-
+      <SpeedInsights />  
       </body>
     </html>
   );

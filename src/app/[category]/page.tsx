@@ -1,8 +1,7 @@
 // src/app/[category]/page.tsx
 
-// Cloudflare Pages: Fully static generation (no ISR)
 export const dynamicParams = true;
-export const revalidate = 60; // Checks for new Sanity content every 60 seconds
+export const revalidate = 60;
 
 import { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";

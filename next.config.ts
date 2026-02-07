@@ -1,23 +1,18 @@
 // next.config.ts
 import type { NextConfig } from "next";
 import { validateEnv } from "./src/lib/validateEnv";
-import { withSentryConfig } from "@sentry/nextjs"; // ✅ Import Sentry Wrapper
+import { withSentryConfig } from "@sentry/nextjs";
 
-// ✅ Validate environment variables at build time
 validateEnv('build');
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
-  productionBrowserSourceMaps: false, 
-  trailingSlash: false, 
-  reactStrictMode: true, 
-  poweredByHeader: false, 
-  compress: true,
+  reactStrictMode: true,
+  poweredByHeader: false,
 
   compiler: {
     removeConsole: process.env.NODE_ENV === "production"
-        ? { exclude: ["error", "warn"] }
-        : false,
+      ? { exclude: ["error", "warn"] }
+      : false,
   },
 
   images: {
@@ -42,7 +37,6 @@ const nextConfig: NextConfig = {
     optimizeCss: true,
     serverActions: {
       bodySizeLimit: '2mb',
-      allowedOrigins: ['toptenuae.com', 'www.toptenuae.com'],
     },
   },
 
@@ -115,13 +109,11 @@ const nextConfig: NextConfig = {
   },
 };
 
-// ✅ Sentry Configuration
+// Sentry Configuration
 const sentryOptions = {
   org: "digiteklab",
   project: "toptenuae",
-  // ✅ ADD THIS LINE: It allows the build to upload maps using your secret key
-  authToken: process.env.SENTRY_AUTH_TOKEN, 
-  
+  authToken: process.env.SENTRY_AUTH_TOKEN,
   silent: !process.env.CI,
   widenClientFileUpload: true,
   hideSourceMaps: true,

@@ -3,27 +3,18 @@ import { revalidateTag, revalidatePath } from 'next/cache';
 import { type NextRequest, NextResponse } from 'next/server';
 import { parseBody } from 'next-sanity/webhook';
 
-// =====================================================================
-// ✅ CLOUDFLARE CONFIGURATION
-// =====================================================================
-// 1. Force dynamic: Prevents static HTML generation
 export const dynamic = 'force-dynamic';
-
-// 2. Force Edge Runtime: This is CRITICAL for Cloudflare Pages.
-// 'nodejs' runtime (Claude's suggestion) is meant for Vercel/AWS.
-export const runtime = 'edge'; 
-// =====================================================================
+export const runtime = 'edge';
 
 /**
- * GET Handler
- * Verification endpoint - Verify this works in browser!
+ * GET Handler - Verification endpoint
  */
 export async function GET() {
   return NextResponse.json(
     { 
       message: 'Sanity Webhook Endpoint',
       status: 'active',
-      platform: 'Cloudflare Edge', // Just to confirm we are live
+      platform: 'Vercel Edge',
       timestamp: new Date().toISOString()
     },
     { status: 200 }

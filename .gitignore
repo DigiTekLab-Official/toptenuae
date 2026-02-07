@@ -25,16 +25,16 @@ yarn.lock
 .nyc_output
 
 # ============================================================================
-# NEXT.JS & OPENNEXT (CLOUDFLARE)
+# NEXT.JS & VERCEL
 # ============================================================================
 /.next/
 /out/
 /.vercel/output/
 .next/cache
 
-# 🔴 CRITICAL: Cloudflare OpenNext Build Artifacts
+# Legacy Cloudflare build artifacts (no longer used)
 .open-next/
-.open-next
+.wrangler/
 
 # ============================================================================
 # PRODUCTION BUILDS

@@ -8,7 +8,6 @@ import JsonLd from "@/components/sanity/JsonLd";
 import { TOP_TEN_LIST_QUERY } from "@/sanity/lib/queries";
 import ArticleView from "@/components/views/ArticleView";
 
-// Cloudflare Pages: Fully static generation (no ISR)
 export const dynamicParams = true; 
 
 // ----------------------------
