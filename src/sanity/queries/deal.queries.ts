@@ -1,3 +1,4 @@
+// src/sanity/queries/deal.queries.ts --- QUERIES FOR DEALS ---
 import { groq } from 'next-sanity';
 
 // =============================================================================
@@ -17,6 +18,9 @@ export const ALL_ACTIVE_DEALS = groq`
     dealEndDate, isPrimeExclusive, featured, couponCode, couponNote,
     "rating": coalesce(rating, product->customerRating),
     "reviewCount": coalesce(reviewCount, product->reviewCount)
+    "retailer": coalesce(retailer, product->retailer),
+    "retailerLogo": product->retailerLogo.asset->url, // If you have this in your product schema
+
   }
 `;
 

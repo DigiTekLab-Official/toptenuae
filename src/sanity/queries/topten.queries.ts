@@ -1,3 +1,4 @@
+// src/sanity/queries/topten.queries.ts --- QUERIES FOR TOP TEN LISTS ---
 import { groq } from 'next-sanity';
 
 // =============================================================================

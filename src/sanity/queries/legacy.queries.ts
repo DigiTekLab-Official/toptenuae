@@ -1,3 +1,4 @@
+// src/sanity/queries/legacy.queries.ts --- LEGACY QUERIES STILL IN USE ---
 import { groq } from 'next-sanity';
 
 // =============================================================================
