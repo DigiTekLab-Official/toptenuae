@@ -4,7 +4,6 @@ import { groq } from 'next-sanity';
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
-export const runtime = 'edge';
 
 const BASE_URL = 'https://toptenuae.com';
 
