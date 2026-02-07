@@ -24,7 +24,7 @@ export const HOME_QUERY = groq`{
     "slug": slug.current,
     description,
     "posts": *[
-      (_type in ["topTenList", "article", "tool", "product"]) &&
+      (_type in ["topTenList", "article", "tool", "product", "howTo", "holiday"]) &&
       (
         ^._id in categories[]._ref ||
         ^._id in displayCategories[]._ref ||
