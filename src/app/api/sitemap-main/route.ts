@@ -1,7 +1,13 @@
-// functions/api/sitemap-main.ts
-export async function onRequest(context: any) {
-  // 1. Setup your Sanity Configuration manually
-  // You can hardcode these or use context.env if you set them in Cloudflare Dashboard
+// src/app/api/sitemap-main/route.ts
+import { NextResponse } from 'next/server';
+
+// ✅ SAFE CONFIGURATION
+// We use Edge runtime because 'fetch' is native and fast.
+export const runtime = 'edge'; 
+export const dynamic = 'force-dynamic';
+
+export async function GET() {
+  // 1. Setup Configuration Manually (No environment variable dependency issues)
   const PROJECT_ID = 'kxdjzy8e'; 
   const DATASET = 'production';
   const API_VERSION = '2024-01-01';
@@ -15,16 +21,23 @@ export async function onRequest(context: any) {
     "category": category->slug.current
   }`;
 
-  // 3. Construct the URL for the Sanity API
+  // 3. Construct the URL
   const sanityUrl = `https://${PROJECT_ID}.api.sanity.io/v${API_VERSION}/data/query/${DATASET}?query=${encodeURIComponent(query)}`;
 
   try {
-    // 4. Perform a raw fetch (No libraries needed)
+    console.log("Fetching sitemap data from Sanity...");
+    
+    // 4. Perform Raw Fetch (No client library = No crashes)
     const response = await fetch(sanityUrl);
+    
+    if (!response.ok) {
+      throw new Error(`Sanity API Error: ${response.status} ${response.statusText}`);
+    }
+
     const json = await response.json();
     const data = json.result;
 
-    // 5. Generate the XML
+    // 5. Generate XML
     const dynamicRoutes = data.map((item: any) => {
       let path = '';
       switch (item._type) {
@@ -58,21 +71,22 @@ export async function onRequest(context: any) {
     <priority>1.0</priority>
   </url>`).join('');
 
-    const finalXml = `<?xml version="1.0" encoding="UTF-8"?>
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${staticXml}
 ${dynamicRoutes}
 </urlset>`;
 
-    // 6. Return the response directly
-    return new Response(finalXml, {
+    return new NextResponse(xml, {
+      status: 200,
       headers: {
         'Content-Type': 'application/xml',
         'Cache-Control': 'public, max-age=3600',
       },
     });
 
-  } catch (error) {
-    return new Response(`Error generating sitemap: ${error instanceof Error ? error.message : 'Unknown error'}`, { status: 500 });
+  } catch (error: any) {
+    console.error("Sitemap Error:", error);
+    return new NextResponse(`Error: ${error.message}`, { status: 500 });
   }
 }
