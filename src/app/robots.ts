@@ -1,19 +1,11 @@
 // src/app/robots.ts
-import { MetadataRoute } from 'next';
-
-export const dynamic = 'force-dynamic';
-export const runtime = 'edge';
-
-export default function robots(): MetadataRoute.Robots {
+// Remove dynamic/runtime exports if present
+export default function robots() {
   return {
     rules: [
-      {
-        userAgent: '*',
-        allow: '/',
-        disallow: ['/studio/', '/api/', '/admin/'],
-      },
-      // ... your other bots ...
+      { userAgent: '*', allow: '/' },
+      // ... your other rules
     ],
-    sitemap: 'https://toptenuae.com/api/sitemap-main',
+    sitemap: 'https://toptenuae.com/sitemap.xml', // Pointing to the static file
   };
 }
