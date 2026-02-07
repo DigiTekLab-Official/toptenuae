@@ -232,3 +232,5 @@ firestore-debug.log
 
 # Chrome debug files
 chromewebdata_*.html
+# Sentry Config File
+.env.sentry-build-plugin

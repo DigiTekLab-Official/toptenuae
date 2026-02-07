@@ -12,7 +12,7 @@
     "build:worker": "pnpm run sanity:typegen && node scripts/generate-sitemap.mjs && next build && node scripts/fix-opennext-css.js && opennextjs-cloudflare build --skipNextBuild && pnpm run copy-prerendered-pages && node scripts/generate-routes-json.js",
     "copy-prerendered-pages": "node scripts/copy-prerendered-pages.js",
     "preview": "opennextjs-cloudflare preview",
-    "deploy": "pnpm run build && wrangler pages deploy .open-next/assets --project-name=toptenuae",
+    "deploy": "pnpm run build && wrangler pages deploy .open-next/assets --project-name=toptenuae && node scripts/ping-engines.mjs",
     "start": "next start",
     "lint": "eslint",
     "sanity:typegen": "sanity typegen generate"
@@ -25,7 +25,7 @@
     "@portabletext/toolkit": "^5.0.1",
     "@sanity/client": "^7.14.1",
     "@sanity/image-url": "^2.0.2",
-    "@sentry/nextjs": "^10.38.0",
+    "@sentry/nextjs": "^10",
     "@tanstack/react-query": "^5.28.0",
     "clsx": "^2.1.1",
     "dotenv": "^17.2.3",

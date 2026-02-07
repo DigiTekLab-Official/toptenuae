@@ -1,9 +1,4 @@
 #!/usr/bin/env node
-/**
- * Generate _routes.json for Cloudflare Pages
- * This tells Cloudflare which paths should go to the Worker vs static assets
- */
-
 const fs = require('fs');
 const path = require('path');
 
@@ -17,12 +12,13 @@ const routes = {
     '/newsletter/*',
     '/search',
     '/report',
-    '/sitemap.xml', // ✅ Essential: Routes request to Worker
-    '/robots.txt',  // ✅ Essential: Routes request to Worker
+    // We removed sitemap and robots from here because they are now STATIC
   ],
   exclude: [
     '/_next/*',
     '/static/*',
+    '/sitemap.xml', // ✅ Serve the static file we generated
+    '/robots.txt',  // ✅ Serve the static file Next.js built
     '*.js',
     '*.css',
     '*.svg',

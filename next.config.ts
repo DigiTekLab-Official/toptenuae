@@ -1,14 +1,13 @@
+// next.config.ts
 import type { NextConfig } from "next";
 import { validateEnv } from "./src/lib/validateEnv";
+import { withSentryConfig } from "@sentry/nextjs"; // ✅ Import Sentry Wrapper
 
 // ✅ Validate environment variables at build time
 validateEnv('build');
 
 const nextConfig: NextConfig = {
-  // 1. OUTPUT MODE - REQUIRED FOR OPENNEXT/CLOUDFLARE
   output: 'standalone',
-
-  // 2. PERFORMANCE & SEO BASICS
   productionBrowserSourceMaps: false, 
   trailingSlash: false, 
   reactStrictMode: true, 
@@ -21,7 +20,6 @@ const nextConfig: NextConfig = {
         : false,
   },
 
-  // 3. IMAGES (Sanity CDN)
   images: {
     loader: 'custom',
     loaderFile: './src/sanity/lib/image.ts',
@@ -39,7 +37,6 @@ const nextConfig: NextConfig = {
     minimumCacheTTL: 31536000,
   },
 
-  // 4. EXPERIMENTAL
   experimental: {
     optimizePackageImports: ["lucide-react", "@sanity/client", "@sanity/image-url", "next/image"],
     optimizeCss: true,
@@ -49,7 +46,6 @@ const nextConfig: NextConfig = {
     },
   },
 
-  // 5. HEADERS (Security & Content-Type for Static Files)
   async headers() {
     return [
       {
@@ -64,7 +60,6 @@ const nextConfig: NextConfig = {
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
         ],
       },
-      // Ensure the generated sitemap is served with correct headers
       {
         source: '/sitemap.xml',
         headers: [
@@ -73,17 +68,9 @@ const nextConfig: NextConfig = {
           { key: 'X-Robots-Tag', value: 'all' },
         ],
       },
-      {
-        source: "/:path*",
-        has: [{ type: "query", key: "_rsc" }],
-        headers: [
-          { key: "Cache-Control", value: "private, no-cache, no-store, must-revalidate" },
-        ],
-      },
     ];
   },
 
-  // 6. REDIRECTS ENGINE (Restored)
   async redirects() {
     return [
       { source: '/tech/:slug*', destination: '/how-to-guides/:slug*', permanent: true }, 
@@ -128,4 +115,18 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// ✅ Sentry Configuration
+const sentryOptions = {
+  org: "digiteklab",
+  project: "toptenuae",
+  // ✅ ADD THIS LINE: It allows the build to upload maps using your secret key
+  authToken: process.env.SENTRY_AUTH_TOKEN, 
+  
+  silent: !process.env.CI,
+  widenClientFileUpload: true,
+  hideSourceMaps: true,
+  disableLogger: true,
+  tunnelRoute: "/monitoring",
+};
+
+export default withSentryConfig(nextConfig, sentryOptions);
