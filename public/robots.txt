@@ -1,0 +1,141 @@
+User-agent: *
+Disallow: /studio/
+Disallow: /api/
+Disallow: /admin/
+Disallow: /private/
+Disallow: /webmail/
+Disallow: /cpanel/
+Disallow: /cgi-bin/
+Disallow: /wp-admin/
+Disallow: /wp-includes/
+Disallow: /wp-content/
+Disallow: /category/
+Disallow: /tag/
+Disallow: /author/
+Disallow: /search/
+Disallow: /thank-you
+Disallow: /phpinfo.php
+Disallow: /feed/
+Disallow: /index.php/
+Disallow: /sample-page/
+Disallow: /*?s=
+Disallow: /*?ref=
+Disallow: /*?utm_
+Disallow: /*?fbclid
+Disallow: /*?gclid
+Disallow: /*?noamp
+
+User-agent: Bingbot
+Disallow: /studio/
+Disallow: /api/
+Disallow: /admin/
+Disallow: /private/
+Disallow: /webmail/
+Disallow: /cpanel/
+Disallow: /cgi-bin/
+Disallow: /wp-admin/
+Disallow: /wp-includes/
+Disallow: /wp-content/
+Disallow: /category/
+Disallow: /tag/
+Disallow: /author/
+Disallow: /search/
+Disallow: /thank-you
+Disallow: /phpinfo.php
+Disallow: /feed/
+Disallow: /index.php/
+Disallow: /sample-page/
+Disallow: /*?s=
+Disallow: /*?ref=
+Disallow: /*?utm_
+Disallow: /*?fbclid
+Disallow: /*?gclid
+Disallow: /*?noamp
+
+User-agent: GPTBot
+Disallow: /studio/
+Disallow: /api/
+Disallow: /admin/
+
+User-agent: ChatGPT-User
+Disallow: /studio/
+Disallow: /api/
+Disallow: /admin/
+
+User-agent: OAI-SearchBot
+Disallow: /studio/
+Disallow: /api/
+Disallow: /admin/
+
+User-agent: Google-Extended
+Disallow: /studio/
+Disallow: /api/
+Disallow: /admin/
+
+User-agent: Applebot
+Disallow: /studio/
+Disallow: /api/
+Disallow: /admin/
+
+User-agent: PerplexityBot
+Disallow: /studio/
+Disallow: /api/
+Disallow: /admin/
+
+User-agent: ClaudeBot
+Disallow: /studio/
+Disallow: /api/
+Disallow: /admin/
+
+User-agent: AhrefsBot
+Crawl-delay: 10
+Disallow: /studio/
+Disallow: /api/
+
+User-agent: SemrushBot
+Crawl-delay: 10
+Disallow: /studio/
+Disallow: /api/
+
+User-agent: DotBot
+Crawl-delay: 10
+Disallow: /studio/
+Disallow: /api/
+
+User-agent: MJ12bot
+Crawl-delay: 10
+Disallow: /studio/
+Disallow: /api/
+
+User-agent: BLEXBot
+Crawl-delay: 10
+Disallow: /studio/
+Disallow: /api/
+
+User-agent: Bytespider
+Crawl-delay: 10
+Disallow: /studio/
+Disallow: /api/
+
+User-agent: ia_archiver
+Disallow: /
+
+User-agent: MegaIndex
+Disallow: /
+
+User-agent: SeznamBot
+Disallow: /
+
+User-agent: Uptimebot
+Disallow: /
+
+User-agent: Mauibot
+Disallow: /
+
+User-agent: LieBaoFast
+Disallow: /
+
+User-agent: PC6spider
+Disallow: /
+
+Sitemap: https://toptenuae.com/sitemap.xml
