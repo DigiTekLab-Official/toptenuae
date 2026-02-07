@@ -7,7 +7,7 @@ import { withSentryConfig } from "@sentry/nextjs"; // ✅ Import Sentry Wrapper
 validateEnv('build');
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
+  // output: 'standalone',
   productionBrowserSourceMaps: false, 
   trailingSlash: false, 
   reactStrictMode: true, 
