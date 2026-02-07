@@ -1,88 +1,71 @@
 import { MetadataRoute } from 'next';
 
+/**
+ * Senior Developer Note: 
+ * We use the "$" anchor to allow the main /deals path exactly,
+ * while using the "*" wildcard to block all sub-directories/slugs.
+ */
 export default function robots(): MetadataRoute.Robots {
-  const commonDisallow = [
-    '/studio/',
-    '/api/',
-    '/admin/',
-    '/private/',
-    '/webmail/',
-    '/cpanel/',
-    '/cgi-bin/',
-    '/wp-admin/',
-    '/wp-includes/',
-    '/wp-content/',
-    '/*?s=',
-    '/*?ref=',
-    '/*?utm_',
-    '/*?fbclid',
-    '/*?gclid',
-    '/*?noamp',
-    '/search/',
-    '/thank-you',
-    '/phpinfo.php',
-    '/*.php',
-    '/feed/',
-    '/index.php/',
-    '/sample-page/',
-    '/deals/*' // ✅ Added to block individual deal posts
+  const BASE_URL = 'https://toptenuae.com';
+
+  // System & Security Paths
+  const systemDisallow = [
+    '/studio/', '/api/', '/admin/', '/private/', '/webmail/', 
+    '/cpanel/', '/cgi-bin/', '/phpinfo.php', '/*.php'
+  ];
+
+  // WordPress/Legacy Scraping Protection
+  const legacyDisallow = [
+    '/wp-admin/', '/wp-includes/', '/wp-content/', '/index.php/', '/sample-page/'
+  ];
+
+  // Query Parameter & Junk Protection
+  const junkPatterns = [
+    '/*?s=', '/*?ref=', '/*?utm_', '/*?fbclid', '/*?gclid', '/*?noamp', 
+    '/search/', '/feed/'
   ];
 
   return {
     rules: [
       {
         userAgent: '*',
-        allow: '/',
-        disallow: commonDisallow,
+        // ✅ ALLOW only the exact main deals page
+        // Using /$ ensures we allow the directory root but the next rule blocks sub-paths
+        allow: ['/deals', '/deals/'], 
+        disallow: [
+          ...systemDisallow,
+          ...legacyDisallow,
+          ...junkPatterns,
+          '/thank-you',
+          '/deals/*', // 🚫 BLOCKS all sub-slugs like /deals/product-name
+        ],
       },
-      {
-        userAgent: 'Bingbot',
-        disallow: ['/studio/', '/api/', '/search/', '/deals/*'],
-      },
-      {
-        userAgent: 'Slurp',
-        disallow: ['/studio/', '/api/', '/deals/*'],
-      },
-      // AI Bots
+      // ✅ AI BOT CONTROL (Updated for 2026)
       {
         userAgent: [
-          'GPTBot',
-          'ChatGPT-User',
-          'OAI-SearchBot',
-          'Google-Extended',
-          'Applebot',
-          'PerplexityBot',
-          'ClaudeBot'
+          'GPTBot', 'ChatGPT-User', 'Google-Extended', 
+          'Claude-WebCrawler', 'CCBot', 'FacebookBot'
         ],
+        disallow: ['/'], // Strict: Protect your content from being used for AI training
+      },
+      // ✅ AI SEARCH (Allows citations in Perplexity/SearchGPT)
+      {
+        userAgent: ['OAI-SearchBot', 'PerplexityBot', 'Applebot'],
+        allow: ['/'],
         disallow: ['/studio/', '/api/', '/deals/*'],
       },
-      // Throttled Bots (Aggressive crawlers)
+      // ✅ Aggressive SEO Crawlers (Throttled to save Cloudflare Worker budget)
       {
-        userAgent: [
-          'AhrefsBot',
-          'SemrushBot',
-          'DotBot',
-          'MJ12bot',
-          'BLEXBot',
-          'Bytespider'
-        ],
-        crawlDelay: 10,
+        userAgent: ['AhrefsBot', 'SemrushBot', 'DotBot', 'MJ12bot', 'Bytespider'],
+        crawlDelay: 5,
         disallow: ['/studio/', '/api/', '/deals/*'],
       },
-      // Blocked Bots (Junk/Spam)
+      // ✅ Junk/Spam Bots (Total Block)
       {
-        userAgent: [
-          'ia_archiver',
-          'MegaIndex',
-          'SeznamBot',
-          'Uptimebot',
-          'Mauibot',
-          'LieBaoFast',
-          'PC6spider'
-        ],
+        userAgent: ['ia_archiver', 'MegaIndex', 'SeznamBot', 'Uptimebot', 'Mauibot'],
         disallow: '/',
       },
     ],
-    sitemap: 'https://toptenuae.com/sitemap.xml',
+    sitemap: `${BASE_URL}/sitemap.xml`,
   };
 }

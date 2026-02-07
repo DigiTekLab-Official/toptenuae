@@ -1129,31 +1129,6 @@ export type HOW_TO_QUERYResult = {
   } | null;
 } | null;
 
-// Source: ./src/app/sitemap.ts
-// Variable: query
-// Query: *[_type in ["article", "product", "deal", "howTo", "topTenList"] && defined(slug.current)] {      _type,      "slug": slug.current,      _updatedAt,      "category": category->slug.current    }
-export type QueryResult = Array<{
-  _type: "deal";
-  slug: string | null;
-  _updatedAt: string;
-  category: null;
-} | {
-  _type: "howTo";
-  slug: string | null;
-  _updatedAt: string;
-  category: null;
-} | {
-  _type: "product";
-  slug: string | null;
-  _updatedAt: string;
-  category: null;
-} | {
-  _type: "topTenList";
-  slug: string | null;
-  _updatedAt: string;
-  category: null;
-}>;
-
 // Source: ./src/sanity/queries/category.queries.ts
 // Variable: ALL_CATEGORIES
 // Query: *[_type == "category" && defined(slug.current)] | order(title asc){    _id,    title,    "slug": slug.current,    description,    mainImage { "url": asset->url, alt }  }
@@ -1318,7 +1293,7 @@ export type FOOTER_DATAResult = null;
 
 // Source: ./src/sanity/queries/legacy.queries.ts
 // Variable: HOME_QUERY
-// Query: {  "heroPost": coalesce(    *[_type in ["topTenList", "article"] && isFeaturedOnHome == true] | order(publishedAt desc) [0],    *[_type in ["topTenList", "article"]] | order(publishedAt desc) [0]  ) {    _id,    title,    "slug": slug.current,    intro,    mainImage,    "categorySlug": coalesce(categories[0]->slug.current, category->slug.current)  },  "sections": *[_type == "category" && slug.current in $categories] | order(order asc, title asc) {    title,    "slug": slug.current,    description,    "posts": *[      (_type in ["topTenList", "article", "tool", "product"]) &&      (        ^._id in categories[]._ref ||        ^._id in displayCategories[]._ref ||        category._ref == ^._id ||        categories[0]._ref == ^._id      )    ] | order(publishedAt desc)[0...4] {      _id,      _type,      title,      "slug": slug.current,      publishedAt,      mainImage    }  },  "upcomingPosts": *[_type in ["topTenList", "article"] && category->slug.current == "upcoming"] | order(publishedAt desc)[0...4] {    _id,    title,    "slug": slug.current,    mainImage  }}
+// Query: {  "heroPost": coalesce(    *[_type in ["topTenList", "article"] && isFeaturedOnHome == true] | order(publishedAt desc) [0],    *[_type in ["topTenList", "article"]] | order(publishedAt desc) [0]  ) {    _id,    title,    "slug": slug.current,    intro,    mainImage,    "categorySlug": coalesce(categories[0]->slug.current, category->slug.current)  },  "sections": *[_type == "category" && slug.current in $categories] | order(order asc, title asc) {    title,    "slug": slug.current,    description,    "posts": *[      (_type in ["topTenList", "article", "tool", "product", "howTo", "holiday"]) &&      (        ^._id in categories[]._ref ||        ^._id in displayCategories[]._ref ||        category._ref == ^._id ||        categories[0]._ref == ^._id      )    ] | order(publishedAt desc)[0...4] {      _id,      _type,      title,      "slug": slug.current,      publishedAt,      mainImage    }  },  "upcomingPosts": *[_type in ["topTenList", "article"] && category->slug.current == "upcoming"] | order(publishedAt desc)[0...4] {    _id,    title,    "slug": slug.current,    mainImage  }}
 export type HOME_QUERYResult = {
   heroPost: {
     _id: string;
@@ -1340,6 +1315,34 @@ export type HOME_QUERYResult = {
     slug: string | null;
     description: string | null;
     posts: Array<{
+      _id: string;
+      _type: "holiday";
+      title: string | null;
+      slug: string | null;
+      publishedAt: null;
+      mainImage: {
+        asset?: SanityImageAssetReference;
+        media?: unknown;
+        hotspot?: SanityImageHotspot;
+        crop?: SanityImageCrop;
+        alt?: string;
+        _type: "image";
+      } | null;
+    } | {
+      _id: string;
+      _type: "howTo";
+      title: string | null;
+      slug: string | null;
+      publishedAt: string | null;
+      mainImage: {
+        asset?: SanityImageAssetReference;
+        media?: unknown;
+        hotspot?: SanityImageHotspot;
+        crop?: SanityImageCrop;
+        alt?: string;
+        _type: "image";
+      } | null;
+    } | {
       _id: string;
       _type: "product";
       title: string | null;
@@ -2497,7 +2500,6 @@ import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
     "\n  *[_type == \"howTo\" && slug.current == $slug][0]{\n    _id,\n    _type,\n    title,\n    \"slug\": slug.current,\n    publishedAt,\n    intro,\n    body,\n    faqs, \n    howToSteps,\n    \"author\": Author->{ name, image, bio },\n    mainImage { \n      alt,\n      \"url\": asset->url,\n      \"lqip\": asset->metadata.lqip,\n      \"dimensions\": asset->metadata.dimensions\n    },\n    \"categories\": categories[]->{ \"slug\": slug.current, title },\n    seo { metaTitle, metaDescription, shareImage }\n  }\n": HOW_TO_QUERYResult;
-    "*[_type in [\"article\", \"product\", \"deal\", \"howTo\", \"topTenList\"] && defined(slug.current)] {\n      _type,\n      \"slug\": slug.current,\n      _updatedAt,\n      \"category\": category->slug.current\n    }": QueryResult;
     "\n  *[_type == \"category\" && defined(slug.current)] | order(title asc){\n    _id,\n    title,\n    \"slug\": slug.current,\n    description,\n    mainImage { \"url\": asset->url, alt }\n  }\n": ALL_CATEGORIESResult;
     "\n  *[_type == \"category\" && slug.current == $slug][0]{\n    _id,\n    title,\n    \"slug\": slug.current,\n    description,\n    mainImage { \"url\": asset->url, alt },\n    seo { metaTitle, metaDescription }\n  }\n": CATEGORY_BY_SLUGResult;
     "\n  *[_type in [\"article\", \"product\", \"topTenList\", \"howTo\"] \n    && references(*[_type == \"category\" && slug.current == $category]._id)]\n    | order(publishedAt desc)[0...50]{\n      _id,\n      _type,\n      title,\n      \"slug\": slug.current,\n      mainImage { \"url\": asset->url, alt },\n      publishedAt\n    }\n": CATEGORY_POSTSResult;
@@ -2508,7 +2510,7 @@ declare module "@sanity/client" {
     "\n  *[_type == \"siteSettings\"][0] {\n    _type,\n    title,\n    description,\n    \"logoMain\": logoMain.asset->url,\n    \"logoIcon\": logoIcon.asset->url,\n    \"logoBimi\": logoBimi.asset->url,\n    \"ogImage\": ogImage.asset->url,\n    socialLinks[] { platform, url },\n    contactEmail\n  }\n": SITE_SETTINGS_QUERYResult;
     "\n  *[_type == \"navigationMenu\"][0] {\n    _id,\n    title,\n    items[] {\n      _key,\n      title,\n      url,\n      children[] {\n        _key,\n        title,\n        url\n      }\n    }\n  }\n": NAVIGATION_MENUResult;
     "\n  *[_type == \"footerSettings\"][0] {\n    _id,\n    companyInfo,\n    links[] { title, url },\n    socialLinks[] { platform, url },\n    copyrightText\n  }\n": FOOTER_DATAResult;
-    "{\n  \"heroPost\": coalesce(\n    *[_type in [\"topTenList\", \"article\"] && isFeaturedOnHome == true] | order(publishedAt desc) [0],\n    *[_type in [\"topTenList\", \"article\"]] | order(publishedAt desc) [0]\n  ) {\n    _id,\n    title,\n    \"slug\": slug.current,\n    intro,\n    mainImage,\n    \"categorySlug\": coalesce(categories[0]->slug.current, category->slug.current)\n  },\n  \"sections\": *[_type == \"category\" && slug.current in $categories] | order(order asc, title asc) {\n    title,\n    \"slug\": slug.current,\n    description,\n    \"posts\": *[\n      (_type in [\"topTenList\", \"article\", \"tool\", \"product\"]) &&\n      (\n        ^._id in categories[]._ref ||\n        ^._id in displayCategories[]._ref ||\n        category._ref == ^._id ||\n        categories[0]._ref == ^._id\n      )\n    ] | order(publishedAt desc)[0...4] {\n      _id,\n      _type,\n      title,\n      \"slug\": slug.current,\n      publishedAt,\n      mainImage\n    }\n  },\n  \"upcomingPosts\": *[_type in [\"topTenList\", \"article\"] && category->slug.current == \"upcoming\"] | order(publishedAt desc)[0...4] {\n    _id,\n    title,\n    \"slug\": slug.current,\n    mainImage\n  }\n}": HOME_QUERYResult;
+    "{\n  \"heroPost\": coalesce(\n    *[_type in [\"topTenList\", \"article\"] && isFeaturedOnHome == true] | order(publishedAt desc) [0],\n    *[_type in [\"topTenList\", \"article\"]] | order(publishedAt desc) [0]\n  ) {\n    _id,\n    title,\n    \"slug\": slug.current,\n    intro,\n    mainImage,\n    \"categorySlug\": coalesce(categories[0]->slug.current, category->slug.current)\n  },\n  \"sections\": *[_type == \"category\" && slug.current in $categories] | order(order asc, title asc) {\n    title,\n    \"slug\": slug.current,\n    description,\n    \"posts\": *[\n      (_type in [\"topTenList\", \"article\", \"tool\", \"product\", \"howTo\", \"holiday\"]) &&\n      (\n        ^._id in categories[]._ref ||\n        ^._id in displayCategories[]._ref ||\n        category._ref == ^._id ||\n        categories[0]._ref == ^._id\n      )\n    ] | order(publishedAt desc)[0...4] {\n      _id,\n      _type,\n      title,\n      \"slug\": slug.current,\n      publishedAt,\n      mainImage\n    }\n  },\n  \"upcomingPosts\": *[_type in [\"topTenList\", \"article\"] && category->slug.current == \"upcoming\"] | order(publishedAt desc)[0...4] {\n    _id,\n    title,\n    \"slug\": slug.current,\n    mainImage\n  }\n}": HOME_QUERYResult;
     "\n  *[_type == \"category\" && slug.current == $slug][0]{\n    title, \n    description, \n    \"slug\": slug.current,\n    \"seo\": seo { metaTitle, metaDescription },\n    \"mainImage\": coalesce(\n      mainImage, \n      image,\n      *[references(^._id)][0].mainImage\n    ) { \"url\": asset->url, alt },\n    \"items\": *[\n      _type in [\"topTenList\", \"howTo\", \"tool\", \"holiday\", \"deal\", \"article\"] &&\n      (references(^._id) || category._ref == ^._id || categories[]._ref == ^._id)\n    ] | order(publishedAt desc)[0...100] { \n      _type, title, \"slug\": slug.current, publishedAt,\n      \"mainImage\": coalesce(mainImage, image, product->mainImage) { \"url\": asset->url, alt },\n      \"rawExcerpt\": coalesce(description, \"\", \"\")\n    }\n  }\n": CATEGORY_PAGE_QUERYResult;
     "\n  *[slug.current == $slug][0]{\n    _type,\n    \"slug\": slug.current, _id, title, description,\n    \"seoTitle\": coalesce(seo.metaTitle, title),\n    \"seoDescription\": \"\",\n    \"mainImage\": coalesce(mainImage, image, coverImage, product->mainImage) { \"url\": asset->url, alt },\n    \"category\": coalesce(categories[0], category)->{ \"title\": title, \"slug\": slug.current, \"menuLabel\": menuLabel },\n    \"publishedAt\": _createdAt, \"_updatedAt\": _updatedAt,\n    \"intro\": intro,\n    \"body\": body,\n    \"content\": content,\n    \"procedure\": procedure,\n    \"closingContent\": closingContent,\n    faqs[] { _key, question, answer },\n    startDate, endDate, locationName, address, ticketPrice\n  }\n": GENERIC_POST_QUERYResult;
     "{\n  \"featured\": *[_type == \"product\" && isFeaturedReview == true] | order(_updatedAt desc) [0...8] {\n    _id, title, \"rating\": customerRating, \"slug\": slug.current,\n    \"imageUrl\": coalesce(image.asset->url, mainImage.asset->url)\n  },\n  \"reviews\": *[_type == \"product\"] | order(_createdAt desc) [0...50] {\n    _id, title, \"rating\": customerRating, \"slug\": slug.current,\n    \"section\": reviewSection,\n    \"subCategoryTitle\": subCategory->menuLabel,\n    \"imageUrl\": coalesce(image.asset->url, mainImage.asset->url)\n  }\n}": REVIEWS_HUB_QUERYResult;
