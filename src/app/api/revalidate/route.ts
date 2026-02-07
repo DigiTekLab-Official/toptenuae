@@ -1,69 +1,84 @@
-// src/app/api/revalidate/route.ts
-import { type NextRequest, NextResponse } from 'next/server'
-import { parseBody } from 'next-sanity/webhook'
+import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
+
+// Force Node.js runtime (important for ISR + webhooks)
+export const runtime = 'nodejs'
 
 export async function POST(req: NextRequest) {
   try {
-    const { body, isValidSignature } = await parseBody(
-      req,
-      process.env.SANITY_WEBHOOK_SECRET!
-    )
+    // 1️⃣ Validate secret via query param
+    const secret = req.nextUrl.searchParams.get('secret')
 
-    if (!isValidSignature) {
-      return new NextResponse('Invalid signature', { status: 401 })
+    if (!secret || secret !== process.env.SANITY_WEBHOOK_SECRET) {
+      return new NextResponse('Invalid token', { status: 401 })
     }
 
-    if (!body?._type) {
+    // 2️⃣ Parse JSON body sent by Sanity
+    const body = await req.json()
+
+    if (!body || !body._type) {
       return new NextResponse('Bad Request', { status: 400 })
     }
 
-    // Decide which paths to purge based on content type
-    const pathsToPurge: string[] = ['/']
+    // 3️⃣ Always revalidate homepage
+    const pathsToRevalidate: string[] = ['/']
 
+    // 4️⃣ Content-type based ISR
     switch (body._type) {
       case 'howTo':
-        pathsToPurge.push('/how-to-guides')
-        break
-      case 'holiday':
-        pathsToPurge.push('/events-holidays')
-        break
-      case 'deals':
-        pathsToPurge.push('/deals')
-        break
-      case 'topTenList':
-        pathsToPurge.push('/top-ten')
-        break
-      case 'article':
-        if (body.slug) pathsToPurge.push(`/articles/${body.slug}`)
-        break
-      case 'product':
-        if (body.slug) pathsToPurge.push(`/products/${body.slug}`)
-        break
-    }
-
-    // Purge Cloudflare cache
-    if (process.env.CLOUDFLARE_ZONE_ID && process.env.CLOUDFLARE_API_TOKEN) {
-      await fetch(
-        `https://api.cloudflare.com/client/v4/zones/${process.env.CLOUDFLARE_ZONE_ID}/purge_cache`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${process.env.CLOUDFLARE_API_TOKEN}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ files: pathsToPurge.map(p => `https://toptenuae.com${p}`) }),
+        pathsToRevalidate.push('/how-to-guides')
+        if (body.slug?.current) {
+          pathsToRevalidate.push(`/how-to-guides/${body.slug.current}`)
         }
-      )
+        break
+
+      case 'holiday':
+        pathsToRevalidate.push('/events-holidays')
+        if (body.slug?.current) {
+          pathsToRevalidate.push(`/events-holidays/${body.slug.current}`)
+        }
+        break
+
+      case 'deals':
+        pathsToRevalidate.push('/deals')
+        if (body.slug?.current) {
+          pathsToRevalidate.push(`/deals/${body.slug.current}`)
+        }
+        break
+
+      case 'topTenList':
+        pathsToRevalidate.push('/top-ten')
+        if (body.slug?.current) {
+          pathsToRevalidate.push(`/top-ten/${body.slug.current}`)
+        }
+        break
+
+      case 'article':
+        if (body.slug?.current) {
+          pathsToRevalidate.push(`/articles/${body.slug.current}`)
+        }
+        break
+
+      case 'product':
+        pathsToRevalidate.push('/reviews')
+        if (body.slug?.current) {
+          pathsToRevalidate.push(`/products/${body.slug.current}`)
+        }
+        break
     }
 
-    // Optionally trigger a rebuild via Cloudflare Pages Build Hook
-    if (process.env.CLOUDFLARE_BUILD_HOOK_URL) {
-      await fetch(process.env.CLOUDFLARE_BUILD_HOOK_URL, { method: 'POST' })
+    // 5️⃣ Trigger ISR
+    for (const path of pathsToRevalidate) {
+      revalidatePath(path)
     }
 
-    return NextResponse.json({ revalidated: true, purged: pathsToPurge, now: Date.now() })
-  } catch (err: any) {
-    console.error('Revalidation error:', err)
+    return NextResponse.json({
+      revalidated: true,
+      paths: pathsToRevalidate,
+      now: Date.now(),
+    })
+  } catch (error) {
+    console.error('ISR revalidation error:', error)
     return new NextResponse('Internal Server Error', { status: 500 })
   }
 }
