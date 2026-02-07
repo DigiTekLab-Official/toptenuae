@@ -1,23 +1,30 @@
-// src/app/api/sitemap-main/route.ts
-import { client } from '@/sanity/lib/client';
-import { groq } from 'next-sanity';
-import { NextResponse } from 'next/server';
+// functions/api/sitemap-main.ts
+export async function onRequest(context: any) {
+  // 1. Setup your Sanity Configuration manually
+  // You can hardcode these or use context.env if you set them in Cloudflare Dashboard
+  const PROJECT_ID = 'kxdjzy8e'; 
+  const DATASET = 'production';
+  const API_VERSION = '2024-01-01';
+  const BASE_URL = 'https://toptenuae.com';
 
-export const dynamic = 'force-dynamic';
+  // 2. The GROQ Query
+  const query = `*[_type in ["article", "product", "deal", "howTo", "topTenList"] && defined(slug.current)] {
+    _type,
+    "slug": slug.current,
+    _updatedAt,
+    "category": category->slug.current
+  }`;
 
-const BASE_URL = 'https://toptenuae.com';
+  // 3. Construct the URL for the Sanity API
+  const sanityUrl = `https://${PROJECT_ID}.api.sanity.io/v${API_VERSION}/data/query/${DATASET}?query=${encodeURIComponent(query)}`;
 
-export async function GET() {
   try {
-    const query = groq`*[_type in ["article", "product", "deal", "howTo", "topTenList"] && defined(slug.current)] {
-      _type,
-      "slug": slug.current,
-      _updatedAt,
-      "category": category->slug.current
-    }`;
+    // 4. Perform a raw fetch (No libraries needed)
+    const response = await fetch(sanityUrl);
+    const json = await response.json();
+    const data = json.result;
 
-    const data = await client.fetch(query);
-
+    // 5. Generate the XML
     const dynamicRoutes = data.map((item: any) => {
       let path = '';
       switch (item._type) {
@@ -51,20 +58,21 @@ export async function GET() {
     <priority>1.0</priority>
   </url>`).join('');
 
-    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+    const finalXml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${staticXml}
 ${dynamicRoutes}
 </urlset>`;
 
-    return new NextResponse(xml, {
-      status: 200,
+    // 6. Return the response directly
+    return new Response(finalXml, {
       headers: {
         'Content-Type': 'application/xml',
-        'Cache-Control': 'no-store, no-cache, must-revalidate',
+        'Cache-Control': 'public, max-age=3600',
       },
     });
+
   } catch (error) {
-    return new NextResponse('Error generating sitemap', { status: 500 });
+    return new Response(`Error generating sitemap: ${error instanceof Error ? error.message : 'Unknown error'}`, { status: 500 });
   }
 }
