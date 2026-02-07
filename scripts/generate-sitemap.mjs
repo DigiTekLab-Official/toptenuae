@@ -1,4 +1,3 @@
-// scripts/generate-sitemap.mjs
 import { createClient } from '@sanity/client';
 import fs from 'fs';
 import path from 'path';
@@ -8,12 +7,13 @@ const client = createClient({
   projectId: 'kxdjzy8e',
   dataset: 'production',
   apiVersion: '2024-01-01',
-  useCdn: false,
+  useCdn: false, // Ensure we get fresh data
 });
 
 const BASE_URL = 'https://toptenuae.com';
 
-const query = `*[_type in ["topTenList", "article", "howTo", "tool", "holiday", "deal", "product", "event"] && defined(slug.current)] {
+// FIX 1: Removed "deal" from this list so they are never fetched.
+const query = `*[_type in ["topTenList", "article", "howTo", "tool", "holiday", "product", "event"] && defined(slug.current)] {
   _type,
   "slug": slug.current,
   _updatedAt,
@@ -36,15 +36,48 @@ async function generateSitemap() {
     // 2. Build Dynamic Routes
     const dynamicRoutes = data.map((item) => {
       let urlPath = '';
+
+      // FIX 2: Strict Routing Logic
       switch (item._type) {
-        case 'article': urlPath = `/${item.category || 'reviews'}/${item.slug}`; break;
-        case 'product': urlPath = `/reviews/${item.slug}`; break;
-        case 'howTo': urlPath = `/how-to-guides/${item.slug}`; break;
-        case 'topTenList': urlPath = `/top-ten/${item.slug}`; break;
-        case 'holiday': urlPath = `/events-holidays/${item.slug}`; break;
-        case 'tool': urlPath = `/finance-tools/${item.slug}`; break;
-        default: urlPath = `/${item.slug}`;
+        case 'article': 
+          // Check for category to route correctly, fallback to reviews
+          const cat = item.category || 'reviews';
+          if (['how-to-guides', 'guides'].includes(cat)) urlPath = `/how-to-guides/${item.slug}`;
+          else if (['travel-tourism', 'travel'].includes(cat)) urlPath = `/travel-tourism/${item.slug}`;
+          else urlPath = `/reviews/${item.slug}`;
+          break;
+          
+        case 'product': 
+          urlPath = `/reviews/${item.slug}`; 
+          break;
+          
+        case 'howTo': 
+          urlPath = `/how-to-guides/${item.slug}`; 
+          break;
+          
+        case 'topTenList': 
+          urlPath = `/top-ten/${item.slug}`; 
+          break;
+          
+        case 'holiday': 
+        case 'event':
+          urlPath = `/events-holidays/${item.slug}`; 
+          break;
+          
+        case 'tool': 
+          urlPath = `/finance-tools/${item.slug}`; 
+          break;
+
+        case 'deal':
+          return ''; // Explicitly SKIP deals
+          
+        default: 
+          // FIX 3: Safety Net - If type is unknown, DO NOT generate a root URL.
+          // This prevents "https://toptenuae.com/some-random-slug" errors.
+          console.warn(`⚠️ Skipped unknown type: ${item._type} (${item.slug})`);
+          return ''; 
       }
+
       return `
   <url>
     <loc>${BASE_URL}${urlPath}</loc>
@@ -55,7 +88,6 @@ async function generateSitemap() {
     }).join('');
 
     // 3. SEO-Boosted Static Routes
-    // We use 'latestUpdate' so Google knows these index pages have new content inside them.
     const STATIC_ROUTES = [
       { url: '', priority: 1.0, changeFrequency: 'daily' },
       { url: '/top-ten', priority: 0.9, changeFrequency: 'daily' },
