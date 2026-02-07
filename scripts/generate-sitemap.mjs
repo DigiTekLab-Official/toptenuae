@@ -13,7 +13,7 @@ const client = createClient({
 
 const BASE_URL = 'https://toptenuae.com';
 
-const query = `*[_type in ["article", "product", "howTo", "topTenList"] && defined(slug.current)] {
+const query = `*[_type in ["topTenList", "article", "howTo", "tool", "holiday", "deal", "product", "event"] && defined(slug.current)] {
   _type,
   "slug": slug.current,
   _updatedAt,
