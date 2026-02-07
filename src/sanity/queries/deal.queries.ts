@@ -12,15 +12,18 @@ export const ALL_ACTIVE_DEALS = groq`
     description,
     "image": coalesce(image.asset->url, product->mainImage.asset->url),
     "affiliateLink": coalesce(affiliateLink, product->affiliateLink),
-    // ✅ CRITICAL ADDITION: Fetch the slug of the related product review
     "reviewSlug": product->slug.current, 
-    originalPrice, dealPrice, discountPercentage, category,
-    dealEndDate, isPrimeExclusive, featured, couponCode, couponNote,
+    originalPrice, 
+    dealPrice, 
+    discountPercentage, 
+    category,
+    dealEndDate, 
+    isPrimeExclusive, 
+    featured, 
+    couponCode, 
+    couponNote,
     "rating": coalesce(rating, product->customerRating),
     "reviewCount": coalesce(reviewCount, product->reviewCount)
-    "retailer": coalesce(retailer, product->retailer),
-    "retailerLogo": product->retailerLogo.asset->url, // If you have this in your product schema
-
   }
 `;
 
