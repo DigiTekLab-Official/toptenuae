@@ -261,62 +261,65 @@ export const generateProductSchema = (data: any, category?: string, slug?: strin
 };
 
 // =============================================================================
-// 7. TOP TEN LIST SCHEMA (Fixed for Carousel & URL Errors)
+// 7. TOP TEN LIST SCHEMA (Bulletproof Fix)
 // =============================================================================
 export const generateTopTenListSchema = (data: any, category?: string, slug?: string) => {
-  // If no items, return null to avoid empty schema errors
   if (!data.listItems || data.listItems.length === 0) return null;
 
   const pageUrl = category && slug ? `${baseUrl}/${category}/${slug}` : baseUrl;
 
+  // ✅ FILTER 1: Remove items where the product reference is broken (null)
+  const validItems = data.listItems.filter((item: any) => item.product && item.product.title);
+
   return {
     '@context': 'https://schema.org',
-    // ✅ CRITICAL: Using 'ItemList' triggers the Carousel Rich Result. 
-    // 'Article' does not triggers the list carousel.
     '@type': 'ItemList',
     '@id': `${pageUrl}#toplist`,
     name: cleanText(data.seo?.metaTitle || data.title),
     description: cleanText(data.seo?.metaDescription || data.intro || data.description || ''),
     url: pageUrl,
-    numberOfItems: data.listItems.length,
+    numberOfItems: validItems.length,
     itemListOrder: 'https://schema.org/ItemListOrderDescending',
     mainEntityOfPage: {
       '@type': 'WebPage',
       '@id': getPageId(category, slug)
     },
-    itemListElement: data.listItems.map((item: any, index: number) => {
-      // Handle data inconsistencies (sometimes it's item.product, sometimes just item)
-      const product = item.product || item;
-
-      // ✅ FIX 1: Robust Price Cleaning
-      const priceValue = product.price || product.dealPrice || product.livePrice || 0;
-      const cleanPrice = typeof priceValue === 'string'
-        ? priceValue.replace(/[^0-9.]/g, "")
-        : priceValue;
-
-      // ✅ FIX 2: Fallback URL (Solves "Missing field url")
-      // If product has no slug, link to the list page anchor as a fallback
+    itemListElement: validItems.map((item: any, index: number) => {
+      const product = item.product;
+      
+      // ✅ FIX 2: Generate Robust URL
+      // If slug is missing, we MUST provide a valid fallback anchor or the list breaks.
       const productSlug = product.slug?.current || product.slug;
-      const productUrl = productSlug
-        ? `${baseUrl}/${category || 'reviews'}/${productSlug}`
+      const productUrl = productSlug 
+        ? `${baseUrl}/${category || 'reviews'}/${productSlug}` 
         : `${pageUrl}#rank-${index + 1}`;
+
+      // ✅ FIX 3: Price Parsing Safety
+      const priceValue = product.price || product.dealPrice || product.livePrice || 0;
+      const cleanPrice = typeof priceValue === 'string' 
+        ? priceValue.replace(/[^0-9.]/g, "") 
+        : priceValue;
 
       const listItem: any = {
         '@type': 'ListItem',
         position: index + 1,
-        url: productUrl, // ✅ Required by Google for the List Item itself
+        url: productUrl, // Required: The URL of the item in the list
         item: {
           '@type': 'Product',
           name: cleanText(product.title || item.itemName || `Rank #${index + 1}`),
-          url: productUrl, // ✅ Required by Google for the Product inside
+          url: productUrl, // Required: The URL of the product entity
           description: cleanText(item.customVerdict || product.verdict || product.itemDescription || ''),
           image: product.mainImage?.url ? [product.mainImage.url] : [DEFAULT_IMAGE],
+          brand: product.brand ? {
+            '@type': 'Brand',
+            name: cleanText(product.brand)
+          } : undefined,
           offers: {
             '@type': 'Offer',
             price: cleanPrice,
             priceCurrency: product.currency || 'AED',
             availability: product.availability || 'https://schema.org/InStock',
-            url: product.affiliateLink || productUrl, // Affiliate link is preferred for Offer
+            url: product.affiliateLink || productUrl,
             seller: {
               '@type': 'Organization',
               name: product.retailer || 'Various UAE Retailers'
@@ -325,13 +328,13 @@ export const generateTopTenListSchema = (data: any, category?: string, slug?: st
         }
       };
 
-      // ✅ FIX 3: Conditional Rating (Solves "Missing aggregateRating" gracefully)
-      // We only add this block if data actually exists. 
-      if (product.customerRating) {
+      // ✅ FIX 4: Only add Rating if valid data exists
+      // This removes the "Missing aggregateRating" warning for unrated products
+      if (product.customerRating && product.customerRating > 0) {
         listItem.item.aggregateRating = {
           '@type': 'AggregateRating',
           ratingValue: product.customerRating,
-          reviewCount: product.reviewCount || 1, // Default to 1 if missing to satisfy schema
+          reviewCount: product.reviewCount || 1, // Fallback to 1 if count is missing but rating exists
           bestRating: 5,
           worstRating: 1
         };
