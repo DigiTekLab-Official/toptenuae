@@ -9,7 +9,7 @@ import JsonLd from '@/components/sanity/JsonLd'
 import { generateSchema } from '@/lib/schemaGenerator'
 
 export const revalidate = 60 // seconds — adjust to taste (false for SSR)
-export const dynamic = 'force-dynamic' // ensures fresh data when needed
+// export const dynamic = 'force-dynamic' // ensures fresh data when needed
 
 export const metadata: Metadata = {
   title: 'Ramadan Sale 2026: Top Deals in UAE | Amazon & Noon Discounts',

@@ -261,27 +261,44 @@ export const generateProductSchema = (data: any, category?: string, slug?: strin
 };
 
 // =============================================================================
-// 7. TOP TEN LIST SCHEMA (Enhanced)
+// 7. TOP TEN LIST SCHEMA (Enhanced) - Using Article to Avoid Carousel Errors
 // =============================================================================
 export const generateTopTenListSchema = (data: any, category?: string, slug?: string) => {
   if (!data.listItems || data.listItems.length === 0) return null;
 
   const pageUrl = category && slug ? `${baseUrl}/${category}/${slug}` : baseUrl;
+  const images = data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE];
 
   return {
     '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    '@id': `${pageUrl}#itemlist`,
-    name: cleanText(data.seo?.metaTitle || data.title),
+    '@type': 'Article',
+    '@id': `${pageUrl}#article`,
+    headline: cleanText(data.seo?.metaTitle || data.title),
     description: cleanText(data.seo?.metaDescription || data.intro || data.description || ''),
     url: pageUrl,
-    itemListOrder: 'https://schema.org/ItemListOrderDescending',
-    numberOfItems: data.listItems.length,
+    image: images,
+    datePublished: data.publishedAt || data._createdAt,
+    dateModified: data._updatedAt || data.publishedAt || data._createdAt,
+    author: {
+      '@type': 'Organization',
+      '@id': `${baseUrl}/#organization`,
+      name: 'TopTenUAE Editorial Team'
+    },
+    publisher: {
+      '@type': 'Organization',
+      '@id': `${baseUrl}/#organization`,
+      name: 'TopTenUAE',
+      logo: {
+        '@type': 'ImageObject',
+        '@id': `${baseUrl}/#logo`
+      }
+    },
     mainEntityOfPage: {
       '@type': 'WebPage',
       '@id': getPageId(category, slug)
     },
-    itemListElement: data.listItems.map((item: any, index: number) => {
+    inLanguage: 'en-AE',
+    about: data.listItems.map((item: any, index: number) => {
       const product = item.product || {};
       const priceValue = product.price || product.dealPrice || product.livePrice || 0;
       const cleanPrice = typeof priceValue === 'string' 
@@ -293,35 +310,31 @@ export const generateTopTenListSchema = (data: any, category?: string, slug?: st
         : undefined;
 
       const productItem: any = {
-        '@type': 'ListItem',
-        position: item.rank || index + 1,
-        item: {
-          '@type': 'Product',
-          name: cleanText(product.title || item.itemName || `Product ${index + 1}`),
-          url: productUrl,
-          description: cleanText(item.customVerdict || product.verdict || product.itemDescription || ''),
-          image: product.mainImage?.url ? [product.mainImage.url] : [DEFAULT_IMAGE],
-          brand: product.brand ? {
-            '@type': 'Brand',
-            name: cleanText(product.brand)
-          } : undefined,
-          offers: {
-            '@type': 'Offer',
-            price: cleanPrice,
-            priceCurrency: product.currency || 'AED',
-            availability: product.availability || 'https://schema.org/InStock',
-            url: product.affiliateLink,
-            priceValidUntil: product.priceValidUntil || getNextYearDate(),
-            seller: {
-              '@type': 'Organization',
-              name: product.retailer || 'Various UAE Retailers'
-            }
+        '@type': 'Product',
+        name: cleanText(product.title || item.itemName || `Product ${index + 1}`),
+        url: productUrl,
+        description: cleanText(item.customVerdict || product.verdict || product.itemDescription || ''),
+        image: product.mainImage?.url ? [product.mainImage.url] : [DEFAULT_IMAGE],
+        brand: product.brand ? {
+          '@type': 'Brand',
+          name: cleanText(product.brand)
+        } : undefined,
+        offers: {
+          '@type': 'Offer',
+          price: cleanPrice,
+          priceCurrency: product.currency || 'AED',
+          availability: product.availability || 'https://schema.org/InStock',
+          url: product.affiliateLink,
+          priceValidUntil: product.priceValidUntil || getNextYearDate(),
+          seller: {
+            '@type': 'Organization',
+            name: product.retailer || 'Various UAE Retailers'
           }
         }
       };
 
       if (product.customerRating && product.reviewCount) {
-        productItem.item.aggregateRating = {
+        productItem.aggregateRating = {
           '@type': 'AggregateRating',
           ratingValue: product.customerRating,
           reviewCount: product.reviewCount,

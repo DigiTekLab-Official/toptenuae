@@ -27,25 +27,33 @@ export async function POST(req: NextRequest) {
     const slug = body.slug as string | undefined
 
     switch (body._type) {
+      case 'category':
+        tagsToRevalidate.push('category', 'homepage')
+        if (slug) tagsToRevalidate.push(`category:${slug}`)
+        break
       case 'deal':
       case 'product':
         tagsToRevalidate.push('deals', 'deal', 'product', 'reviews', 'topTenList')
         if (slug) tagsToRevalidate.push(slug, `product:${slug}`)
         break
       case 'howTo':
-        tagsToRevalidate.push('howTo')
+        tagsToRevalidate.push('howTo', 'category', 'category:how-to-guides')
         if (slug) tagsToRevalidate.push(slug)
         break
       case 'holiday':
-        tagsToRevalidate.push('holiday')
+        tagsToRevalidate.push('holiday', 'category', 'category:events-holidays')
         if (slug) tagsToRevalidate.push(slug)
         break
       case 'topTenList':
-        tagsToRevalidate.push('topTenList', 'product', 'reviews')
+        tagsToRevalidate.push('topTenList', 'product', 'reviews', 'category', 'category:top-ten')
         if (slug) tagsToRevalidate.push(slug, `topTenList:${slug}`)
         break
       case 'article':
-        tagsToRevalidate.push('article')
+        tagsToRevalidate.push('article', 'category')
+        if (slug) tagsToRevalidate.push(slug)
+        break
+      case 'tool':
+        tagsToRevalidate.push('tool', 'category', 'category:finance-tools')
         if (slug) tagsToRevalidate.push(slug)
         break
       default:

@@ -188,7 +188,17 @@ export default async function CategoryPage({ params }: PageProps) {
   let data;
   try {
     // ✅ Fixed: Using the Imported Query from queries.ts
-    data = await client.fetch(CATEGORY_PAGE_QUERY, { slug: category });
+    data = await client.fetch(
+      CATEGORY_PAGE_QUERY, 
+      { slug: category },
+      {
+        cache: 'force-cache',
+        next: { 
+          tags: ['category', `category:${category}`],
+          revalidate: 60
+        }
+      }
+    );
   } catch (error) {
     console.error("Error fetching category data:", error);
     return notFound();

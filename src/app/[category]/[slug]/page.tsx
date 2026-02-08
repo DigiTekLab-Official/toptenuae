@@ -1,4 +1,3 @@
-// src/app/[category]/[slug]/page.tsx
 import { client } from "@/sanity/lib/client";
 import { cache } from "react";
 import { notFound, permanentRedirect } from "next/navigation";
@@ -167,7 +166,8 @@ export default async function Page({ params }: PageProps) {
     permanentRedirect(`/${correctCategory}/${slug}`);
   }
 
-  const schemaData = generateSchema(data);
+  // ✅ CRITICAL FIX: Pass category and slug to generateSchema
+  const schemaData = generateSchema(data, category, slug);
 
   return (
     <>

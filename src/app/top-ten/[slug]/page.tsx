@@ -1,3 +1,4 @@
+// src/app/top-ten/[slug]/page.tsx
 import { client } from "@/sanity/lib/client";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
