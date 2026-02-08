@@ -240,6 +240,7 @@ export default async function Home() {
                 className="opacity-30"
                 priority={true}
                 fetchPriority="high"
+                decoding="sync"
                 quality={75}
                 sizes="100vw"
                 aria-hidden="true"
