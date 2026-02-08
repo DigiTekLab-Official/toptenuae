@@ -303,11 +303,13 @@ export const generateTopTenListSchema = (data: any, category?: string, slug?: st
       const listItem: any = {
         '@type': 'ListItem',
         position: index + 1,
-        url: productUrl, // Required: The URL of the item in the list
+        name: cleanText(product.title || item.itemName || `Rank #${index + 1}`),
+        url: productUrl, // ✅ REQUIRED: Direct URL on ListItem
         item: {
           '@type': 'Product',
+          '@id': `${productUrl}#product`,
           name: cleanText(product.title || item.itemName || `Rank #${index + 1}`),
-          url: productUrl, // Required: The URL of the product entity
+          url: productUrl,
           description: cleanText(item.customVerdict || product.verdict || product.itemDescription || ''),
           image: product.mainImage?.url ? [product.mainImage.url] : [DEFAULT_IMAGE],
           brand: product.brand ? {
@@ -328,13 +330,12 @@ export const generateTopTenListSchema = (data: any, category?: string, slug?: st
         }
       };
 
-      // ✅ FIX 4: Only add Rating if valid data exists
-      // This removes the "Missing aggregateRating" warning for unrated products
-      if (product.customerRating && product.customerRating > 0) {
+      // ✅ Only add aggregateRating if BOTH rating AND reviewCount exist
+      if (product.customerRating && product.customerRating > 0 && product.reviewCount && product.reviewCount > 0) {
         listItem.item.aggregateRating = {
           '@type': 'AggregateRating',
           ratingValue: product.customerRating,
-          reviewCount: product.reviewCount || 1, // Fallback to 1 if count is missing but rating exists
+          reviewCount: product.reviewCount,
           bestRating: 5,
           worstRating: 1
         };
