@@ -1,89 +1,83 @@
+// src/middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// ========================================================================
-// ✅ UPDATED MATCHER
-// ========================================================================
 export const config = {
   matcher: [
-    // Ignore internal Next.js files, Sanity Studio, and specific static files
     '/((?!api|studio|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
   ],
 };
 
 export function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
-  const { pathname, searchParams } = url;
   const hostname = request.headers.get('host') || '';
+  let needsRedirect = false;
 
-  /// ========================================================================
-  // 0. BYPASS LOGIC (Safety Net)
+  // ========================================================================
+  // 0. BYPASS LOGIC
   // ========================================================================
   if (
-    pathname.startsWith('/api') || 
-    pathname.startsWith('/studio') || 
-    pathname.startsWith('/_next') ||
-    pathname.startsWith('/static') ||
-    // Always use .txt here, even if the source is .ts
-    pathname === '/sitemap.xml' ||
-    pathname === '/robots.txt' ||
-    pathname.includes('.') 
+    url.pathname.startsWith('/api') || 
+    url.pathname.startsWith('/studio') || 
+    url.pathname.startsWith('/_next') ||
+    url.pathname.startsWith('/static') ||
+    url.pathname === '/sitemap.xml' ||
+    url.pathname === '/robots.txt' ||
+    url.pathname.includes('.') 
   ) {
     return NextResponse.next();
   }
 
   // ========================================================================
-  // 1. TRAILING SLASH REMOVAL
-  // ========================================================================
-  if (pathname !== '/' && pathname.endsWith('/')) {
-    url.pathname = pathname.replace(/\/$/, '');
-    return NextResponse.redirect(url, 301);
-  }
-
-  // ========================================================================
-  // 2. SECURITY BLOCKLIST
+  // 1. SECURITY BLOCKLIST
   // ========================================================================
   if (
     hostname.startsWith('webmail.') ||
     hostname.startsWith('cpanel.') ||
-    pathname.includes('.php') ||
-    pathname.startsWith('/cgi-bin/')
+    url.pathname.includes('.php') ||
+    url.pathname.startsWith('/cgi-bin/')
   ) {
     return new NextResponse('Not Found', { status: 404 });
   }
 
   // ========================================================================
-  // 3. URL CLEANUP (WWW & Case)
+  // 2. CONSOLIDATED REDIRECTS (The "One Jump" Fix)
   // ========================================================================
-  let needsRedirect = false;
+  
+  // A. Trailing Slash Removal
+  if (url.pathname !== '/' && url.pathname.endsWith('/')) {
+    url.pathname = url.pathname.slice(0, -1);
+    needsRedirect = true;
+  }
 
-  // A. Force Non-WWW
+  // B. Force Non-WWW
   if (hostname.startsWith('www.')) {
     url.hostname = hostname.replace('www.', '');
     needsRedirect = true;
   }
 
-  // B. Force Lowercase
-  if (pathname !== pathname.toLowerCase()) {
-    url.pathname = pathname.toLowerCase();
+  // C. Force Lowercase (Check against the updated pathname from Step A)
+  if (url.pathname !== url.pathname.toLowerCase()) {
+    url.pathname = url.pathname.toLowerCase();
     needsRedirect = true;
   }
 
-  // C. Strip Tracking Parameters
+  // D. Strip Tracking Parameters
   const badParams = ['fbclid', 'gclid', 'utm_source', 'utm_medium', 'utm_campaign', 'ref'];
   badParams.forEach((param) => {
-    if (searchParams.has(param)) {
-      searchParams.delete(param);
+    if (url.searchParams.has(param)) {
+      url.searchParams.delete(param);
       needsRedirect = true;
     }
   });
 
+  // EXECUTE REDIRECT (If any of the above changed)
   if (needsRedirect) {
     return NextResponse.redirect(url, 301);
   }
 
   // ========================================================================
-  // 4. SECURITY HEADERS (CSP)
+  // 3. SECURITY HEADERS (CSP)
   // ========================================================================
   const response = NextResponse.next();
 

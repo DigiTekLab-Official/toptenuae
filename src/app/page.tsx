@@ -505,7 +505,7 @@ export default async function Home() {
                                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider mb-2 text-emerald-600 bg-emerald-50 self-start px-2 py-0.5 rounded-full">
                                  <ShoppingBag className="w-3 h-3" /> Best Buy
                                </div>
-                            ) : (
+                            ) : post.publishedAt ? (
                               <time 
                                 className="flex items-center gap-1.5 text-[10px] text-gray-600 font-bold uppercase tracking-wider mb-2"
                                 dateTime={post.publishedAt}
@@ -513,7 +513,7 @@ export default async function Home() {
                                 <Clock className="w-3 h-3" />
                                 {formatDate(post.publishedAt)}
                               </time>
-                            )}
+                            ) : null}
                             
                             <h3 className="text-lg font-bold text-gray-900 mb-3 group-hover:text-primary transition-colors line-clamp-2 leading-tight">
                               {post.title}
