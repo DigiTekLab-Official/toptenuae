@@ -8,6 +8,9 @@ import {
 } from 'lucide-react';
 import { client } from '@/sanity/lib/client';
 
+export const revalidate = 60;
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Top 10 Lists & Buying Guides UAE | Best of UAE Ranked',
   description: "Discover the best products and services in the UAE. Unbiased Top 10 lists for Tech, Home, Parenting, and more, updated for 2026.",
@@ -33,7 +36,7 @@ async function getData() {
       "categorySlug": coalesce(category->slug.current, categories[0]->slug.current, "top-ten"),
       "imageUrl": mainImage.asset->url
     }
-  `);
+  `, {}, { next: { tags: ['topTenList', 'featured'] } });
 
   // 2. Fetch All Lists (Grouped by Section)
   const lists = await client.fetch(`
@@ -43,7 +46,7 @@ async function getData() {
       "section": reviewSection,
       "imageUrl": mainImage.asset->url
     }
-  `);
+  `, {}, { next: { tags: ['topTenList'] } });
 
   const grouped: Record<string, any[]> = {};
   Object.keys(SECTIONS_CONFIG).forEach(key => grouped[key] = []);

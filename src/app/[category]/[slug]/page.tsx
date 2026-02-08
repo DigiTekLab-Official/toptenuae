@@ -72,7 +72,7 @@ const getPostData = cache(async (slug: string) => {
   );
 
   const fetchOptions = {
-    next: { tags: [slug, docType || "generic"] },
+    next: { tags: [slug, docType || "generic", 'product', 'reviews', 'topTenList'] },
   };
 
   if (docType === "topTenList") {

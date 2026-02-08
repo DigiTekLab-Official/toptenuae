@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     switch (body._type) {
       case 'deal':
       case 'product':
-        tagsToRevalidate.push('deals', 'deal', 'product', 'reviews')
+        tagsToRevalidate.push('deals', 'deal', 'product', 'reviews', 'topTenList')
         if (slug) tagsToRevalidate.push(slug)
         break
       case 'howTo':
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
         if (slug) tagsToRevalidate.push(slug)
         break
       case 'topTenList':
-        tagsToRevalidate.push('topTenList')
+        tagsToRevalidate.push('topTenList', 'product', 'reviews')
         if (slug) tagsToRevalidate.push(slug)
         break
       case 'article':
