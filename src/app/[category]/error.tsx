@@ -1,3 +1,4 @@
+// This is the error component for the category page. It will be rendered when there's an error loading the category or its posts.
 "use client";
 
 import { useEffect } from "react";
