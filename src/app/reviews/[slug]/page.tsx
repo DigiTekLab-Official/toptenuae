@@ -8,6 +8,8 @@ import JsonLd from "@/components/sanity/JsonLd";
 import ProductView from "@/components/views/ProductView";
 import { PRODUCT_BY_SLUG_QUERY } from "@/sanity/lib/queries";
 
+export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 export const dynamicParams = true; 
 
 // ----------------------------

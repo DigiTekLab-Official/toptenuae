@@ -8,6 +8,8 @@ import JsonLd from "@/components/sanity/JsonLd";
 import { TOP_TEN_LIST_QUERY } from "@/sanity/lib/queries";
 import ArticleView from "@/components/views/ArticleView";
 
+export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 export const dynamicParams = true; 
 
 // ----------------------------
@@ -82,7 +84,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const data = await client.fetch<TopTenListData | null>(
       TOP_TEN_LIST_QUERY,
       { slug },
-      { cache: "force-cache" }
+      { next: { tags: [slug, `topTenList:${slug}`, 'topTenList', 'product'] } }
     );
 
     if (!data) {
@@ -128,7 +130,7 @@ export default async function TopTenPage({ params }: PageProps) {
     data = await client.fetch<TopTenListData | null>(
       TOP_TEN_LIST_QUERY,
       { slug },
-      { cache: "force-cache" }
+      { next: { tags: [slug, `topTenList:${slug}`, 'topTenList', 'product'] } }
     );
   } catch (error) {
     console.error(`Error fetching top-ten list [${slug}]:`, error);
