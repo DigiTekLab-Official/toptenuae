@@ -1,14 +1,17 @@
+// src/app/[category]/[slug]/page.tsx
 import { client } from "@/sanity/lib/client";
-import { cache } from 'react';
+import { cache } from "react";
 import { notFound, permanentRedirect } from "next/navigation";
 import { Metadata } from "next";
 import { generateSeoMetadata } from "@/utils/seo-manager";
 import { generateSchema } from "@/lib/schemaGenerator";
-import JsonLd from '@/components/sanity/JsonLd';
+import JsonLd from "@/components/sanity/JsonLd";
 import ArticleView from "@/components/views/ArticleView";
 import { GENERIC_POST_QUERY, TOP_TEN_LIST_QUERY } from "@/sanity/lib/queries";
-import { groq } from 'next-sanity';
+import { groq } from "next-sanity";
 
+// ✅ Control ISR behavior (set to 60s or false for SSR)
+export const revalidate = 60;
 export const dynamicParams = true;
 
 // =============================================================================
@@ -40,10 +43,10 @@ const HOW_TO_QUERY = groq`
 // Helper: Normalize Categories
 const normalizeCategory = (categorySlug: string) => {
   const map: Record<string, string> = {
-    'travel-tourism': 'events-holidays',
-    'health-fitness': 'lifestyle',
-    'baby-kid': 'parenting-kids',
-    'buyers-guide': 'reviews',
+    "travel-tourism": "events-holidays",
+    "health-fitness": "lifestyle",
+    "baby-kid": "parenting-kids",
+    "buyers-guide": "reviews",
   };
   return map[categorySlug] || categorySlug;
 };
@@ -51,42 +54,33 @@ const normalizeCategory = (categorySlug: string) => {
 // Validated Category Cache
 const getCategoryValidation = cache(async () => {
   try {
-    const categories = await client.fetch(groq`
-      *[_type == "category"]{ "slug": slug.current }
-    `);
+    const categories = await client.fetch(
+      groq`*[_type == "category"]{ "slug": slug.current }`
+    );
     return new Set(categories.map((c: any) => c.slug));
   } catch {
     return new Set();
   }
 });
 
-// ✅ UPDATED: Fetch function NOW INCLUDES TAGS
+// ✅ Fetch function with ISR tags
 const getPostData = cache(async (slug: string) => {
-  // 1. Detect the document type first
   const docType = await client.fetch(
     groq`*[slug.current == $slug][0]._type`,
-    { slug }
+    { slug },
+    { next: { tags: [slug, 'content-type-lookup'] } }
   );
 
-  // 2. Define Cache Tags
-  // We tag this fetch with the SLUG (specific) and Types (Global)
-  // This ensures revalidateTag('product') or revalidateTag(slug) actually works.
-  const fetchOptions = { 
-    next: { 
-      tags: [slug, 'article', 'product', 'howTo', 'topTenList'] 
-    } 
+  const fetchOptions = {
+    next: { tags: [slug, docType || "generic"] },
   };
-  
-  // 3. Route to the correct query WITH tags
-  if (docType === 'topTenList') {
+
+  if (docType === "topTenList") {
     return await client.fetch(TOP_TEN_LIST_QUERY, { slug }, fetchOptions);
   }
-  
-  if (docType === 'howTo') {
+  if (docType === "howTo") {
     return await client.fetch(HOW_TO_QUERY, { slug }, fetchOptions);
   }
-  
-  // Fallback
   return await client.fetch(GENERIC_POST_QUERY, { slug }, fetchOptions);
 });
 
@@ -96,33 +90,31 @@ interface PageProps {
 
 export async function generateStaticParams() {
   const slugs = await client.fetch(
-    `*[_type in ["tool", "article", "topTenList", "howTo", "holiday", "event"] && defined(slug.current)]{
+    `*[_type in ["tool","article","topTenList","howTo","holiday","event"] && defined(slug.current)]{
       _type,
       "slug": slug.current,
       "category": coalesce(categories[0]->slug.current, category->slug.current)
     }`
   );
+
   return slugs.map((doc: any) => {
     let category = doc.category;
-    
-    // Fallback logic
     if (!category) {
-      switch(doc._type) {
-        case 'howTo':
-          category = 'how-to-guides';
+      switch (doc._type) {
+        case "howTo":
+          category = "how-to-guides";
           break;
-        case 'holiday':
-        case 'event':
-          category = 'events-holidays';
+        case "holiday":
+        case "event":
+          category = "events-holidays";
           break;
-        case 'tool':
-          category = 'finance-tools';
+        case "tool":
+          category = "finance-tools";
           break;
         default:
-          category = 'reviews';
+          category = "reviews";
       }
     }
-    
     return {
       category: normalizeCategory(category),
       slug: doc.slug,
@@ -135,16 +127,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const data = await getPostData(slug);
 
   if (!data) return { title: "Page Not Found" };
-  
-  const primaryCat = data.categories?.[0]?.slug?.current || data.category?.slug?.current;
-  const masterCategory = normalizeCategory(primaryCat || 'reviews');
+
+  const primaryCat =
+    data.categories?.[0]?.slug?.current || data.category?.slug?.current;
+  const masterCategory = normalizeCategory(primaryCat || "reviews");
   const imageUrl = data.mainImage?.url || data.mainImage?.asset?.url || null;
 
-  return generateSeoMetadata({ 
-    ...data, 
-    imageUrl, 
-    url: `https://toptenuae.com/${masterCategory}/${slug}` 
-  }, { category, slug });
+  return generateSeoMetadata(
+    { ...data, imageUrl, url: `https://toptenuae.com/${masterCategory}/${slug}` },
+    { category, slug }
+  );
 }
 
 export default async function Page({ params }: PageProps) {
@@ -153,18 +145,18 @@ export default async function Page({ params }: PageProps) {
 
   if (!data) notFound();
 
-  // Validate category
   const validCategories = await getCategoryValidation();
-  
-  let defaultCat = 'reviews';
-  if (data._type === 'holiday' || data._type === 'event') defaultCat = 'events-holidays';
-  if (data._type === 'tool') defaultCat = 'finance-tools';
-  if (data._type === 'howTo') defaultCat = 'how-to-guides';
 
-  const rawCategory = data.category?.slug?.current || 
-                      data.categories?.[0]?.slug?.current || 
-                      defaultCat;
-                      
+  let defaultCat = "reviews";
+  if (data._type === "holiday" || data._type === "event") defaultCat = "events-holidays";
+  if (data._type === "tool") defaultCat = "finance-tools";
+  if (data._type === "howTo") defaultCat = "how-to-guides";
+
+  const rawCategory =
+    data.category?.slug?.current ||
+    data.categories?.[0]?.slug?.current ||
+    defaultCat;
+
   const correctCategory = normalizeCategory(rawCategory);
 
   if (validCategories.size > 0 && !validCategories.has(correctCategory)) {
