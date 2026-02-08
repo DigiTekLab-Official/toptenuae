@@ -48,6 +48,20 @@ export async function generateMetadata(): Promise<Metadata> {
   const title = "The Best of the UAE, Ranked & Smart Tools";
   const description = "Discover trending products, expert reviews, and free UAE tools including VAT and gratuity calculators. Your trusted guide to smarter choices in the Emirates.";
 
+  // Fetch hero image for LCP preload
+  let heroImageData;
+  try {
+    heroImageData = await client.fetch(
+      `*[_type in ["topTenList", "article"] && isFeaturedOnHome == true] | order(publishedAt desc) [0].mainImage`,
+      {},
+      { cache: 'force-cache', next: { tags: ['homepage'] } }
+    );
+  } catch {
+    heroImageData = null;
+  }
+
+  const heroPreloadUrl = heroImageData ? mainImage(heroImageData) : null;
+
   return generateSeoMetadata({
     title: title,
     description: description,
@@ -61,7 +75,12 @@ export async function generateMetadata(): Promise<Metadata> {
         "UAE reviews", "product rankings", "best in UAE", "Dubai shopping guide",
         "VAT calculator", "gratuity calculator", "top 10 UAE", "UAE deals"
       ]
-    }
+    },
+    ...(heroPreloadUrl && {
+      other: {
+        'link': `<${heroPreloadUrl}>; rel="preload"; as="image"; fetchpriority="high"`
+      }
+    })
   });
 }
 
@@ -219,8 +238,9 @@ export default async function Home() {
                 fill
                 style={{ objectFit: 'cover' }}
                 className="opacity-30"
-                priority
-                quality={85}
+                priority={true}
+                fetchPriority="high"
+                quality={75}
                 sizes="100vw"
                 aria-hidden="true"
               />

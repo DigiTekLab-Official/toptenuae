@@ -1,0 +1,8 @@
+{
+  "browserslist": [
+    "chrome >= 100",
+    "safari >= 15",
+    "firefox >= 91",
+    "edge >= 100"
+  ]
+}

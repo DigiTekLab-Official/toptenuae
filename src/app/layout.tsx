@@ -2,13 +2,13 @@
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { IBM_Plex_Sans, Inter } from "next/font/google";
-import { GoogleTagManager } from '@next/third-parties/google';
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Clarity from "@/components/analytics/Clarity";
+import GTM from "@/components/analytics/GTM";
 
 // ❌ REMOVED: initializeSentry() 
 // Sentry should be initialized in sentry.client.config.ts and sentry.server.config.ts
@@ -175,15 +175,20 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
+        {/* ✅ CRITICAL: Preload LCP font variant only */}
+        <link
+          rel="preload"
+          href="https://fonts.gstatic.com/s/ibmplexsans/v19/zYX9KVElMYYaJe8bpLHnCwDKjQ76AIxsdP3pBmtF8A.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
         
-        <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+        {/* ✅ DNS prefetch only (non-blocking) */}
+        <link rel="dns-prefetch" href="https://cdn.sanity.io" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://scripts.clarity.ms" />
         
-        {/* ❌ REMOVED: <link rel="prefetch"> 
-           This wastes bandwidth on initial load. Next.js does this automatically via viewport. */}
-
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -196,19 +201,8 @@ export default function RootLayout({
         className={`${ibmPlexSans.className} ${ibmPlexSans.variable} ${inter.variable} font-sans text-slate-900 bg-slate-50 antialiased min-h-screen flex flex-col overflow-x-hidden`}
         suppressHydrationWarning={true}
       >
-        <GoogleTagManager gtmId="GTM-N3PB47W" />
-
-        <noscript>
-          <iframe
-            src="https://www.googletagmanager.com/ns.html?id=GTM-N3PB47W"
-            height="0"
-            width="0"
-            title="Google Tag Manager"
-            style={{ display: "none", visibility: "hidden" }}
-          />
-        </noscript>
-
         <Suspense fallback={null}>
+          <GTM />
           <Clarity />
         </Suspense>
 

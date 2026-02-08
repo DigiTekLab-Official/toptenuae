@@ -8,8 +8,8 @@ export default function Clarity() {
   const [shouldLoad, setShouldLoad] = useState(false);
 
   useEffect(() => {
-    // ✅ PERFORMANCE FIX: Increased delay to 5.5 seconds
-    const timer = setTimeout(() => setShouldLoad(true), 5500);
+    // ✅ PERFORMANCE FIX: Increased delay to 8 seconds\n    // Ensures Clarity loads well after hydration and TTI
+    const timer = setTimeout(() => setShouldLoad(true), 8000);
     return () => clearTimeout(timer);
   }, []);
 
