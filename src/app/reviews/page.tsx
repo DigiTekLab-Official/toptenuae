@@ -8,6 +8,9 @@ import {
 } from 'lucide-react';
 import { client } from '@/sanity/lib/client';
 
+export const revalidate = 60;
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Expert Product Reviews UAE | Real Tests & Verdicts',
   description: "Unbiased reviews of the latest electronics, appliances, and baby gear in the UAE market.",
@@ -31,7 +34,7 @@ async function getData() {
       "categorySlug": coalesce(category->slug.current, categories[0]->slug.current, "reviews"),
       "imageUrl": coalesce(image.asset->url, mainImage.asset->url)
     }
-  `);
+  `, {}, { next: { tags: ['product', 'reviews', 'featured'] } });
 
   // 2. Fetch All Reviews with Sub-Category Data
   const reviews = await client.fetch(`
@@ -42,7 +45,7 @@ async function getData() {
       "subCategoryTitle": subCategory->menuLabel, 
       "imageUrl": coalesce(image.asset->url, mainImage.asset->url)
     }
-  `);
+  `, {}, { next: { tags: ['product', 'reviews'] } });
 
   // 3. Advanced Grouping: Section -> SubCategory -> Products
   const grouped: Record<string, Record<string, any[]>> = {};
