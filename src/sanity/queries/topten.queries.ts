@@ -1,4 +1,4 @@
-// src/sanity/queries/topten.queries.ts --- QUERIES FOR TOP TEN LISTS ---
+// src/sanity/queries/topten.queries.ts
 import { groq } from 'next-sanity';
 
 // =============================================================================
@@ -13,20 +13,28 @@ export const TOP_TEN_BY_SLUG = groq`
     publishedAt,
     "updatedAt": _updatedAt, 
     "seoTitle": coalesce(seo.metaTitle, title),
-    "seoDescription": "",
+    
+    // ✅ FIX 1: Actually fetch the description (fallback to intro if empty)
+    "seoDescription": coalesce(seo.metaDescription, intro, ""),
+    
     mainImage { "url": asset->url, alt },
     intro,
     "body": body[],
     closingContent,
     showAffiliateDisclosure,
     faqs[] { _key, question, answer },
+    
     listItems[] | order(rank asc) {
       _key, rank, badgeLabel, whySelected, customVerdict,
       product->{
         _type, title,
-        "slug": slug.current,
+        "slug": slug.current, // ✅ PERFECT: This enables the Schema URL fix
         priceTier, price, currency, availability, 
-        affiliateLink, customerRating, verdict,
+        affiliateLink, 
+        
+        // ✅ FIX 2: Added 'reviewCount' to satisfy Schema requirements
+        customerRating, reviewCount, verdict,
+        
         location, curriculum, feeRange, realityCheck, website,
         "rating": coalesce(rating, customerRating),
         entityType, code, country,

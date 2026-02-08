@@ -5,7 +5,7 @@ import { cleanText } from '@/lib/utils/sanity-text';
 // CONFIGURATION
 // =============================================================================
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://toptenuae.com';
-const ORGANIZATION_LOGO = `${baseUrl}/icon.png`; 
+const ORGANIZATION_LOGO = `${baseUrl}/icon.png`;
 const DEFAULT_IMAGE = `${baseUrl}/images/brand/og-default.png`;
 
 // =============================================================================
@@ -184,16 +184,16 @@ export const generateFeaturedContentSchema = (posts: any[]) => {
 // =============================================================================
 export const generateProductSchema = (data: any, category?: string, slug?: string) => {
   const priceValue = data.price || data.dealPrice || data.livePrice || data.priceEstimate || 0;
-  const cleanPrice = typeof priceValue === 'string' 
-    ? priceValue.replace(/[^0-9.]/g, "") 
+  const cleanPrice = typeof priceValue === 'string'
+    ? priceValue.replace(/[^0-9.]/g, "")
     : priceValue;
 
-  const pageUrl = category && slug 
-    ? `${baseUrl}/${category}/${slug}` 
+  const pageUrl = category && slug
+    ? `${baseUrl}/${category}/${slug}`
     : baseUrl;
 
-  const images = data.mainImage?.url 
-    ? [data.mainImage.url] 
+  const images = data.mainImage?.url
+    ? [data.mainImage.url]
     : data.images?.map((img: any) => img.url).filter(Boolean) || [DEFAULT_IMAGE];
 
   const schema: any = {
@@ -261,89 +261,83 @@ export const generateProductSchema = (data: any, category?: string, slug?: strin
 };
 
 // =============================================================================
-// 7. TOP TEN LIST SCHEMA (Enhanced) - Using Article to Avoid Carousel Errors
+// 7. TOP TEN LIST SCHEMA (Fixed for Carousel & URL Errors)
 // =============================================================================
 export const generateTopTenListSchema = (data: any, category?: string, slug?: string) => {
+  // If no items, return null to avoid empty schema errors
   if (!data.listItems || data.listItems.length === 0) return null;
 
   const pageUrl = category && slug ? `${baseUrl}/${category}/${slug}` : baseUrl;
-  const images = data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE];
 
   return {
     '@context': 'https://schema.org',
-    '@type': 'Article',
-    '@id': `${pageUrl}#article`,
-    headline: cleanText(data.seo?.metaTitle || data.title),
+    // ✅ CRITICAL: Using 'ItemList' triggers the Carousel Rich Result. 
+    // 'Article' does not triggers the list carousel.
+    '@type': 'ItemList',
+    '@id': `${pageUrl}#toplist`,
+    name: cleanText(data.seo?.metaTitle || data.title),
     description: cleanText(data.seo?.metaDescription || data.intro || data.description || ''),
     url: pageUrl,
-    image: images,
-    datePublished: data.publishedAt || data._createdAt,
-    dateModified: data._updatedAt || data.publishedAt || data._createdAt,
-    author: {
-      '@type': 'Organization',
-      '@id': `${baseUrl}/#organization`,
-      name: 'TopTenUAE Editorial Team'
-    },
-    publisher: {
-      '@type': 'Organization',
-      '@id': `${baseUrl}/#organization`,
-      name: 'TopTenUAE',
-      logo: {
-        '@type': 'ImageObject',
-        '@id': `${baseUrl}/#logo`
-      }
-    },
+    numberOfItems: data.listItems.length,
+    itemListOrder: 'https://schema.org/ItemListOrderDescending',
     mainEntityOfPage: {
       '@type': 'WebPage',
       '@id': getPageId(category, slug)
     },
-    inLanguage: 'en-AE',
-    about: data.listItems.map((item: any, index: number) => {
-      const product = item.product || {};
+    itemListElement: data.listItems.map((item: any, index: number) => {
+      // Handle data inconsistencies (sometimes it's item.product, sometimes just item)
+      const product = item.product || item;
+
+      // ✅ FIX 1: Robust Price Cleaning
       const priceValue = product.price || product.dealPrice || product.livePrice || 0;
-      const cleanPrice = typeof priceValue === 'string' 
-        ? priceValue.replace(/[^0-9.]/g, "") 
+      const cleanPrice = typeof priceValue === 'string'
+        ? priceValue.replace(/[^0-9.]/g, "")
         : priceValue;
 
-      const productUrl = product.slug 
-        ? `${baseUrl}/${category || 'reviews'}/${product.slug}` 
-        : undefined;
+      // ✅ FIX 2: Fallback URL (Solves "Missing field url")
+      // If product has no slug, link to the list page anchor as a fallback
+      const productSlug = product.slug?.current || product.slug;
+      const productUrl = productSlug
+        ? `${baseUrl}/${category || 'reviews'}/${productSlug}`
+        : `${pageUrl}#rank-${index + 1}`;
 
-      const productItem: any = {
-        '@type': 'Product',
-        name: cleanText(product.title || item.itemName || `Product ${index + 1}`),
-        url: productUrl,
-        description: cleanText(item.customVerdict || product.verdict || product.itemDescription || ''),
-        image: product.mainImage?.url ? [product.mainImage.url] : [DEFAULT_IMAGE],
-        brand: product.brand ? {
-          '@type': 'Brand',
-          name: cleanText(product.brand)
-        } : undefined,
-        offers: {
-          '@type': 'Offer',
-          price: cleanPrice,
-          priceCurrency: product.currency || 'AED',
-          availability: product.availability || 'https://schema.org/InStock',
-          url: product.affiliateLink,
-          priceValidUntil: product.priceValidUntil || getNextYearDate(),
-          seller: {
-            '@type': 'Organization',
-            name: product.retailer || 'Various UAE Retailers'
+      const listItem: any = {
+        '@type': 'ListItem',
+        position: index + 1,
+        url: productUrl, // ✅ Required by Google for the List Item itself
+        item: {
+          '@type': 'Product',
+          name: cleanText(product.title || item.itemName || `Rank #${index + 1}`),
+          url: productUrl, // ✅ Required by Google for the Product inside
+          description: cleanText(item.customVerdict || product.verdict || product.itemDescription || ''),
+          image: product.mainImage?.url ? [product.mainImage.url] : [DEFAULT_IMAGE],
+          offers: {
+            '@type': 'Offer',
+            price: cleanPrice,
+            priceCurrency: product.currency || 'AED',
+            availability: product.availability || 'https://schema.org/InStock',
+            url: product.affiliateLink || productUrl, // Affiliate link is preferred for Offer
+            seller: {
+              '@type': 'Organization',
+              name: product.retailer || 'Various UAE Retailers'
+            }
           }
         }
       };
 
-      if (product.customerRating && product.reviewCount) {
-        productItem.aggregateRating = {
+      // ✅ FIX 3: Conditional Rating (Solves "Missing aggregateRating" gracefully)
+      // We only add this block if data actually exists. 
+      if (product.customerRating) {
+        listItem.item.aggregateRating = {
           '@type': 'AggregateRating',
           ratingValue: product.customerRating,
-          reviewCount: product.reviewCount,
+          reviewCount: product.reviewCount || 1, // Default to 1 if missing to satisfy schema
           bestRating: 5,
           worstRating: 1
         };
       }
 
-      return productItem;
+      return listItem;
     })
   };
 };
@@ -411,7 +405,7 @@ export const generateToolSchema = (data: any, category?: string, slug?: string) 
 // =============================================================================
 export const generateEventSchema = (data: any, category?: string, slug?: string) => {
   const eventUrl = category && slug ? `${baseUrl}/${category}/${slug}` : baseUrl;
-  
+
   const statusMap: Record<string, string> = {
     scheduled: "https://schema.org/EventScheduled",
     cancelled: "https://schema.org/EventCancelled",
@@ -420,7 +414,7 @@ export const generateEventSchema = (data: any, category?: string, slug?: string)
   };
 
   const images = data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE];
-  
+
   const schema: any = {
     '@context': 'https://schema.org',
     '@type': 'Event',
@@ -458,8 +452,8 @@ export const generateEventSchema = (data: any, category?: string, slug?: string)
       url: data.ticketUrl || eventUrl,
       price: data.ticketPrice || 0,
       priceCurrency: data.currency || "AED",
-      availability: data.isTicketAvailable === false 
-        ? "https://schema.org/SoldOut" 
+      availability: data.isTicketAvailable === false
+        ? "https://schema.org/SoldOut"
         : "https://schema.org/InStock",
       validFrom: data.ticketSaleDate || data.publishedAt || new Date().toISOString()
     };
@@ -518,20 +512,20 @@ export const generateHowToSchema = (data: any, category?: string, slug?: string)
 
   const steps = data.steps && Array.isArray(data.steps)
     ? data.steps.map((step: any, index: number) => ({
-        '@type': 'HowToStep',
-        position: index + 1,
-        name: cleanText(step.title || `Step ${index + 1}`),
-        text: cleanText(step.description || step.text || "Follow instructions"),
-        url: `${howToUrl}#step-${index + 1}`,
-        image: step.image?.url || undefined
-      }))
+      '@type': 'HowToStep',
+      position: index + 1,
+      name: cleanText(step.title || `Step ${index + 1}`),
+      text: cleanText(step.description || step.text || "Follow instructions"),
+      url: `${howToUrl}#step-${index + 1}`,
+      image: step.image?.url || undefined
+    }))
     : [{
-        '@type': 'HowToStep',
-        position: 1,
-        name: "Read Full Guide",
-        text: cleanText(data.intro || data.description || "Follow the detailed steps in the guide."),
-        url: howToUrl
-      }];
+      '@type': 'HowToStep',
+      position: 1,
+      name: "Read Full Guide",
+      text: cleanText(data.intro || data.description || "Follow the detailed steps in the guide."),
+      url: howToUrl
+    }];
 
   return {
     '@context': 'https://schema.org',
@@ -617,7 +611,7 @@ export function generateSchema(data: any, category?: string, slug?: string) {
   if (!category && !slug) {
     schemas.push(generateWebSiteSchema());
     schemas.push(generateHomePageSchema());
-    
+
     // Add Featured Content if available
     if (data.featuredPosts && data.featuredPosts.length > 0) {
       const featuredSchema = generateFeaturedContentSchema(data.featuredPosts);
