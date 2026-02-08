@@ -29,7 +29,8 @@ export async function POST(req: NextRequest) {
     switch (body._type) {
       case 'deal':
       case 'product':
-        tagsToRevalidate.push('deals', 'deal', 'product')
+        tagsToRevalidate.push('deals', 'deal', 'product', 'reviews')
+        if (slug) tagsToRevalidate.push(slug)
         break
       case 'howTo':
         tagsToRevalidate.push('howTo')
