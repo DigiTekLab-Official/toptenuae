@@ -507,7 +507,7 @@ export default async function Home() {
                                </div>
                             ) : (
                               <time 
-                                className="flex items-center gap-1.5 text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-2"
+                                className="flex items-center gap-1.5 text-[10px] text-gray-600 font-bold uppercase tracking-wider mb-2"
                                 dateTime={post.publishedAt}
                               >
                                 <Clock className="w-3 h-3" />

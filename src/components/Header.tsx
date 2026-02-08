@@ -136,6 +136,7 @@ export default function Header() {
                     setSearchQuery("");
                   }}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-red-600 transition-colors p-1 rounded-full hover:bg-gray-100"
+                  aria-label="Close search"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -193,6 +194,7 @@ export default function Header() {
                 <button 
                   onClick={() => setIsSearchOpen(true)}
                   className="p-2.5 text-gray-600 hover:text-[#4b0082] transition-all duration-200 rounded-full hover:bg-purple-50 group"
+                  aria-label="Open search"
                 >
                   <Search className="h-5 w-5 group-hover:scale-110 transition-transform" />
                 </button>
@@ -213,6 +215,7 @@ export default function Header() {
               <button 
                 onClick={() => setIsSearchOpen(true)}
                 className="p-2 text-gray-600 hover:text-[#4b0082] transition-colors rounded-full hover:bg-gray-100"
+                aria-label="Open search"
               >
                 <Search className="h-5 w-5" />
               </button>
@@ -221,6 +224,8 @@ export default function Header() {
                 type="button"
                 className="p-2 text-gray-700 hover:text-[#4b0082] transition-colors rounded-lg hover:bg-gray-100"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+                aria-expanded={isMobileMenuOpen}
               >
                 {isMobileMenuOpen ? (
                   <X className="h-6 w-6" />
