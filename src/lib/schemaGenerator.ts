@@ -262,42 +262,94 @@ export const generateProductSchema = (data: any, category?: string, slug?: strin
 };
 
 // =============================================================================
-// 7. TOP TEN LIST SCHEMA (Carousel-Compliant for Google)
+// 7. TOP TEN LIST SCHEMA (Fixed: Strict Nesting & Specs)
 // =============================================================================
 export const generateTopTenListSchema = (data: any, category?: string, slug?: string) => {
   if (!data.listItems || data.listItems.length === 0) return null;
 
   const pageUrl = category && slug ? `${baseUrl}/${category}/${slug}` : baseUrl;
-
-  // ✅ FILTER: Remove items where the product reference is broken (null)
+  
+  // 1. Filter out invalid items (Prevents "Ghost" ListItems)
   const validItems = data.listItems.filter((item: any) => item.product && item.product.title);
 
   return {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
-    '@id': `${pageUrl}#toplist`,
+    '@id': `${pageUrl}#toplist`, // Distinct ID to separate from Breadcrumbs
     name: cleanText(data.seo?.metaTitle || data.title),
     description: cleanText(data.seo?.metaDescription || data.intro || data.description || ''),
     url: pageUrl,
     numberOfItems: validItems.length,
     itemListOrder: 'https://schema.org/ItemListOrderDescending',
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': getPageId(category, slug)
+    },
     itemListElement: validItems.map((item: any, index: number) => {
       const product = item.product;
       
-      // Generate product URL
+      // 2. Generate Robust URL (Fixes "Missing field url")
       const productSlug = product.slug?.current || product.slug;
       const productUrl = productSlug 
         ? `${baseUrl}/${category || 'reviews'}/${productSlug}` 
         : `${pageUrl}#rank-${index + 1}`;
 
-      // ✅ SIMPLIFIED ListItem (Carousel-compliant)
-      // Google prefers minimal ListItem with URL, not nested full Product
-      return {
+      // 3. Clean Price
+      const priceValue = product.price || product.dealPrice || product.livePrice || 0;
+      const cleanPrice = typeof priceValue === 'string' 
+        ? priceValue.replace(/[^0-9.]/g, "") 
+        : priceValue;
+
+      // 4. Map Specifications (from your updated Query)
+      const specs = product.specifications?.map((spec: any) => ({
+        '@type': 'PropertyValue',
+        name: spec.specLabel,
+        value: spec.specValue
+      })) || [];
+
+      // 5. Construct the Strict Nested Item
+      const listItem: any = {
         '@type': 'ListItem',
         position: index + 1,
-        url: productUrl,
-        name: cleanText(product.title || item.itemName || `Rank #${index + 1}`)
+        url: productUrl, // Required on the ListItem itself
+        item: {
+          '@type': 'Product', // ✅ The Product MUST be inside 'item'
+          name: cleanText(product.title || item.itemName || `Rank #${index + 1}`),
+          url: productUrl, // Required on the Product entity
+          description: cleanText(item.customVerdict || product.verdict || product.itemDescription || ''),
+          image: product.mainImage?.url ? [product.mainImage.url] : [DEFAULT_IMAGE],
+          sku: product.sku || undefined,
+          brand: product.brand ? {
+            '@type': 'Brand',
+            name: cleanText(product.brand)
+          } : undefined,
+          additionalProperty: specs.length > 0 ? specs : undefined, // ✅ Adds your Specs
+          offers: {
+            '@type': 'Offer',
+            price: cleanPrice,
+            priceCurrency: product.currency || 'AED',
+            availability: product.availability || 'https://schema.org/InStock',
+            url: product.affiliateLink || productUrl,
+            seller: {
+              '@type': 'Organization',
+              name: product.retailer || 'Various UAE Retailers'
+            }
+          }
+        }
       };
+
+      // 6. Handle Ratings (Fixes "Missing aggregateRating")
+      if (product.customerRating && product.customerRating > 0) {
+        listItem.item.aggregateRating = {
+          '@type': 'AggregateRating',
+          ratingValue: product.customerRating,
+          reviewCount: product.reviewCount || 1, 
+          bestRating: 5,
+          worstRating: 1
+        };
+      }
+
+      return listItem;
     })
   };
 };
