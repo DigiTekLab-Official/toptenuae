@@ -201,6 +201,7 @@ export const generateProductSchema = (data: any, category?: string, slug?: strin
     '@type': 'Product',
     '@id': `${pageUrl}#product`,
     name: cleanText(data.title || data.itemName),
+    url: pageUrl, // ✅ REQUIRED: Product URL
     image: images,
     description: cleanText(data.verdict || data.itemDescription || data.intro || data.description || ''),
     brand: data.brand ? {
