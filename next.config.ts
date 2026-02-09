@@ -82,6 +82,7 @@ const nextConfig: NextConfig = {
       // --- Toy Donation (Your #1 Rank - Protecting it) ---
       { source: '/parenting-kids/where-to-donate-used-toys-uae{/}?', destination: '/how-to-guides/where-to-donate-used-toys-uae', permanent: true },
       { source: '/where-to-donate-used-toys-uae{/}?', destination: '/how-to-guides/where-to-donate-used-toys-uae', permanent: true },
+      { source: '/reviews/where-to-donate-used-toys-uae/', destination: '/how-to-guides/where-to-donate-used-toys-uae', permanent: true },
 
       // --- Best Electric Shaver (Consolidating /reviews and /top-ten to /top-ten) ---
       { source: '/reviews/best-electric-shaver-uae{/}?', destination: '/top-ten/best-electric-shaver-uae', permanent: true },
