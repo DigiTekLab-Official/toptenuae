@@ -261,14 +261,14 @@ export const generateProductSchema = (data: any, category?: string, slug?: strin
 };
 
 // =============================================================================
-// 7. TOP TEN LIST SCHEMA (Bulletproof Fix)
+// 7. TOP TEN LIST SCHEMA (Carousel-Compliant for Google)
 // =============================================================================
 export const generateTopTenListSchema = (data: any, category?: string, slug?: string) => {
   if (!data.listItems || data.listItems.length === 0) return null;
 
   const pageUrl = category && slug ? `${baseUrl}/${category}/${slug}` : baseUrl;
 
-  // ✅ FILTER 1: Remove items where the product reference is broken (null)
+  // ✅ FILTER: Remove items where the product reference is broken (null)
   const validItems = data.listItems.filter((item: any) => item.product && item.product.title);
 
   return {
@@ -280,68 +280,23 @@ export const generateTopTenListSchema = (data: any, category?: string, slug?: st
     url: pageUrl,
     numberOfItems: validItems.length,
     itemListOrder: 'https://schema.org/ItemListOrderDescending',
-    mainEntityOfPage: {
-      '@type': 'WebPage',
-      '@id': getPageId(category, slug)
-    },
     itemListElement: validItems.map((item: any, index: number) => {
       const product = item.product;
       
-      // ✅ FIX 2: Generate Robust URL
-      // If slug is missing, we MUST provide a valid fallback anchor or the list breaks.
+      // Generate product URL
       const productSlug = product.slug?.current || product.slug;
       const productUrl = productSlug 
         ? `${baseUrl}/${category || 'reviews'}/${productSlug}` 
         : `${pageUrl}#rank-${index + 1}`;
 
-      // ✅ FIX 3: Price Parsing Safety
-      const priceValue = product.price || product.dealPrice || product.livePrice || 0;
-      const cleanPrice = typeof priceValue === 'string' 
-        ? priceValue.replace(/[^0-9.]/g, "") 
-        : priceValue;
-
-      const listItem: any = {
+      // ✅ SIMPLIFIED ListItem (Carousel-compliant)
+      // Google prefers minimal ListItem with URL, not nested full Product
+      return {
         '@type': 'ListItem',
         position: index + 1,
-        name: cleanText(product.title || item.itemName || `Rank #${index + 1}`),
-        url: productUrl, // ✅ REQUIRED: Direct URL on ListItem
-        item: {
-          '@type': 'Product',
-          '@id': `${productUrl}#product`,
-          name: cleanText(product.title || item.itemName || `Rank #${index + 1}`),
-          url: productUrl,
-          description: cleanText(item.customVerdict || product.verdict || product.itemDescription || ''),
-          image: product.mainImage?.url ? [product.mainImage.url] : [DEFAULT_IMAGE],
-          brand: product.brand ? {
-            '@type': 'Brand',
-            name: cleanText(product.brand)
-          } : undefined,
-          offers: {
-            '@type': 'Offer',
-            price: cleanPrice,
-            priceCurrency: product.currency || 'AED',
-            availability: product.availability || 'https://schema.org/InStock',
-            url: product.affiliateLink || productUrl,
-            seller: {
-              '@type': 'Organization',
-              name: product.retailer || 'Various UAE Retailers'
-            }
-          }
-        }
+        url: productUrl,
+        name: cleanText(product.title || item.itemName || `Rank #${index + 1}`)
       };
-
-      // ✅ Only add aggregateRating if BOTH rating AND reviewCount exist
-      if (product.customerRating && product.customerRating > 0 && product.reviewCount && product.reviewCount > 0) {
-        listItem.item.aggregateRating = {
-          '@type': 'AggregateRating',
-          ratingValue: product.customerRating,
-          reviewCount: product.reviewCount,
-          bestRating: 5,
-          worstRating: 1
-        };
-      }
-
-      return listItem;
     })
   };
 };
