@@ -1,4 +1,4 @@
-// src/lib/schemaGenerator.ts - 2026 OPTIMIZED
+// src/lib/schemaGenerator.ts - 2026 FINAL FIX
 import { cleanText } from '@/lib/utils/sanity-text';
 
 // =============================================================================
@@ -29,7 +29,7 @@ const getPageId = (category?: string, slug?: string) => {
 };
 
 // =============================================================================
-// 1. ORGANIZATION SCHEMA (Enhanced with More Signals)
+// 1. ORGANIZATION SCHEMA
 // =============================================================================
 export const generateOrganizationSchema = () => ({
   '@context': 'https://schema.org',
@@ -65,10 +65,7 @@ export const generateOrganizationSchema = () => ({
     areaServed: 'AE',
     availableLanguage: ['en', 'ar']
   },
-  sameAs: [
-    // Add your verified social profiles here when available
-    // e.g. 'https://twitter.com/toptenuae'
-  ]
+  sameAs: []
 });
 
 // =============================================================================
@@ -126,7 +123,7 @@ export const generateHomePageSchema = () => ({
 });
 
 // =============================================================================
-// 4. BREADCRUMB SCHEMA
+// 4. BREADCRUMB SCHEMA (Updated with Unique ID)
 // =============================================================================
 export const generateBreadcrumbSchema = (
   category: string,
@@ -136,6 +133,7 @@ export const generateBreadcrumbSchema = (
 ) => ({
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
+  '@id': `${baseUrl}/${category}/${slug}#breadcrumb`, // ✅ ADDED: Prevents conflict with TopList
   itemListElement: [
     {
       '@type': 'ListItem',
@@ -159,7 +157,7 @@ export const generateBreadcrumbSchema = (
 });
 
 // =============================================================================
-// 5. FEATURED CONTENT ITEM LIST (NEW - For Homepage)
+// 5. FEATURED CONTENT ITEM LIST
 // =============================================================================
 export const generateFeaturedContentSchema = (posts: any[]) => {
   if (!posts || posts.length === 0) return null;
@@ -201,7 +199,7 @@ export const generateProductSchema = (data: any, category?: string, slug?: strin
     '@type': 'Product',
     '@id': `${pageUrl}#product`,
     name: cleanText(data.title || data.itemName),
-    url: pageUrl, // ✅ REQUIRED: Product URL
+    url: pageUrl,
     image: images,
     description: cleanText(data.verdict || data.itemDescription || data.intro || data.description || ''),
     brand: data.brand ? {
@@ -228,7 +226,6 @@ export const generateProductSchema = (data: any, category?: string, slug?: strin
     }
   };
 
-  // Add Aggregate Rating if available
   if (data.customerRating && data.reviewCount) {
     schema.aggregateRating = {
       '@type': 'AggregateRating',
@@ -239,7 +236,6 @@ export const generateProductSchema = (data: any, category?: string, slug?: strin
     };
   }
 
-  // Add Review if verdict exists
   if (data.verdict && data.customerRating) {
     schema.review = {
       '@type': 'Review',
@@ -262,7 +258,7 @@ export const generateProductSchema = (data: any, category?: string, slug?: strin
 };
 
 // =============================================================================
-// 7. TOP TEN LIST SCHEMA (Fixed: Strict Nesting & Specs)
+// 7. TOP TEN LIST SCHEMA (Strict Nesting for Carousel)
 // =============================================================================
 export const generateTopTenListSchema = (data: any, category?: string, slug?: string) => {
   if (!data.listItems || data.listItems.length === 0) return null;
