@@ -7,8 +7,8 @@ export default function RamadanCountdown() {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
-    // Target Date: Feb 17, 2026 (Approximate)
-    const targetDate = new Date("2026-02-17T00:00:00").getTime();
+    // Target Date: Feb 19, 2026 (Approximate)
+    const targetDate = new Date("2026-02-19T00:00:00").getTime();
 
     const interval = setInterval(() => {
       const now = new Date().getTime();

@@ -67,7 +67,7 @@ export default function RamadanPage() {
             </div>
             <div>
               <h3 className="text-base font-bold text-gray-500 uppercase tracking-wider">Expected Start</h3>
-              <p className="text-xl font-black text-gray-900 mt-1">Tue, Feb 17, 2026</p>
+              <p className="text-xl font-black text-gray-900 mt-1">Thu, Feb 19, 2026</p>
               <p className="text-base text-gray-400 mt-1">Subject to moon sighting</p>
             </div>
           </div>
@@ -79,7 +79,7 @@ export default function RamadanPage() {
             </div>
             <div>
               <h3 className="text-base font-bold text-gray-500 uppercase tracking-wider">Fasting Hours</h3>
-              <p className="text-xl font-black text-gray-900 mt-1">13–14 Hours</p>
+              <p className="text-xl font-black text-gray-900 mt-1">13-14 Hours</p>
               <p className="text-base text-gray-400 mt-1">Fajr to Maghrib</p>
             </div>
           </div>
@@ -111,7 +111,7 @@ export default function RamadanPage() {
           <div className="prose prose-lg max-w-none text-gray-600">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">When is Ramadan 2026 in the UAE?</h2>
             <p>
-              Ramadan 2026 is expected to begin on <strong>Tuesday, February 17, 2026</strong>. 
+              Ramadan 2026 is expected to begin on <strong>Tuursday, February 19, 2026</strong>. 
               As the holiest month in Islam, it is a time of fasting, prayer, and community. 
               In the UAE, the atmosphere transforms with reduced working hours, vibrant night markets, 
               and special Iftar tents.
@@ -140,17 +140,17 @@ export default function RamadanPage() {
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   <tr className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-base font-medium text-gray-900">Beginning (Feb 17)</td>
+                    <td className="px-6 py-4 text-base font-medium text-gray-900">Beginning (Feb 19)</td>
                     <td className="px-6 py-4 text-base text-gray-600">05:25 AM</td>
                     <td className="px-6 py-4 text-base text-gray-600">06:15 PM</td>
                   </tr>
                   <tr className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-base font-medium text-gray-900">Middle (Mar 3)</td>
+                    <td className="px-6 py-4 text-base font-medium text-gray-900">Middle (Mar 5)</td>
                     <td className="px-6 py-4 text-base text-gray-600">05:10 AM</td>
                     <td className="px-6 py-4 text-base text-gray-600">06:22 PM</td>
                   </tr>
                   <tr className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-base font-medium text-gray-900">End (Mar 18)</td>
+                    <td className="px-6 py-4 text-base font-medium text-gray-900">End (Mar 19)</td>
                     <td className="px-6 py-4 text-base text-gray-600">04:55 AM</td>
                     <td className="px-6 py-4 text-base text-gray-600">06:30 PM</td>
                   </tr>

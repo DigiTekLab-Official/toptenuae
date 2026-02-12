@@ -119,8 +119,6 @@ const nextConfig: NextConfig = {
       // ==============================================================================
       
       // --- Events & Holidays ---
-      { source: '/events-holidays/ramadan-2026-uae{/}?', destination: '/events-holidays/ramadan-2026-uae', permanent: true }, // It's live, ensure no loop
-      { source: '/ramadan-2026{/}?', destination: '/events-holidays/ramadan-2026-uae', permanent: true }, // Redirect short link
       { source: '/best-places-visit-uae-eid-holidays{/}?', destination: '/events-holidays/eid-holidays-uae-2026-best-places-to-visit', permanent: true },
       { source: '/uae-eid-holidays-dates-events-travel-tips{/}?', destination: '/events-holidays/eid-holidays-uae-2026-best-places-to-visit', permanent: true },
       { source: '/free-eid-events-festive-activities-uae{/}?', destination: '/events-holidays/eid-al-fitr-uae-prayer-timings-free-events', permanent: true },
