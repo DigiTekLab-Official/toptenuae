@@ -1,17 +1,45 @@
-import { lazy, Suspense } from 'react';
+import { Suspense, lazy } from 'react';
 
-const SyntaxHighlighter = lazy(
-  () => import('react-syntax-highlighter').then(mod => ({ default: mod.Prism }))
-);
+const SyntaxHighlighter = lazy(async () => {
+  const { default: PrismLight } = await import('react-syntax-highlighter/dist/esm/prism-light');
+  const [js, ts, jsx, tsx, css, bash, json, python, markup] = await Promise.all([
+    import('react-syntax-highlighter/dist/esm/languages/prism/javascript'),
+    import('react-syntax-highlighter/dist/esm/languages/prism/typescript'),
+    import('react-syntax-highlighter/dist/esm/languages/prism/jsx'),
+    import('react-syntax-highlighter/dist/esm/languages/prism/tsx'),
+    import('react-syntax-highlighter/dist/esm/languages/prism/css'),
+    import('react-syntax-highlighter/dist/esm/languages/prism/bash'),
+    import('react-syntax-highlighter/dist/esm/languages/prism/json'),
+    import('react-syntax-highlighter/dist/esm/languages/prism/python'),
+    import('react-syntax-highlighter/dist/esm/languages/prism/markup'),
+  ]);
+  PrismLight.registerLanguage('javascript', js.default);
+  PrismLight.registerLanguage('js', js.default);
+  PrismLight.registerLanguage('typescript', ts.default);
+  PrismLight.registerLanguage('ts', ts.default);
+  PrismLight.registerLanguage('jsx', jsx.default);
+  PrismLight.registerLanguage('tsx', tsx.default);
+  PrismLight.registerLanguage('css', css.default);
+  PrismLight.registerLanguage('bash', bash.default);
+  PrismLight.registerLanguage('shell', bash.default);
+  PrismLight.registerLanguage('json', json.default);
+  PrismLight.registerLanguage('python', python.default);
+  PrismLight.registerLanguage('html', markup.default);
+  PrismLight.registerLanguage('xml', markup.default);
+  return { default: PrismLight };
+});
 
 const vscDarkPlus = {
-  'hljs': {
-    'display': 'block',
-    'overflowX': 'auto',
-    'padding': '0.5em',
-    'background': '#1e1e1e',
-    'color': '#d4d4d4'
-  }
+  'pre[class*="language-"]': {
+    display: 'block',
+    overflowX: 'auto' as const,
+    padding: '0.5em',
+    background: '#1e1e1e',
+    color: '#d4d4d4',
+  },
+  'code[class*="language-"]': {
+    color: '#d4d4d4',
+  },
 } as const;
 
 interface CodeBlockProps {
