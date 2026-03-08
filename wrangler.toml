@@ -1,9 +1,10 @@
 # Cloudflare Pages Configuration
 name = "toptenuae"
+pages_build_output_dir = "dist"
 compatibility_date = "2025-12-01"
 compatibility_flags = ["nodejs_compat"]
 
-# Build settings (used by Wrangler for local dev)
+# Build settings
 [build]
 command = "pnpm build"
 
