@@ -1,13 +1,11 @@
-// src/utils/seo-manager.ts - 2026 OPTIMIZED
-import { Metadata } from 'next';
+// src/utils/seo-manager.ts - 2026 OPTIMIZED (Astro)
 import { cleanText } from '@/lib/utils/sanity-text';
 
 // =============================================================================
 // CONFIGURATION
 // =============================================================================
-const SITE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://toptenuae.com';
+const SITE_URL = import.meta.env.PUBLIC_BASE_URL || 'https://toptenuae.com';
 const DEFAULT_OG_IMAGE = `${SITE_URL}/images/brand/og-default.png`;
-const SITE_NAME = 'TopTenUAE';
 
 // 2026 SEO Best Practices
 const MAX_TITLE_LENGTH = 60;
@@ -131,16 +129,35 @@ export interface PathContext {
 // MAIN FUNCTION - Enhanced for 2026
 // =============================================================================
 
+export interface SeoData {
+  title: string;
+  description: string;
+  canonical: string;
+  ogImage: string;
+  ogType: 'website' | 'article';
+  noIndex: boolean;
+  keywords: string[];
+  jsonLd?: Record<string, unknown>;
+  publishedTime?: string;
+  modifiedTime?: string;
+  author?: string;
+  category?: string;
+}
+
 export function generateSeoMetadata(
   data: SanitySeoSource, 
   pathContext?: PathContext
-): Metadata {
+): SeoData {
   
   if (!data || !data.title) {
     return {
       title: 'Page Not Found | TopTenUAE',
       description: 'The requested page could not be found.',
-      robots: { index: false, follow: false }
+      canonical: SITE_URL,
+      ogImage: DEFAULT_OG_IMAGE,
+      ogType: 'website',
+      noIndex: true,
+      keywords: [],
     };
   }
 
@@ -206,7 +223,6 @@ export function generateSeoMetadata(
   // 5. ROBOTS & KEYWORDS
   // -------------------------------------------------------------------------
   const noIndex = data.seo?.noIndex || false;
-  const noFollow = data.seo?.noFollow || false;
 
   const autoKeywords: string[] = [];
   if (data._type === 'product' && data.brand) {
@@ -228,87 +244,21 @@ export function generateSeoMetadata(
   ].slice(0, 15);
 
   // -------------------------------------------------------------------------
-  // 6. BUILD METADATA OBJECT - Enhanced for 2026
+  // 6. BUILD SEO DATA OBJECT - Astro compatible
   // -------------------------------------------------------------------------
-  const metadata: Metadata = {
-    metadataBase: new URL(SITE_URL),
-    title: title,
-    description: description,
-    keywords: keywords.length > 0 ? keywords : undefined,
-    applicationName: SITE_NAME,
-    
-    robots: {
-      index: !noIndex,
-      follow: !noFollow,
-      nocache: false,
-      googleBot: {
-        index: !noIndex,
-        follow: !noFollow,
-        'max-video-preview': -1,
-        'max-image-preview': 'large',
-        'max-snippet': -1,
-      },
-    },
-
-    openGraph: {
-      title: title,
-      description: description,
-      url: canonical,
-      siteName: SITE_NAME,
-      locale: 'en_AE',
-      type: getOgType(data._type),
-      images: [
-        {
-          url: ogImage,
-          width: 1200,
-          height: 630,
-          alt: title,
-          type: 'image/png'
-        },
-      ],
-      ...(getOgType(data._type) === 'article' && {
-        publishedTime: data.publishedAt || data._createdAt,
-        modifiedTime: data._updatedAt || data.publishedAt || data._createdAt,
-        authors: data.author?.name ? [data.author.name] : ['TopTenUAE Editorial Team'],
-        section: pathContext?.category,
-        tags: keywords
-      }),
-    },
-
-    twitter: {
-      card: 'summary_large_image',
-      title: title,
-      description: description,
-      images: [ogImage],
-      creator: '@toptenuae',
-      site: '@toptenuae'
-    },
-
-    alternates: {
-      canonical: canonical,
-      languages: {
-        'en-AE': canonical,
-        // Add Arabic when available: 'ar-AE': canonical.replace('/en/', '/ar/')
-      }
-    },
-
-    ...(data.author?.name && {
-      authors: [{ name: data.author.name, url: `${SITE_URL}/authors/${data.author.name.toLowerCase().replace(/\s+/g, '-')}` }],
-    }),
-    
-    ...(pathContext?.category && {
-      category: pathContext.category,
-    }),
-
-    // Additional 2026 metadata
-    other: {
-      'article:publisher': SITE_URL,
-      ...(data.publishedAt && { 'article:published_time': data.publishedAt }),
-      ...(data._updatedAt && { 'article:modified_time': data._updatedAt }),
-    },
+  return {
+    title,
+    description,
+    canonical,
+    ogImage,
+    ogType: getOgType(data._type),
+    noIndex,
+    keywords,
+    publishedTime: data.publishedAt || data._createdAt,
+    modifiedTime: data._updatedAt || data.publishedAt || data._createdAt,
+    author: data.author?.name,
+    category: pathContext?.category,
   };
-
-  return metadata;
 }
 
 // =============================================================================
@@ -365,7 +315,7 @@ export function getSiteUrl(): string {
 }
 
 // NEW: Generate product-specific metadata
-export function generateProductMetadata(product: any, category?: string): Metadata {
+export function generateProductMetadata(product: any, category?: string): SeoData {
   const price = product.price || product.dealPrice || 'Price unavailable';
   const rating = product.customerRating ? ` - ${product.customerRating}/5 stars` : '';
   
@@ -384,7 +334,7 @@ export function generateProductMetadata(product: any, category?: string): Metada
 }
 
 // NEW: Generate category page metadata
-export function generateCategoryMetadata(category: any): Metadata {
+export function generateCategoryMetadata(category: any): SeoData {
   return generateSeoMetadata({
     title: `${category.title} - Reviews & Rankings in UAE`,
     description: category.description || `Discover the best ${category.title.toLowerCase()} in UAE. Expert reviews, comparisons, and buying guides updated for 2026.`,

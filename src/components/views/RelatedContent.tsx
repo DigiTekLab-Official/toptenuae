@@ -1,6 +1,3 @@
-import Link from 'next/link';
-import Image from 'next/image';
-
 interface RelatedProps {
   lists: any[];
   products: any[];
@@ -19,19 +16,19 @@ export default function RelatedContent({ lists, products }: RelatedProps) {
             <h3 className="text-2xl font-bold font-geist mb-6">More Buying Guides</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {lists.map((item) => (
-                <Link key={item.slug} href={`/reviews/${item.slug}`} className="group">
+                <a key={item.slug} href={`/reviews/${item.slug}`} className="group">
                   <div className="relative aspect-video mb-3 overflow-hidden rounded-lg">
                     {item.mainImage && (
-                      <Image 
+                      <img 
                         src={item.mainImage.asset.url} 
                         alt=""
-                        fill
-                        className="object-cover transition-transform group-hover:scale-105"
+                        className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                        loading="lazy"
                       />
                     )}
                   </div>
                   <h4 className="font-semibold group-hover:text-blue-600">{item.title}</h4>
-                </Link>
+                </a>
               ))}
             </div>
           </div>
@@ -43,14 +40,14 @@ export default function RelatedContent({ lists, products }: RelatedProps) {
             <h3 className="text-2xl font-bold font-geist mb-6">Top Rated in this Category</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {products.map((product) => (
-                <Link key={product.slug} href={`/products/${product.slug}`} className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition">
+                <a key={product.slug} href={`/products/${product.slug}`} className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition">
                   <div className="relative aspect-square mb-3">
                     {product.mainImage && (
-                       <Image 
+                       <img 
                          src={product.mainImage.asset.url} 
                          alt=""
-                         fill 
-                         className="object-contain" 
+                         className="w-full h-full object-contain"
+                         loading="lazy"
                        />
                     )}
                   </div>
@@ -59,7 +56,7 @@ export default function RelatedContent({ lists, products }: RelatedProps) {
                   <div className="text-blue-600 font-bold mt-1">
                     {product.currency} {product.price}
                   </div>
-                </Link>
+                </a>
               ))}
             </div>
           </div>

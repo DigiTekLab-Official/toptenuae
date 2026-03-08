@@ -1,8 +1,6 @@
 // src/components/templates/ComparisonSummaryTable.tsx
-"use client";
 
-import React from "react";
-import Image from "next/image";
+
 import { ExternalLink, ShieldCheck, Star, Minus } from "@/components/icons";
 // 🗑️ DELETED: listImage import (We use direct URL from query)
 
@@ -69,11 +67,10 @@ export default function ComparisonSummaryTable({ items }: { items: ListItem[] })
                   <td className="px-4 py-4">
                     <div className="relative h-16 w-16 overflow-hidden rounded-md border border-gray-200 bg-white flex items-center justify-center">
                       {imageUrl ? (
-                        <Image 
+                        <img 
                           src={imageUrl} 
                           alt="" 
-                          fill 
-                          className="object-contain p-1"
+                          className="absolute inset-0 w-full h-full object-contain p-1"
                         />
                       ) : (
                         <span className="text-xs text-gray-400 text-center">No Image</span>
@@ -156,11 +153,10 @@ export default function ComparisonSummaryTable({ items }: { items: ListItem[] })
               <div className="p-4 flex items-center gap-4">
                  <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-gray-200 bg-white flex items-center justify-center">
                    {imageUrl ? (
-                      <Image 
+                      <img 
                         src={imageUrl} 
                         alt="" 
-                        fill 
-                        className="object-contain p-2"
+                        className="absolute inset-0 w-full h-full object-contain p-2"
                       />
                    ) : (
                       <span className="text-xs text-gray-400 text-center">No Image</span>

@@ -1,5 +1,4 @@
 // src/components/deals/CountdownTimer.tsx
-'use client';
 
 import { useState, useEffect } from 'react';
 

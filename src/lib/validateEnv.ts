@@ -9,9 +9,9 @@
 // Define which environment variables are required for different contexts
 const REQUIRED_ENV = {
   ALWAYS: [
-    'NEXT_PUBLIC_SANITY_PROJECT_ID',
-    'NEXT_PUBLIC_SANITY_DATASET',
-    'NEXT_PUBLIC_BASE_URL',
+    'PUBLIC_SANITY_PROJECT_ID',
+    'PUBLIC_SANITY_DATASET',
+    'PUBLIC_BASE_URL',
   ],
   SERVER_ONLY: [
     'JWT_SECRET',
@@ -23,9 +23,9 @@ const REQUIRED_ENV = {
     'AMAZON_SECRET_KEY',
     'AMAZON_PARTNER_TAG',
     'SANITY_WRITE_TOKEN',
-    'NEXT_PUBLIC_TURNSTILE_SITE_KEY',
-    'NEXT_PUBLIC_GTM_ID',
-    'NEXT_PUBLIC_CLARITY_ID',
+    'PUBLIC_TURNSTILE_SITE_KEY',
+    'PUBLIC_GTM_ID',
+    'PUBLIC_CLARITY_ID',
   ],
 } as const;
 
@@ -40,7 +40,8 @@ export function validateEnv(context: 'build' | 'runtime' = 'runtime'): void {
       ? REQUIRED_ENV.ALWAYS
       : [...REQUIRED_ENV.ALWAYS, ...REQUIRED_ENV.SERVER_ONLY];
 
-  const missing = requiredVars.filter((key) => !process.env[key]);
+  const env = import.meta.env as Record<string, string>;
+  const missing = requiredVars.filter((key) => !env[key]);
 
   if (missing.length > 0) {
     const errorMessage = `
@@ -73,7 +74,7 @@ ${missing.map((key) => `  ❌ ${key}`).join('\n')}
 
   // Warn about optional but important vars
   const missingOptional = REQUIRED_ENV.OPTIONAL_BUT_IMPORTANT.filter(
-    (key) => !process.env[key]
+    (key) => !env[key]
   );
 
   if (missingOptional.length > 0 && context === 'runtime') {
@@ -92,7 +93,7 @@ ${missing.map((key) => `  ❌ ${key}`).join('\n')}
  * @throws Error if variable is missing and no default provided
  */
 export function getEnv(key: string, defaultValue?: string): string {
-  const value = process.env[key] ?? defaultValue;
+  const value = (import.meta.env as Record<string, string>)[key] ?? defaultValue;
 
   if (!value) {
     throw new Error(
@@ -111,5 +112,5 @@ export function getEnv(key: string, defaultValue?: string): string {
  * @returns Environment variable value or default
  */
 export function getEnvOptional(key: string, defaultValue = ''): string {
-  return process.env[key] ?? defaultValue;
+  return (import.meta.env as Record<string, string>)[key] ?? defaultValue;
 }

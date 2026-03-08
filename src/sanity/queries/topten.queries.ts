@@ -1,5 +1,5 @@
 // src/sanity/queries/topten.queries.ts
-import { groq } from 'next-sanity';
+import groq from 'groq';
 
 // =============================================================================
 // TOP TEN LIST QUERIES

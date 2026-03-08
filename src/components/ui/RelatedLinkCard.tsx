@@ -1,6 +1,6 @@
 // src/components/ui/RelatedLinkCard.tsx
-import Link from "next/link";
-import { ArrowRight, ExternalLink } from "@/components/icons"; 
+
+import { ArrowRight } from "@/components/icons"; 
 
 interface RelatedLinkProps {
   label: string;
@@ -39,7 +39,7 @@ export default function RelatedLinkCard({ label, preText, post }: RelatedLinkPro
           <p className="text-slate-800 text-base leading-relaxed m-0">
             <span className="opacity-90">{preText}</span>{" "}
             
-            <Link 
+            <a 
               href={href} // ✅ Used dynamic href here
               className="inline-flex items-center gap-1 font-bold text-primary hover:text-primary-800 hover:underline decoration-2 underline-offset-2 transition-colors align-bottom"
             >
@@ -49,7 +49,7 @@ export default function RelatedLinkCard({ label, preText, post }: RelatedLinkPro
               
               {/* Switched to ArrowRight since this is usually an internal link */}
               <ArrowRight className="w-5 h-5 shrink-0 mb-0.5" aria-hidden="true" />
-            </Link>
+            </a>
           </p>
         </div>
 

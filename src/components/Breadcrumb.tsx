@@ -1,5 +1,4 @@
 // src/components/Breadcrumb.tsx
-import Link from 'next/link';
 import { ChevronRight, Home } from '@/components/icons';
 
 interface BreadcrumbProps {
@@ -16,8 +15,7 @@ interface BreadcrumbProps {
 // =============================================================================
 // CONFIGURATION
 // =============================================================================
-// Checks NEXT_PUBLIC_ for client-side safety, falls back to server env, then hardcoded default.
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || process.env.baseUrl || 'https://toptenuae.com';
+const BASE_URL = import.meta.env.PUBLIC_BASE_URL || 'https://toptenuae.com';
 
 export default function Breadcrumb({
   categoryName,
@@ -82,7 +80,7 @@ export default function Breadcrumb({
         
         {/* --- HOME LINK --- */}
         <li className="flex items-center shrink-0">
-          <Link 
+          <a 
             href="/" 
             className={`${linkColor} transition-colors flex items-center p-1 rounded hover:bg-black/5`}
             title="Back to Homepage"
@@ -90,20 +88,20 @@ export default function Breadcrumb({
           >
             <Home size={16} aria-hidden="true" />
             <span className="sr-only">Home</span>
-          </Link>
+          </a>
         </li>
 
         <Separator colorClass={separatorColor} />
 
         {/* --- CATEGORY LINK --- */}
         <li className="flex items-center shrink-0">
-          <Link 
+          <a 
             href={`/${categorySlug}`}
             className={`${linkColor} hover:underline transition-colors font-medium whitespace-nowrap`}
             title={`View all ${categoryName}`}
           >
             {categoryName}
-          </Link>
+          </a>
         </li>
 
         <Separator colorClass={separatorColor} />

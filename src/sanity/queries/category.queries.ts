@@ -1,5 +1,5 @@
 // src/sanity/queries/category.queries.ts --- QUERIES FOR CATEGORIES ---
-import { groq } from 'next-sanity';
+import groq from 'groq';
 
 // =============================================================================
 // CATEGORY QUERIES

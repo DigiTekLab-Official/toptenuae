@@ -1,0 +1,111 @@
+---
+// src/pages/terms-and-conditions.astro
+import BaseLayout from '@/layouts/BaseLayout.astro';
+const lastUpdated = 'December 27, 2025';
+---
+
+<BaseLayout
+  title="Terms and Conditions | Top Ten UAE"
+  description="Read the Terms and Conditions for using TopTenUAE.com."
+  canonical="https://toptenuae.com/terms-and-conditions"
+>
+  <div class="bg-white font-sans text-gray-700">
+
+    <!-- HERO -->
+    <section class="relative bg-primary py-20 px-4 sm:px-6 lg:px-8 text-center text-white overflow-hidden">
+      <div class="relative z-10 max-w-3xl mx-auto">
+        <div class="inline-flex items-center gap-2 bg-white/10 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-6 border border-white/20">
+          <svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg>
+          Usage Agreement
+        </div>
+        <h1 class="text-3xl md:text-5xl font-black tracking-tight mb-6">
+          Terms & <span class="text-yellow-400">Conditions</span>
+        </h1>
+        <p class="text-lg md:text-xl text-indigo-100 leading-relaxed font-medium max-w-2xl mx-auto">
+          Please read these terms carefully before using Our Service. They set out your rights and responsibilities when using TopTenUAE.
+        </p>
+        <p class="mt-4 text-sm text-indigo-200 font-medium">Last Updated: {lastUpdated}</p>
+      </div>
+      <div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none" aria-hidden="true">
+        <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0 100 C 20 0 50 0 100 100 Z" fill="white" /></svg>
+      </div>
+    </section>
+
+    <!-- SUMMARY -->
+    <section class="py-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+      <div class="bg-indigo-50 rounded-2xl p-8 border border-indigo-100 shadow-sm">
+        <h2 class="text-xl font-bold text-indigo-900 mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          Quick Summary
+        </h2>
+        <ul class="space-y-3">
+          {['By using this site, you agree to these terms.', 'Content is for informational purposes only.', 'We are not responsible for third-party (Amazon) links.', 'These terms are governed by the laws of the UAE.'].map((item) => (
+            <li class="flex items-start gap-3 text-indigo-800 font-medium">
+              <svg class="w-5 h-5 text-primary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <!-- LEGAL CONTENT -->
+    <section class="pb-20 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+      <div class="prose prose-lg prose-indigo max-w-none text-gray-700">
+
+        <div class="mb-10">
+          <h2 class="text-2xl font-black text-gray-900 border-b border-gray-200 pb-2 mb-4">1. Acceptance of Terms</h2>
+          <p>By accessing or using the Service, You agree to be bound by these Terms and Conditions. If You disagree with any part of these Terms and Conditions, then You may not access the Service.</p>
+        </div>
+
+        <div class="mb-10">
+          <h2 class="text-2xl font-black text-gray-900 border-b border-gray-200 pb-2 mb-4">2. Intellectual Property</h2>
+          <p>The Service and its original content (excluding Content provided by You or other users), features, and functionality are and will remain the exclusive property of the Company and its licensors. The Service is protected by copyright, trademark, and other laws of both the Country and foreign countries.</p>
+        </div>
+
+        <div class="mb-10">
+          <h2 class="text-2xl font-black text-gray-900 border-b border-gray-200 pb-2 mb-4">3. Links to Other Websites</h2>
+          <div class="bg-yellow-50 p-6 rounded-xl border-l-4 border-yellow-400 my-4">
+            <div class="flex items-start gap-3">
+              <svg class="w-6 h-6 text-yellow-600 shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
+              <div class="text-sm text-yellow-900">
+                <strong>Disclaimer:</strong> Our Service may contain links to third-party web sites (like Amazon.ae) or services that are not owned or controlled by the Company.
+              </div>
+            </div>
+          </div>
+          <p>The Company has no control over, and assumes no responsibility for, the content, privacy policies, or practices of any third-party web sites or services. You acknowledge and agree that the Company shall not be responsible or liable, directly or indirectly, for any damage or loss caused by or in connection with the use of such content.</p>
+        </div>
+
+        <div class="mb-10">
+          <h2 class="text-2xl font-black text-gray-900 border-b border-gray-200 pb-2 mb-4">4. Limitation of Liability</h2>
+          <p>In no event shall the Company, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your access to or use of or inability to access or use the Service.</p>
+        </div>
+
+        <div class="mb-10">
+          <h2 class="text-2xl font-black text-gray-900 border-b border-gray-200 pb-2 mb-4">5. Governing Law</h2>
+          <div class="flex items-center gap-3 mb-4 text-primary font-bold">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+            United Arab Emirates
+          </div>
+          <p>The laws of the Country (UAE), excluding its conflicts of law rules, shall govern this Terms and Your use of the Service. Your use of the Application may also be subject to other local, state, national, or international laws.</p>
+        </div>
+
+        <div class="mb-10">
+          <h2 class="text-2xl font-black text-gray-900 border-b border-gray-200 pb-2 mb-4">6. Changes to These Terms</h2>
+          <p>We reserve the right, at Our sole discretion, to modify or replace these Terms at any time. If a revision is material We will make reasonable efforts to provide at least 30 days' notice prior to any new terms taking effect. What constitutes a material change will be determined at Our sole discretion.</p>
+        </div>
+
+        <div class="mb-10">
+          <h2 class="text-2xl font-black text-gray-900 border-b border-gray-200 pb-2 mb-4">7. Contact Us</h2>
+          <p>If you have any questions about these Terms, You can contact us:</p>
+          <ul class="list-none pl-0">
+            <li><a href="/contact-us" class="text-primary font-bold hover:underline">Visit our Contact Page</a></li>
+            <li>Email: <a href="mailto:info@toptenuae.com" class="text-primary font-bold hover:underline">info@toptenuae.com</a></li>
+          </ul>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+</BaseLayout>

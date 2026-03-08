@@ -1,0 +1,30 @@
+---
+// src/pages/top-ten/[slug].astro
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { client } from '@/sanity/lib/client';
+import { TOP_TEN_LIST_QUERY } from '@/sanity/lib/queries';
+import { generateSchema } from '@/lib/schemaGenerator';
+import ArticleView from '@/components/views/ArticleView';
+
+const { slug } = Astro.params;
+if (!slug) return Astro.redirect('/404', 404);
+
+let data: any = null;
+try {
+  data = await client.fetch(TOP_TEN_LIST_QUERY, { slug });
+} catch (error) {
+  console.error(`Error fetching top-ten list [${slug}]:`, error);
+}
+
+if (!data) return Astro.redirect('/404', 404);
+
+const schemaData = generateSchema({ ...data, slug: { current: slug }, _type: data._type || 'article' }, 'top-ten', slug);
+const canonicalUrl = `https://toptenuae.com/top-ten/${slug}`;
+const seoTitle = data.seoTitle || data.title;
+const seoDescription = data.seoDescription || '';
+const transformedData = { ...data, listItems: data.listItems || [], relatedLists: data.relatedLists || [], relatedProducts: data.relatedProducts || [] };
+---
+
+<BaseLayout title={seoTitle} description={seoDescription} canonical={canonicalUrl} ogImage={data.mainImage?.url} jsonLd={schemaData}>
+  <ArticleView data={transformedData} category="top-ten" slug={slug} client:load />
+</BaseLayout>

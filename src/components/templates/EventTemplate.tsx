@@ -1,8 +1,6 @@
 // src/components/templates/EventTemplate.tsx
-"use client";
 
-import React from "react";
-import Image from "next/image";
+
 import { Calendar, MapPin, Ticket } from "@/components/icons";
 import PortableText from "@/components/sanity/PortableText";
 import FAQAccordion from "@/components/FAQAccordion";
@@ -67,13 +65,11 @@ export default function EventTemplate({ data }: { data: EventSanityData }) {
       {/* 1. Header Image */}
       {heroImageUrl ? (
         <div className="relative w-full aspect-video md:aspect-21/9 rounded-xl overflow-hidden shadow-sm mb-8 bg-gray-100 border border-gray-100">
-          <Image
+          <img
             src={heroImageUrl}
             alt={imageAlt}
-            fill
-            className="object-cover"
-            priority
-            sizes="(max-width: 768px) 100vw, 850px"
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="eager"
           />
           {/* Date Badge (Only for specific events) */}
           {data.startDate && !isYearlyList && (

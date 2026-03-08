@@ -1,7 +1,7 @@
 // src/components/Sidebar.tsx
 import { client } from "@/sanity/lib/client";
-import Link from "next/link";
-import Image from "next/image";
+
+
 import { Clock, TrendingUp, ShieldCheck } from "@/components/icons";
 
 // Query remains the same...
@@ -64,18 +64,15 @@ export default async function Sidebar({ currentSlug }: SidebarProps) {
             const postUrl = `/${categoryPrefix}/${post.slug}`;
 
             return (
-              <Link key={post.slug} 
+              <a key={post.slug} 
               href={postUrl} 
-              prefetch={false} // ✅ ADD THIS
               className="group flex gap-4 items-start">
                 <div className="relative w-24 h-16 shrink-0 bg-gray-50 rounded-lg overflow-hidden border border-gray-100 shadow-sm">
                   {post.imageUrl ? (
-                    <Image 
+                    <img 
                       src={post.imageUrl} 
                       alt=""
-                      fill 
-                      className="object-cover group-hover:scale-110 transition-transform duration-500"
-                      sizes="(max-width: 768px) 100px, 200px"
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-gray-300">
@@ -102,7 +99,7 @@ export default async function Sidebar({ currentSlug }: SidebarProps) {
                      </div>
                   )}
                 </div>
-              </Link>
+              </a>
             );
           })}
         </div>

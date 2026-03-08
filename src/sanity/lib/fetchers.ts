@@ -91,19 +91,13 @@ export interface SiteSettings {
 // ----------------------------
 // FETCH OPTIONS
 // ----------------------------
-const DEFAULT_FETCH_OPTIONS = {
-  // force-cache is good, but ensure you have a revalidation strategy
-  next: { revalidate: 3600 }, 
-};
-
-// ----------------------------
 // FETCH FUNCTIONS
 // ----------------------------
 
 export async function fetchProductBySlug(slug: string): Promise<Product | null> {
   if (!slug) return null;
   try {
-    return await client.fetch<Product>(PRODUCT_BY_SLUG, { slug }, DEFAULT_FETCH_OPTIONS);
+    return await client.fetch<Product>(PRODUCT_BY_SLUG, { slug });
   } catch (error) {
     console.error(`Error fetching product [${slug}]:`, error);
     return null;
@@ -113,7 +107,7 @@ export async function fetchProductBySlug(slug: string): Promise<Product | null> 
 export async function fetchTopTenListBySlug(slug: string): Promise<TopTenList | null> {
   if (!slug) return null;
   try {
-    return await client.fetch<TopTenList>(TOP_TEN_BY_SLUG, { slug }, DEFAULT_FETCH_OPTIONS);
+    return await client.fetch<TopTenList>(TOP_TEN_BY_SLUG, { slug });
   } catch (error) {
     console.error(`Error fetching list [${slug}]:`, error);
     return null;
@@ -122,7 +116,7 @@ export async function fetchTopTenListBySlug(slug: string): Promise<TopTenList | 
 
 export async function fetchAllDeals(): Promise<Deal[]> {
   try {
-    return await client.fetch<Deal[]>(ALL_ACTIVE_DEALS, {}, DEFAULT_FETCH_OPTIONS);
+    return await client.fetch<Deal[]>(ALL_ACTIVE_DEALS, {});
   } catch (error) {
     console.error("Error fetching deals:", error);
     return [];
@@ -131,7 +125,7 @@ export async function fetchAllDeals(): Promise<Deal[]> {
 
 export async function fetchSiteSettings(): Promise<SiteSettings | null> {
   try {
-    return await client.fetch<SiteSettings>(SITE_SETTINGS_QUERY, {}, DEFAULT_FETCH_OPTIONS);
+    return await client.fetch<SiteSettings>(SITE_SETTINGS_QUERY, {});
   } catch (error) {
     return null;
   }

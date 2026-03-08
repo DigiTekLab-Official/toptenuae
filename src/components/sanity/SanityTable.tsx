@@ -1,5 +1,4 @@
 // src/components/ui/SanityTable.tsx
-import React from "react";
 
 interface TableRow {
   _key: string;
@@ -86,7 +85,7 @@ export default function SanityTable({ value }: SanityTableProps) {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 bg-white">
-            {dataRows.map((row, rowIndex) => (
+            {dataRows.map((row) => (
               <tr key={row._key} className="hover:bg-gray-50 transition-colors">
                 {row.cells.map((cell, cellIndex) => (
                   <td 

@@ -1,5 +1,5 @@
 // src/sanity/queries/global.queries.ts --- QUERIES FOR GLOBAL SETTINGS AND DATA ---
-import { groq } from 'next-sanity';
+import groq from 'groq';
 
 // =============================================================================
 // GLOBAL QUERIES

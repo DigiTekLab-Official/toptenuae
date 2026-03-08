@@ -1,7 +1,6 @@
 // src/components/tools/VatCalculator.tsx
-'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function VatCalculator() {
   const [amount, setAmount] = useState<number | ''>('');

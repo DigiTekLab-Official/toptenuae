@@ -1,0 +1,22 @@
+# Cloudflare Pages Configuration
+name = "toptenuae"
+compatibility_date = "2025-12-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Build settings (used by Wrangler for local dev)
+[build]
+command = "pnpm build"
+
+# Environment variables for local dev (secrets should be in .dev.vars)
+[vars]
+PUBLIC_SANITY_DATASET = "production"
+PUBLIC_SANITY_API_VERSION = "2024-01-01"
+PUBLIC_BASE_URL = "https://toptenuae.com"
+
+# Production environment
+[env.production]
+name = "toptenuae-production"
+
+# Preview environment (for PR deployments)
+[env.preview]
+name = "toptenuae-preview"

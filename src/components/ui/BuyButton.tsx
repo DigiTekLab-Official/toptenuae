@@ -1,7 +1,4 @@
 // src/components/ui/BuyButton.tsx
-"use client";
-
-import Link from 'next/link';
 import { ExternalLink } from '@/components/icons'; 
 
 export type Retailer = 'amazon' | 'noon' | 'sharaf' | 'carrefour' | 'lifestyle' | 'generic';
@@ -33,7 +30,7 @@ const retailerNames: Record<string, string> = {
   generic: 'Amazon', 
 };
 
-export default function BuyButton({ url, retailer = 'amazon', customLabel, itemName }: BuyButtonProps) {
+export default function BuyButton({ url, retailer = 'amazon', customLabel }: BuyButtonProps) {
   // Normalize retailer input
   const retailerKey = retailer?.toLowerCase() || 'amazon';
   
@@ -44,7 +41,7 @@ export default function BuyButton({ url, retailer = 'amazon', customLabel, itemN
   const label = customLabel || `Check Price on ${storeName}`;
 
   return (
-    <Link
+    <a
       href={url}
       target="_blank"
       rel="nofollow noopener noreferrer"
@@ -52,6 +49,6 @@ export default function BuyButton({ url, retailer = 'amazon', customLabel, itemN
     >
       <span>{label}</span>
       <ExternalLink className="w-5 h-5 ml-2 opacity-80 group-hover:translate-x-1 transition-transform" />
-    </Link>
+    </a>
   );
 }

@@ -4,7 +4,7 @@ import { cleanText } from '@/lib/utils/sanity-text';
 // =============================================================================
 // CONFIGURATION
 // =============================================================================
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://toptenuae.com';
+const baseUrl = import.meta.env.PUBLIC_BASE_URL || 'https://toptenuae.com';
 const ORGANIZATION_LOGO = `${baseUrl}/icon.png`;
 const DEFAULT_IMAGE = `${baseUrl}/images/brand/og-default.png`;
 

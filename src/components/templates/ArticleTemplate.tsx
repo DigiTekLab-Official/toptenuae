@@ -1,8 +1,7 @@
 // src/components/templates/ArticleTemplate.tsx
-import React from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { Check, Star, ShoppingCart, ExternalLink, Info } from "@/components/icons";
+
+
+import { Star, ShoppingCart, Info } from "@/components/icons";
 // ✅ IMPORT PORTABLE TEXT (Crucial for fixing missing content)
 import PortableText from "@/components/sanity/PortableText";
 

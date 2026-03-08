@@ -1,5 +1,4 @@
 // src/components/tools/PriceWidget.tsx
-'use client';
 
 import { ExternalLink } from "@/components/icons";
 

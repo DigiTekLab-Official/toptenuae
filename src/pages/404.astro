@@ -1,0 +1,59 @@
+---
+// src/pages/404.astro
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Page Not Found" noIndex={true}>
+  <div class="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 flex items-center justify-center px-4">
+    <div class="text-center max-w-2xl w-full">
+
+      <div class="relative mb-8">
+        <div class="w-24 h-24 bg-[#4b0082]/10 text-[#4b0082] rounded-full flex items-center justify-center mx-auto animate-pulse">
+          <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
+        </div>
+      </div>
+
+      <h1 class="text-7xl md:text-8xl font-black text-[#4b0082] mb-3 opacity-90">404</h1>
+      <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-4">Page Not Found</h2>
+      <p class="text-gray-600 mb-10 leading-relaxed text-lg max-w-lg mx-auto">
+        The page you're looking for doesn't exist or has been moved.
+        Try searching for what you need or explore our popular sections.
+      </p>
+
+      <form action="/search" method="GET" class="relative mb-10 max-w-md mx-auto">
+        <input type="text" name="q" placeholder="Search reviews, deals, calculators..." aria-label="Search TopTenUAE for reviews, deals, and calculators" class="w-full py-4 px-6 pr-14 rounded-full border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#4b0082] focus:border-transparent shadow-sm text-base" />
+        <button type="submit" aria-label="Submit search query" class="absolute right-3 top-1/2 -translate-y-1/2 bg-[#4b0082] text-white p-2.5 rounded-full hover:bg-[#3d0066] transition-all">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </button>
+      </form>
+
+      <div class="flex flex-wrap justify-center gap-4 mb-12">
+        <a href="/" class="inline-flex items-center gap-2 bg-[#4b0082] text-white font-bold py-3 px-8 rounded-full hover:bg-[#3d0066] transition-all shadow-lg hover:shadow-xl">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          Back to Homepage
+        </a>
+        <a href="/deals" class="inline-flex items-center gap-2 bg-white border-2 border-gray-200 text-gray-700 font-bold py-3 px-8 rounded-full hover:bg-gray-50 hover:border-[#4b0082] hover:text-[#4b0082] transition-all">
+          Browse Deals
+        </a>
+        <a href="/finance-tools" class="inline-flex items-center gap-2 bg-white border-2 border-gray-200 text-gray-700 font-bold py-3 px-8 rounded-full hover:bg-gray-50 hover:border-[#4b0082] hover:text-[#4b0082] transition-all">
+          Financial Tools
+        </a>
+      </div>
+
+      <div class="pt-8 border-t border-gray-200">
+        <p class="text-sm text-gray-500 mb-6 font-semibold uppercase tracking-wider">Explore Popular Categories</p>
+        <div class="flex flex-wrap gap-3 justify-center">
+          {['tech', 'reviews', 'how-to-guides', 'events-holidays', 'parenting-kids', 'lifestyle'].map((cat) => (
+            <a href={`/${cat}`} class="text-sm px-5 py-2.5 bg-white rounded-full border border-gray-200 hover:border-[#4b0082] hover:text-[#4b0082] hover:bg-[#4b0082]/5 transition-all font-medium shadow-sm">
+              {cat.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <p class="text-sm text-gray-400 mt-8">
+        Need help? <a href="/contact-us" class="text-[#4b0082] hover:underline font-medium">Contact our support team</a>
+      </p>
+    </div>
+  </div>
+</BaseLayout>

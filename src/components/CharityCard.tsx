@@ -1,5 +1,4 @@
 // components/CharityCard.tsx
-import Link from 'next/link'
 
 interface Charity {
   _id: string;
@@ -29,7 +28,7 @@ export default function CharityList({ charities }: { charities: Charity[] }) {
         <div key={charity._id} className="flex flex-col border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all bg-white">
           
           {/* Header Section */}
-          <div className="p-6 pb-4 flex-grow">
+          <div className="p-6 pb-4 grow">
             <div className="flex justify-between items-start mb-2">
               <span className="text-xs font-semibold tracking-wide uppercase text-gray-500">
                 {charity.emirate}
@@ -57,13 +56,14 @@ export default function CharityList({ charities }: { charities: Charity[] }) {
 
           {/* Footer Action */}
           <div className="bg-gray-50 px-6 py-4 border-t border-gray-100">
-            <Link 
+            <a 
               href={charity.website} 
-              target="_blank" 
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center justify-center w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
             >
               Visit Website
-            </Link>
+            </a>
           </div>
           
         </div>

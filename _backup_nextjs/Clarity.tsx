@@ -1,5 +1,4 @@
 // src/components/analytics/Clarity.tsx
-"use client";
 
 import { useEffect, useState } from "react";
 import Script from "next/script";

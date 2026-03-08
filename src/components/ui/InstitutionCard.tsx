@@ -1,8 +1,6 @@
 // src/components/ui/InstitutionCard.tsx
-"use client";
 
-import React from "react";
-import Image from "next/image";
+
 import { urlForImage } from "@/sanity/lib/image";
 import LogoIcon from "@/components/icons/LogoIcon";
 import { 
@@ -50,7 +48,7 @@ export default function InstitutionCard({ item }: InstitutionCardProps) {
         
         {/* --- HEADER --- */}
         <div className="flex flex-col md:flex-row md:items-start gap-4 mb-4">
-          <div className="flex-shrink-0 bg-purple-100 text-purple-800 font-black text-xl px-4 py-2 rounded-lg border border-purple-200 shadow-sm text-center min-w-[60px]">
+          <div className="shrink-0 bg-purple-100 text-purple-800 font-black text-xl px-4 py-2 rounded-lg border border-purple-200 shadow-sm text-center min-w-[60px]">
             #{item.rank}
           </div>
           
@@ -73,7 +71,7 @@ export default function InstitutionCard({ item }: InstitutionCardProps) {
           <div className="mb-6 flex">
             {/* ✅ UPDATED: bg-primary */}
             <div className="relative bg-primary text-white px-5 py-1.5 rounded-lg shadow-lg overflow-hidden border-t border-white/20 border-b border-black/20">
-              <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/30 to-transparent pointer-events-none"></div>
+              <div className="absolute inset-x-0 top-0 h-1/2 bg-linear-to-b from-white/30 to-transparent pointer-events-none"></div>
               <div className="relative flex items-center gap-2 font-black tracking-wide uppercase text-sm">
                 <LogoIcon className="w-5 h-5" /> 
                 <span className="drop-shadow-sm">{item.badgeLabel}</span>
@@ -85,8 +83,7 @@ export default function InstitutionCard({ item }: InstitutionCardProps) {
         {/* --- IMAGE (OPTIMIZED) --- */}
         {school.mainImage && (
           <div className="relative w-full h-64 md:h-[350px] mb-8 bg-gray-50 rounded-xl overflow-hidden border border-gray-100 shadow-inner">
-            <Image
-              // ✅ Handle both transformed (with url) and raw Sanity objects
+            <img
               src={
                 typeof school.mainImage === 'string' 
                   ? school.mainImage 
@@ -95,10 +92,8 @@ export default function InstitutionCard({ item }: InstitutionCardProps) {
                     : urlForImage(school.mainImage).width(800).height(500).url()
               }
               alt={seoAltText}
-              fill
-              className="object-cover hover:scale-105 transition-transform duration-700"
-              priority={item.rank === 1}
-              sizes="(max-width: 768px) 100vw, 800px"
+              className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+              loading={item.rank === 1 ? 'eager' : 'lazy'}
             />
           </div>
         )}
@@ -121,7 +116,7 @@ export default function InstitutionCard({ item }: InstitutionCardProps) {
           
           {/* Row 1: Curriculum */}
           <div className="flex items-center p-4 bg-white border border-gray-100 rounded-xl shadow-sm hover:border-blue-200 transition-colors">
-            <div className="w-12 h-10 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 flex-shrink-0 mr-4">
+            <div className="w-12 h-10 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 shrink-0 mr-4">
               <GraduationCap className="w-5 h-5" />
             </div>
             <div className="flex-1">
@@ -132,7 +127,7 @@ export default function InstitutionCard({ item }: InstitutionCardProps) {
 
           {/* Row 2: Fees */}
           <div className="flex items-center p-4 bg-white border border-gray-100 rounded-xl shadow-sm hover:border-amber-200 transition-colors">
-            <div className="w-12 h-10 bg-amber-50 rounded-full flex items-center justify-center text-amber-600 flex-shrink-0 mr-4">
+            <div className="w-12 h-10 bg-amber-50 rounded-full flex items-center justify-center text-amber-600 shrink-0 mr-4">
               <Coins className="w-5 h-5" />
             </div>
             <div className="flex-1">
@@ -144,7 +139,7 @@ export default function InstitutionCard({ item }: InstitutionCardProps) {
           {/* Row 3: KHDA Rating */}
           {school.rating && (
             <div className="flex items-center p-4 bg-white border border-gray-100 rounded-xl shadow-sm hover:border-green-200 transition-colors">
-              <div className="w-12 h-10 bg-green-50 rounded-full flex items-center justify-center text-green-600 flex-shrink-0 mr-4">
+              <div className="w-12 h-10 bg-green-50 rounded-full flex items-center justify-center text-green-600 shrink-0 mr-4">
                 <Award className="w-5 h-5" />
               </div>
               <div className="flex-1">
@@ -160,7 +155,7 @@ export default function InstitutionCard({ item }: InstitutionCardProps) {
           {/* Row 4: FULL ADDRESS */}
           {(school.address || school.location) && (
             <div className="flex items-start p-4 bg-white border border-gray-100 rounded-xl shadow-sm hover:border-purple-200 transition-colors">
-              <div className="w-10 h-10 bg-purple-50 rounded-full flex items-center justify-center text-purple-600 flex-shrink-0 mr-4 mt-1">
+              <div className="w-10 h-10 bg-purple-50 rounded-full flex items-center justify-center text-purple-600 shrink-0 mr-4 mt-1">
                 <MapPin className="w-5 h-5" />
               </div>
               <div className="flex-1">
@@ -197,7 +192,7 @@ export default function InstitutionCard({ item }: InstitutionCardProps) {
             <ul className="space-y-2.5">
               {school.realityCheck.map((point: string, i: number) => (
                 <li key={i} className="flex items-start gap-3 text-sm text-gray-800 leading-snug font-medium">
-                  <span className="mt-1.5 w-1.5 h-1.5 bg-rose-500 rounded-full flex-shrink-0" />
+                  <span className="mt-1.5 w-1.5 h-1.5 bg-rose-500 rounded-full shrink-0" />
                   <span>{point}</span>
                 </li>
               ))}

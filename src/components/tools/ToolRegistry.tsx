@@ -1,20 +1,16 @@
 // src/components/tools/ToolRegistry.tsx
-'use client';
-
-import dynamic from 'next/dynamic';
+import { lazy, Suspense } from 'react';
 import { Loader2 } from "@/components/icons";
 
-// ✅ FIX: Import VAT Calculator directly so it renders on the Server
 import VatCalculator from './VatCalculator';
 
-// Keep other heavy tools lazy if you prefer
-const GratuityCalculator = dynamic(() => import('./GratuityCalculator'), { loading: () => <LoadingSpinner /> });
-const ZakatCalculator = dynamic(() => import('./ZakatCalculator'), { loading: () => <LoadingSpinner /> });
+const GratuityCalculator = lazy(() => import('./GratuityCalculator'));
+const ZakatCalculator = lazy(() => import('./ZakatCalculator'));
 
 const TOOLS_MAP: Record<string, React.ComponentType<any>> = {
   'gratuity-uae': GratuityCalculator,
   'zakat-uae': ZakatCalculator,
-  'vat-uae': VatCalculator, // ✅ Now SSR Compatible
+  'vat-uae': VatCalculator,
 };
 
 function LoadingSpinner() {
@@ -32,10 +28,14 @@ export default function ToolRenderer({ id }: { id: string }) {
   if (!Component) {
     return (
       <div className="p-4 bg-red-50 text-red-600 border border-red-100 rounded-lg text-center">
-        Error: Calculator ID <strong>"{id}"</strong> not found.
+        Error: Calculator ID <strong>&quot;{id}&quot;</strong> not found.
       </div>
     );
   }
 
-  return <Component />;
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <Component />
+    </Suspense>
+  );
 }

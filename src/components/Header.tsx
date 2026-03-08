@@ -1,10 +1,5 @@
-// src/components/Header.tsx - FIXED & UPDATED
-"use client";
-
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { useRouter, usePathname } from "next/navigation";
+// src/components/Header.tsx
+import { useState, useEffect, type SubmitEvent } from "react";
 import { Menu, X, Search, Flame, Moon } from "@/components/icons";
 
 // Define the shape of our links to avoid TS errors
@@ -39,8 +34,13 @@ export default function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isScrolled, setIsScrolled] = useState(false);
   
-  const router = useRouter();
-  const pathname = usePathname();
+  const [pathname, setPathname] = useState(
+    typeof window !== 'undefined' ? window.location.pathname : '/'
+  );
+
+  useEffect(() => {
+    setPathname(window.location.pathname);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -66,12 +66,12 @@ export default function Header() {
     };
   }, [isMobileMenuOpen]);
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       setIsSearchOpen(false);
       setSearchQuery("");
-      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      window.location.href = `/search?q=${encodeURIComponent(searchQuery.trim())}`;
     }
   };
 
@@ -91,24 +91,23 @@ export default function Header() {
           
           {/* LOGO */}
           <div 
-            className={`flex-shrink-0 transition-opacity duration-200 ${
+            className={`shrink-0 transition-opacity duration-200 ${
               isSearchOpen ? 'opacity-0 xl:opacity-100 pointer-events-none xl:pointer-events-auto' : 'opacity-100'
             }`}
           >
-            <Link 
+            <a 
               href="/" 
               className="flex items-center group"
               title="TopTenUAE - The Best of the UAE"
             >
-              <Image
+              <img
                 src="/images/brand/logo.svg"
                 alt="TopTenUAE Logo"
                 width={200}
                 height={40}
                 className="h-8 w-auto md:h-10 object-contain transition-transform duration-200 group-hover:scale-105"
-                priority
               />
-            </Link>
+            </a>
           </div>
 
           {/* SEARCH BAR */}
@@ -147,10 +146,9 @@ export default function Header() {
               {/* DESKTOP NAV */}
               <nav className="hidden xl:flex xl:gap-x-6 xl:items-center">
                 {NAV_LINKS.map((link) => (
-                  <Link
+                  <a
                     key={link.name}
                     href={link.href}
-                    prefetch={false}
                     title={link.title}
                     className={`relative text-[15px] font-semibold tracking-tight transition-all duration-200 whitespace-nowrap flex items-center gap-1.5 py-1 group ${
                       link.isHighlight 
@@ -185,7 +183,7 @@ export default function Header() {
                         isActiveLink(link.href) ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
                       }`}
                     />
-                  </Link>
+                  </a>
                 ))}
               </nav>
 
@@ -199,12 +197,12 @@ export default function Header() {
                   <Search className="h-5 w-5 group-hover:scale-110 transition-transform" />
                 </button>
                 
-                <Link
+                <a
                   href="/subscribe"
-                  className="rounded-full bg-gradient-to-r from-[#4b0082] to-purple-700 px-6 py-2.5 text-xs font-bold uppercase text-white transition-all duration-200 hover:shadow-lg hover:shadow-purple-500/30 hover:-translate-y-0.5 whitespace-nowrap active:scale-95"
+                  className="rounded-full bg-linear-to-r from-[#4b0082] to-purple-700 px-6 py-2.5 text-xs font-bold uppercase text-white transition-all duration-200 hover:shadow-lg hover:shadow-purple-500/30 hover:-translate-y-0.5 whitespace-nowrap active:scale-95"
                 >
                   Subscribe
-                </Link>
+                </a>
               </div>
             </>
           )}
@@ -244,7 +242,7 @@ export default function Header() {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl pb-6 pt-4 max-h-[calc(100vh-4rem)] overflow-y-auto">
             <nav className="space-y-1">
               {NAV_LINKS.map((link) => (
-                <Link
+                <a
                   key={link.name}
                   href={link.href}
                   onClick={() => setIsMobileMenuOpen(false)}
@@ -258,11 +256,11 @@ export default function Header() {
                 >
                   <div className="flex items-center gap-2.5">
                     {link.isHighlight && (
-                      <Flame className="w-4 h-4 fill-red-700 flex-shrink-0" />
+                      <Flame className="w-4 h-4 fill-red-700 shrink-0" />
                     )}
                     {/* ✅ MOBILE MOON ICON */}
                     {link.icon && !link.isHighlight && (
-                      <link.icon className="w-4 h-4 flex-shrink-0" />
+                      <link.icon className="w-4 h-4 shrink-0" />
                     )}
                     
                     <span>{link.name}</span>
@@ -275,25 +273,25 @@ export default function Header() {
                   {isActiveLink(link.href) && (
                     <div className="w-2 h-2 rounded-full bg-[#4b0082]" />
                   )}
-                </Link>
+                </a>
               ))}
 
-              <Link
+              <a
                 href="/calculators"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="flex items-center justify-between gap-2.5 rounded-lg px-4 py-3.5 text-base font-semibold w-full text-gray-900 hover:bg-purple-50 hover:text-[#4b0082] active:bg-purple-100 transition-all duration-200"
               >
                 <span>Calculators</span>
-              </Link>
+              </a>
 
               <div className="mt-6 pt-4 border-t border-gray-200">
-                <Link
+                <a
                   href="/subscribe"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center justify-center w-full rounded-lg bg-gradient-to-r from-[#4b0082] to-purple-700 px-4 py-3.5 text-center text-sm font-bold uppercase text-white hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-200 active:scale-[0.98]"
+                  className="flex items-center justify-center w-full rounded-lg bg-linear-to-r from-[#4b0082] to-purple-700 px-4 py-3.5 text-center text-sm font-bold uppercase text-white hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-200 active:scale-[0.98]"
                 >
                   Subscribe to Newsletter
-                </Link>
+                </a>
               </div>
             </nav>
           </div>

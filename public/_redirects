@@ -1,0 +1,9 @@
+# Cloudflare Pages redirects
+# Format: /old-path /new-path STATUS_CODE
+
+# Legacy feed redirects
+/feed /sitemap.xml 301
+/rss /sitemap.xml 301
+
+# Studio redirect (managed separately)
+/studio https://universal-studio.sanity.studio 301

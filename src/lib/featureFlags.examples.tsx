@@ -3,7 +3,7 @@
  * This file is documentation - copy the patterns to your actual components
  */
 
-import { features, isFeatureEnabled } from '@/lib/featureFlags';
+// import { features, isFeatureEnabled } from '@/lib/featureFlags';
 
 // ============================================
 // EXAMPLE 1: Simple Conditional Rendering

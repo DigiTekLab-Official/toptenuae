@@ -1,15 +1,14 @@
-"use client";
 
-import React, { useState, useEffect } from "react";
-import Image from "next/image";
-import Link from "next/link";
+import { useState, useEffect } from "react";
+
+
 import LogoIcon from "@/components/icons/LogoIcon"; 
 import { 
   CheckCircle2, XCircle, Info, Star, ExternalLink, Shield, Tag,
   BatteryMedium, Wifi, Zap, Monitor, Camera, Headphones, Droplets,
   Clock, Box, Award, Layers, Truck, Settings
 } from "@/components/icons";
-import { listImage, blurImage } from "@/sanity/lib/image";
+import { listImage } from "@/sanity/lib/image";
 
 // ✅ IMPORT GENERATED TYPES
 import type { Product } from "@/sanity.types";
@@ -84,14 +83,12 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
   
   // ✅ OPTIMIZED IMAGES
   let imageUrl: string | null = null;
-  let blurUrl: string | null = null;
   
   if (product?.mainImage) {
     if ((product.mainImage as any).url) {
       imageUrl = (product.mainImage as any).url;
     } else {
       imageUrl = listImage(product.mainImage) || null;
-      blurUrl = blurImage(product.mainImage) || null;
     }
   }
   
@@ -152,15 +149,11 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
               className="relative w-full max-w-[320px] overflow-hidden rounded-xl bg-white border border-gray-100 shadow-sm"
               style={{ aspectRatio: '1' }}
             >
-              <Image
+              <img
                 src={imageUrl}
                 alt={displayName}
-                fill
-                className="object-contain p-3 hover:scale-105 transition-transform duration-500"
-                priority={index === 0}
-                loading={index === 0 ? undefined : "lazy"}
-                sizes="(max-width: 640px) 280px, (max-width: 1024px) 320px, 400px"
-                quality={85}
+                className="absolute inset-0 w-full h-full object-contain p-3 hover:scale-105 transition-transform duration-500"
+                loading={index === 0 ? 'eager' : 'lazy'}
               />
             </div>
           </div>
@@ -282,14 +275,14 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
               </div>
               
               <div className="w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95 duration-200">
-                 <Link 
+                 <a 
                     href={product?.affiliateLink || '#'}
                     target="_blank"
                     rel="nofollow noopener"
                     className="flex items-center justify-center gap-2 w-full sm:w-auto bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-3 px-8 rounded-lg shadow-sm text-center transition-colors"
                  >
                     Check Price on {product?.retailer || 'Amazon'} <ExternalLink className="w-4 h-4" />
-                 </Link>
+                 </a>
                  {product?.retailer && product.retailer.toLowerCase() !== 'amazon.ae' && (
                     <div className="text-center mt-1 text-xs text-gray-500 uppercase tracking-widest font-semibold flex items-center justify-center gap-1">
                       <Shield className="w-3 h-3 text-gray-400" /> via {product.retailer}

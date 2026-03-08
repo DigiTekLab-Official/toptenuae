@@ -1,11 +1,8 @@
 // src/components/PortableText.tsx
-"use client";
-
-import { PortableText as PortableTextComponent, PortableTextComponents } from "@portabletext/react";
+import { PortableText as PortableTextComponent, type PortableTextComponents } from "@portabletext/react";
 import { ExternalLink } from "@/components/icons";
 import RelatedLinkCard from "@/components/ui/RelatedLinkCard";
 import CodeBlock from "@/components/ui/CodeBlock";
-import Image from "next/image";
 import { urlForImage } from "@/sanity/lib/image"; 
 import SanityTable from "@/components/sanity/SanityTable"; 
 import NavigationGrid from "@/components/ui/NavigationGrid";
@@ -45,7 +42,7 @@ const InfoCards = ({ value }: { value: any }) => {
 // --- 2. Main Components Map ---
 const components: PortableTextComponents = {
   // ✅ FIX: Silence "Unknown block type" build warnings
-  unknownType: ({ value, isInline }) => null,
+  unknownType: () => null,
 
   types: {
     infoCards: InfoCards,
@@ -144,14 +141,13 @@ const components: PortableTextComponents = {
       return (
         <figure className={containerClass}>
           <div className="relative overflow-hidden rounded-lg shadow-sm">
-            <Image
+            <img
               src={imageUrl}
               alt={value.alt || ""}
               width={width}
               height={height}
-              className="w-full h-auto object-contain" 
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 800px"
-              quality={85}
+              className="w-full h-auto object-contain"
+              loading="lazy"
             />
           </div>
           {value.caption && (

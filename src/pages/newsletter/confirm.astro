@@ -1,0 +1,73 @@
+---
+// src/pages/newsletter/confirm.astro
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { jwtVerify } from 'jose';
+
+const token = Astro.url.searchParams.get('token');
+
+const SECRET = new TextEncoder().encode(import.meta.env.JWT_SECRET);
+const AUDIENCE_ID = import.meta.env.RESEND_AUDIENCE_ID;
+const API_KEY = import.meta.env.RESEND_API_KEY;
+
+let status: 'success' | 'error' = 'success';
+let message = 'You have successfully confirmed your subscription.';
+
+if (!token) {
+  status = 'error';
+  message = 'Invalid or missing verification link.';
+} else {
+  try {
+    const { payload } = await jwtVerify(token, SECRET);
+    const email = payload.email as string;
+
+    if (AUDIENCE_ID && API_KEY) {
+      await fetch(`https://api.resend.com/audiences/${encodeURIComponent(AUDIENCE_ID)}/contacts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${API_KEY}`,
+        },
+        body: JSON.stringify({
+          email,
+          unsubscribed: false,
+        }),
+      });
+    }
+  } catch {
+    status = 'error';
+    message = 'This confirmation link has expired.';
+  }
+}
+---
+
+<BaseLayout
+  title={status === 'success' ? 'Confirmed! | Top Ten UAE' : 'Verification Failed | Top Ten UAE'}
+  description="Newsletter subscription confirmation"
+  noIndex={true}
+>
+  <div class="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 text-center border border-gray-100">
+      {status === 'success' ? (
+        <>
+          <div class="w-20 h-20 bg-green-50 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <h1 class="text-2xl font-bold text-gray-900 mb-2">Confirmed!</h1>
+          <p class="text-gray-600 mb-8">You are now officially on the list.</p>
+        </>
+      ) : (
+        <>
+          <div class="w-20 h-20 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          </div>
+          <h1 class="text-2xl font-bold text-gray-900 mb-2">Verification Failed</h1>
+          <p class="text-gray-600 mb-8">{message}</p>
+        </>
+      )}
+      <a href="/" class="inline-flex items-center gap-2 bg-primary text-white font-bold py-3 px-8 rounded-full hover:bg-primary/90 transition-all">
+        Return to Homepage
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+      </a>
+    </div>
+  </div>
+</BaseLayout>

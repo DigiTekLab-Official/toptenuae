@@ -1,6 +1,5 @@
 // src/components/tools/RelatedTools.tsx
-import Link from 'next/link';
-import { Calculator, Percent, Coins, HeartHandshake } from "@/components/icons";
+import { Percent, Coins, HeartHandshake } from "@/components/icons";
 
 interface RelatedToolsProps {
   currentTool: string;
@@ -47,7 +46,7 @@ export default function RelatedTools({ currentTool }: RelatedToolsProps) {
         {related.map((tool) => {
           const Icon = tool.icon;
           return (
-            <Link 
+            <a 
               key={tool.id} 
               href={tool.href}
               className={`group flex items-center gap-4 p-5 rounded-2xl border transition-all hover:shadow-md ${tool.color}`}
@@ -63,7 +62,7 @@ export default function RelatedTools({ currentTool }: RelatedToolsProps) {
                   {tool.desc}
                 </div>
               </div>
-            </Link>
+            </a>
           );
         })}
       </div>

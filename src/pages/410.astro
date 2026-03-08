@@ -1,0 +1,33 @@
+---
+// src/pages/410.astro
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+Astro.response.status = 410;
+---
+
+<BaseLayout title="Page Gone" noIndex={true}>
+  <div class="min-h-screen flex items-center justify-center bg-linear-to-b from-gray-50 to-gray-100 px-4">
+    <div class="max-w-md w-full text-center">
+      <div class="mb-8">
+        <h1 class="text-8xl font-bold text-gray-300">410</h1>
+        <h2 class="text-2xl font-semibold text-gray-800 mt-4">Page No Longer Available</h2>
+      </div>
+      <p class="text-gray-600 mb-8">This page has been permanently removed and is no longer accessible.</p>
+      <div class="space-y-4">
+        <a href="/" class="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">Return to Homepage</a>
+        <div class="text-sm text-gray-500">
+          <p>Looking for something specific?</p>
+          <div class="flex flex-wrap justify-center gap-2 mt-2">
+            <a href="/reviews" class="text-blue-600 hover:underline">Reviews</a>
+            <span class="text-gray-400">•</span>
+            <a href="/tech" class="text-blue-600 hover:underline">Tech</a>
+            <span class="text-gray-400">•</span>
+            <a href="/deals" class="text-blue-600 hover:underline">Deals</a>
+            <span class="text-gray-400">•</span>
+            <a href="/parenting-kids" class="text-blue-600 hover:underline">Parenting</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

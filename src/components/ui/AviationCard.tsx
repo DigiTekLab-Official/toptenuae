@@ -1,8 +1,6 @@
 // src/components/ui/AviationCard.tsx
-"use client";
 
-import React from "react";
-import Image from "next/image";
+
 import LogoIcon from "@/components/icons/LogoIcon";
 import { 
   MapPin, Tag, Globe, ExternalLink, Info, 
@@ -43,11 +41,6 @@ export default function AviationCard({ item }: AviationCardProps) {
     rating: isAirport ? "Skytrax" : "Safety Score"
   };
   
-  // ✅ SEO FIX: Robust Alt Text Generation
-  const imageAltText = entity.title 
-    ? `${entity.title} ${isAirport ? 'Airport' : 'Airline'} Official Logo`
-    : "Aviation Entity Logo";
-    
   return (
     <article
       id={`item-${item.rank}`}
@@ -55,7 +48,7 @@ export default function AviationCard({ item }: AviationCardProps) {
     >
       {/* --- 1. HEADER ROW --- */}
       <div className="bg-slate-50 border-b border-slate-100 p-4 flex items-center gap-4">
-        <div className="flex-shrink-0 bg-[#0F172A] text-white font-black text-xl w-10 h-10 rounded-lg flex items-center justify-center shadow-base">
+        <div className="shrink-0 bg-[#0F172A] text-white font-black text-xl w-10 h-10 rounded-lg flex items-center justify-center shadow-base">
           #{item.rank}
         </div>
         <div className="flex-1">
@@ -85,7 +78,7 @@ export default function AviationCard({ item }: AviationCardProps) {
            {item.badgeLabel && (
              <div className="absolute top-4 left-4 z-10 flex">
                 <div className="relative bg-primary text-white px-4 py-1.5 rounded-lg shadow-lg overflow-hidden border-t border-white/20 border-b border-black/20">
-                  <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/30 to-transparent pointer-events-none"></div>
+                  <div className="absolute inset-x-0 top-0 h-1/2 bg-linear-to-b from-white/30 to-transparent pointer-events-none"></div>
                   <div className="relative flex items-center gap-2 font-black tracking-wide uppercase text-xs">
                     <LogoIcon className="w-4 h-4" /> 
                     <span className="drop-shadow-base">{item.badgeLabel}</span>
@@ -96,12 +89,11 @@ export default function AviationCard({ item }: AviationCardProps) {
            
            {imageUrl ? (
              <div className="relative w-full h-32 md:h-40 mt-10">
-               <Image
+               <img
                  src={imageUrl}
                  alt={entity.title}
-                 fill
-                 className="object-contain"
-                 sizes="(max-width: 768px) 100vw, 300px"
+                 className="absolute inset-0 w-full h-full object-contain"
+                 loading="lazy"
                />
              </div>
            ) : (

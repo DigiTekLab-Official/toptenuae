@@ -1,5 +1,5 @@
 // src/sanity/queries/deal.queries.ts --- QUERIES FOR DEALS ---
-import { groq } from 'next-sanity';
+import groq from 'groq';
 
 // =============================================================================
 // DEAL QUERIES

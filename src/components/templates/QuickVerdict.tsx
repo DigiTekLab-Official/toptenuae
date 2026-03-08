@@ -1,8 +1,7 @@
-"use client";
 
-import React, { useState, useEffect } from "react";
-import Image from "next/image";
-import Link from "next/link";
+import { useState, useEffect } from "react";
+
+
 import { ArrowRight, Star, Trophy } from "@/components/icons";
 
 interface QuickPick {
@@ -66,13 +65,11 @@ export default function QuickVerdict({ picks }: { picks: QuickPick[] }) {
                 {/* Clickable Image */}
                 <div className="relative w-full h-40 mb-4 flex items-center justify-center">
                    {pick.imageUrl ? (
-                     <Image 
+                     <img 
                        src={pick.imageUrl} 
                        alt={pick.title} 
-                       fill 
-                       className="object-contain hover:scale-105 transition-transform duration-300"
-                       sizes="(max-width: 768px) 100%, 33vw"
-                       quality={80}
+                       className="absolute inset-0 w-full h-full object-contain hover:scale-105 transition-transform duration-300"
+                       loading="lazy"
                      />
                    ) : (
                      <div className="w-full h-full bg-gray-50 flex items-center justify-center text-gray-300 text-xs">No Image</div>
@@ -94,14 +91,14 @@ export default function QuickVerdict({ picks }: { picks: QuickPick[] }) {
                    </div>
 
                    {/* --- FIX 3: Blue Button --- */}
-                   <Link 
+                   <a 
                      href={pick.affiliateLink || "#"}
                      target="_blank"
                      rel="nofollow noopener"
                      className="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-md transition-all active:scale-95"
                    >
                      Check Price <ArrowRight className="w-4 h-4 inline ml-1" />
-                   </Link>
+                   </a>
                 </div>
               </div>
             </div>

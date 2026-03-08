@@ -1,4 +1,3 @@
-import Script from 'next/script'
 import { discoverImage } from '@/sanity/lib/image'
 
 export default function ArticleSchema({
@@ -31,7 +30,7 @@ export default function ArticleSchema({
   }
 
   return (
-    <Script
+    <script
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
     />

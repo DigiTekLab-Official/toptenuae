@@ -1,0 +1,144 @@
+---
+// src/pages/affiliate-disclosure.astro
+import BaseLayout from '@/layouts/BaseLayout.astro';
+const lastUpdated = 'December 27, 2025';
+---
+
+<BaseLayout
+  title="Affiliate Disclosure | Top Ten UAE"
+  description="Transparency is our policy. Learn how TopTenUAE is funded through affiliate commissions."
+  canonical="https://toptenuae.com/affiliate-disclosure"
+>
+  <div class="bg-white font-sans text-gray-700">
+
+    <!-- HERO -->
+    <section class="relative bg-primary py-20 px-4 sm:px-6 lg:px-8 text-center text-white overflow-hidden">
+      <div class="relative z-10 max-w-3xl mx-auto">
+        <div class="inline-flex items-center gap-2 bg-white/10 px-3 py-1 rounded-full text-sm font-bold uppercase tracking-wider mb-6 border border-white/20">
+          <svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          100% Transparent
+        </div>
+        <h1 class="text-3xl md:text-5xl font-black tracking-tight mb-6">
+          Affiliate <span class="text-yellow-400">Disclosure</span>
+        </h1>
+        <p class="text-lg md:text-xl text-indigo-100 leading-relaxed font-medium max-w-2xl mx-auto">
+          TopTenUAE is reader-supported. We believe in total transparency about how we make money and how we keep our content free for you.
+        </p>
+      </div>
+      <p class="mt-4 text-sm text-indigo-200 font-medium">Last Updated: {lastUpdated}</p>
+      <div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none" aria-hidden="true">
+        <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0 100 C 20 0 50 0 100 100 Z" fill="white" /></svg>
+      </div>
+    </section>
+
+    <!-- AMAZON STATEMENT -->
+    <section class="py-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+      <div class="bg-amber-50 rounded-2xl p-8 border border-amber-100 shadow-sm">
+        <h2 class="text-xl font-bold text-amber-900 mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          Amazon Associates Disclosure
+        </h2>
+        <p class="text-amber-900 leading-relaxed font-medium">
+          <strong>TopTenUAE.com</strong> is a participant in the Amazon Services LLC Associates Program, an affiliate advertising program designed to provide a means for sites to earn advertising fees by advertising and linking to Amazon.ae, Amazon.com, and other Amazon marketplaces.
+        </p>
+        <p class="text-amber-800 text-sm mt-4">As an Amazon Associate, we earn from qualifying purchases.</p>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="py-12 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold text-gray-900 mb-4">How Affiliate Links Work</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto">
+          When you see a link on our website that says <strong>"Check Price"</strong> or <strong>"View on Amazon"</strong>, it is likely an affiliate link. Here is what happens when you click it:
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8 mb-16">
+        <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 text-center relative">
+          <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+          </div>
+          <h3 class="text-lg font-bold text-gray-900 mb-2">1. You Click & Buy</h3>
+          <p class="text-sm text-gray-600 leading-relaxed">You click a link on TopTenUAE to visit a retailer (like Amazon.ae) and purchase a product you like.</p>
+          <div class="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2 text-gray-300">➔</div>
+        </div>
+
+        <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 text-center relative">
+          <div class="w-14 h-14 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          </div>
+          <h3 class="text-lg font-bold text-gray-900 mb-2">2. We Earn a Commission</h3>
+          <p class="text-sm text-gray-600 leading-relaxed">The retailer pays us a small percentage of the sale as a "Referral Fee" for sending them a customer.</p>
+          <div class="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2 text-gray-300">➔</div>
+        </div>
+
+        <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 text-center">
+          <div class="w-14 h-14 bg-pink-100 text-pink-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+          </div>
+          <h3 class="text-lg font-bold text-gray-900 mb-2">3. No Cost to You</h3>
+          <p class="text-sm text-gray-600 leading-relaxed"><strong>The price remains the same for you.</strong> You never pay extra. The commission comes entirely from the retailer's pocket.</p>
+        </div>
+      </div>
+
+      <!-- Price Comparison -->
+      <div class="max-w-4xl mx-auto bg-gray-50 rounded-2xl p-8 border border-gray-200">
+        <h3 class="text-center font-bold text-gray-900 mb-6">Does this affect the price? (Real Example)</h3>
+        <div class="grid md:grid-cols-2 gap-8">
+          <div class="bg-white p-6 rounded-xl border border-gray-200 text-center opacity-75">
+            <h4 class="font-bold text-gray-700 mb-2">Direct Purchase</h4>
+            <h5 class="text-xl font-bold text-gray-800">You pay 100 AED</h5>
+          </div>
+          <div class="bg-white p-6 rounded-xl border-2 border-green-500 text-center relative shadow-sm">
+            <div class="absolute top-0 right-0 bg-green-500 text-white text-sm font-bold px-2 py-1 rounded-bl-lg">OUR LINK</div>
+            <h4 class="font-bold text-green-700 mb-2">Affiliate Link</h4>
+            <h5 class="text-xl font-bold text-gray-900">You pay 100 AED</h5>
+            <p class="text-sm text-green-600 font-bold mt-1">(The Exact Same!)</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TRUSTED PARTNERS -->
+    <section class="py-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">Other Trusted Partners</h2>
+      <p class="text-center text-gray-600 mb-8">In addition to Amazon, we partner with these trusted UAE retailers:</p>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white p-4 rounded-xl border border-gray-200 text-center font-bold text-gray-700 shadow-sm">Noon.com</div>
+        <div class="bg-white p-4 rounded-xl border border-gray-200 text-center font-bold text-gray-700 shadow-sm">Mumzworld</div>
+        <div class="bg-white p-4 rounded-xl border border-gray-200 text-center font-bold text-gray-700 shadow-sm">Bloomingdale's</div>
+        <div class="bg-white p-4 rounded-xl border border-gray-200 text-center font-bold text-gray-700 shadow-sm">Others</div>
+      </div>
+    </section>
+
+    <!-- EDITORIAL INTEGRITY -->
+    <section class="bg-gray-50 py-16 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-4xl mx-auto">
+        <h2 class="text-2xl font-black text-gray-900 mb-6">Does this affect our reviews?</h2>
+        <div class="prose prose-lg prose-indigo max-w-none text-gray-700">
+          <p><strong>Absolutely not.</strong></p>
+          <p>Our editorial team operates independently from our affiliate team. We choose products based on:</p>
+          <ul class="grid sm:grid-cols-2 gap-2 list-none pl-0 my-6">
+            {['Quality and Performance', 'Verified User Reviews', 'Availability in UAE', 'Value for Money'].map((item) => (
+              <li class="flex items-center gap-2 bg-white px-4 py-3 rounded-lg border border-gray-200 shadow-sm">
+                <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span class="font-medium">{item}</span>
+              </li>
+            ))}
+          </ul>
+          <p>If a product is bad, we will tell you it is bad—even if it has a high commission rate. Our reputation as a trusted source in the UAE is worth more than any quick sale.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="py-16 px-4 text-center">
+      <p class="text-gray-600 mb-6">If you have any questions about our affiliate relationships, please don't hesitate to ask.</p>
+      <a href="/contact-us" class="inline-block bg-[#DDD6FF] border-2 border-gray-200 text-gray-900 font-bold py-3 px-8 rounded-full hover:border-primary hover:text-primary transition-colors">
+        Contact Our Team
+      </a>
+    </section>
+
+  </div>
+</BaseLayout>

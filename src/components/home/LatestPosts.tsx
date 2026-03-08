@@ -1,10 +1,6 @@
 // src/components/home/LatestPosts.tsx
 
-import Link from 'next/link';
-
-import Image from 'next/image';
-
-import { TopTenItem } from '@/types/sanity';
+import type { TopTenItem } from '@/types/sanity';
 
 import PortableText from '@/components/sanity/PortableText';
 
@@ -29,7 +25,7 @@ return (
 
 <span className="relative z-10">Latest Guides</span>
 
-<span className="absolute bottom-1 left-0 w-full h-3 bg-blue-100 -z-0"></span>
+<span className="absolute bottom-1 left-0 w-full h-3 bg-blue-100 z-0"></span>
 
 </h2>
 
@@ -46,21 +42,19 @@ return (
 
 {/* Image Card - REMOVED rounded-lg */}
 
-<div className="relative aspect-[3/2] overflow-hidden bg-gray-100 mb-4 shadow-sm border border-gray-100">
+<div className="relative aspect-3/2 overflow-hidden bg-gray-100 mb-4 shadow-sm border border-gray-100">
 
 {post.imageUrl ? (
 
-<Image
+<img
 
 src={post.imageUrl}
 
 alt={post.title}
 
-fill
+className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
 
-className="object-cover transition-transform duration-500 group-hover:scale-105"
-
-sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+loading="lazy"
 
 />
 
@@ -103,11 +97,11 @@ No Image
 
 {/* FIX: Removed /list/ prefix */}
 
-<Link href={`/${post.slug}`}>
+<a href={`/${post.slug}`}>
 
 {post.title}
 
-</Link>
+</a>
 
 </h3>
 
@@ -131,7 +125,7 @@ No Image
 
 {/* FIX: Removed /list/ prefix */}
 
-<Link
+<a
 
 href={`/${post.slug}`}
 
@@ -141,7 +135,7 @@ className="inline-flex items-center text-sm font-bold text-blue-600 hover:text-b
 
 Read Review <span className="ml-1">→</span>
 
-</Link>
+</a>
 
 </div>
 

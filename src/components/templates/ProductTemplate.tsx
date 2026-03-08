@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import { 
   CheckCircle2, 
   XCircle, 
@@ -94,12 +93,11 @@ export default function ProductTemplate({ data }: ProductTemplateProps) {
             <div className="bg-white rounded-3xl p-8 shadow-xl border border-slate-100 flex items-center justify-center relative overflow-hidden group">
                 <div className="w-full h-75 md:h-125 p-8 flex items-center justify-center relative">
                   {mainImage?.url ? (
-                    <Image
+                    <img
                       src={mainImage.url}
                       alt={title || "Product image"}
-                      fill
-                      className="object-contain group-hover:scale-[1.02] transition-transform duration-500"
-                      priority
+                      className="w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-500"
+                      loading="eager"
                     />
                   ) : (
                     <div className="flex items-center justify-center h-full text-slate-300">

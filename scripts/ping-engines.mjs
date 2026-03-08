@@ -1,25 +1,7 @@
 // scripts/ping-engines.mjs
-const SITEMAP_URL = 'https://toptenuae.com/sitemap.xml';
+// Bing /ping endpoint deprecated (410 Gone). Use IndexNow or Bing Webmaster Tools instead.
+// Google also deprecated their ping endpoint.
+// Sitemaps are auto-discovered via search engine webmaster tools and robots.txt.
 
-async function pingEngines() {
-  console.log('📡 Pinging search engines...');
-
-  const engines = [
-    { name: 'Bing', url: `https://www.bing.com/ping?sitemap=${SITEMAP_URL}` },
-  ];
-
-  for (const engine of engines) {
-    try {
-      const res = await fetch(engine.url);
-      if (res.ok) {
-        console.log(`✅ Successfully pinged ${engine.name}`);
-      } else {
-        console.log(`⚠️ ${engine.name} ping returned status: ${res.status}`);
-      }
-    } catch (err) {
-      console.error(`❌ Failed to ping ${engine.name}:`, err.message);
-    }
-  }
-}
-
-pingEngines();
+console.log('ℹ️  Sitemap ping skipped — search engine ping endpoints are deprecated.');
+console.log('   Sitemaps are discovered automatically via robots.txt and webmaster tools.');

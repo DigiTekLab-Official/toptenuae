@@ -1,5 +1,4 @@
 // src/components/icons/LogoIcon.tsx
-import React from 'react';
 
 export default function LogoIcon({ className = "w-6 h-6" }: { className?: string }) {
   return (

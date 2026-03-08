@@ -1,17 +1,7 @@
-"use client";
+import { lazy, Suspense } from 'react';
 
-import dynamic from 'next/dynamic';
-
-const SyntaxHighlighter = dynamic(
-  () => import('react-syntax-highlighter').then(mod => mod.Prism),
-  { 
-    ssr: false,
-    loading: () => (
-      <div className="my-8 rounded-lg overflow-hidden bg-[#1e1e1e] p-6 text-gray-400 text-sm">
-        Loading code block...
-      </div>
-    )
-  }
+const SyntaxHighlighter = lazy(
+  () => import('react-syntax-highlighter').then(mod => ({ default: mod.Prism }))
 );
 
 const vscDarkPlus = {
@@ -52,21 +42,23 @@ export default function CodeBlock({ value }: CodeBlockProps) {
       </div>
 
       {/* The Highlighter */}
-      <SyntaxHighlighter
-        language={value.language || 'text'}
-        style={vscDarkPlus}
-        customStyle={{
-          margin: 0,
-          padding: '1.5rem',
-          fontSize: '0.9rem',
-          lineHeight: '1.6',
-          backgroundColor: '#1e1e1e',
-        }}
-        showLineNumbers={true}
-        wrapLines={true}
-      >
-        {value.code}
-      </SyntaxHighlighter>
+      <Suspense fallback={<div className="p-6 text-gray-400 text-sm">Loading code block...</div>}>
+        <SyntaxHighlighter
+          language={value.language || 'text'}
+          style={vscDarkPlus}
+          customStyle={{
+            margin: 0,
+            padding: '1.5rem',
+            fontSize: '0.9rem',
+            lineHeight: '1.6',
+            backgroundColor: '#1e1e1e',
+          }}
+          showLineNumbers={true}
+          wrapLines={true}
+        >
+          {value.code}
+        </SyntaxHighlighter>
+      </Suspense>
     </div>
   );
 }

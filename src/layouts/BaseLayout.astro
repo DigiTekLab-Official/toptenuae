@@ -1,0 +1,173 @@
+---
+// src/layouts/BaseLayout.astro
+import Header from '@/components/Header';
+import Footer from '@/components/Footer.astro';
+import GTMScript from '@/components/analytics/GTMScript.astro';
+import ClarityScript from '@/components/analytics/ClarityScript.astro';
+import '@/styles/globals.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  canonical?: string;
+  ogImage?: string;
+  ogType?: string;
+  noIndex?: boolean;
+  jsonLd?: object | object[];
+}
+
+const {
+  title = 'TopTenUAE - The Best of the UAE, Ranked',
+  description = 'Discover the top 10 best places, services, and experiences in the UAE. Expert reviews, unbiased rankings, and smart tools for life in Dubai and Abu Dhabi.',
+  canonical,
+  ogImage = '/images/brand/og-default.png',
+  ogType = 'website',
+  noIndex = false,
+  jsonLd,
+} = Astro.props;
+
+const fullTitle = title.includes('TopTenUAE') ? title : `${title} | TopTenUAE`;
+const siteUrl = 'https://toptenuae.com';
+const canonicalUrl = canonical || new URL(Astro.url.pathname, siteUrl).href;
+const ogImageUrl = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`;
+
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "@id": `${siteUrl}/#organization`,
+  name: "TopTenUAE",
+  alternateName: "Top Ten UAE",
+  url: siteUrl,
+  logo: {
+    "@type": "ImageObject",
+    "@id": `${siteUrl}/#logo`,
+    url: `${siteUrl}/icon.png`,
+    width: 512,
+    height: 512,
+    caption: "TopTenUAE Logo"
+  },
+  image: {
+    "@type": "ImageObject",
+    url: `${siteUrl}/images/brand/og-default.png`,
+    width: 1200,
+    height: 630
+  },
+  description: "Expert reviews, rankings, and smart tools for UAE residents.",
+  foundingDate: "2020",
+  areaServed: { "@type": "Country", name: "United Arab Emirates" },
+  contactPoint: {
+    "@type": "ContactPoint",
+    contactType: "Customer Service",
+    areaServed: "AE",
+    availableLanguage: ["English", "Arabic"]
+  },
+};
+
+// Build JSON-LD schemas
+let schemas: any[] = [organizationSchema];
+if (jsonLd) {
+  if (Array.isArray(jsonLd)) {
+    schemas = [...schemas, ...jsonLd];
+  } else {
+    schemas.push(jsonLd);
+  }
+}
+
+const jsonLdGraph = {
+  "@context": "https://schema.org",
+  "@graph": schemas,
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
+    
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    
+    {/* Canonical */}
+    <link rel="canonical" href={canonicalUrl} />
+    
+    {/* Robots */}
+    {noIndex ? (
+      <meta name="robots" content="noindex, nofollow" />
+    ) : (
+      <meta name="robots" content="index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1" />
+    )}
+    
+    {/* Favicons */}
+    <link rel="icon" type="image/svg+xml" href="/icon-v2.svg" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    
+    {/* Theme */}
+    <meta name="theme-color" content="#4b0082" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
+    <meta name="application-name" content="TopTenUAE" />
+    <meta name="apple-mobile-web-app-title" content="TopTenUAE" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    
+    {/* OpenGraph */}
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:site_name" content="TopTenUAE" />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:locale" content="en_AE" />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    
+    {/* Twitter */}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+    <meta name="twitter:creator" content="@toptenuae" />
+    <meta name="twitter:site" content="@toptenuae" />
+    
+    {/* Preload LCP font */}
+    <link
+      rel="preload"
+      href="https://fonts.gstatic.com/s/ibmplexsans/v19/zYX9KVElMYYaJe8bpLHnCwDKjQ76AIxsdP3pBmtF8A.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    
+    {/* DNS Prefetch */}
+    <link rel="dns-prefetch" href="https://cdn.sanity.io" />
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+    
+    {/* JSON-LD */}
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLdGraph)} />
+    
+    {/* Extra head content from pages */}
+    <slot name="head" />
+  </head>
+
+  <body class="font-sans text-slate-900 bg-slate-50 antialiased min-h-screen flex flex-col overflow-x-hidden">
+    <GTMScript />
+    <ClarityScript />
+
+    <Header client:load />
+
+    <main class="grow w-full max-w-[100vw]" id="main-content">
+      <slot />
+    </main>
+
+    <div class="relative min-h-[300px] lg:min-h-[450px]">
+      <Footer />
+    </div>
+  </body>
+</html>

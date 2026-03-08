@@ -1,0 +1,402 @@
+---
+// src/pages/index.astro
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { client } from '@/sanity/lib/client';
+import { HOME_QUERY } from '@/sanity/lib/queries';
+import { cleanText, formatDate, getConciseAlt } from '@/lib/utils/sanity-text';
+import { mainImage, listImage } from '@/sanity/lib/image';
+import { generateSchema } from '@/lib/schemaGenerator';
+import HomeNewsletter from '@/components/HomeNewsletter';
+import LogoIcon from '@/components/icons/LogoIcon';
+import {
+  Calculator, Percent, Coins,
+  CreditCard, PieChart,
+} from '@/components/icons';
+
+// Configuration
+const SELECTED_CATEGORIES = [
+  'tech', 'top-ten', 'reviews', 'how-to-guides',
+  'events-holidays', 'parenting-kids', 'finance-tools',
+];
+
+// Tool icon config
+const getToolConfig = (slug: string) => {
+  const s = slug.toLowerCase();
+  if (s.includes('vat')) return { icon: Percent, ctaLabel: 'Calculate VAT', iconColor: 'text-blue-600', iconBg: 'bg-blue-50', gradient: 'from-blue-500 to-blue-600' };
+  if (s.includes('zakat')) return { icon: Coins, ctaLabel: 'Calculate Zakat', iconColor: 'text-amber-600', iconBg: 'bg-amber-50', gradient: 'from-amber-500 to-amber-600' };
+  if (s.includes('gratuity')) return { icon: PieChart, ctaLabel: 'Check Gratuity', iconColor: 'text-emerald-600', iconBg: 'bg-emerald-50', gradient: 'from-emerald-500 to-emerald-600' };
+  if (s.includes('loan') || s.includes('emi')) return { icon: CreditCard, ctaLabel: 'Calculate EMI', iconColor: 'text-purple-600', iconBg: 'bg-purple-50', gradient: 'from-purple-500 to-purple-600' };
+  return { icon: Calculator, ctaLabel: 'Use Tool', iconColor: 'text-primary', iconBg: 'bg-primary/10', gradient: 'from-[#4b0082] to-purple-600' };
+};
+
+// Data fetching
+let data: any = null;
+let fetchError = false;
+
+try {
+  data = await client.fetch(HOME_QUERY, { categories: SELECTED_CATEGORIES });
+} catch (error) {
+  console.error('Sanity Fetch Critical Error:', error);
+  fetchError = true;
+}
+
+const { heroPost, sections, upcomingPosts } = data || {};
+
+const sortedSections = SELECTED_CATEGORIES
+  .map((slug: string) => sections?.find((s: any) => s.slug === slug))
+  .filter(Boolean);
+
+const heroDescription = heroPost ? (cleanText(heroPost?.intro) || 'Expert reviews and comprehensive rankings for the UAE market.') : '';
+const heroImageUrl = heroPost?.mainImage ? mainImage(heroPost.mainImage) : null;
+
+// Schema
+const featuredPosts = [
+  ...(upcomingPosts || []),
+  ...sortedSections.flatMap((section: any) =>
+    section?.posts?.slice(0, 2).map((post: any) => ({
+      title: post.title,
+      slug: post.slug,
+      categorySlug: section.slug,
+    })) || []
+  ),
+];
+
+const allSchemas = heroPost ? generateSchema({ ...heroPost, featuredPosts }) : undefined;
+
+// SEO
+const seoTitle = 'The Best of the UAE, Ranked & Smart Tools';
+const seoDescription = 'Discover trending products, expert reviews, and free UAE tools including VAT and gratuity calculators. Your trusted guide to smarter choices in the Emirates.';
+---
+
+<BaseLayout
+  title={seoTitle}
+  description={seoDescription}
+  canonical="https://toptenuae.com"
+  ogImage="/images/brand/og-home.png"
+  ogType="website"
+  jsonLd={allSchemas}
+>
+  <main class="font-sans bg-white w-full">
+    <h1 class="sr-only">TopTenUAE - The Best of the UAE, Ranked, Reviewed & Smart Tools</h1>
+
+    {fetchError && (
+      <div class="min-h-[60vh] flex flex-col items-center justify-center p-8 text-center bg-slate-50">
+        <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md">
+          <h2 class="text-2xl font-black mb-2 text-slate-900">System Upgrade</h2>
+          <p class="text-slate-600">We are currently updating our content database. Please check back in a few minutes.</p>
+        </div>
+      </div>
+    )}
+
+    {!fetchError && !heroPost && (
+      <div class="min-h-[50vh] flex flex-col items-center justify-center gap-4">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <p class="text-slate-500 font-medium">Initializing TopTenUAE...</p>
+      </div>
+    )}
+
+    {heroPost && (
+      <>
+        {/* 1. HERO SECTION */}
+        <section
+          class="relative w-full bg-slate-900 text-white overflow-hidden"
+          style="min-height: 550px;"
+          aria-labelledby="hero-title"
+        >
+          <div class="absolute inset-0 z-0">
+            {heroImageUrl && (
+              <img
+                src={heroImageUrl}
+                alt=""
+                class="absolute inset-0 w-full h-full object-cover opacity-30"
+                loading="eager"
+                fetchpriority="high"
+                decoding="sync"
+                aria-hidden="true"
+              />
+            )}
+            <div class="absolute inset-0 bg-linear-to-r from-slate-900 via-slate-900/95 to-slate-900/40"></div>
+          </div>
+
+          <div class="container mx-auto px-4 py-12 lg:py-20 relative z-20 max-w-7xl w-full h-full flex flex-col justify-center">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center min-h-[calc(100vh-80px)] content-stretch">
+
+              {/* LEFT COLUMN */}
+              <div class="lg:col-span-8">
+                <div class="flex items-center gap-3 mb-6">
+                  <div class="bg-amber-400 text-slate-900 p-1.5 rounded-lg">
+                    <LogoIcon className="w-5 h-5" client:idle />
+                  </div>
+                  <span class="text-amber-400 font-bold tracking-widest uppercase text-xs md:text-sm">
+                    Featured Review
+                  </span>
+                </div>
+
+                <h2 id="hero-title" class="text-4xl md:text-6xl lg:text-7xl font-black leading-tight mb-6 tracking-tight text-white">
+                  {heroPost.title}
+                </h2>
+
+                <p class="text-lg md:text-xl text-slate-300 mb-10 line-clamp-3 max-w-2xl leading-relaxed border-l-4 border-amber-400 pl-6">
+                  {heroDescription}
+                </p>
+
+                <div class="flex flex-wrap gap-4">
+                  <a
+                    href={`/${heroPost.categorySlug}/${heroPost.slug}`}
+                    class="inline-flex items-center gap-3 bg-white text-slate-900 font-bold px-8 py-4 rounded-full hover:bg-amber-400 hover:text-slate-900 transition-all transform hover:-translate-y-1 shadow-xl shadow-white/5 group"
+                    aria-label={`Read full review: ${heroPost.title}`}
+                  >
+                    Read Review
+                    <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/></svg>
+                  </a>
+                </div>
+              </div>
+
+              {/* RIGHT COLUMN: Trending */}
+              <div class="lg:col-span-4 hidden lg:block">
+                <div class="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-8 shadow-2xl">
+                  <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-6 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    Trending Now
+                  </h3>
+                  <div class="space-y-6">
+                    <a href="/upcoming" class="group block">
+                      <span class="text-xs font-bold text-rose-400 mb-1 block uppercase">Tech Leaks</span>
+                      <h4 class="text-white font-bold leading-snug group-hover:text-amber-400 transition-colors">
+                        Samsung Galaxy S26 Ultra: Confirmed Specs & UAE Release Date
+                      </h4>
+                    </a>
+                    <a href="/how-to-guides" class="group block border-t border-white/10 pt-4">
+                      <span class="text-xs font-bold text-emerald-400 mb-1 block uppercase">Smart Living</span>
+                      <h4 class="text-white font-bold leading-snug group-hover:text-amber-400 transition-colors">
+                        Where to Donate Used Toys in UAE 2026 Guide
+                      </h4>
+                    </a>
+                    <a href="/deals" class="group block border-t border-white/10 pt-4">
+                      <span class="text-xs font-bold text-amber-400 mb-1 block uppercase">Deal Alert 🔥</span>
+                      <h4 class="text-white font-bold leading-snug group-hover:text-amber-400 transition-colors">
+                        Price Drop: Sony WH-1000XM5 hits lowest price in Dubai
+                      </h4>
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        {/* 2. UPCOMING SECTION */}
+        {upcomingPosts && upcomingPosts.length > 0 && (
+          <section class="container mx-auto px-4 py-16 border-b border-gray-100 max-w-7xl">
+            <div class="flex items-center gap-4 mb-10">
+              <div class="w-12 h-12 rounded-xl bg-[#4b0082]/10 flex items-center justify-center">
+                <svg class="w-6 h-6 text-[#4b0082]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.841m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/></svg>
+              </div>
+              <div>
+                <h2 class="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">
+                  Upcoming Releases & Leaks
+                </h2>
+                <p class="text-sm font-medium text-gray-500 mt-1">
+                  What's coming next? Rumors, leaks, and confirmed launches.
+                </p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {upcomingPosts.map((post: any) => {
+                const cardImageUrl = post.mainImage ? listImage(post.mainImage) : null;
+                return (
+                  <a
+                    href={`/upcoming/${post.slug}`}
+                    class="group flex flex-col bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:border-primary/20 transition-all duration-300 transform hover:-translate-y-1"
+                  >
+                    <div class="relative overflow-hidden bg-gray-100 aspect-16/10">
+                      {cardImageUrl && (
+                        <img
+                          src={cardImageUrl}
+                          alt={post.title}
+                          class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                          loading="lazy"
+                        />
+                      )}
+                      <div class="absolute top-3 right-3 bg-white/95 backdrop-blur-sm text-primary text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                        Coming Soon
+                      </div>
+                    </div>
+                    <div class="p-5">
+                      <h3 class="text-base font-bold text-gray-900 group-hover:text-primary line-clamp-2 leading-snug">
+                        {post.title}
+                      </h3>
+                      <div class="mt-3 flex items-center text-xs font-bold text-gray-400 uppercase tracking-wider">
+                        Read Rumor
+                        <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/></svg>
+                      </div>
+                    </div>
+                  </a>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* 3. CATEGORY SECTIONS */}
+        {sortedSections?.map((section: any) => (
+          section?.posts && section.posts.length > 0 && (
+            <section
+              class="container mx-auto px-4 py-16 border-b last:border-0 border-gray-100 max-w-7xl"
+              aria-labelledby={`section-${section.slug}`}
+            >
+              <div class="flex items-end justify-between mb-10">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-[#4b0082]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+                  </div>
+                  <div>
+                    <h2 id={`section-${section.slug}`} class="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">
+                      {section.title}
+                    </h2>
+                    {section.description && (
+                      <p class="text-sm font-medium text-gray-500 mt-1 max-w-md line-clamp-1">{cleanText(section.description)}</p>
+                    )}
+                  </div>
+                </div>
+                <a
+                  href={`/${section.slug}`}
+                  class="text-xs font-bold text-primary hover:text-primary-700 hidden sm:flex items-center gap-1 transition-colors uppercase tracking-wider bg-primary/5 px-4 py-2 rounded-full hover:bg-primary/10"
+                >
+                  View All
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {section.posts.map((post: any, idx: number) => {
+                  const isTool = post._type === 'tool';
+                  const isProduct = post._type === 'product';
+                  const postLink = `/${section.slug}/${post.slug}`;
+                  const cardImageUrl = post.mainImage ? listImage(post.mainImage) : null;
+                  const conciseAlt = getConciseAlt(post.mainImage?.alt, post.title);
+
+                  if (isTool) {
+                    const config = getToolConfig(post.slug);
+                    return (
+                      <a href={postLink} class="group relative block h-full">
+                        <article class="bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl border border-slate-200 hover:border-primary/30 transition-all h-full flex flex-col overflow-hidden relative">
+                          <div class={`absolute top-0 right-0 w-32 h-32 rounded-bl-[100px] -mr-8 -mt-8 bg-linear-to-br ${config.gradient} opacity-5 group-hover:opacity-10 transition-opacity`}></div>
+                          <div class={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-all duration-300 ${config.iconBg} group-hover:scale-110 relative z-10`}>
+                            <svg class={`w-7 h-7 ${config.iconColor}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                          </div>
+                          <h3 class="text-lg font-bold text-slate-900 mb-2 group-hover:text-primary transition-colors relative z-10 leading-tight">
+                            {post.title}
+                          </h3>
+                          <p class="text-sm text-slate-500 mb-auto line-clamp-2 relative z-10">
+                            Free tool for UAE residents.
+                          </p>
+                          <div class="mt-6 pt-4 border-t border-slate-100 flex items-center text-slate-700 font-bold text-xs uppercase tracking-wider group-hover:text-primary transition-colors relative z-10">
+                            {config.ctaLabel}
+                            <svg class="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/></svg>
+                          </div>
+                        </article>
+                      </a>
+                    );
+                  }
+
+                  return (
+                    <a href={postLink} class="group flex flex-col bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:border-primary/20 transition-all duration-300">
+                      <article class="flex flex-col h-full">
+                        <div
+                          class={`relative overflow-hidden ${isProduct ? 'bg-white p-6' : 'bg-gray-100'}`}
+                          style="aspect-ratio: 16/9; min-height: 200px;"
+                        >
+                          {cardImageUrl ? (
+                            <img
+                              src={cardImageUrl}
+                              alt={conciseAlt}
+                              loading={idx < 4 ? 'eager' : 'lazy'}
+                              class={`absolute inset-0 w-full h-full transition-transform duration-700 ${isProduct ? 'object-contain p-4 group-hover:scale-105' : 'object-cover group-hover:scale-105'}`}
+                            />
+                          ) : (
+                            <div class="w-full h-full flex items-center justify-center text-gray-300 bg-gray-50">
+                              <svg class="w-10 h-10 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            </div>
+                          )}
+                          {!isProduct && (
+                            <div class="absolute inset-0 bg-linear-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                          )}
+                        </div>
+
+                        <div class="p-5 flex flex-col flex-1">
+                          {isProduct ? (
+                            <div class="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider mb-2 text-emerald-600 bg-emerald-50 self-start px-2 py-0.5 rounded-full">
+                              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                              Best Buy
+                            </div>
+                          ) : post.publishedAt ? (
+                            <time class="flex items-center gap-1.5 text-[10px] text-gray-600 font-bold uppercase tracking-wider mb-2" datetime={post.publishedAt}>
+                              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                              {formatDate(post.publishedAt)}
+                            </time>
+                          ) : null}
+
+                          <h3 class="text-lg font-bold text-gray-900 mb-3 group-hover:text-primary transition-colors line-clamp-2 leading-tight">
+                            {post.title}
+                          </h3>
+
+                          <span class="mt-auto inline-flex items-center text-xs font-bold uppercase tracking-wider text-primary group-hover:translate-x-1 transition-transform">
+                            {isProduct ? 'Check Price' : 'Read More'}
+                            <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/></svg>
+                          </span>
+                        </div>
+                      </article>
+                    </a>
+                  );
+                })}
+              </div>
+
+              <div class="mt-10 text-center sm:hidden">
+                <a
+                  href={`/${section.slug}`}
+                  class="inline-flex items-center gap-2 text-sm font-bold text-primary border border-primary/20 px-6 py-3 rounded-full hover:bg-primary hover:text-white transition-all"
+                >
+                  View All {section.title}
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
+              </div>
+            </section>
+          )
+        ))}
+
+        {/* 4. NEWSLETTER */}
+        <section
+          class="bg-linear-to-br from-[#4b0082]/5 via-purple-50 to-[#4b0082]/5 border-y border-[#4b0082]/10 text-slate-800"
+          style="min-height: 350px;"
+          aria-labelledby="newsletter-title"
+        >
+          <div class="container mx-auto px-4 py-20 text-center max-w-7xl">
+            <div class="max-w-2xl mx-auto">
+              <span class="inline-block text-primary font-bold tracking-widest uppercase text-xs mb-3">
+                Join the Community
+              </span>
+              <h2 id="newsletter-title" class="text-3xl md:text-4xl font-black text-slate-900 mb-4 tracking-tight">
+                Join 10,000+ UAE Readers
+              </h2>
+              <p class="text-slate-600 mb-8 text-lg leading-relaxed">
+                Get the best of the UAE, ranked and delivered to your inbox. Smarter choices start here.
+              </p>
+              <div class="bg-white p-2 rounded-2xl shadow-xl shadow-purple-900/5">
+                <HomeNewsletter client:visible />
+              </div>
+              <p class="text-xs text-slate-400 mt-6 flex items-center justify-center gap-2 font-medium">
+                <svg class="w-3 h-3 text-emerald-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                Unsubscribe anytime. No spam, guaranteed.
+              </p>
+            </div>
+          </div>
+        </section>
+      </>
+    )}
+  </main>
+</BaseLayout>

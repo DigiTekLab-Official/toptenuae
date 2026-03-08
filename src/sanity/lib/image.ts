@@ -395,29 +395,21 @@ const customUrl = optimizedImage(post.mainImage, {
 // ... existing code ...
 
 // =============================================================================
-// NEXT.JS IMAGE LOADER (Custom Sanity Loader for Vercel)
+// SANITY IMAGE URL HELPER (Platform-agnostic)
 // =============================================================================
 
-import type { ImageLoaderProps } from "next/image";
-
-export default function sanityLoader({ src, width, quality }: ImageLoaderProps) {
-  // 1. If the image is NOT from Sanity, return it as-is
+/**
+ * Generate optimized Sanity CDN URL with width and quality params
+ */
+export function sanityImageUrl(src: string, width: number, quality: number = 75): string {
   if (!src.includes("cdn.sanity.io")) {
     return src;
   }
 
-  // 2. Parse the parameters
   const url = new URL(src);
-  
-  // Set the width (Next.js tells us what width it needs based on the device)
   url.searchParams.set("w", width.toString());
-  
-  // Set the quality (default to 75 if not provided)
-  url.searchParams.set("q", (quality || 75).toString());
-
-  // 3. Force modern format
+  url.searchParams.set("q", quality.toString());
   url.searchParams.set("auto", "format");
 
-  // 4. Return the optimized Sanity URL
   return url.toString();
 }

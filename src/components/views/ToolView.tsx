@@ -1,6 +1,6 @@
 // src/components/views/ToolView.tsx
-import Link from "next/link";
-import { Calculator, Percent, Coins, HeartHandshake, Car, Plane, TrendingUp, ArrowRight } from "@/components/icons";
+
+import { Calculator, Percent, Coins, HeartHandshake, ArrowRight } from "@/components/icons";
 import ClientToolRenderer from "@/components/tools/ClientToolRenderer";
 import Breadcrumb from "@/components/Breadcrumb";
 import PortableText from "@/components/sanity/PortableText";
@@ -45,7 +45,7 @@ interface ToolViewProps {
   slug: string;
 }
 
-export default function ToolView({ data, category, slug }: ToolViewProps) {
+export default function ToolView({ data, slug }: ToolViewProps) {
   
   // ✅ FIX: Map your EXACT Sanity slugs to the Registry IDs
   const TOOL_IDS: Record<string, string> = {
@@ -98,7 +98,7 @@ export default function ToolView({ data, category, slug }: ToolViewProps) {
               <h1 className="text-3xl md:text-5xl font-black leading-tight mb-6">
                 {data.title} <br />
                 {data.heroTitleSuffix && (
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-amber-500">
+                  <span className="text-transparent bg-clip-text bg-linear-to-r from-amber-300 to-amber-500">
                     {data.heroTitleSuffix}
                   </span>
                 )}
@@ -153,7 +153,7 @@ export default function ToolView({ data, category, slug }: ToolViewProps) {
                   const ToolIcon = config.icon;
                   
                   return (
-                    <Link 
+                    <a 
                       key={toolSlug} 
                       href={`/finance-tools/${toolSlug}`} 
                       className="group relative block h-full focus:outline-none focus:ring-2 focus:ring-[#4b0082] rounded-2xl"
@@ -169,7 +169,7 @@ export default function ToolView({ data, category, slug }: ToolViewProps) {
                           Open Tool <ArrowRight className="w-4 h-4 ml-1" />
                         </div>
                       </div>
-                    </Link>
+                    </a>
                   );
                 })}
               </div>

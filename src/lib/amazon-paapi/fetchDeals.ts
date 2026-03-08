@@ -1,11 +1,12 @@
 // src/lib/amazon-paapi/fetchDeals.ts
-import { createClient } from "next-sanity";
+import { createClient } from "@sanity/client";
 import { getEnv, getEnvOptional } from "@/lib/validateEnv";
 
 // --- 1. CONFIGURATION & CHECKS (with proper validation) ---
 const validateAmazonConfig = () => {
   const required = ['AMAZON_ACCESS_KEY', 'AMAZON_SECRET_KEY', 'AMAZON_PARTNER_TAG'];
-  const missing = required.filter(key => !process.env[key]);
+  const env = import.meta.env as Record<string, string>;
+  const missing = required.filter(key => !env[key]);
   
   if (missing.length > 0) {
     console.error(
@@ -22,8 +23,8 @@ const amazonConfigValid = validateAmazonConfig();
 
 // Sanity Client for WRITING (Needs Write Token)
 const writeClient = createClient({
-  projectId: getEnv('NEXT_PUBLIC_SANITY_PROJECT_ID'),
-  dataset: getEnvOptional('NEXT_PUBLIC_SANITY_DATASET', 'production'),
+  projectId: getEnv('PUBLIC_SANITY_PROJECT_ID'),
+  dataset: getEnvOptional('PUBLIC_SANITY_DATASET', 'production'),
   token: getEnvOptional('SANITY_WRITE_TOKEN'),
   apiVersion: '2024-01-01',
   useCdn: false, // Must be false for writing
@@ -207,7 +208,7 @@ async function searchAmazonProducts(keywords: string): Promise<AmazonProduct[]> 
 
 // --- 5. MAIN EXPORT ---
 export async function fetchAndStoreDeals() {
-  if (!process.env.SANITY_WRITE_TOKEN) {
+  if (!import.meta.env.SANITY_WRITE_TOKEN) {
     throw new Error("Missing SANITY_WRITE_TOKEN. Cannot sync deals.");
   }
 

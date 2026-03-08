@@ -1,8 +1,6 @@
-"use client";
 
-import React from "react";
-import Image from "next/image";
-import { ArrowRight, Trophy, Zap, Leaf, ShieldCheck } from "@/components/icons";
+
+import { ArrowRight, Trophy, Zap } from "@/components/icons";
 import { listImage } from "@/sanity/lib/image"; // Ensure this path matches yours
 
 interface ListItem {
@@ -50,11 +48,10 @@ export default function QuickSummaryTable({ items }: { items: ListItem[] }) {
                     <div className="flex items-center gap-3">
                       {imageUrl && (
                         <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md border border-gray-200 bg-white">
-                          <Image 
+                          <img 
                             src={imageUrl} 
                             alt={item.itemName} 
-                            fill 
-                            className="object-contain p-1"
+                            className="absolute inset-0 w-full h-full object-contain p-1"
                           />
                         </div>
                       )}

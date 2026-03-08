@@ -1,7 +1,5 @@
 // src/components/ContactForm.tsx
-"use client";
 
-import React from 'react';
 import { useForm, ValidationError } from '@formspree/react';
 import { Send, CheckCircle } from '@/components/icons';
 

@@ -1,5 +1,4 @@
-import React from 'react';
-import { toPlainText } from 'next-sanity'; // ✅ Helper to convert Rich Text to String
+import { toPlainText } from '@portabletext/toolkit';
 
 interface FAQItem {
   question: string;

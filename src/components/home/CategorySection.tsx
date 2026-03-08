@@ -1,10 +1,6 @@
 // src/components/home/CategorySection.tsx
 
-import Link from 'next/link';
-
-import Image from 'next/image';
-
-import { TopTenItem } from '@/types/sanity';
+import type { TopTenItem } from '@/types/sanity';
 
 import PortableText from '@/components/sanity/PortableText';
 
@@ -51,7 +47,7 @@ export default function CategorySection({ title, slug, posts, color = "bg-blue-6
 
           </h2>
 
-          <Link
+          <a
 
             href={`/category/${slug}`}
 
@@ -61,7 +57,7 @@ export default function CategorySection({ title, slug, posts, color = "bg-blue-6
 
             View All <span className="hidden sm:inline">{title}</span> &rarr;
 
-          </Link>
+          </a>
 
         </div>
 
@@ -76,21 +72,19 @@ export default function CategorySection({ title, slug, posts, color = "bg-blue-6
 
               {/* Image - REMOVED rounded-md */}
 
-              <div className="relative aspect-[3/2] overflow-hidden bg-gray-100 mb-3 border border-gray-100">
+              <div className="relative aspect-3/2 overflow-hidden bg-gray-100 mb-3 border border-gray-100">
 
                 {post.imageUrl ? (
 
-                  <Image
+                  <img
 
                     src={post.imageUrl}
 
                     alt={post.title}
 
-                    fill
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
 
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                    loading="lazy"
 
                   />
 
@@ -110,11 +104,11 @@ export default function CategorySection({ title, slug, posts, color = "bg-blue-6
 
                   {/* FIX: Removed /list/ prefix */}
 
-                  <Link href={`/${post.slug}`}>
+                  <a href={`/${post.slug}`}>
 
                     {post.title}
 
-                  </Link>
+                  </a>
 
                 </h3>
 

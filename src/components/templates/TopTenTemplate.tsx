@@ -1,7 +1,6 @@
-"use client";
 
 import React, { useMemo } from "react";
-import Image from "next/image";
+
 import { ArrowDown, Shield } from "@/components/icons";
 
 // --- COMPONENTS ---
@@ -262,15 +261,11 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
       {/* HERO IMAGE */}
       {heroImageUrl && (
         <div className="relative w-full aspect-video overflow-hidden rounded-xl shadow-lg mb-6">
-          <Image
+          <img
             src={heroImageUrl}
             alt={data.title || "Top 10 List"}
-            fill
-            priority={false}
             loading="lazy"
-            className="object-cover hover:scale-105 transition-transform duration-700"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1200px"
-            quality={75}
+            className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-700"
           />
         </div>
       )}

@@ -1,10 +1,9 @@
 // src/components/tools/ZakatCalculator.tsx
-"use client";
 
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { RefreshCcw, Info, ExternalLink, ChevronDown, ChevronUp, Wallet, TrendingUp, TrendingDown, Coins } from "@/components/icons";
-import Link from "next/link";
+
 
 export default function ZakatCalculator() {
   const [mounted, setMounted] = useState(false);
@@ -87,10 +86,10 @@ export default function ZakatCalculator() {
             <Coins className="w-6 h-6" />
             Today's Gold & Silver Rate
           </h2>
-          <Link href="https://dubaicityofgold.com/" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-2 text-sm font-bold bg-white/90 hover:bg-white text-[#4b0082] px-4 py-2 rounded-full shadow-sm transition-all">
+          <a href="https://dubaicityofgold.com/" target="_blank" rel="noopener noreferrer" className="group flex items-center gap-2 text-sm font-bold bg-white/90 hover:bg-white text-[#4b0082] px-4 py-2 rounded-full shadow-sm transition-all">
             <span>Check Dubai Rate</span>
             <ExternalLink className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-          </Link>
+          </a>
         </div>
 
         <div className="p-6">

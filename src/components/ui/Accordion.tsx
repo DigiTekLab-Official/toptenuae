@@ -1,4 +1,3 @@
-"use client";
 
 import { Plus, Minus } from "@/components/icons";
 import PortableText from "@/components/sanity/PortableText";

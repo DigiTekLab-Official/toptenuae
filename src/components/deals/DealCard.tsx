@@ -1,11 +1,7 @@
-'use client';
-
-import Image from 'next/image';
-import Link from 'next/link';
 import { useState } from 'react';
 import CountdownTimer from './CountdownTimer';
-import { Deal } from '@/types/sanity'; 
-import { ArrowRight, ShoppingCart, Copy, Check, ExternalLink, FileText } from 'lucide-react';
+import type { Deal } from '@/types/sanity'; 
+import { ShoppingCart, Copy, Check, ExternalLink, FileText } from 'lucide-react';
 
 interface DealCardProps {
   deal: Deal & { reviewSlug?: string }; 
@@ -83,9 +79,6 @@ export default function DealCard({ deal }: DealCardProps) {
 
   // Helper to wrap content in the correct link type for Image/Title
   const LinkWrapper = ({ children, className }: { children: React.ReactNode, className?: string }) => {
-    if (hasReview) {
-      return <Link href={mainLinkUrl} className={className}>{children}</Link>;
-    }
     return <a href={mainLinkUrl} target={mainLinkTarget} rel={mainLinkRel} className={className}>{children}</a>;
   };
 
@@ -115,16 +108,13 @@ export default function DealCard({ deal }: DealCardProps) {
         <LinkWrapper className="block">
           <div className="relative h-40 w-full mb-4 flex items-center justify-center p-2 bg-slate-50 rounded-xl group-hover:bg-purple-50 transition-colors duration-300">
             {deal.image && !imageError ? (
-              <div className="relative w-full h-full">
-                <Image
+              <img
                   src={deal.image}
                   alt={deal.title}
-                  fill
-                  className="object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                  className="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
                   onError={() => setImageError(true)}
                 />
-              </div>
             ) : (
               <ShoppingCart className="w-10 h-10 text-slate-300" />
             )}
@@ -138,7 +128,7 @@ export default function DealCard({ deal }: DealCardProps) {
         </LinkWrapper>
 
         {/* CONTENT */}
-        <div className="flex-grow flex flex-col">
+        <div className="grow flex flex-col">
           <div className="mb-2">
              <span className="text-[10px] font-bold uppercase tracking-wider text-[#4b0082] bg-purple-50 px-2 py-1 rounded-md">
               {categoryLabel}
@@ -218,13 +208,13 @@ export default function DealCard({ deal }: DealCardProps) {
 
           {/* 2. Secondary Action: READ REVIEW (Only if review exists) */}
           {hasReview && (
-            <Link
+            <a
               href={`/reviews/${deal.reviewSlug}`}
               className="w-full flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold py-2 rounded-lg transition-colors"
             >
               <FileText className="w-3 h-3" />
               Read Full Review
-            </Link>
+            </a>
           )}
 
         </div>

@@ -1,0 +1,206 @@
+---
+// src/components/Footer.astro – pure Astro, zero client JS
+---
+
+<footer class="bg-linear-to-b from-slate-950 to-slate-900 text-slate-50 font-sans border-t-2 border-purple-600">
+
+  {/* Main Footer Content */}
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl py-12 lg:py-16">
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-10">
+
+      {/* 1. Brand Column */}
+      <div class="lg:col-span-3 space-y-4">
+        <a href="/" class="inline-block group" aria-label="TopTenUAE Home">
+          <div class="bg-white p-2 rounded-xl shadow-md inline-block transition-transform duration-200 group-hover:scale-105">
+            <img
+              src="/images/brand/logo.svg"
+              alt="TopTenUAE Logo"
+              width="140"
+              height="36"
+              class="object-contain"
+              loading="lazy"
+            />
+          </div>
+        </a>
+
+        <p class="text-base leading-relaxed font-semibold text-slate-100">
+          The Best of the UAE, Ranked.
+        </p>
+
+        <div class="inline-flex items-center gap-2 text-sm font-semibold text-emerald-500 bg-emerald-900/50 px-3 py-2 rounded-full border border-emerald-700/50 backdrop-blur-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+          <span>Unbiased &amp; Independent</span>
+        </div>
+      </div>
+
+      {/* 2. Discover Column */}
+      <div class="lg:col-span-2">
+        <h2 class="text-white font-bold text-base mb-4 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg>
+          Discover
+        </h2>
+        <nav aria-label="Discover navigation">
+          <ul class="space-y-1">
+            <li><a href="/top-ten" class="block py-2 text-sm text-slate-200 hover:text-purple-400 transition-colors duration-200">Rankings</a></li>
+            <li><a href="/reviews" class="block py-2 text-sm text-slate-200 hover:text-purple-400 transition-colors duration-200">Best Buys</a></li>
+            <li><a href="/how-to-guides" class="block py-2 text-sm text-slate-200 hover:text-purple-400 transition-colors duration-200">How-To Guides</a></li>
+            <li><a href="/travel-tourism" class="block py-2 text-sm text-slate-200 hover:text-purple-400 transition-colors duration-200">Travel &amp; Tourism</a></li>
+            <li><a href="/events-holidays" class="block py-2 text-sm text-slate-200 hover:text-purple-400 transition-colors duration-200">What's On</a></li>
+            <li>
+              <a href="/deals" class="flex items-center gap-1 py-2 text-sm text-amber-300 hover:text-amber-200 transition-colors duration-200 font-semibold">
+                Deals &amp; Offers 🔥
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      {/* 3. Calculators Column - FEATURED */}
+      <div class="lg:col-span-3 bg-linear-to-br from-purple-900/20 to-transparent border border-purple-800/30 rounded-xl p-5 backdrop-blur-sm">
+        <h2 class="text-white font-bold text-base mb-4 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>
+          <span class="text-purple-200">Free Calculators</span>
+        </h2>
+        <nav aria-label="Calculators navigation">
+          <ul class="space-y-1">
+            <li><a href="/finance-tools/gratuity-calculator-uae" class="block py-2 text-sm text-purple-100 hover:text-white transition-colors duration-200 font-medium">UAE Gratuity Calculator</a></li>
+            <li><a href="/finance-tools/uae-vat-calculator" class="block py-2 text-sm text-purple-100 hover:text-white transition-colors duration-200 font-medium">VAT Calculator</a></li>
+            <li><a href="/finance-tools/zakat-calculator" class="block py-2 text-sm text-purple-100 hover:text-white transition-colors duration-200 font-medium">Zakat Calculator</a></li>
+            <li class="pt-2">
+              <a href="/finance-tools" class="inline-flex items-center gap-2 text-sm text-white bg-purple-600 hover:bg-purple-500 px-4 py-2.5 rounded-lg transition-all duration-200 font-semibold hover:shadow-lg hover:shadow-purple-500/30">
+                View All Tools →
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      {/* 4. Company Column */}
+      <div class="lg:col-span-2">
+        <h2 class="text-white font-bold text-base mb-4 flex items-center gap-2">Company</h2>
+        <nav aria-label="Company navigation">
+          <ul class="space-y-1">
+            <li><a href="/about-us" class="block py-2 text-sm text-slate-200 hover:text-purple-400 transition-colors duration-200">About Us</a></li>
+            <li><a href="/contact-us" class="block py-2 text-sm text-slate-200 hover:text-purple-400 transition-colors duration-200">Contact</a></li>
+
+            <li class="py-3" aria-hidden="true">
+              <div class="h-px bg-linear-to-r from-transparent via-slate-700 to-transparent"></div>
+            </li>
+
+            <li><a href="/privacy-policy" class="block py-2 text-sm text-slate-200 hover:text-purple-400 transition-colors duration-200">Privacy Policy</a></li>
+            <li><a href="/terms-and-conditions" class="block py-2 text-sm text-slate-200 hover:text-purple-400 transition-colors duration-200">Terms of Service</a></li>
+            <li><a href="/cookies-policy" class="block py-2 text-sm text-slate-200 hover:text-purple-400 transition-colors duration-200">Cookies Policy</a></li>
+            <li><a href="/disclaimer" class="block py-2 text-sm text-slate-200 hover:text-purple-400 transition-colors duration-200">Disclaimer</a></li>
+            <li><a href="/affiliate-disclosure" class="block py-2 text-sm text-slate-200 hover:text-purple-400 transition-colors duration-200">Affiliate Disclosure</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      {/* 5. Newsletter/Contact Column */}
+      <div class="lg:col-span-2">
+        <h2 class="text-white font-bold text-base mb-4 flex items-center gap-2">Stay Connected</h2>
+
+        {/* Contact Button */}
+        <a
+          href="/contact-us"
+          class="inline-flex items-center gap-2 text-sm text-white bg-slate-800 hover:bg-slate-700 px-4 py-3 rounded-lg transition-all duration-200 border border-slate-700 hover:border-slate-600 w-full justify-center mb-6"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          <span class="font-semibold">Email Our Team</span>
+        </a>
+
+        {/* Social Media - Desktop Only */}
+        <div class="hidden lg:block pt-2">
+          <h3 class="text-white font-semibold text-sm mb-3">Follow Us</h3>
+          <div class="flex gap-3">
+            <a
+              href="https://www.facebook.com/TopTenUAEofficial"
+              aria-label="Follow on Facebook"
+              class="h-10 w-10 flex items-center justify-center bg-slate-800 text-slate-100 rounded-lg hover:bg-[#1877F2] hover:text-white hover:scale-110 transition-all duration-200"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+            </a>
+            <a
+              href="https://x.com/top10_uae"
+              aria-label="Follow on X (Twitter)"
+              class="h-10 w-10 flex items-center justify-center bg-slate-800 text-slate-100 rounded-lg hover:bg-black hover:text-white hover:scale-110 transition-all duration-200"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
+            </a>
+            <a
+              href="https://www.instagram.com/toptenuae_/"
+              aria-label="Follow on Instagram"
+              class="h-10 w-10 flex items-center justify-center bg-slate-800 text-slate-100 rounded-lg hover:bg-linear-to-br hover:from-purple-600 hover:to-pink-600 hover:text-white hover:scale-110 transition-all duration-200"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* Social Media - Mobile/Tablet */}
+      <div class="lg:hidden">
+        <h3 class="text-white font-semibold text-sm mb-3">Follow Us</h3>
+        <div class="flex gap-3">
+          <a
+            href="https://www.facebook.com/TopTenUAEofficial"
+            aria-label="Follow on Facebook"
+            class="h-10 w-10 flex items-center justify-center bg-slate-800 text-slate-100 rounded-lg hover:bg-[#1877F2] hover:text-white hover:scale-110 transition-all duration-200"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </a>
+          <a
+            href="https://x.com/top10_uae"
+            aria-label="Follow on X (Twitter)"
+            class="h-10 w-10 flex items-center justify-center bg-slate-800 text-slate-100 rounded-lg hover:bg-black hover:text-white hover:scale-110 transition-all duration-200"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
+          </a>
+          <a
+            href="https://www.instagram.com/toptenuae_/"
+            aria-label="Follow on Instagram"
+            class="h-10 w-10 flex items-center justify-center bg-slate-800 text-slate-100 rounded-lg hover:bg-linear-to-br hover:from-purple-600 hover:to-pink-600 hover:text-white hover:scale-110 transition-all duration-200"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  {/* Bottom Bar */}
+  <div class="bg-slate-950 border-t border-slate-800">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl py-6">
+
+      {/* Affiliate Disclosure */}
+      <div class="mb-4 pb-4 border-b border-slate-900">
+        <p class="text-xs text-slate-400 leading-relaxed">
+          <strong class="text-slate-300">Affiliate Disclosure:</strong> TopTenUAE is a participant in the Amazon Services LLC Associates Program and other affiliate programs. We may earn a commission when you purchase through links on our site, at no extra cost to you. This helps us keep our content free and unbiased.
+        </p>
+      </div>
+
+      {/* Copyright */}
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-slate-400">
+        <p>&copy; {new Date().getFullYear()} TopTenUAE. All rights reserved.</p>
+        <p class="flex items-center gap-1.5">
+          Made with <span class="text-red-500 animate-pulse">♥</span> in Dubai <span role="img" aria-label="UAE Flag">🇦🇪</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>

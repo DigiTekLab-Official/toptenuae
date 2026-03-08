@@ -1,5 +1,4 @@
 // src/components/deals/FilterBar.tsx
-'use client';
 import { useState } from 'react';
 import { Search, SlidersHorizontal } from 'lucide-react'; // Using Lucide icons to match your hub
 

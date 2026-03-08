@@ -1,7 +1,4 @@
-import React from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { ArrowRight, CornerDownRight } from '@/components/icons';
+import { CornerDownRight } from '@/components/icons';
 
 interface GridItem {
   label: string;
@@ -37,24 +34,24 @@ const NavigationGrid: React.FC<NavigationGridProps> = ({ title, items }) => {
           const href = item.targetSlug ? `/${item.targetSlug}` : `#`;
 
           return (
-            <Link 
+            <a 
               key={idx} 
               href={href}
               className="group flex items-start gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-300 transition-all duration-200"
             >
               {/* Optional Thumbnail */}
               {item.imageUrl ? (
-                <div className="relative w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden border border-slate-100 bg-slate-50">
-                  <Image 
+                <div className="relative w-12 h-12 shrink-0 rounded-lg overflow-hidden border border-slate-100 bg-slate-50">
+                  <img 
                     src={item.imageUrl} 
-                    alt={item.label} 
-                    fill 
-                    className="object-cover group-hover:scale-105 transition-transform"
+                    alt={item.label}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                    loading="lazy"
                   />
                 </div>
               ) : (
                 // Fallback Icon if no image
-                <div className="w-12 h-12 flex-shrink-0 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-sm">
+                <div className="w-12 h-12 shrink-0 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-sm">
                   {idx + 1}
                 </div>
               )}
@@ -69,7 +66,7 @@ const NavigationGrid: React.FC<NavigationGridProps> = ({ title, items }) => {
                   </span>
                 )}
               </div>
-            </Link>
+            </a>
           );
         })}
       </div>

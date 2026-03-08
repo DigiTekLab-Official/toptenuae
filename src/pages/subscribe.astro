@@ -1,0 +1,92 @@
+---
+// src/pages/subscribe.astro
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import NewsletterForm from '@/components/NewsletterForm';
+---
+
+<BaseLayout
+  title="Subscribe | Top Ten UAE"
+  description="Join 10,000+ UAE residents getting the best deals, guides, and reviews delivered to their inbox."
+  canonical="https://toptenuae.com/subscribe"
+>
+  <div class="min-h-screen bg-gray-50">
+
+    <!-- HERO SECTION -->
+    <section class="bg-primary text-white pt-20 pb-32 px-4 text-center rounded-b-[3rem] relative overflow-hidden">
+      <div class="relative z-10 max-w-3xl mx-auto">
+        <span class="inline-block py-1 px-3 rounded-full bg-yellow-400/20 text-yellow-300 border border-yellow-400/30 text-xs font-bold uppercase tracking-wider mb-6">
+          Join the Community
+        </span>
+        <h1 class="text-4xl md:text-6xl font-black mb-6 tracking-tight leading-tight">
+          Stop Searching. <br />
+          <span class="text-yellow-400">Start Saving.</span>
+        </h1>
+        <p class="text-lg md:text-xl text-indigo-100 max-w-2xl mx-auto font-medium leading-relaxed">
+          Get the UAE's best-kept secrets, exclusive Amazon deals, and honest top 10 reviews delivered straight to your inbox.
+        </p>
+      </div>
+      <div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none" aria-hidden="true">
+        <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <circle cx="0" cy="0" r="40" fill="white" />
+          <circle cx="100" cy="100" r="40" fill="white" />
+        </svg>
+      </div>
+    </section>
+
+    <!-- FORM & BENEFITS CARD -->
+    <div class="max-w-5xl mx-auto px-4 -mt-24 pb-20 relative z-20">
+      <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden flex flex-col md:flex-row">
+
+        <!-- LEFT: Benefits List -->
+        <div class="bg-gray-50 p-8 md:p-12 md:w-1/2 flex flex-col justify-center">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6">What you'll get:</h2>
+          <ul class="space-y-4">
+            <li class="flex items-center gap-4 text-gray-700 font-medium">
+              <div class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-primary">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              </div>
+              Flash Deals & Price Drops
+            </li>
+            <li class="flex items-center gap-4 text-gray-700 font-medium">
+              <div class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-primary">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              New 'Top 10' Lists First
+            </li>
+            <li class="flex items-center gap-4 text-gray-700 font-medium">
+              <div class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-primary">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+              </div>
+              Unbiased Buying Guides
+            </li>
+            <li class="flex items-center gap-4 text-gray-700 font-medium">
+              <div class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-primary">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2" ry="2" stroke-width="2"/><rect x="9" y="9" width="6" height="6" stroke-width="2"/><line x1="9" y1="1" x2="9" y2="4" stroke-width="2"/><line x1="15" y1="1" x2="15" y2="4" stroke-width="2"/><line x1="9" y1="20" x2="9" y2="23" stroke-width="2"/><line x1="15" y1="20" x2="15" y2="23" stroke-width="2"/><line x1="20" y1="9" x2="23" y2="9" stroke-width="2"/><line x1="20" y1="14" x2="23" y2="14" stroke-width="2"/><line x1="1" y1="9" x2="4" y2="9" stroke-width="2"/><line x1="1" y1="14" x2="4" y2="14" stroke-width="2"/></svg>
+              </div>
+              Latest Tech News
+            </li>
+            <li class="flex items-center gap-4 text-gray-700 font-medium">
+              <div class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-primary">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+              Zero Spam / Ad Clutter
+            </li>
+          </ul>
+        </div>
+
+        <!-- RIGHT: The Form -->
+        <div class="p-8 md:p-12 md:w-1/2 flex flex-col justify-center bg-white">
+          <h3 class="text-xl font-bold text-gray-900 text-center mb-2">
+            Sign up for free
+          </h3>
+          <p class="text-gray-500 text-center text-base mb-8">
+            Join smart shoppers in Dubai, Abu Dhabi & beyond.
+          </p>
+
+          <NewsletterForm client:load />
+        </div>
+
+      </div>
+    </div>
+  </div>
+</BaseLayout>

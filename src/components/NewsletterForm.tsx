@@ -1,7 +1,6 @@
 // src/components/NewsletterForm.tsx
-"use client";
 
-import React, { useState, useRef } from 'react';
+import { useState, useRef, type SubmitEvent } from 'react';
 import { Mail, ArrowRight, Loader2, CheckCircle } from 'lucide-react';
 import { Turnstile } from '@marsidev/react-turnstile';
 
@@ -15,7 +14,7 @@ export default function NewsletterForm() {
   const [token, setToken] = useState(""); // Turnstile Token
   const turnstileRef = useRef(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // 1. 🍯 Honeypot Check (Frontend)
@@ -102,7 +101,7 @@ export default function NewsletterForm() {
         <div className="flex justify-center min-h-[65px]">
             <Turnstile 
                 ref={turnstileRef}
-                siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
+                siteKey={import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || ""}
                 onSuccess={(token) => setToken(token)}
             />
         </div>

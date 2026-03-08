@@ -1,26 +1,12 @@
 // src/components/views/ArticleView.tsx
-import dynamic from "next/dynamic";
-import { Suspense } from "react";
-import Image from "next/image";
+import { lazy } from "react";
+
 import Breadcrumb from "@/components/Breadcrumb";
 import Sidebar from "@/components/Sidebar";
-// ✅ CODE-SPLIT: Dynamic imports for heavy templates
-const TopTenTemplate = dynamic(() => import("@/components/templates/TopTenTemplate"), {
-  loading: () => (
-    <div className="flex items-center justify-center h-[400px]">
-      <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600" />
-    </div>
-  ),
-  ssr: true,
-});
 
-const ArticleTemplate = dynamic(() => import("@/components/templates/ArticleTemplate"), {
-  ssr: true,
-});
-
-const EventTemplate = dynamic(() => import("@/components/templates/EventTemplate"), {
-  ssr: true,
-});
+const TopTenTemplate = lazy(() => import("@/components/templates/TopTenTemplate"));
+const ArticleTemplate = lazy(() => import("@/components/templates/ArticleTemplate"));
+const EventTemplate = lazy(() => import("@/components/templates/EventTemplate"));
 
 // ✅ IMPORT TOOL VIEW
 import ToolView from "@/components/views/ToolView";
@@ -82,12 +68,11 @@ export default function ArticleView({ data, category, slug }: ArticleViewProps) 
 
             {showHeaderImage && (
                <div className="mt-6 relative w-full h-auto aspect-video rounded-xl overflow-hidden bg-gray-100">
-                 <Image 
+                 <img 
                    src={data.mainImage.url} 
                    alt={data.mainImage.alt || data.title}
-                   fill
-                   className="object-cover"
-                   priority={true}
+                   className="absolute inset-0 w-full h-full object-cover"
+                   loading="eager"
                  />
                </div>
             )}

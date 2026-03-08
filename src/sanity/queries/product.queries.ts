@@ -1,5 +1,5 @@
 // src/sanity/queries/product.queries.ts
-import { groq } from 'next-sanity';
+import groq from 'groq';
 
 // =============================================================================
 // PRODUCT QUERIES

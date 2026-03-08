@@ -1,9 +1,8 @@
-'use client';
 
 import { useState, useMemo } from 'react';
 import DealCard from './DealCard'; 
 import FilterBar from './FilterBar';
-import { Deal } from '@/types/sanity'; 
+import type { Deal } from '@/types/sanity'; 
 
 interface DealsFeedProps {
   initialDeals: Deal[];

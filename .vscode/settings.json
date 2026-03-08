@@ -1,0 +1,9 @@
+{
+  "files.associations": {
+    "*.astro": "astro"
+  },
+  // Let the Astro language server handle .astro type-checking (not the React/TS one)
+  "[astro]": {
+    "editor.defaultFormatter": "astro-build.astro-vscode"
+  }
+}

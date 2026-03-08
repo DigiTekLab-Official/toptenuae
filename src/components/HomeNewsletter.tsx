@@ -1,7 +1,6 @@
 // src/components/HomeNewsletter.tsx
-"use client";
 
-import { useState, useRef } from 'react';
+import { useState, useRef, type SubmitEvent } from 'react';
 import { Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Turnstile } from '@marsidev/react-turnstile';
 
@@ -14,7 +13,7 @@ export default function HomeNewsletter() {
   const [token, setToken] = useState("");
   const turnstileRef = useRef(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (status === "loading") return;
 
@@ -118,7 +117,7 @@ export default function HomeNewsletter() {
           <div className="flex justify-center scale-90 origin-top">
              <Turnstile 
                 ref={turnstileRef}
-                siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
+                siteKey={import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || ""}
                 onSuccess={(token) => setToken(token)}
                 options={{ size: 'flexible' }}
              />
