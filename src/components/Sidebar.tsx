@@ -1,4 +1,5 @@
 // src/components/Sidebar.tsx
+import { useState, useEffect } from "react";
 import { client } from "@/sanity/lib/client";
 
 
@@ -21,8 +22,12 @@ interface SidebarProps {
   categorySlug?: string;
 }
 
-export default async function Sidebar({ currentSlug }: SidebarProps) {
-  const recentPosts = await client.fetch(SIDEBAR_QUERY, { currentSlug });
+export default function Sidebar({ currentSlug }: SidebarProps) {
+  const [recentPosts, setRecentPosts] = useState<any[]>([]);
+
+  useEffect(() => {
+    client.fetch(SIDEBAR_QUERY, { currentSlug }).then(setRecentPosts).catch(() => {});
+  }, [currentSlug]);
 
   return (
     // FIX: 

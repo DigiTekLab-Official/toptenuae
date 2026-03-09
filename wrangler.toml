@@ -8,5 +8,5 @@ compatibility_flags = ["nodejs_compat"]
 [vars]
 PUBLIC_SANITY_PROJECT_ID = "kxdjzy8e"
 PUBLIC_SANITY_DATASET = "production"
-PUBLIC_SANITY_API_VERSION = "2024-01-01"
+PUBLIC_SANITY_API_VERSION = "2025-12-01"
 PUBLIC_BASE_URL = "https://toptenuae.com"

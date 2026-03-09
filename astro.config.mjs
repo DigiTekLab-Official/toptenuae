@@ -23,6 +23,22 @@ export default defineConfig({
         !page.includes('/thank-you') &&
         !page.includes('/report') &&
         !page.includes('/newsletter/confirm'),
+      serialize(item) {
+        if (item.url.includes('/reviews/')) {
+          item.changefreq = 'weekly';
+          item.priority = 0.9;
+        } else if (item.url.includes('/deals')) {
+          item.changefreq = 'daily';
+          item.priority = 0.8;
+        } else if (item.url.includes('/top-ten/')) {
+          item.changefreq = 'weekly';
+          item.priority = 0.9;
+        } else if (item.url === 'https://toptenuae.com') {
+          item.changefreq = 'daily';
+          item.priority = 1.0;
+        }
+        return item;
+      },
     }),
   ],
 

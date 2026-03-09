@@ -1,45 +1,42 @@
-import { Suspense, lazy } from 'react';
+import { lazy, Suspense } from 'react';
 
-const SyntaxHighlighter = lazy(async () => {
-  const { default: PrismLight } = await import('react-syntax-highlighter/dist/esm/prism-light');
-  const [js, ts, jsx, tsx, css, bash, json, python, markup] = await Promise.all([
+// Light build: only includes registered languages (~50KB vs ~1.6MB)
+const SyntaxHighlighter = lazy(
+  () => import('react-syntax-highlighter/dist/esm/prism-light').then(mod => ({ default: mod.default }))
+);
+
+// Register only the languages actually used on the site
+const registerLanguages = async () => {
+  const [{ default: SHL }, js, ts, css, bash, json, html] = await Promise.all([
+    import('react-syntax-highlighter/dist/esm/prism-light'),
     import('react-syntax-highlighter/dist/esm/languages/prism/javascript'),
     import('react-syntax-highlighter/dist/esm/languages/prism/typescript'),
-    import('react-syntax-highlighter/dist/esm/languages/prism/jsx'),
-    import('react-syntax-highlighter/dist/esm/languages/prism/tsx'),
     import('react-syntax-highlighter/dist/esm/languages/prism/css'),
     import('react-syntax-highlighter/dist/esm/languages/prism/bash'),
     import('react-syntax-highlighter/dist/esm/languages/prism/json'),
-    import('react-syntax-highlighter/dist/esm/languages/prism/python'),
     import('react-syntax-highlighter/dist/esm/languages/prism/markup'),
   ]);
-  PrismLight.registerLanguage('javascript', js.default);
-  PrismLight.registerLanguage('js', js.default);
-  PrismLight.registerLanguage('typescript', ts.default);
-  PrismLight.registerLanguage('ts', ts.default);
-  PrismLight.registerLanguage('jsx', jsx.default);
-  PrismLight.registerLanguage('tsx', tsx.default);
-  PrismLight.registerLanguage('css', css.default);
-  PrismLight.registerLanguage('bash', bash.default);
-  PrismLight.registerLanguage('shell', bash.default);
-  PrismLight.registerLanguage('json', json.default);
-  PrismLight.registerLanguage('python', python.default);
-  PrismLight.registerLanguage('html', markup.default);
-  PrismLight.registerLanguage('xml', markup.default);
-  return { default: PrismLight };
-});
+  SHL.registerLanguage('javascript', js.default);
+  SHL.registerLanguage('js', js.default);
+  SHL.registerLanguage('typescript', ts.default);
+  SHL.registerLanguage('ts', ts.default);
+  SHL.registerLanguage('css', css.default);
+  SHL.registerLanguage('bash', bash.default);
+  SHL.registerLanguage('shell', bash.default);
+  SHL.registerLanguage('json', json.default);
+  SHL.registerLanguage('html', html.default);
+  SHL.registerLanguage('xml', html.default);
+};
+registerLanguages();
 
 const vscDarkPlus = {
-  'pre[class*="language-"]': {
-    display: 'block',
-    overflowX: 'auto' as const,
-    padding: '0.5em',
-    background: '#1e1e1e',
-    color: '#d4d4d4',
-  },
-  'code[class*="language-"]': {
-    color: '#d4d4d4',
-  },
+  'hljs': {
+    'display': 'block',
+    'overflowX': 'auto',
+    'padding': '0.5em',
+    'background': '#1e1e1e',
+    'color': '#d4d4d4'
+  }
 } as const;
 
 interface CodeBlockProps {

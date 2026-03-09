@@ -1,11 +1,14 @@
 ---
 // src/pages/[category]/[slug].astro
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import ToolLayout from '@/layouts/ToolLayout.astro';
 import { client } from '@/sanity/lib/client';
 import { GENERIC_POST_QUERY, TOP_TEN_LIST_QUERY } from '@/sanity/lib/queries';
 import { generateSchema } from '@/lib/schemaGenerator';
 import ArticleView from '@/components/views/ArticleView';
 import groq from 'groq';
+
+const isTool = (type: string | null) => type === 'tool';
 
 const { category, slug } = Astro.params;
 
@@ -105,5 +108,8 @@ const canonicalUrl = `https://toptenuae.com/${masterCategory}/${slug}`;
   ogImage={imageUrl}
   jsonLd={schemaData}
 >
-  <ArticleView data={data} category={category} slug={slug} client:load />
+  {isTool(data._type)
+    ? <ToolLayout data={data} category={category} slug={slug} />
+    : <ArticleView data={data} category={category} slug={slug} client:load />
+  }
 </BaseLayout>

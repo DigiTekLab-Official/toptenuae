@@ -1,0 +1,176 @@
+---
+// src/components/tools/GratuityCalculator.astro
+// Pure Astro + Vanilla JS — Zero React dependency
+---
+
+<div id="gratuity-calc" class="w-full max-w-xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden border border-slate-200 font-sans">
+
+  {/* Header */}
+  <div class="bg-[#4b0082] p-5 text-center relative overflow-hidden">
+    <div class="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-amber-300 via-amber-500 to-amber-300"></div>
+    <h2 class="text-xl font-bold text-white relative z-10">UAE Gratuity Calculator</h2>
+    <p class="text-amber-300 text-sm uppercase tracking-wider font-semibold mt-1 relative z-10">
+      Official MOHRE Formula (2026)
+    </p>
+  </div>
+
+  {/* Form */}
+  <form class="p-6 space-y-5" onsubmit="return false">
+
+    {/* Basic Salary */}
+    <div>
+      <label for="gc-basicSalary" class="block text-sm font-semibold text-gray-700 mb-1">
+        Last Drawn Basic Salary (AED)
+      </label>
+      <input
+        id="gc-basicSalary"
+        name="basicSalary"
+        type="number"
+        placeholder="e.g. 10000"
+        class="w-full px-3 py-1 border border-gray-400 rounded-lg focus:ring-2 focus:ring-[#4b0082] outline-none transition-all font-medium"
+      />
+      <p class="text-sm text-gray-400 mt-1">Basic salary only (exclude allowances).</p>
+    </div>
+
+    {/* Dates Grid */}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label for="gc-startDate" class="block text-sm font-semibold text-gray-700 mb-1">
+          First Working Day
+        </label>
+        <input
+          id="gc-startDate"
+          name="startDate"
+          type="date"
+          class="w-full px-3 py-1 border border-gray-400 rounded-lg focus:ring-2 focus:ring-[#4b0082] outline-none text-gray-600"
+        />
+      </div>
+      <div>
+        <label for="gc-endDate" class="block text-sm font-semibold text-gray-700 mb-1">
+          Last Working Day
+        </label>
+        <input
+          id="gc-endDate"
+          name="endDate"
+          type="date"
+          class="w-full px-3 py-1 border border-gray-400 rounded-lg focus:ring-2 focus:ring-[#4b0082] outline-none text-gray-600"
+        />
+      </div>
+    </div>
+
+    {/* Contract & Exit Grid */}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label for="gc-contractType" class="block text-sm font-semibold text-gray-700 mb-1">
+          Type of Contract
+        </label>
+        <select
+          id="gc-contractType"
+          name="contractType"
+          class="w-full px-3 py-1 border border-gray-400 rounded-lg focus:ring-2 focus:ring-[#4b0082] outline-none bg-white"
+        >
+          <option value="Limited">Limited Contract</option>
+          <option value="Unlimited">Unlimited Contract</option>
+        </select>
+      </div>
+      <div>
+        <label for="gc-exitReason" class="block text-sm font-semibold text-gray-700 mb-1">
+          Reason for Exit
+        </label>
+        <select
+          id="gc-exitReason"
+          name="exitReason"
+          class="w-full px-3 py-1 border border-gray-400 rounded-lg focus:ring-2 focus:ring-[#4b0082] outline-none bg-white"
+        >
+          <option value="Resignation">Resignation</option>
+          <option value="Termination">Termination</option>
+          <option value="End of Contract">End of Contract</option>
+        </select>
+      </div>
+    </div>
+
+    {/* Unpaid Leave */}
+    <div>
+      <label for="gc-unpaidDays" class="block text-sm font-semibold text-gray-700 mb-1">
+        Unpaid Leave Days (Optional)
+      </label>
+      <input
+        id="gc-unpaidDays"
+        name="unpaidDays"
+        type="number"
+        placeholder="0"
+        class="w-full px-3 py-1 border border-gray-400 rounded-lg focus:ring-2 focus:ring-[#4b0082] outline-none"
+      />
+      <p class="text-sm text-gray-400 mt-1">Deducted from service period.</p>
+    </div>
+
+    {/* Calculate Button */}
+    <button
+      type="button"
+      id="gc-calculateBtn"
+      class="w-full bg-[#4b0082] hover:bg-[#3b0066] text-white font-bold py-4 rounded-lg shadow-lg shadow-purple-900/20 transition-all transform active:scale-[0.98] mt-2"
+    >
+      Calculate Gratuity
+    </button>
+
+    {/* Result Display */}
+    <div id="gc-result" class="mt-6 bg-green-50 border border-green-200 rounded-xl p-5 text-center animate-in fade-in slide-in-from-top-2" hidden>
+      <p class="text-sm font-bold text-green-700 uppercase tracking-widest mb-2">Total Estimated Gratuity</p>
+      <div class="flex justify-center items-baseline gap-1">
+        <span class="text-lg font-bold text-green-600">AED</span>
+        <span id="gc-amount" class="text-5xl font-extrabold text-slate-900 tracking-tight">0.00</span>
+      </div>
+      <p id="gc-duration" class="text-sm text-green-800 mt-2 font-medium" hidden></p>
+    </div>
+  </form>
+</div>
+
+<script>
+  const root = document.getElementById('gratuity-calc')!;
+  const fmt = new Intl.NumberFormat('en-AE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  const $ = (id: string) => root.querySelector(`#${id}`) as HTMLElement;
+
+  $('gc-calculateBtn').addEventListener('click', () => {
+    const salary = parseFloat(($('gc-basicSalary') as HTMLInputElement).value);
+    const startVal = ($('gc-startDate') as HTMLInputElement).value;
+    const endVal = ($('gc-endDate') as HTMLInputElement).value;
+    const unpaid = parseFloat(($('gc-unpaidDays') as HTMLInputElement).value) || 0;
+
+    if (!salary || !startVal || !endVal) return;
+
+    const start = new Date(startVal);
+    const end = new Date(endVal);
+    const diffTime = Math.abs(end.getTime() - start.getTime());
+    const totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const netDays = totalDays - unpaid;
+    const yearsOfService = netDays / 365;
+
+    const displayYears = Math.floor(yearsOfService);
+    const displayMonths = Math.floor((yearsOfService - displayYears) * 12);
+
+    const resultDiv = $('gc-result') as HTMLDivElement;
+    const amountEl = $('gc-amount');
+    const durationEl = $('gc-duration');
+
+    if (yearsOfService < 1) {
+      amountEl.textContent = '0.00';
+    } else {
+      const dailySalary = salary / 30;
+      let totalGratuity: number;
+
+      if (yearsOfService <= 5) {
+        totalGratuity = yearsOfService * 21 * dailySalary;
+      } else {
+        const firstFive = 5 * 21 * dailySalary;
+        totalGratuity = firstFive + (yearsOfService - 5) * 30 * dailySalary;
+      }
+
+      amountEl.textContent = fmt.format(Math.min(totalGratuity, salary * 24));
+    }
+
+    durationEl.textContent = `Service Duration: ${displayYears} Years, ${displayMonths} Months`;
+    durationEl.hidden = false;
+    resultDiv.hidden = false;
+  });
+</script>

@@ -1,0 +1,47 @@
+---
+// src/components/tools/ZakatCalculator.astro
+// Result card rendered in the hero section.
+// Inputs live in ZakatInputPanel.astro — wired together via shared DOM IDs.
+---
+
+<div id="zakat-result-card" class="bg-white rounded-2xl text-center shadow-2xl shadow-purple-900/50 border border-white/10 relative overflow-hidden">
+  {/* Glow Effect */}
+  <div class="absolute top-0 right-0 w-32 h-32 bg-amber-400/20 blur-[50px] rounded-full pointer-events-none"></div>
+  <div class="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-amber-300 via-amber-500 to-amber-300"></div>
+
+  <div class="w-full bg-[#4b0082] text-white p-4">
+    <span class="uppercase text-xl font-bold">Total Zakat Payable</span>
+    <p class="uppercase text-amber-300 text-sm font-semibold mt-1">Standard 2.5% Rate</p>
+  </div>
+
+  <div class="relative z-10 p-6">
+    <div class="flex justify-center items-baseline gap-2">
+      <span id="zk-amount" class="text-5xl lg:text-6xl font-black tracking-tight drop-shadow-sm">0</span>
+      <span class="text-xl font-bold">AED</span>
+    </div>
+    <div id="zk-status" class="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold border text-amber-700 bg-amber-100 border-amber-300">
+      <span>❌ Below Nisab (0 AED)</span>
+    </div>
+  </div>
+
+  <div class="space-y-4 px-11 py-4 bg-white/5 rounded-xl backdrop-blur-md border border-white/10">
+    <div class="flex justify-between items-center">
+      <span class="font-medium">Total Assets</span>
+      <span id="zk-total-assets" class="font-bold tracking-wide">0 AED</span>
+    </div>
+    <div class="flex justify-between items-center">
+      <span class="font-medium text-amber-700">Total Liabilities</span>
+      <span id="zk-total-liabilities" class="font-bold tracking-wide text-amber-700">- 0 AED</span>
+    </div>
+    <div class="h-px bg-white/10 my-1"></div>
+    <div class="flex justify-between text-[#4b0082] items-center">
+      <span class="font-bold">Net Wealth</span>
+      <span id="zk-net-wealth" class="font-bold tracking-wide">0 AED</span>
+    </div>
+  </div>
+
+  <button id="zk-reset" type="button" class="mb-8 flex items-center justify-center gap-2 text-sm font-bold transition-colors p-3 rounded-lg border border-[#4b0082] text-[#4b0082] cursor-pointer w-fit mx-auto">
+    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+    Reset Calculator
+  </button>
+</div>

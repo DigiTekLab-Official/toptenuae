@@ -29,9 +29,10 @@ export const PRODUCT_BY_SLUG = groq`
     itemDescription, 
     // SEO Data
     "seoTitle": coalesce(seo.metaTitle, title),
-    "seoDescription": coalesce(seo.metaDescription, description, intro),
+    "seoDescription": coalesce(seo.metaDescription, itemDescription, ""),
     "seoImage": coalesce(seo.openGraphImage.asset->url, mainImage.asset->url),
-    "category": category->{title, "slug": slug.current}
+    "category": category->{title, "slug": slug.current},
+    "categories": categories[]->{ "slug": slug.current, title }
   }
 `;
 

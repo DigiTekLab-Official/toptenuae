@@ -1,0 +1,250 @@
+---
+// src/layouts/ToolLayout.astro
+// Server-rendered tool page layout. Replaces the React ToolView.tsx chain.
+// Calculators are pure Astro + Vanilla JS. Body content uses React PortableText as a minimal island.
+
+import GratuityCalculator from '@/components/tools/GratuityCalculator.astro';
+import VatCalculator from '@/components/tools/VatCalculator.astro';
+import ZakatCalculator from '@/components/tools/ZakatCalculator.astro';
+import ZakatInputPanel from '@/components/tools/ZakatInputPanel.astro';
+import PortableText from '@/components/sanity/PortableText';
+
+interface Props {
+  data: any;
+  category: string;
+  slug: string;
+}
+
+const { data, slug } = Astro.props;
+
+// ── Slug → Tool ID mapping ──
+const TOOL_IDS: Record<string, string> = {
+  'uae-vat-calculator': 'vat-uae',
+  'vat-calculator': 'vat-uae',
+  'gratuity-calculator-uae': 'gratuity-uae',
+  'gratuity-calculator': 'gratuity-uae',
+  'uae-gratuity-calculator': 'gratuity-uae',
+  'zakat-calculator': 'zakat-uae',
+  'uae-zakat-calculator': 'zakat-uae',
+  'zakat-calculator-uae': 'zakat-uae',
+};
+
+const toolId = data.componentId || TOOL_IDS[slug] || slug;
+const isZakat = toolId === 'zakat-uae';
+const isGratuity = toolId === 'gratuity-uae';
+const isVat = toolId === 'vat-uae';
+
+const bodyContent = data.body || data.content;
+const categorySlug = data.category?.slug?.current || data.category?.slug || 'finance-tools';
+const categoryName = data.category?.menuLabel || 'Tools';
+const BASE_URL = import.meta.env.PUBLIC_BASE_URL || 'https://toptenuae.com';
+
+// Breadcrumb JSON-LD
+const breadcrumbJsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: BASE_URL },
+    { '@type': 'ListItem', position: 2, name: categoryName, item: `${BASE_URL}/${categorySlug}` },
+    { '@type': 'ListItem', position: 3, name: data.title, item: `${BASE_URL}/${categorySlug}/${slug}` },
+  ],
+});
+
+// Related tools config
+interface RelatedTool {
+  slug: string;
+  title: string;
+  iconId: string;
+}
+const RELATED_TOOLS: RelatedTool[] = [
+  { slug: 'gratuity-calculator-uae', title: 'Gratuity Calculator', iconId: 'coins' },
+  { slug: 'uae-vat-calculator', title: 'VAT Calculator', iconId: 'percent' },
+  { slug: 'zakat-calculator', title: 'Zakat Calculator', iconId: 'heart' },
+];
+const relatedTools = data.relatedTools?.length
+  ? data.relatedTools.map((t: any) => ({
+      slug: t.slug?.current || t.slug,
+      title: t.title || 'Calculator Tool',
+      iconId: (t.slug?.current || t.slug || '').includes('vat') ? 'percent'
+            : (t.slug?.current || t.slug || '').includes('zakat') ? 'heart'
+            : 'coins',
+    })).filter((t: RelatedTool) => t.slug)
+  : RELATED_TOOLS.filter(t => !slug.includes(t.slug.split('-')[0]));
+---
+
+<main class="min-h-screen bg-slate-50 font-sans">
+
+  {/* ── HERO SECTION ── */}
+  <section class="bg-[#4b0082] relative overflow-hidden">
+    <div aria-hidden="true" class="absolute top-0 right-0 w-1/2 h-full bg-white/10 blur-3xl rounded-full translate-x-1/3"></div>
+    <div aria-hidden="true" class="absolute bottom-0 left-0 w-1/3 h-full bg-amber-500/20 blur-3xl rounded-full -translate-x-1/3"></div>
+
+    <div class="container mx-auto px-4 pt-12 pb-24 lg:pt-16 lg:pb-20 relative z-10">
+      {/* Breadcrumb */}
+      <nav aria-label="Breadcrumb" class="w-full mb-6">
+        <script is:inline type="application/ld+json" set:html={breadcrumbJsonLd} />
+        <ol class="flex items-center text-sm space-x-2 overflow-hidden flex-wrap">
+          <li class="flex items-center shrink-0">
+            <a href="/" class="text-purple-200 hover:text-white transition-colors flex items-center p-1 rounded hover:bg-black/5" title="Back to Homepage" aria-label="Go to homepage">
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+              <span class="sr-only">Home</span>
+            </a>
+          </li>
+          <li aria-hidden="true" class="text-purple-300/50 shrink-0">
+            <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </li>
+          <li class="flex items-center shrink-0">
+            <a href={`/${categorySlug}`} class="text-purple-200 hover:text-white hover:underline transition-colors font-medium whitespace-nowrap">
+              {categoryName}
+            </a>
+          </li>
+          <li aria-hidden="true" class="text-purple-300/50 shrink-0">
+            <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </li>
+          <li class="flex items-center min-w-0" aria-current="page">
+            <span class="truncate max-w-[150px] sm:max-w-[200px] md:max-w-md text-white font-semibold block" title={data.title}>{data.title}</span>
+          </li>
+        </ol>
+      </nav>
+
+      <div class="flex flex-col-reverse lg:flex-row items-center lg:items-start gap-12 lg:gap-16">
+        {/* Left: Text content */}
+        <div class="flex-1 text-center lg:text-left text-white">
+          {data.heroBadge && (
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/10 backdrop-blur-md mb-6">
+              <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+              <span class="text-sm font-semibold uppercase tracking-wide">{data.heroBadge}</span>
+            </div>
+          )}
+
+          <h1 class="text-3xl md:text-5xl font-black leading-tight mb-6">
+            {data.title}
+            {data.heroTitleSuffix && (
+              <>
+                <br />
+                <span class="text-transparent bg-clip-text bg-linear-to-r from-amber-300 to-amber-500">
+                  {data.heroTitleSuffix}
+                </span>
+              </>
+            )}
+          </h1>
+
+          <div class="text-lg text-indigo-100 mb-8 leading-relaxed opacity-90 max-w-2xl mx-auto lg:mx-0">
+            {typeof data.intro === 'string' ? (
+              <p>{data.intro}</p>
+            ) : data.intro ? (
+              <div class="prose prose-invert prose-p:text-indigo-100">
+                <PortableText value={data.intro} client:idle />
+              </div>
+            ) : (
+              <p>{data.description}</p>
+            )}
+          </div>
+        </div>
+
+        {/* Right: Calculator */}
+        <div class="w-full max-w-xl shrink-0 mx-auto lg:mx-0">
+          {isGratuity && <GratuityCalculator />}
+          {isVat && <VatCalculator />}
+          {isZakat && <ZakatCalculator />}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* ── MAIN CONTENT ── */}
+  <section class="max-w-6xl mx-auto px-4 py-16 relative z-20">
+
+    {/* Zakat input panel (replaces the old tool-portal-root) */}
+    {isZakat && (
+      <div class="mb-12 font-sans">
+        <ZakatInputPanel />
+      </div>
+    )}
+
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 lg:p-12">
+
+      {/* Body content (Sanity Portable Text — React island) */}
+      {bodyContent && (
+        <div class="prose prose-slate prose-lg max-w-none font-sans mb-12 prose-headings:text-[#4b0082] prose-a:text-blue-600">
+          <PortableText value={bodyContent} client:idle />
+        </div>
+      )}
+
+      {/* FAQs (Pure HTML — no React) */}
+      {data.faqs && data.faqs.length > 0 && (
+        <div class="mt-12 pt-8 border-t border-gray-100">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6">Frequently Asked Questions</h2>
+          <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mb-12">
+            <div class="divide-y divide-gray-100">
+              {data.faqs.map((faq: any) => (
+                <details class="group [&_summary::-webkit-details-marker]:hidden transition-all duration-300">
+                  <summary class="flex cursor-pointer items-start justify-between gap-4 p-5 md:p-6 text-gray-900 font-bold group-open:bg-blue-50/30 group-open:text-blue-700 transition-colors select-none">
+                    <h3 class="text-base md:text-lg leading-snug">{faq.question}</h3>
+                    <div class="relative shrink-0 flex items-center justify-center w-6 h-6 md:w-8 md:h-8 rounded-full bg-blue-50 group-open:bg-blue-600 text-blue-600 group-open:text-white transition-all duration-300 mt-0.5">
+                      {/* Plus icon (visible when closed) */}
+                      <svg class="absolute w-4 h-4 md:w-5 md:h-5 opacity-100 rotate-0 group-open:opacity-0 group-open:rotate-90 transition-all duration-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                      {/* Minus icon (visible when open) */}
+                      <svg class="absolute w-4 h-4 md:w-5 md:h-5 opacity-0 -rotate-90 group-open:opacity-100 group-open:rotate-0 transition-all duration-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>
+                    </div>
+                  </summary>
+                  <div class="px-5 md:px-6 pb-6 pt-2 text-gray-700 leading-relaxed text-base">
+                    {typeof faq.answer === 'string' ? (
+                      <p>{faq.answer}</p>
+                    ) : (
+                      <PortableText value={Array.isArray(faq.answer) ? faq.answer : [faq.answer]} client:idle />
+                    )}
+                  </div>
+                </details>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Related Tools (Pure HTML — no React) */}
+      {relatedTools.length > 0 && (
+        <div class="mt-16 pt-10 border-t border-gray-100">
+          <h3 class="text-xl font-bold text-gray-900 mb-6">
+            {data.relatedTools?.length ? 'Explore Other Tools' : 'More UAE Finance Tools'}
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {relatedTools.map((tool: RelatedTool) => (
+              <a
+                href={`/finance-tools/${tool.slug}`}
+                class="group relative block h-full focus:outline-none focus:ring-2 focus:ring-[#4b0082] rounded-2xl"
+              >
+                <div class="bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl border border-slate-200 hover:border-[#4b0082]/30 transition-all h-full flex flex-col overflow-hidden">
+                  <div class:list={[
+                    'w-14 h-14 rounded-xl flex items-center justify-center mb-6 transition-colors duration-300',
+                    tool.iconId === 'percent' ? 'bg-blue-50 group-hover:bg-[#4b0082]' :
+                    tool.iconId === 'heart' ? 'bg-indigo-50 group-hover:bg-indigo-500' :
+                    'bg-amber-50 group-hover:bg-amber-500'
+                  ]}>
+                    {tool.iconId === 'percent' && (
+                      <svg class="w-7 h-7 text-primary group-hover:text-white transition-colors duration-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" x2="5" y1="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
+                    )}
+                    {tool.iconId === 'heart' && (
+                      <svg class="w-7 h-7 text-indigo-500 group-hover:text-white transition-colors duration-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19.414 14.414C21 12.828 22 11.5 22 9.5a5.5 5.5 0 0 0-9.591-3.676.6.6 0 0 1-.818.001A5.5 5.5 0 0 0 2 9.5c0 2.3 1.5 4 3 5.5l5.535 5.362a2 2 0 0 0 2.879.052 2.12 2.12 0 0 0-.004-3 2.124 2.124 0 1 0 3-3 2.124 2.124 0 0 0 3.004 0 2 2 0 0 0 0-2.828l-1.881-1.882a2.41 2.41 0 0 0-3.409 0l-1.71 1.71a2 2 0 0 1-2.828 0 2 2 0 0 1 0-2.828l2.823-2.762"/></svg>
+                    )}
+                    {tool.iconId === 'coins' && (
+                      <svg class="w-7 h-7 text-amber-500 group-hover:text-white transition-colors duration-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/></svg>
+                    )}
+                  </div>
+                  <h4 class="text-lg font-bold text-slate-900 mb-auto group-hover:text-[#4b0082] transition-colors">
+                    {tool.title}
+                  </h4>
+                  <div class="mt-4 flex items-center text-sm font-bold text-slate-400 group-hover:text-[#4b0082]">
+                    Open Tool
+                    <svg class="w-4 h-4 ml-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+    </div>
+  </section>
+</main>

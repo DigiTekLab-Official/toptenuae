@@ -518,8 +518,8 @@ export const generateHowToSchema = (data: any, category?: string, slug?: string)
   const howToUrl = category && slug ? `${baseUrl}/${category}/${slug}` : baseUrl;
   const images = data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE];
 
-  const steps = data.steps && Array.isArray(data.steps)
-    ? data.steps.map((step: any, index: number) => ({
+  const steps = (data.howToSteps || data.steps) && Array.isArray(data.howToSteps || data.steps)
+    ? (data.howToSteps || data.steps).map((step: any, index: number) => ({
       '@type': 'HowToStep',
       position: index + 1,
       name: cleanText(step.title || `Step ${index + 1}`),

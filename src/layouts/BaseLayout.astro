@@ -1,5 +1,6 @@
 ---
 // src/layouts/BaseLayout.astro
+import { ClientRouter } from 'astro:transitions';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer.astro';
 import GTMScript from '@/components/analytics/GTMScript.astro';
@@ -29,7 +30,8 @@ const {
 const fullTitle = title.includes('TopTenUAE') ? title : `${title} | TopTenUAE`;
 const siteUrl = 'https://toptenuae.com';
 const canonicalUrl = canonical || new URL(Astro.url.pathname, siteUrl).href;
-const ogImageUrl = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`;
+const resolvedOgImage = ogImage || '/images/brand/og-default.png';
+const ogImageUrl = resolvedOgImage.startsWith('http') ? resolvedOgImage : `${siteUrl}${resolvedOgImage}`;
 
 const organizationSchema = {
   "@context": "https://schema.org",
@@ -87,6 +89,7 @@ const jsonLdGraph = {
     
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
     
     {/* Canonical */}
     <link rel="canonical" href={canonicalUrl} />
@@ -154,11 +157,31 @@ const jsonLdGraph = {
     
     {/* Extra head content from pages */}
     <slot name="head" />
+    
+    {/* View Transitions */}
+    <ClientRouter />
   </head>
 
   <body class="font-sans text-slate-900 bg-slate-50 antialiased min-h-screen flex flex-col overflow-x-hidden">
     <GTMScript />
     <ClarityScript />
+
+    {/* Speculative Rules API — pre-render high-traffic pages */}
+    <script is:inline type="speculationrules">
+    {
+      "prerender": [
+        {
+          "source": "list",
+          "urls": ["/reviews", "/deals", "/top-ten"],
+          "score": 0.5
+        },
+        {
+          "where": { "href_matches": "/*" },
+          "eagerness": "moderate"
+        }
+      ]
+    }
+    </script>
 
     <Header client:load />
 

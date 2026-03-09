@@ -1,0 +1,118 @@
+---
+// src/components/tools/VatCalculator.astro
+// Pure Astro + Vanilla JS — Zero React dependency
+---
+
+<div id="vat-calc" class="w-full max-w-xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden border border-slate-200 font-sans">
+
+  {/* Header */}
+  <div class="bg-[#4b0082] p-5 text-center relative overflow-hidden">
+    <div class="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-amber-300 via-amber-500 to-amber-300"></div>
+    <h2 class="text-xl font-bold text-white relative z-10">UAE VAT Calculator</h2>
+    <p class="text-amber-300 text-sm uppercase tracking-wider font-semibold mt-1 relative z-10">
+      Standard 5% Rate
+    </p>
+  </div>
+
+  {/* Tabs */}
+  <div class="flex border-b border-gray-100">
+    <button
+      id="vc-tab-add"
+      type="button"
+      class="flex-1 py-4 text-sm font-bold transition-colors cursor-pointer bg-purple-50 text-[#4b0082] border-b-2 border-[#4b0082]"
+    >
+      Add VAT (+)
+      <span class="block text-[14px] font-normal text-gray-400 mt-1">Amount excludes VAT</span>
+    </button>
+    <button
+      id="vc-tab-remove"
+      type="button"
+      class="flex-1 py-4 text-sm font-bold transition-colors cursor-pointer text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+    >
+      Remove VAT (-)
+      <span class="block text-[14px] font-normal text-gray-400 mt-1">Amount includes VAT</span>
+    </button>
+  </div>
+
+  {/* Input */}
+  <div class="p-6 space-y-6">
+    <div>
+      <label for="vc-amount" class="block text-sm font-semibold text-gray-700 mb-2">
+        Enter Amount (AED)
+      </label>
+      <input
+        id="vc-amount"
+        type="number"
+        placeholder="e.g. 1000 (Before Tax)"
+        class="w-full p-4 text-lg border border-gray-500 rounded-lg focus:ring-2 focus:ring-[#4b0082] outline-none transition-all font-medium placeholder:text-gray-300"
+      />
+    </div>
+
+    {/* Results Grid */}
+    <div class="bg-slate-50 rounded-xl border border-slate-100 overflow-hidden">
+      <div class="flex justify-between items-center p-4 border-b border-slate-100">
+        <span class="text-sm text-gray-500 font-medium">Net Amount (excl. VAT)</span>
+        <span id="vc-net" class="text-lg font-bold text-slate-700">0.00</span>
+      </div>
+      <div class="flex justify-between items-center p-4 bg-amber-50/50 border-b border-slate-100">
+        <span class="text-sm text-amber-700 font-bold">VAT (5%)</span>
+        <span id="vc-vat" class="text-lg font-bold text-amber-600">0.00</span>
+      </div>
+      <div class="flex justify-between items-center p-4 bg-[#4b0082]/5">
+        <span class="text-sm text-[#4b0082] font-bold uppercase tracking-wide">Gross Amount (Total)</span>
+        <div class="flex items-baseline gap-1">
+          <span class="text-sm text-[#4b0082] font-semibold">AED</span>
+          <span id="vc-gross" class="text-2xl font-extrabold text-[#4b0082]">0.00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const root = document.getElementById('vat-calc')!;
+  const fmt = new Intl.NumberFormat('en-AE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const RATE = 5;
+  let mode: 'add' | 'remove' = 'add';
+
+  const tabAdd = root.querySelector('#vc-tab-add') as HTMLButtonElement;
+  const tabRemove = root.querySelector('#vc-tab-remove') as HTMLButtonElement;
+  const amountInput = root.querySelector('#vc-amount') as HTMLInputElement;
+  const netEl = root.querySelector('#vc-net') as HTMLSpanElement;
+  const vatEl = root.querySelector('#vc-vat') as HTMLSpanElement;
+  const grossEl = root.querySelector('#vc-gross') as HTMLSpanElement;
+
+  const ACTIVE = 'flex-1 py-4 text-sm font-bold transition-colors cursor-pointer bg-purple-50 text-[#4b0082] border-b-2 border-[#4b0082]';
+  const INACTIVE = 'flex-1 py-4 text-sm font-bold transition-colors cursor-pointer text-gray-500 hover:text-gray-700 hover:bg-gray-50';
+
+  function setTab(newMode: 'add' | 'remove') {
+    mode = newMode;
+    tabAdd.className = mode === 'add' ? ACTIVE : INACTIVE;
+    tabRemove.className = mode === 'remove' ? ACTIVE : INACTIVE;
+    amountInput.placeholder = mode === 'add' ? 'e.g. 1000 (Before Tax)' : 'e.g. 1050 (After Tax)';
+    calculate();
+  }
+
+  function calculate() {
+    const val = parseFloat(amountInput.value) || 0;
+    let net: number, vat: number, gross: number;
+
+    if (mode === 'add') {
+      net = val;
+      vat = val * (RATE / 100);
+      gross = val + vat;
+    } else {
+      gross = val;
+      net = val / (1 + RATE / 100);
+      vat = val - net;
+    }
+
+    netEl.textContent = fmt.format(net);
+    vatEl.textContent = fmt.format(vat);
+    grossEl.textContent = fmt.format(gross);
+  }
+
+  tabAdd.addEventListener('click', () => setTab('add'));
+  tabRemove.addEventListener('click', () => setTab('remove'));
+  amountInput.addEventListener('input', calculate);
+</script>

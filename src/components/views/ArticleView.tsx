@@ -8,9 +8,6 @@ const TopTenTemplate = lazy(() => import("@/components/templates/TopTenTemplate"
 const ArticleTemplate = lazy(() => import("@/components/templates/ArticleTemplate"));
 const EventTemplate = lazy(() => import("@/components/templates/EventTemplate"));
 
-// ✅ IMPORT TOOL VIEW
-import ToolView from "@/components/views/ToolView";
-
 interface ArticleViewProps {
   data: any;
   category: string;
@@ -18,14 +15,8 @@ interface ArticleViewProps {
 }
 
 export default function ArticleView({ data, category, slug }: ArticleViewProps) {
-  
-  // ✅ 1. IMMEDIATE REDIRECT FOR TOOLS
-  // If this is a Tool, use the dedicated Full-Page Layout (No Sidebar)
-  if (data?._type === "tool") {
-    return <ToolView data={data} category={category} slug={slug} />;
-  }
-
   // --- STANDARD LAYOUT FOR ARTICLES/REVIEWS ---
+  // Tools are handled by ToolLayout.astro (server-rendered, zero React)
   const displayDate = data?._updatedAt || data?.publishedAt || new Date().toISOString();
   
   const formatDate = (dateString: string) => {

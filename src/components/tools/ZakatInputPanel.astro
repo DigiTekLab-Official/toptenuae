@@ -1,0 +1,272 @@
+---
+// src/components/tools/ZakatInputPanel.astro
+// Input section for the Zakat calculator. Rendered below the hero.
+// Shares DOM IDs with ZakatCalculator.astro (result card) for live updates.
+---
+
+<div id="zakat-inputs" class="space-y-8 animate-in fade-in duration-500 font-sans">
+
+  {/* SECTION 1: RATES CARD */}
+  <div class="bg-white rounded-2xl shadow-lg border border-slate-300 overflow-hidden">
+    <div class="bg-linear-to-r from-amber-300 via-amber-400 to-amber-300 p-4 flex flex-col md:flex-row justify-between items-center gap-4">
+      <h2 class="text-[#4b0082] font-black text-lg flex items-center gap-2">
+        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/></svg>
+        Today's Gold & Silver Rate
+      </h2>
+      <a href="https://dubaicityofgold.com/" target="_blank" rel="noopener noreferrer" class="group flex items-center gap-2 text-sm font-bold bg-white/90 hover:bg-white text-[#4b0082] px-4 py-2 rounded-full shadow-sm transition-all">
+        <span>Check Dubai Rate</span>
+        <svg class="w-3 h-3 group-hover:translate-x-0.5 transition-transform" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+      </a>
+    </div>
+
+    <div class="p-6">
+      <div class="bg-amber-50 p-4 rounded-xl border border-amber-500 mb-6 flex gap-3">
+        <svg class="w-5 h-5 text-amber-500 shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        <p class="text-base text-gray-900 leading-relaxed">
+          <strong>Mentor Tip:</strong> For Nisab threshold calculation, always use the <strong>24K</strong> rate. For your jewelry value, use the rate matching your gold purity (e.g., 22K).
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Gold Rate */}
+        <div>
+          <label for="zk-goldPrice" class="block text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">Gold Price (per Gram)</label>
+          <div class="relative flex items-center overflow-hidden rounded-xl border-2 transition-all group border-amber-100 focus-within:border-amber-400">
+            <span class="pl-4 pr-2 text-sm font-bold text-amber-600">AED</span>
+            <input id="zk-goldPrice" type="number" name="goldPrice" value="505" class="zk-input w-full py-3 pr-4 text-xl font-black text-slate-800 outline-none placeholder:text-slate-300" />
+          </div>
+        </div>
+        {/* Silver Rate */}
+        <div>
+          <label for="zk-silverPrice" class="block text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">Silver Price (per Gram)</label>
+          <div class="relative flex items-center overflow-hidden rounded-xl border-2 transition-all group border-slate-200 focus-within:border-slate-400">
+            <span class="pl-4 pr-2 text-sm font-bold text-slate-500">AED</span>
+            <input id="zk-silverPrice" type="number" name="silverPrice" value="4.5" class="zk-input w-full py-3 pr-4 text-xl font-black text-slate-800 outline-none placeholder:text-slate-300" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+    {/* SECTION 2: ASSETS */}
+    <div class="bg-white rounded-2xl shadow-lg border border-slate-300 overflow-hidden flex flex-col h-full">
+      <button
+        id="zk-assets-toggle"
+        type="button"
+        class="w-full flex items-center justify-between p-5 bg-linear-to-br from-emerald-50 to-white border-b border-emerald-100 hover:bg-emerald-50 transition-colors group"
+      >
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 7h6v6"/><path d="m22 7-8.5 8.5-5-5L2 17"/></svg>
+          </div>
+          <div class="text-left">
+            <h3 class="font-black text-slate-800 text-lg">What I Own</h3>
+            <p class="text-sm font-bold text-emerald-600 uppercase tracking-wide">Zakatable Assets (+)</p>
+          </div>
+        </div>
+        <svg id="zk-assets-chevron" class="text-slate-400 w-5 h-5 transition-transform" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+      </button>
+
+      <div id="zk-assets-body" class="p-6 space-y-5 flex-1 bg-slate-50/50">
+        {/* Gold & Silver Weight */}
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-white p-4 rounded-xl border border-slate-400 shadow-sm focus-within:border-emerald-400 focus-within:ring-1 focus-within:ring-emerald-400 transition-all">
+            <label for="zk-goldWeight" class="block text-sm font-bold text-slate-500 uppercase mb-1">Gold Weight (g)</label>
+            <input id="zk-goldWeight" type="number" name="goldWeight" class="zk-input w-full font-black text-xl text-slate-800 outline-none placeholder:text-slate-400" placeholder="0" />
+          </div>
+          <div class="bg-white p-4 rounded-xl border border-slate-400 shadow-sm focus-within:border-emerald-400 focus-within:ring-1 focus-within:ring-emerald-400 transition-all">
+            <label for="zk-silverWeight" class="block text-sm font-bold text-slate-500 uppercase mb-1">Silver Weight (g)</label>
+            <input id="zk-silverWeight" type="number" name="silverWeight" class="zk-input w-full font-black text-xl text-slate-800 outline-none placeholder:text-slate-400" placeholder="0" />
+          </div>
+        </div>
+
+        {/* Asset Inputs */}
+        <div class="group">
+          <label for="zk-cash" class="flex items-center gap-2 text-sm font-bold uppercase tracking-wider mb-2 text-slate-600">
+            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg>
+            Cash & Bank Balance
+          </label>
+          <div class="relative flex items-center overflow-hidden rounded-xl border bg-white shadow-sm transition-all border-green-600 focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-100">
+            <span class="pl-4 pr-2 text-sm font-bold select-none text-slate-300">AED</span>
+            <input id="zk-cash" type="number" name="cash" placeholder="0" class="zk-input w-full py-3 pr-4 text-lg font-bold text-slate-800 outline-none placeholder:text-slate-200" />
+          </div>
+        </div>
+
+        <div class="group">
+          <label for="zk-receivables" class="flex items-center gap-2 text-sm font-bold uppercase tracking-wider mb-2 text-slate-600">Receivables (Money Owed)</label>
+          <div class="relative flex items-center overflow-hidden rounded-xl border bg-white shadow-sm transition-all border-green-600 focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-100">
+            <span class="pl-4 pr-2 text-sm font-bold select-none text-slate-300">AED</span>
+            <input id="zk-receivables" type="number" name="receivables" placeholder="0" class="zk-input w-full py-3 pr-4 text-lg font-bold text-slate-800 outline-none placeholder:text-slate-200" />
+          </div>
+        </div>
+
+        <div class="group">
+          <label for="zk-shares" class="flex items-center gap-2 text-sm font-bold uppercase tracking-wider mb-2 text-slate-600">Shares (Investments)</label>
+          <div class="relative flex items-center overflow-hidden rounded-xl border bg-white shadow-sm transition-all border-green-600 focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-100">
+            <span class="pl-4 pr-2 text-sm font-bold select-none text-slate-300">AED</span>
+            <input id="zk-shares" type="number" name="shares" placeholder="0" class="zk-input w-full py-3 pr-4 text-lg font-bold text-slate-800 outline-none placeholder:text-slate-200" />
+          </div>
+        </div>
+
+        <div class="group">
+          <label for="zk-crypto" class="flex items-center gap-2 text-sm font-bold uppercase tracking-wider mb-2 text-slate-600">Crypto Assets</label>
+          <div class="relative flex items-center overflow-hidden rounded-xl border bg-white shadow-sm transition-all border-green-600 focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-100">
+            <span class="pl-4 pr-2 text-sm font-bold select-none text-slate-300">AED</span>
+            <input id="zk-crypto" type="number" name="crypto" placeholder="0" class="zk-input w-full py-3 pr-4 text-lg font-bold text-slate-800 outline-none placeholder:text-slate-200" />
+          </div>
+        </div>
+
+        <div class="group">
+          <label for="zk-businessAssets" class="flex items-center gap-2 text-sm font-bold uppercase tracking-wider mb-2 text-slate-600">Business Assets (Stock)</label>
+          <div class="relative flex items-center overflow-hidden rounded-xl border bg-white shadow-sm transition-all border-green-600 focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-100">
+            <span class="pl-4 pr-2 text-sm font-bold select-none text-slate-300">AED</span>
+            <input id="zk-businessAssets" type="number" name="businessAssets" placeholder="0" class="zk-input w-full py-3 pr-4 text-lg font-bold text-slate-800 outline-none placeholder:text-slate-200" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* SECTION 3: LIABILITIES */}
+    <div class="bg-white rounded-2xl shadow-lg border border-slate-300 overflow-hidden flex flex-col h-full">
+      <button
+        id="zk-liabilities-toggle"
+        type="button"
+        class="w-full flex items-center justify-between p-5 bg-linear-to-br from-rose-50 to-white border-b border-rose-100 hover:bg-rose-50 transition-colors group"
+      >
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 17h6v-6"/><path d="m22 17-8.5-8.5-5 5L2 7"/></svg>
+          </div>
+          <div class="text-left">
+            <h3 class="font-black text-slate-800 text-lg">What I Owe</h3>
+            <p class="text-sm font-bold text-rose-600 uppercase tracking-wide">Liabilities to Deduct (-)</p>
+          </div>
+        </div>
+        <svg id="zk-liabilities-chevron" class="text-slate-400 w-5 h-5 transition-transform" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+      </button>
+
+      <div id="zk-liabilities-body" class="p-6 space-y-5 flex-1 bg-slate-50/50">
+        <div class="group">
+          <label for="zk-homeFinance" class="flex items-center gap-2 text-sm font-bold uppercase tracking-wider mb-2 text-rose-700">Home Finance (Short-term)</label>
+          <div class="relative flex items-center overflow-hidden rounded-xl border bg-white shadow-sm transition-all border-rose-400 focus-within:border-rose-400 focus-within:ring-2 focus-within:ring-rose-100">
+            <span class="pl-4 pr-2 text-sm font-bold select-none text-rose-300">AED</span>
+            <input id="zk-homeFinance" type="number" name="homeFinance" placeholder="0" class="zk-input w-full py-3 pr-4 text-lg font-bold text-slate-800 outline-none placeholder:text-slate-200" />
+          </div>
+        </div>
+
+        <div class="group">
+          <label for="zk-utilityBills" class="flex items-center gap-2 text-sm font-bold uppercase tracking-wider mb-2 text-rose-700">Utility Bills (Outstanding)</label>
+          <div class="relative flex items-center overflow-hidden rounded-xl border bg-white shadow-sm transition-all border-rose-400 focus-within:border-rose-400 focus-within:ring-2 focus-within:ring-rose-100">
+            <span class="pl-4 pr-2 text-sm font-bold select-none text-rose-300">AED</span>
+            <input id="zk-utilityBills" type="number" name="utilityBills" placeholder="0" class="zk-input w-full py-3 pr-4 text-lg font-bold text-slate-800 outline-none placeholder:text-slate-200" />
+          </div>
+        </div>
+
+        <div class="group">
+          <label for="zk-personalLoans" class="flex items-center gap-2 text-sm font-bold uppercase tracking-wider mb-2 text-rose-700">Personal Loans/Debts</label>
+          <div class="relative flex items-center overflow-hidden rounded-xl border bg-white shadow-sm transition-all border-rose-400 focus-within:border-rose-400 focus-within:ring-2 focus-within:ring-rose-100">
+            <span class="pl-4 pr-2 text-sm font-bold select-none text-rose-300">AED</span>
+            <input id="zk-personalLoans" type="number" name="personalLoans" placeholder="0" class="zk-input w-full py-3 pr-4 text-lg font-bold text-slate-800 outline-none placeholder:text-slate-200" />
+          </div>
+        </div>
+
+        <div class="group">
+          <label for="zk-businessLiabilities" class="flex items-center gap-2 text-sm font-bold uppercase tracking-wider mb-2 text-rose-700">Business Liabilities</label>
+          <div class="relative flex items-center overflow-hidden rounded-xl border bg-white shadow-sm transition-all border-rose-400 focus-within:border-rose-400 focus-within:ring-2 focus-within:ring-rose-100">
+            <span class="pl-4 pr-2 text-sm font-bold select-none text-rose-300">AED</span>
+            <input id="zk-businessLiabilities" type="number" name="businessLiabilities" placeholder="0" class="zk-input w-full py-3 pr-4 text-lg font-bold text-slate-800 outline-none placeholder:text-slate-200" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ── Zakat Calculator Logic ────────────────────────────────────────────────
+  // Wires the input panel (#zakat-inputs) with the result card (#zakat-result-card).
+
+  const fmt = new Intl.NumberFormat('en-AE', { maximumFractionDigits: 0 });
+  const inputs = document.getElementById('zakat-inputs')!;
+
+  // Result card elements (from ZakatCalculator.astro)
+  const amountEl = document.getElementById('zk-amount')!;
+  const statusEl = document.getElementById('zk-status')!;
+  const totalAssetsEl = document.getElementById('zk-total-assets')!;
+  const totalLiabilitiesEl = document.getElementById('zk-total-liabilities')!;
+  const netWealthEl = document.getElementById('zk-net-wealth')!;
+
+  // Helper to read numeric input value
+  const val = (id: string): number => parseFloat((document.getElementById(id) as HTMLInputElement)?.value) || 0;
+
+  // ── Calculation ──
+  function recalculate() {
+    const goldPrice = val('zk-goldPrice');
+    const silverPrice = val('zk-silverPrice');
+    const goldValue = val('zk-goldWeight') * goldPrice;
+    const silverValue = val('zk-silverWeight') * silverPrice;
+
+    const totalAssets =
+      val('zk-cash') + val('zk-receivables') + val('zk-shares') +
+      goldValue + silverValue +
+      val('zk-crypto') + val('zk-businessAssets');
+
+    const totalLiabilities =
+      val('zk-homeFinance') + val('zk-utilityBills') +
+      val('zk-personalLoans') + val('zk-businessLiabilities');
+
+    const netAssets = totalAssets - totalLiabilities;
+    const nisabThreshold = 85 * goldPrice;
+    const isEligible = netAssets >= nisabThreshold && netAssets > 0;
+    const zakatPayable = isEligible ? netAssets * 0.025 : 0;
+
+    // Update result card
+    amountEl.textContent = fmt.format(zakatPayable);
+    totalAssetsEl.textContent = `${fmt.format(totalAssets)} AED`;
+    totalLiabilitiesEl.textContent = `- ${fmt.format(totalLiabilities)} AED`;
+    netWealthEl.textContent = `${fmt.format(netAssets)} AED`;
+
+    if (isEligible) {
+      statusEl.className = 'mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold border text-[#4b0082] bg-[#e0cfff] border-[#4b0082]';
+      statusEl.innerHTML = '<span>✅ Eligible to Pay</span>';
+    } else {
+      statusEl.className = 'mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold border text-amber-700 bg-amber-100 border-amber-300';
+      statusEl.innerHTML = `<span>❌ Below Nisab (${fmt.format(nisabThreshold)} AED)</span>`;
+    }
+  }
+
+  // ── Bind all inputs ──
+  inputs.querySelectorAll<HTMLInputElement>('.zk-input').forEach(input => {
+    input.addEventListener('input', recalculate);
+  });
+
+  // ── Reset ──
+  document.getElementById('zk-reset')?.addEventListener('click', () => {
+    inputs.querySelectorAll<HTMLInputElement>('.zk-input').forEach(input => {
+      if (input.name === 'goldPrice') input.value = '340';
+      else if (input.name === 'silverPrice') input.value = '4.5';
+      else input.value = '';
+    });
+    recalculate();
+  });
+
+  // ── Collapsible sections ──
+  function setupToggle(toggleId: string, bodyId: string, chevronId: string) {
+    const toggle = document.getElementById(toggleId);
+    const body = document.getElementById(bodyId);
+    const chevron = document.getElementById(chevronId);
+    if (!toggle || !body || !chevron) return;
+
+    toggle.addEventListener('click', () => {
+      const isOpen = body.style.display !== 'none';
+      body.style.display = isOpen ? 'none' : '';
+      chevron.style.transform = isOpen ? 'rotate(180deg)' : '';
+    });
+  }
+
+  setupToggle('zk-assets-toggle', 'zk-assets-body', 'zk-assets-chevron');
+  setupToggle('zk-liabilities-toggle', 'zk-liabilities-body', 'zk-liabilities-chevron');
+</script>

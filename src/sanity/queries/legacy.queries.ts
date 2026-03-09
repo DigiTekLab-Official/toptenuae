@@ -17,7 +17,7 @@ export const HOME_QUERY = groq`{
     title,
     "slug": slug.current,
     intro,
-    mainImage,
+    mainImage { "url": asset->url, alt },
     "categorySlug": coalesce(categories[0]->slug.current, category->slug.current)
   },
   "sections": *[_type == "category" && slug.current in $categories] | order(order asc, title asc) {
@@ -38,14 +38,14 @@ export const HOME_QUERY = groq`{
       title,
       "slug": slug.current,
       publishedAt,
-      mainImage
+      mainImage { "url": asset->url, alt }
     }
   },
   "upcomingPosts": *[_type in ["topTenList", "article"] && category->slug.current == "upcoming"] | order(publishedAt desc)[0...4] {
     _id,
     title,
     "slug": slug.current,
-    mainImage
+    mainImage { "url": asset->url, alt }
   }
 }`;
 
@@ -69,7 +69,7 @@ export const CATEGORY_PAGE_QUERY = groq`
     ] | order(publishedAt desc)[0...100] { 
       _type, title, "slug": slug.current, publishedAt,
       "mainImage": coalesce(mainImage, image, product->mainImage) { "url": asset->url, alt },
-      "rawExcerpt": coalesce(description, "", "")
+      "rawExcerpt": coalesce(description, intro, "")
     }
   }
 `;
@@ -82,17 +82,20 @@ export const GENERIC_POST_QUERY = groq`
     _type,
     "slug": slug.current, _id, title, description,
     "seoTitle": coalesce(seo.metaTitle, title),
-    "seoDescription": "",
+    "seoDescription": coalesce(seo.metaDescription, description, ""),
     "mainImage": coalesce(mainImage, image, coverImage, product->mainImage) { "url": asset->url, alt },
     "category": coalesce(categories[0], category)->{ "title": title, "slug": slug.current, "menuLabel": menuLabel },
-    "publishedAt": _createdAt, "_updatedAt": _updatedAt,
+    "categories": categories[]->{ "slug": slug.current, title },
+    publishedAt, "_updatedAt": _updatedAt,
     "intro": intro,
     "body": body,
     "content": content,
     "procedure": procedure,
     "closingContent": closingContent,
+    showAffiliateDisclosure,
     faqs[] { _key, question, answer },
-    startDate, endDate, locationName, address, ticketPrice
+    howToSteps,
+    startDate, endDate, locationName, address, ticketPrice, ticketUrl, isTicketAvailable, status
   }
 `;
 

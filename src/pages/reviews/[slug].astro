@@ -33,7 +33,7 @@ const viewData = {
 const schemaData = generateSchema({ ...data, slug: { current: slug }, _type: data._type || 'product' }, 'reviews', slug);
 const canonicalUrl = `https://toptenuae.com/reviews/${slug}`;
 const seoTitle = data.seoTitle || viewData.title;
-const seoDescription = data.seoDescription || data.itemDescription || '';
+const seoDescription = data.seoDescription || data.itemDescription || data.verdict || '';
 ---
 
 <BaseLayout
