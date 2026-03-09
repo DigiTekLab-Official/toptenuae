@@ -8,8 +8,6 @@ import { generateSchema } from '@/lib/schemaGenerator';
 import ArticleView from '@/components/views/ArticleView';
 import groq from 'groq';
 
-const isTool = (type: string | null) => type === 'tool';
-
 const { category, slug } = Astro.params;
 
 if (!category || !slug) {
@@ -99,17 +97,27 @@ const imageUrl = data.mainImage?.url || data.mainImage?.asset?.url || null;
 const seoTitle = data.seo?.metaTitle || data.title || 'Article';
 const seoDescription = data.seo?.metaDescription || '';
 const canonicalUrl = `https://toptenuae.com/${masterCategory}/${slug}`;
+const isToolPage = data._type === 'tool';
 ---
 
-<BaseLayout
-  title={seoTitle}
-  description={seoDescription}
-  canonical={canonicalUrl}
-  ogImage={imageUrl}
-  jsonLd={schemaData}
->
-  {isTool(data._type)
-    ? <ToolLayout data={data} category={category} slug={slug} />
-    : <ArticleView data={data} category={category} slug={slug} client:load />
-  }
-</BaseLayout>
+{isToolPage ? (
+  <BaseLayout
+    title={seoTitle}
+    description={seoDescription}
+    canonical={canonicalUrl}
+    ogImage={imageUrl}
+    jsonLd={schemaData}
+  >
+    <ToolLayout data={data} category={category} slug={slug} />
+  </BaseLayout>
+) : (
+  <BaseLayout
+    title={seoTitle}
+    description={seoDescription}
+    canonical={canonicalUrl}
+    ogImage={imageUrl}
+    jsonLd={schemaData}
+  >
+    <ArticleView data={data} category={category} slug={slug} client:load />
+  </BaseLayout>
+)}
