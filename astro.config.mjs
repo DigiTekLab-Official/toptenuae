@@ -13,6 +13,9 @@ export default defineConfig({
     platformProxy: {
       enabled: true,
     },
+    wrangler: {
+      enabled: false,
+    },
   }),
 
   integrations: [
