@@ -93,3 +93,20 @@ No GSC export truncated (largest non-sitemap = 95 rows, well under the 1000 cap)
 
 ### Report-window caveat
 22 URLs appear in BOTH indexed AND crawled-not-indexed — GSC report-window flux, not a contradiction.
+
+---
+
+## Deploy stack: reverted to v12/Astro-5 Pages (2026-05-29)
+
+The v12→v13 adapter upgrade (commit `64a53d6`, bundled with the 404 fix) broke the Cloudflare **Pages** deploy: `@astrojs/cloudflare` v13 targets **Workers** and emits `dist/server/wrangler.json` with an `ASSETS` binding (reserved in Pages) and a `SESSION` KV (no id; Pages can't auto-provision). Commits `b59fc3d` (added `rm -f dist/server/wrangler.json` band-aid) and `e57f1ad` (`wrangler:{enabled:false}` — not a valid v13 option) were failed fixes.
+
+**Last-good production deploy = `2471b0b`** (observed in Cloudflare dashboard; identical to `64a53d6~1`). Reverted `package.json` + `pnpm-lock.yaml` + `astro.config.mjs` to that state (deps: cloudflare ^12.2.0, astro ^5.5.0, react ^4.2.0, sitemap ^3.3.0, check ^0.9.6, wrangler ^3.100.0). **Kept all HEAD source** (404 fix, etc.). `wrangler.toml` untouched (already matched known-good, has `disable_nodejs_process_v2`).
+
+Verified locally: `pnpm install --frozen-lockfile` ✓; `pnpm build` → 0 errors / 0 warnings / 2 hints ✓; `dist/server/wrangler.json` absent ✓; `dist/` is Pages-style (`_worker.js/`, `_routes.json`) ✓. Build log still prints "Enabling sessions with Cloudflare KV" but v12 does **not** emit the breaking wrangler.json — informational only.
+
+### ⚠️ OPEN post-deploy verification (do after the next successful deploy)
+The reviews→top-ten **404 fix has NEVER run in a successful production deploy** — it only existed on the failed v13 builds. Once this v12 revert is live, re-run the curl traces to confirm the fix works on the v5 runtime:
+- `https://toptenuae.com/reviews/best-air-fryers-uae-2026` → expect **301 to /top-ten/...**, NOT 404
+- `https://toptenuae.com/best-air-fryers-uae-2026` (flat) → expect 301 to /top-ten/..., NOT 404
+- `https://toptenuae.com/top-ten/best-air-fryers-uae-2026` → expect 200
+(Prior diagnosis: `reviews/[slug].astro:19` 404s before the `_type==='topTenList'` redirect branch at lines 22-30, because `PRODUCT_BY_SLUG` is scoped to `_type=="product"`. Confirm `64a53d6`'s fix actually resolves this on v5.)

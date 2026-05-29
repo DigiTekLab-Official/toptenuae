@@ -13,9 +13,6 @@ export default defineConfig({
     platformProxy: {
       enabled: true,
     },
-    wrangler: {
-      enabled: false,
-    },
   }),
 
   integrations: [
@@ -46,38 +43,7 @@ export default defineConfig({
   ],
 
   vite: {
-    plugins: [
-      tailwindcss(),
-      // ⬇️ Custom plugin to force Vite to pre-bundle React & Astro view transitions for Cloudflare
-      {
-        name: 'fix-cloudflare-react-hooks',
-        configEnvironment(name, config) {
-          if (name !== 'client') {
-            config.optimizeDeps = config.optimizeDeps || {};
-            config.optimizeDeps.include = config.optimizeDeps.include || [];
-            config.optimizeDeps.include.push(
-              'react',
-              'react-dom',
-              'react-dom/server',
-              'react/jsx-runtime',
-              'react/jsx-dev-runtime',
-              'astro/virtual-modules/transitions.js',
-              'astro/virtual-modules/transitions-router.js',
-              'astro/virtual-modules/transitions-types.js',
-              'astro/virtual-modules/transitions-events.js',
-              'astro/virtual-modules/transitions-swap-functions.js'
-            );
-          }
-        },
-      }
-    ],
-    // ⬇️ Forces Cloudflare's local environment to use a single instance of Edge React
-    resolve: {
-      dedupe: ['react', 'react-dom'],
-      alias: {
-        'react-dom/server': 'react-dom/server.edge',
-      },
-    },
+    plugins: [tailwindcss()],
     build: {
       chunkSizeWarningLimit: 600,
     },
