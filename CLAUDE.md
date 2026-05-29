@@ -104,9 +104,16 @@ The v12→v13 adapter upgrade (commit `64a53d6`, bundled with the 404 fix) broke
 
 Verified locally: `pnpm install --frozen-lockfile` ✓; `pnpm build` → 0 errors / 0 warnings / 2 hints ✓; `dist/server/wrangler.json` absent ✓; `dist/` is Pages-style (`_worker.js/`, `_routes.json`) ✓. Build log still prints "Enabling sessions with Cloudflare KV" but v12 does **not** emit the breaking wrangler.json — informational only.
 
-### ⚠️ OPEN post-deploy verification (do after the next successful deploy)
-The reviews→top-ten **404 fix has NEVER run in a successful production deploy** — it only existed on the failed v13 builds. Once this v12 revert is live, re-run the curl traces to confirm the fix works on the v5 runtime:
-- `https://toptenuae.com/reviews/best-air-fryers-uae-2026` → expect **301 to /top-ten/...**, NOT 404
-- `https://toptenuae.com/best-air-fryers-uae-2026` (flat) → expect 301 to /top-ten/..., NOT 404
-- `https://toptenuae.com/top-ten/best-air-fryers-uae-2026` → expect 200
-(Prior diagnosis: `reviews/[slug].astro:19` 404s before the `_type==='topTenList'` redirect branch at lines 22-30, because `PRODUCT_BY_SLUG` is scoped to `_type=="product"`. Confirm `64a53d6`'s fix actually resolves this on v5.)
+### ✅ RESOLVED — post-deploy verification (live on `f109f8c`, 2026-05-29)
+The reviews→top-ten **404 fix is confirmed working in production** on the v12/v5 runtime. Live curl traces:
+- `https://toptenuae.com/reviews/best-air-fryers-uae-2026` → **301 → /top-ten/...** ✅
+- `https://toptenuae.com/reviews/best-beard-trimmers-uae` → **301** ✅
+- `https://toptenuae.com/top-ten/best-air-fryers-uae-2026` → **200** ✅
+- `https://toptenuae.com/top-ten/best-beard-trimmers-uae` → **200** ✅
+
+### ⚠️ NEW — flat single-segment list-slug bug (investigated 2026-05-29, NOT fixed)
+`https://toptenuae.com/best-air-fryers-uae-2026` (flat) → **302 → /404** — TWO defects:
+1. **Status 302 (temporary)** where it should be 301 (permanent) — `Astro.redirect('/404')` with no explicit status defaults to 302.
+2. **Redirects to /404 despite live content** — the slug is a live topTenList at `/top-ten/best-air-fryers-uae-2026` (200); the flat URL should 301 to that canonical, not die.
+
+Source: `src/pages/[category]/index.astro:25` `if (!data) return Astro.redirect('/404');`. The route fetches `CATEGORY_PAGE_QUERY` (line 20), which is scoped to `_type=="category"` (`legacy.queries.ts:56`), so any non-category single-segment slug returns null → line 25 → 302→/404. Fires for ALL unmatched single-segment slugs (live-elsewhere AND genuinely-dead alike). Unlike `[category]/[slug].astro:45`, this route has **no doctype-detection fallback**.

@@ -6,14 +6,39 @@ import { CATEGORY_PAGE_QUERY } from '@/sanity/lib/queries';
 import Sidebar from '@/components/Sidebar';
 import { cleanText } from '@/lib/utils/sanity-text';
 import { listImage } from '@/sanity/lib/image';
+import groq from 'groq';
 
 const { category } = Astro.params;
 
 // Custom pages handled by dedicated routes
 const CUSTOM_PAGES = ['reviews', 'deals'];
 if (!category || CUSTOM_PAGES.includes(category)) {
-  return Astro.redirect('/404');
+  return Astro.rewrite('/404');
 }
+
+// Cheap guard: malformed/bot junk never touches Sanity (real slugs are lowercase-hyphenated).
+const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+if (category.length > 96 || !SLUG_RE.test(category)) {
+  return Astro.rewrite('/404');
+}
+
+// Category normalization — mirror of [category]/[slug].astro so any 301 target is FINAL (no second hop).
+const normalizeCategory = (c: string): string => ({
+  'travel-tourism': 'events-holidays',
+  'health-fitness': 'lifestyle',
+  'baby-kid': 'parenting-kids',
+  'buyers-guide': 'reviews',
+} as Record<string, string>)[c] || c;
+
+// Flat WordPress permalinks to 410 (permanently gone). Empty for now — we ship 301+404 first,
+// then curate this from SEO-AUDIT/gsc-exports/soft-404.csv as a separate pass. A slug belongs
+// here ONLY if it has NO live Sanity doc (else the probe above 301s it) AND is absent from both
+// sitemap-url-list.csv and indexed.csv. Vetted-dead candidates pending review (NOT yet enabled):
+//   best-diaper-bags-uae, best-baby-toys, best-books-for-babys-first-library,
+//   nasa-astronaut-don-pettit-burj-khalifa-image-from-space
+// EXCLUDED: how-to-clean-washing-machine — it is LIVE at /how-to-guides/how-to-clean-washing-machine
+//   (indexed + in sitemap); the probe 301s it. Do not add live-elsewhere slugs here.
+const LEGACY_GONE = new Set<string>([]);
 
 let data: any = null;
 try {
@@ -22,7 +47,36 @@ try {
   console.error('Error fetching category data:', error);
 }
 
-if (!data) return Astro.redirect('/404');
+if (!data) {
+  // Not a category hub. Probe whether this flat slug is a live content doc that moved.
+  let probe: { _type?: string; cat?: string; cats?: string[] } | null = null;
+  try {
+    probe = await client.fetch(
+      groq`*[slug.current == $slug][0]{ _type, "cat": category->slug.current, "cats": categories[]->slug.current }`,
+      { slug: category }
+    );
+  } catch (error) {
+    console.error(`Error probing flat slug [${category}]:`, error);
+  }
+
+  if (probe?._type) {
+    const t = probe._type;
+    let target: string;
+    if (t === 'topTenList') target = `/top-ten/${category}`;
+    else if (t === 'product') target = `/reviews/${category}`;
+    else {
+      let def = 'reviews';
+      if (t === 'holiday' || t === 'event') def = 'events-holidays';
+      else if (t === 'tool') def = 'finance-tools';
+      else if (t === 'howTo') def = 'how-to-guides';
+      target = `/${normalizeCategory(probe.cat || probe.cats?.[0] || def)}/${category}`;
+    }
+    return Astro.redirect(target, 301);
+  }
+
+  // No live doc: permanently-removed legacy permalink → 410; everything else → hard 404.
+  return Astro.rewrite(LEGACY_GONE.has(category) ? '/410' : '/404');
+}
 
 const categorySlug = data.slug || category;
 if (!categorySlug || categorySlug === 'null') return Astro.redirect('/404');
