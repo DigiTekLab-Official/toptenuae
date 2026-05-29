@@ -7,24 +7,53 @@ import { generateSchema } from '@/lib/schemaGenerator';
 import ProductView from '@/components/views/ProductView';
 
 const { slug } = Astro.params;
-if (!slug) return Astro.redirect('/404', 404);
+if (!slug) {
+  return Astro.redirect('/404');
+}
 
 let data: any = null;
 try {
+  // 1. Try to fetch as a product first
   data = await client.fetch(PRODUCT_BY_SLUG_QUERY, { slug });
 } catch (error) {
   console.error(`Error fetching product review [${slug}]:`, error);
 }
 
-if (!data) return Astro.redirect('/404', 404);
+// 2. If no product data is found, check if it's actually another content type (like topTenList)
+if (!data) {
+  let fallbackData: any = null;
+  try {
+    fallbackData = await client.fetch(
+      `*[slug.current == $slug][0]{ 
+        _type, 
+        "categorySlug": category->slug.current, 
+        "categories": categories[]->slug.current 
+      }`,
+      { slug }
+    );
+  } catch (error) {
+    console.error(`Error fetching fallback type for [${slug}]:`, error);
+  }
 
-// Smart redirects for wrong content types
-if (data._type === 'topTenList') return Astro.redirect(`/top-ten/${slug}`, 301);
-if (data._type === 'holiday' || data._type === 'event' || data._type === 'article') return Astro.redirect(`/events-holidays/${slug}`, 301);
-if (data._type === 'howTo' || data._type === 'tool') {
-  return Astro.redirect(`/${data.category?.slug?.current || data.categories?.[0]?.slug?.current || (data._type === 'howTo' ? 'how-to-guides' : 'finance-tools')}/${slug}`, 301);
+  // 3. Smart 301 Redirects for wrong content types
+  if (fallbackData) {
+    if (fallbackData._type === 'topTenList') {
+      return Astro.redirect(`/top-ten/${slug}`, 301);
+    }
+    if (fallbackData._type === 'holiday' || fallbackData._type === 'event' || fallbackData._type === 'article') {
+      return Astro.redirect(`/events-holidays/${slug}`, 301);
+    }
+    if (fallbackData._type === 'howTo' || fallbackData._type === 'tool') {
+      const catSlug = fallbackData.categorySlug || fallbackData.categories?.[0] || (fallbackData._type === 'howTo' ? 'how-to-guides' : 'finance-tools');
+      return Astro.redirect(`/${catSlug}/${slug}`, 301);
+    }
+  }
+
+  // 4. If it genuinely doesn't exist in Sanity, THEN 404
+  return Astro.redirect('/404');
 }
 
+// 5. If data exists, format it and render the page normally
 const viewData = {
   ...data,
   title: data.title.toLowerCase().endsWith('review') ? data.title : `${data.title} Review`,

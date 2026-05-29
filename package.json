@@ -14,21 +14,20 @@
     "start": "astro dev",
     "astro": "astro",
     "sanity:typegen": "sanity typegen generate",
-    "postbuild": "node scripts/ping-engines.mjs",
     "cf:dev": "wrangler pages dev dist",
     "cf:deploy": "pnpm build && wrangler pages deploy dist"
   },
   "dependencies": {
-    "@astrojs/cloudflare": "^12.2.0",
-    "@astrojs/react": "^4.2.0",
-    "@astrojs/sitemap": "^3.3.0",
+    "@astrojs/cloudflare": "^13.6.0",
+    "@astrojs/react": "^5.0.6",
+    "@astrojs/sitemap": "^3.7.3",
     "@formspree/react": "^3.0.0",
     "@marsidev/react-turnstile": "^1.4.1",
     "@portabletext/react": "^5.0.0",
     "@portabletext/toolkit": "^5.0.1",
     "@sanity/client": "^7.14.1",
     "@sanity/image-url": "^2.0.2",
-    "astro": "^5.5.0",
+    "astro": "^6.4.1",
     "clsx": "^2.1.1",
     "groq": "^3.0.0",
     "jose": "^6.1.3",
@@ -41,7 +40,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.6",
+    "@astrojs/check": "^0.9.9",
     "@sanity/cli": "^3.49.0",
     "@tailwindcss/vite": "^4.1.18",
     "@types/node": "^22",
@@ -50,10 +49,11 @@
     "@types/react-syntax-highlighter": "^15.5.13",
     "eslint": "^9.0.0",
     "eslint-plugin-astro": "^1.6.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
     "tailwindcss": "^4.1.18",
     "typescript": "^5",
     "typescript-eslint": "^8.0.0",
-    "wrangler": "^3.100.0"
+    "wrangler": "^4.95.0"
   },
   "pnpm": {
     "overrides": {

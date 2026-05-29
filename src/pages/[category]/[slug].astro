@@ -10,9 +10,7 @@ import groq from 'groq';
 
 const { category, slug } = Astro.params;
 
-if (!category || !slug) {
-  return Astro.redirect('/404', 404);
-}
+if (!category || !slug) return Astro.redirect('/404');
 
 // HOW-TO query (inline since it's only used here)
 const HOW_TO_QUERY = groq`
@@ -64,9 +62,7 @@ try {
   console.error(`Error fetching content [${slug}]:`, error);
 }
 
-if (!data) {
-  return Astro.redirect('/404', 404);
-}
+if (!data) return Astro.redirect('/404');
 
 // Determine correct category
 let defaultCat = 'reviews';
@@ -79,7 +75,7 @@ const correctCategory = normalizeCategory(rawCategory);
 
 // Validate & redirect if needed
 if (validCategories.size > 0 && !validCategories.has(correctCategory)) {
-  return Astro.redirect('/404', 404);
+  return Astro.redirect('/404');
 }
 
 if (correctCategory !== category) {

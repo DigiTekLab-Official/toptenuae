@@ -12,7 +12,7 @@ const { category } = Astro.params;
 // Custom pages handled by dedicated routes
 const CUSTOM_PAGES = ['reviews', 'deals'];
 if (!category || CUSTOM_PAGES.includes(category)) {
-  return Astro.redirect('/404', 404);
+  return Astro.redirect('/404');
 }
 
 let data: any = null;
@@ -22,14 +22,10 @@ try {
   console.error('Error fetching category data:', error);
 }
 
-if (!data) {
-  return Astro.redirect('/404', 404);
-}
+if (!data) return Astro.redirect('/404');
 
 const categorySlug = data.slug || category;
-if (!categorySlug || categorySlug === 'null') {
-  return Astro.redirect('/404', 404);
-}
+if (!categorySlug || categorySlug === 'null') return Astro.redirect('/404');
 
 const validItems = (data.items || []).filter((item: any) => item && item.slug);
 const isFinanceTools = categorySlug === 'finance-tools';

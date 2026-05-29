@@ -18,14 +18,16 @@ const NAV_LINKS: NavLink[] = [
   { name: "Best Buys", href: "/reviews", title: "Product & Service Reviews", badge: null },
   { name: "Guides", href: "/how-to-guides", title: "Guides and Tutorials", badge: null },
   
-  // ✅ ADDED: Ramadan 2026 with Moon Icon
-  { name: "Ramadan 2026", href: "/ramadan-2026", title: "Ramadan 2026 Guide", badge: null, icon: Moon },
+  // Disabled until next year. Update the year and href when ready for 2027.
+  // { name: "Ramadan 2026", href: "/ramadan-2026", title: "Ramadan 2026 Guide", badge: null, icon: Moon },
+  // to 
+  // { name: "Ramadan 2027", href: "/ramadan-2027", title: "Ramadan 2027 Guide", badge: null, icon: Moon },
   
   { name: "Finance Tools", href: "/finance-tools", title: "UAE Finance Tools", badge: null },
   { name: "What's On", href: "/events-holidays", title: "UAE Events & Holidays", badge: null },
   
-  // ✅ UPDATED: Removed "Hot" badge text, kept Flame icon
-  { name: "Ramadan Deals", href: "/deals", title: "Latest Deals", isHighlight: true, badge: null }, 
+  // ✅ UPDATED: Changed from Ramadan Deals to Summer Deals, kept Flame icon
+  { name: "Summer Deals", href: "/deals", title: "Latest Deals", isHighlight: true, badge: null }, 
 ];
 
 export default function Header() {
@@ -163,7 +165,7 @@ export default function Header() {
                       <Flame className="w-4 h-4 fill-red-600 group-hover:fill-red-700 transition-colors animate-pulse" />
                     )}
 
-                    {/* ✅ MOON ICON LOGIC (For Ramadan) */}
+                    {/* MOON ICON LOGIC (For Ramadan) */}
                     {link.icon && !link.isHighlight && (
                       <link.icon className="w-4 h-4 fill-[#2ad29a]" aria-hidden="true" />
                     )}
@@ -258,7 +260,7 @@ export default function Header() {
                     {link.isHighlight && (
                       <Flame className="w-4 h-4 fill-red-700 shrink-0" />
                     )}
-                    {/* ✅ MOBILE MOON ICON */}
+                    {/* MOBILE MOON ICON */}
                     {link.icon && !link.isHighlight && (
                       <link.icon className="w-4 h-4 shrink-0" />
                     )}
