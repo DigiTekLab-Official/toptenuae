@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro check && astro build",
+    "build": "astro check && astro build && rm -f dist/server/wrangler.json",
     "preview": "astro preview",
     "start": "astro dev",
     "astro": "astro",
