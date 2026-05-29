@@ -111,9 +111,13 @@ The reviews→top-ten **404 fix is confirmed working in production** on the v12/
 - `https://toptenuae.com/top-ten/best-air-fryers-uae-2026` → **200** ✅
 - `https://toptenuae.com/top-ten/best-beard-trimmers-uae` → **200** ✅
 
-### ⚠️ NEW — flat single-segment list-slug bug (investigated 2026-05-29, NOT fixed)
-`https://toptenuae.com/best-air-fryers-uae-2026` (flat) → **302 → /404** — TWO defects:
-1. **Status 302 (temporary)** where it should be 301 (permanent) — `Astro.redirect('/404')` with no explicit status defaults to 302.
-2. **Redirects to /404 despite live content** — the slug is a live topTenList at `/top-ten/best-air-fryers-uae-2026` (200); the flat URL should 301 to that canonical, not die.
+### ✅ RESOLVED — flat single-segment slug bug (Finding #5) + global soft-404 (§1.8) (fixed + verified live, 2026-05-29)
+**Was:** `https://toptenuae.com/best-air-fryers-uae-2026` (flat) → **302 → /404** — two defects: (1) 302 instead of 301; (2) 404'd despite the slug being live at `/top-ten/...`. Source was `src/pages/[category]/index.astro` `if (!data) return Astro.redirect('/404')` — `CATEGORY_PAGE_QUERY` is `_type=="category"`-scoped, so any non-category single-segment slug returned null → 302→/404, with no doctype fallback (unlike `[category]/[slug].astro:45`).
 
-Source: `src/pages/[category]/index.astro:25` `if (!data) return Astro.redirect('/404');`. The route fetches `CATEGORY_PAGE_QUERY` (line 20), which is scoped to `_type=="category"` (`legacy.queries.ts:56`), so any non-category single-segment slug returns null → line 25 → 302→/404. Fires for ALL unmatched single-segment slugs (live-elsewhere AND genuinely-dead alike). Unlike `[category]/[slug].astro:45`, this route has **no doctype-detection fallback**.
+**Fix (2 files):**
+- `src/pages/[category]/index.astro` — on a category miss, a doctype probe (`*[slug.current==$slug][0]{_type, cat, cats}`) now drives a **three-way**: live doc → **301 (permanent)** to its terminal canonical (topTenList→/top-ten, product→/reviews, tool→/finance-tools, howTo→/how-to-guides, holiday→/events-holidays, using `normalizeCategory` mirrored from `[category]/[slug].astro` so the target is final = single hop); known-dead legacy slug → **410**; everything else → **hard 404**. A cheap `SLUG_RE` guard short-circuits malformed/bot junk to 404 *before* any Sanity call (net cost win — junk now hits 0 queries). `LEGACY_GONE` set is intentionally **empty** this round (real-sourced from `gsc-exports/soft-404.csv` but uncurated; populating it is a separate pass — 4 vetted-dead candidates documented inline; `how-to-clean-washing-machine` excluded because it's LIVE at `/how-to-guides/...`).
+- `src/pages/404.astro` — added `Astro.response.status = 404;` (mirrors `410.astro`). Site-wide effect: the rendered `/404` page now returns **404 status instead of 200**, killing soft-404s everywhere (every `Astro.rewrite`/`Astro.redirect` to `/404` now terminates as a true 404). Only global side-effect; no routing/content change.
+
+**Live verification (post-deploy) — all 5 branches confirmed live:** flat live-list → 301→/top-ten/→200 (single hop) ✅; flat live-product → `/ugreen-clipbuds-open-earbuds` → 301→/reviews/ugreen-clipbuds-open-earbuds→200 (single hop) ✅; dead legacy → bare 404 ✅; junk → bare 404, no Location (soft-404 fixed) ✅; category hub → 200 ✅.
+
+**Left untouched (intentional):** `[category]/index.astro` lines ~81-82 (`categorySlug==='null'` → `Astro.redirect('/404')`, still 302) — only fires when `data` exists (real category, bad slug), not the flat-miss case; its terminal page now correctly 404s as a side benefit.
