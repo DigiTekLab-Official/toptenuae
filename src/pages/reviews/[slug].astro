@@ -62,10 +62,7 @@ const viewData = {
 
 let related: { lists: any[]; products: any[] } = { lists: [], products: [] };
 try {
-  related = await client.fetch(RELATED_FOR_PRODUCT, {
-    id: data._id,
-    cats: data.categories?.map((c: any) => c.slug) ?? [],
-  });
+  related = await client.fetch(RELATED_FOR_PRODUCT, { id: data._id });
 } catch (error) {
   console.error(`Error fetching related content for [${slug}]:`, error);
 }
