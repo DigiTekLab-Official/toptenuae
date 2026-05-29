@@ -76,7 +76,7 @@ buyers-guide   → reviews
 No GSC export truncated (largest non-sitemap = 95 rows, well under the 1000 cap), so all counts are complete. Diagnosis only — no code changed.
 
 ### Findings ranked by impact × URL volume
-1. **CRITICAL — Product reviews not getting indexed.** 52 of 55 discovered-not-indexed URLs are `/reviews/` products; sitemap `/reviews/` indexed at 23/78 (29%) vs `/top-ten/` 91%. Root cause: product↔list content duplication — `generateTopTenListSchema()` embeds the full product payload (title, image, verdict, specs, offers) into the list schema (schemaGenerator.ts:284-348), so standalone product pages add little unique value; compounded by SSR-on-every-request crawl cost.
+1. **CRITICAL — Product reviews not getting indexed.** 52 of 55 discovered-not-indexed URLs are `/reviews/` products; sitemap `/reviews/` indexed at 23/78 (29%) vs `/top-ten/` 91%. ~~Root cause: product↔list content duplication — `generateTopTenListSchema()` embeds the full product payload into the list schema (schemaGenerator.ts:284-348)~~ **← DUPLICATION THEORY REFUTED & CLOSED (see §T3.0 below).** Real root cause = **crawl demand** (Branch a): GSC URL Inspection shows 3/4 sampled products "Discovered – currently not indexed" with **Crawled: N/A (never crawled)** — a page Google never fetched cannot be judged a duplicate. **Do NOT touch schemaGenerator.ts:284-348 or TOP_TEN_LIST_QUERY.** Remediation = internal-linking + sitemap pruning + crawl-budget (§T3a in phase5-remediation-plan.md).
 2. **HIGH — Redirect-error chains.** 19 URLs. Stacked 301s: middleware.ts normalization (www/lowercase/tracking-param strip, lines 34-52) followed by page-level 301s in reviews/[slug].astro:22-30 and [category]/[slug].astro:81-83.
 3. **MEDIUM-HIGH — Invalid `/tech/` category.** 14 URLs. `/tech/` is missing from the normalization map ([category]/[slug].astro:29-36), so these resolve incorrectly.
 4. **MEDIUM — Legacy migration debris.** ~38 URLs from WordPress (AMP, /category/, /tag/, /author/, /feed/) and Next.js (`_next/static`) generations surfacing as 404s.
@@ -121,3 +121,18 @@ The reviews→top-ten **404 fix is confirmed working in production** on the v12/
 **Live verification (post-deploy) — all 5 branches confirmed live:** flat live-list → 301→/top-ten/→200 (single hop) ✅; flat live-product → `/ugreen-clipbuds-open-earbuds` → 301→/reviews/ugreen-clipbuds-open-earbuds→200 (single hop) ✅; dead legacy → bare 404 ✅; junk → bare 404, no Location (soft-404 fixed) ✅; category hub → 200 ✅.
 
 **Left untouched (intentional):** `[category]/index.astro` lines ~81-82 (`categorySlug==='null'` → `Astro.redirect('/404')`, still 302) — only fires when `data` exists (real category, bad slug), not the flat-miss case; its terminal page now correctly 404s as a side benefit.
+
+---
+
+## §T3.0 VERDICT — catalog-indexing root cause = Branch (a) CRAWL DEMAND, not duplication (2026-05-29)
+
+**Decision: the product↔list duplication theory (Phase-4 Finding #1) is REFUTED and CLOSED.** GSC URL Inspection is decisive:
+- 3 of 4 sampled `/reviews/` products = "Discovered – currently not indexed" with **Crawled: N/A** — Google has **never fetched** them. A never-crawled page cannot be judged a duplicate; the duplication hypothesis is logically impossible as the cause.
+- The one indexed product (`ugreen-clipbuds-open-earbuds`) reports a **healthy self-canonical** — no duplicate-canonical demotion. This rules out duplication even where crawling did happen.
+
+**Therefore the root cause is crawl demand (Branch a): Google isn't crawling product URLs because they have almost no internal-link signal.** Confirmed by the live-template trace — top-ten lists embed each product inline but link out only via `rel="nofollow"` affiliate CTAs (`ProductCard.tsx:278-285`); category hubs exclude `product` from their item query (`legacy.queries.ts:66-69`); `ProductView.tsx` is an internal dead-end (0 outbound links); `RelatedContent.tsx` would link `/reviews/{slug}` but is never mounted; only `/reviews` hub links products directly, capped `[0...50]` (`legacy.queries.ts:110`), leaving ~28 products with effectively zero follow-able internal links.
+
+**Hard constraints:**
+- **Do NOT touch** `schemaGenerator.ts:284-348` (`generateTopTenListSchema`) or `TOP_TEN_LIST_QUERY` — no schema/dedup refactor.
+- Remediation is **internal-linking + sitemap pruning + crawl-budget only**. Full plan: **§T3a in `/SEO-AUDIT/phase5-remediation-plan.md`**.
+- Measurement window 8–12 weeks; KPIs: `/reviews/` indexed ratio (29% → target) and GSC "Discovered – currently not indexed" count trending down.

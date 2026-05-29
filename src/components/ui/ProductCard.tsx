@@ -93,7 +93,8 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
   }
   
   const displayName = product?.title || "Product Name Unavailable";
-  const finalVerdict = item.customVerdict || product?.verdict; 
+  const productSlug = (product as any)?.slug as string | undefined;
+  const finalVerdict = item.customVerdict || product?.verdict;
   
   // Safe access for arrays
   const specifications = product?.specifications || [];
@@ -259,6 +260,19 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
           </div>
         )}
       </div>
+
+      {/* --- EDITORIAL REVIEW LINK (followable internal link, NOT nofollow) --- */}
+      {productSlug && (
+        <div className="px-5 md:px-6 pb-2">
+          <a
+            href={`/reviews/${productSlug}`}
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
+          >
+            Read our full {displayName} review
+            <span aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+      )}
 
       {/* --- FOOTER CTA --- */}
       {product?.affiliateLink && (

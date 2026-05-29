@@ -248,4 +248,81 @@ Treat "switch `/reviews/{slug}` from SSR-on-every-request to static prerender" a
 > **Still no code changes — this is the plan only.** Implementation begins in a subsequent phase, per CLAUDE.md operating principle "Never modify code in Phases 1–3" and the per-fix risk/rollback discipline above.
 
 ---
-*End of Phase 5 Remediation Plan. Sequenced by safety + certainty + crawl-budget impact. Tier 3 is gated on GSC URL Inspection (§T3.0).*
+
+# §T3.0 VERDICT (2026-05-29): **Branch (a) — CRAWL DEMAND, not duplication**
+
+GSC URL Inspection of the 4 named products returned decisively:
+- 3/4 (`sony-wf-1000xm5-earbuds`, `braun-series-9-pro-plus-shaver`, `apple-macbook-air-m4-13-inch`) = **"Discovered – currently not indexed", Crawled: N/A (never crawled).**
+- 1/4 (`ugreen-clipbuds-open-earbuds`) = indexed + healthy, **self-canonical**.
+
+**Decision: the `schemaGenerator.ts` product↔list duplication theory is REFUTED and CLOSED.** Never-crawled pages cannot be judged duplicates — Google isn't choosing a different canonical, it isn't spending crawl budget at all. **Branch (b) is abandoned; do NOT touch `schemaGenerator.ts:284-348` or `TOP_TEN_LIST_QUERY`.** The operative cause is missing crawl demand = missing internal links.
+
+---
+
+## T3a — Branch (a) crawl-demand remediation (plan only; no code)
+
+### 1. Internal-linking trace — where product links are weak (evidence)
+
+**(1) Inside top-ten lists — the 91%-indexed, most-crawled pages — there is ZERO follow-link to `/reviews/{slug}`:**
+- `src/components/ui/ProductCard.tsx` (rendered per item via `TopTenTemplate.tsx:340`): the *only* outbound link in the entire card is the affiliate CTA — `ProductCard.tsx:278-285`, `href={product?.affiliateLink}` with `rel="nofollow noopener" target="_blank"`. No `/reviews/` link.
+- `src/components/templates/ComparisonSummaryTable.tsx`: desktop row (`:107-110`) and mobile card (`:188-191`) — both `href={product.affiliateLink}` nofollow only. The product-name cells (`:80-82` desktop, `:148-150` mobile) are plain text, not links.
+- `TopTenTemplate.tsx` Quick-Jump nav (`:283-294`): links in-page `#item-${rank}` anchors only.
+- **The link is buildable with no query change:** `TOP_TEN_BY_SLUG` already fetches `product->{ _type, title, "slug": slug.current, ... }` (`topten.queries.ts:29-31`). `item.product.slug.current` is in the data — only the template lacks the `<a>`.
+
+**(2) Category hubs exclude products entirely:** `CATEGORY_PAGE_QUERY` items filter is `_type in ["topTenList","howTo","tool","holiday","deal","article"]` (`legacy.queries.ts:66-69`) — **`product` is absent**. Individual products never render on `/{category}` hubs → zero links there.
+
+**(3) Homepage links products only indirectly (through a 301):** `HOME_QUERY` sections include `"product"` and fetch slug (`legacy.queries.ts:28,39`), but the homepage builds `postLink = /${section.slug}/${post.slug}` (`index.astro:278`); `isProduct` is computed (`:277`) yet **unused**. A product at `/{category}/{slug}` resolves in `[category]/[slug].astro` and 301s to `/reviews/{slug}` (defaultCat `reviews`). So homepage product links are redirected, not direct.
+
+**(4) The product page is an internal dead-end:** `src/components/views/ProductView.tsx` contains **0 `href` links** (no sibling-product links, no breadcrumb). Even once crawled, a `/reviews/{slug}` page offers Google no onward path. `RelatedContent.tsx` (which *does* build `/reviews/{slug}` links, `:19`) is **never imported/mounted anywhere** — dead component.
+
+**(5) The ONLY direct `/reviews/` link path is the hub:** `reviews/index.astro:84` (grid) + `:133` (sidebar) link `/reviews/{slug}` directly; the hub is 1 click from home (`Header.tsx:18` "Best Buys" → `/reviews`). But `REVIEWS_HUB_QUERY` caps at `[0...50]` (`legacy.queries.ts:110`) ordered `_createdAt desc` — with 78 products, **~28 products have no internal link from anywhere on the site.**
+
+**Click-depth / inbound-link map for a sample rejected product** (`/reviews/acer-nitro-v-16-ai-laptop`):
+- From its own top-ten list (high-authority, crawled): **0 links** to it (rendered inline, never linked).
+- From home: home → /reviews hub → product = **2 clicks**, *only if* in the hub's first 50; otherwise **unreachable** (sitemap-only).
+- Typical product inbound internal-link count: **0–1.** This is the crawl-demand failure: the pages Google trusts most embed products but never link their canonicals.
+
+### 2. Minimal template changes (primary fix — no query changes except 2d)
+
+| # | Change | File / line | Effect |
+|---|---|---|---|
+| 2a | **Add "Read full review →" follow-link** with product-name anchor in each list card (header near `:118` or footer near `:264`) → `href={\`/reviews/${product.slug.current}\`}` | `ProductCard.tsx` | Every list item on the 91%-indexed pages gets a keyword-anchored follow-link. **Highest leverage.** |
+| 2b | **Make the product-name cell a link** to `/reviews/{slug}` (desktop `:80-82`, mobile `:148-150`) | `ComparisonSummaryTable.tsx` | 2nd keyword-anchor link per product, same high-authority page. |
+| 2c | **Use the existing `isProduct` flag** to set `postLink = /reviews/${post.slug}` | `index.astro:277-278` | Converts depth-1 homepage product links from redirected → direct. |
+| 2d | **Add `"product"` to the hub items filter** and render with `/reviews/{slug}` links | `legacy.queries.ts:67` + hub template | Adds a depth-2 crawl path via category hubs. (Only query change.) |
+| 2e | **Mount a "Related reviews" block** (revive `RelatedContent.tsx`) or breadcrumb-to-parent on the product page | `ProductView.tsx` | Removes the dead-end; spreads crawl equity product→product. |
+| 2f | **Raise/paginate the hub cap** `[0...50]` so the ~28 uncovered products get at least the hub link | `legacy.queries.ts:110` | Guarantees ≥1 inbound link per product. |
+
+| Attribute | Value |
+|---|---|
+| **Expected impact** | Every product gains multiple keyword-anchor follow-links within 2 clicks of home from high-authority crawled pages → restores crawl demand; products move Discovered→Crawled→Indexed. |
+| **Difficulty** | Low–Medium (2a–2c are small template edits; 2d–2f touch a query + hub/product templates). No schema/canonical risk. |
+| **Risk** | Low. Adding internal `<a>`s cannot regress the 91%-indexed `/top-ten/` pages. Watch: don't make the affiliate CTA ambiguous with the review link (distinct labels). |
+| **Rollback** | Per-edit template revert; 2d is a one-token query revert. |
+
+### 3. Sitemap pruning (secondary — restore sitemap trust)
+
+Cross-ref (`SEO-AUDIT/gsc-exports/`): **78 `/reviews/` in sitemap, 24 indexed (~31%), 55 rejected** (`comm -23` sitemap vs indexed). A largest-segment ~69%-rejected sitemap trains Google to distrust it.
+
+- **Proposal:** temporarily drop the 55 rejected `/reviews/` URLs; keep the 24 indexed (+ freshest); re-add the rejected set in small batches (~10 / 2–3 weeks) as the linking fix drives indexing — concentrating crawl signal.
+- **Mechanism:** the `astro.config.mjs:21` `filter(page)` works on URL strings — add a `REJECTED` Set and `!REJECTED.has(slug)`. **Precondition (confirm at implementation):** locate *how* dynamic `/reviews/{slug}` URLs enter the sitemap under SSR (`@astrojs/sitemap` enumerates static routes only — there must be a `customPages`/endpoint injection point). Build the denylist via `comm -23 sitemap indexed`.
+- **Impact:** raises indexed-ratio signal; reversible. **Risk:** over-pruning a near-to-index URL — mitigate with batch re-add; never prune the 24 indexed. **Difficulty:** Low once the injection point is found.
+
+### 4. Crawl-budget prerequisite (confirmed)
+
+**Ship Tier-1 first** (T1-B `/tech/` map + T1-C robots-unblock+410), and **populate `LEGACY_GONE`** in `[category]/index.astro` from `soft-404.csv` with the 4 vetted-dead slugs (`best-diaper-bags-uae`, `best-baby-toys`, `best-books-for-babys-first-library`, `nasa-astronaut-don-pettit-burj-khalifa-image-from-space`; exclude `how-to-clean-washing-machine` — live). These free the crawl budget that the new internal links then steer toward `/reviews/`. Branch-(a) work should land *after* Tier 1 has had ≥2–4 weeks.
+
+### 5. Sequence + measurement
+
+**Order:** (i) ✅ flat-route + soft-404 fix (shipped) → (ii) Tier-1 T1-A/B/C + populate `LEGACY_GONE` → (iii) **Branch-(a) internal linking (2a–2f) — primary** → (iv) sitemap pruning (drop 55, batch re-add) → (v) measure, re-add batches as indexing recovers.
+
+**GSC metrics + window:**
+- **Primary:** sitemap `/reviews/` indexed ratio **24/78 (~31%) → target ~90%** (the `/top-ten/` benchmark 10/11 = 91%).
+- **Leading indicator (2–4 wks):** "Discovered – currently not indexed" (55; 52 `/reviews/`) → URLs shift to **"Crawled – currently not indexed"** = demand fix working → then **Indexed**.
+- **Corroborate:** GSC Settings → Crawl stats — total crawl requests to `/reviews/` rising.
+- **Window:** Discovered→Crawled movement 2–4 weeks; full indexing recovery **8–12 weeks**.
+
+> Still plan-only. Branch (b) / `schemaGenerator.ts` refactor is permanently closed by the §T3.0 verdict.
+
+---
+*End of Phase 5 Remediation Plan. Sequenced by safety + certainty + crawl-budget impact. §T3.0 verdict (2026-05-29): Branch (a) — crawl demand. Branch (b) duplication theory closed.*

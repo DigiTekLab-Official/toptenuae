@@ -39,6 +39,25 @@ export const PRODUCT_BY_SLUG = groq`
 // Backward compatibility alias
 export const PRODUCT_BY_SLUG_QUERY = PRODUCT_BY_SLUG;
 
+// Related content for a product page: lists that feature it + sibling products
+// in the same category. Powers RelatedContent (internal-link signal for crawl).
+export const RELATED_FOR_PRODUCT = groq`{
+  "lists": *[_type == "topTenList" && references($id)] | order(publishedAt desc)[0...3]{
+    title,
+    "slug": slug.current,
+    mainImage { asset->{ url } }
+  },
+  "products": *[_type == "product" && _id != $id && count((categories[]->slug.current)[@ in $cats]) > 0]
+    | order(publishedAt desc)[0...8]{
+      title,
+      "slug": slug.current,
+      brand,
+      price,
+      currency,
+      mainImage { asset->{ url } }
+    }
+}`;
+
 export const ALL_PRODUCTS = groq`
   *[_type == "product"] | order(publishedAt desc)[0...100]{
     _id,
