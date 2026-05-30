@@ -1,3 +1,4 @@
+// src/components/ui/ProductCard.tsx
 import { useState, useEffect } from "react";
 
 import LogoIcon from "@/components/icons/LogoIcon"; 
