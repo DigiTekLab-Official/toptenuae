@@ -97,6 +97,26 @@ No GSC export truncated (largest non-sitemap = 95 rows, well under the 1000 cap)
 
 ---
 
+## Deploy trigger (CORRECTED 2026-05-30): git push = deploy
+
+**Production deploys via `git push origin main` → Cloudflare Pages git-CI build (clone →
+build → deploy).** Verified: every pushed commit gets a GitHub **check-run** "Cloudflare
+Pages" (app "Cloudflare Workers and Pages") whose `details_url` is the dashboard
+deployment (e.g. `2c0f228` → deployment `5c3dc4ae`, success). CF Pages reports via
+check-runs, **NOT** the GitHub Deployments API (the `vercel[bot]` entries in that API are
+dead Next.js-era history — Vercel integration stopped Feb 12; 21+ commits since with zero
+Vercel builds). `wrangler pages deploy dist` is a **manual fallback only** (needs
+`wrangler login`; no CF token in env). To verify a deploy: poll the "Cloudflare Pages"
+check-run on the commit until `completed/success`, then curl live `toptenuae.com`.
+
+**This is WHY the v12/v13 `wrangler.json` issue happened:** Cloudflare builds the project
+itself in CI from git, so a bad build output (the v13 adapter's `dist/server/wrangler.json`)
+breaks the Pages deploy — it's not a local-only artifact.
+
+## Amazon PA API
+- **Keys rotated 2026-05-30** — prior access keys deactivated. (Still gated for live
+  pricing eligibility; stale-price removal already shipped — see below.)
+
 ## Deploy stack: reverted to v12/Astro-5 Pages (2026-05-29)
 
 The v12→v13 adapter upgrade (commit `64a53d6`, bundled with the 404 fix) broke the Cloudflare **Pages** deploy: `@astrojs/cloudflare` v13 targets **Workers** and emits `dist/server/wrangler.json` with an `ASSETS` binding (reserved in Pages) and a `SESSION` KV (no id; Pages can't auto-provision). Commits `b59fc3d` (added `rm -f dist/server/wrangler.json` band-aid) and `e57f1ad` (`wrangler:{enabled:false}` — not a valid v13 option) were failed fixes.
