@@ -53,8 +53,7 @@ export const RELATED_FOR_PRODUCT = groq`{
       title,
       "slug": slug.current,
       brand,
-      price,
-      currency,
+      priceTier,
       mainImage { asset->{ url } }
     }
 }`;

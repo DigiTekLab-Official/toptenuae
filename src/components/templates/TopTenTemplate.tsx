@@ -150,7 +150,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
     tag: item.badgeLabel || (item.rank === 1 ? "Best Overall" : item.rank === 2 ? "Runner Up" : "Great Value"),
     title: item.product.title,
     rating: item.product.customerRating || 0,
-    priceEstimate: item.product.price ? `${item.product.currency || 'AED'} ${item.product.price}` : undefined,
+    priceEstimate: item.product.priceTier ? `${item.product.priceTier} Tier` : undefined,
     imageUrl: item.product.mainImage?.url || "",
     affiliateLink: item.product.affiliateLink
   })) || [];
@@ -218,9 +218,11 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
             "image": entity.mainImage?.url,
             "offers": {
               "@type": "Offer",
-              "price": entity.price || "0", 
-              "priceCurrency": entity.currency || "AED",
-              "availability": "http://schema.org/InStock"
+              "url": entity.affiliateLink || undefined,
+              "seller": {
+                "@type": "Organization",
+                "name": "Various UAE Retailers"
+              }
             },
             // ✅ SEO BOOST: Include Tech Specs in Schema
             "additionalProperty": entity.specifications?.map(spec => ({

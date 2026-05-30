@@ -140,6 +140,49 @@ The reviews→top-ten **404 fix is confirmed working in production** on the v12/
 
 ---
 
+## Stale-price removal (2026-05-30) — visible price + JSON-LD reconciled
+
+No PA-API access (Amazon eligibility gate unmet) → hardcoded Sanity `price`/`currency`
+were stale vs live Amazon.ae and a trust/compliance risk. Fix: stop asserting any
+price OR stock; rely on the "Check Price on Amazon.ae" CTA for live price.
+
+- **Visible:** show `priceTier` (Budget/Mid-Range/Premium) instead of a number.
+  `ProductCard.tsx` (footer "Price Level: {tier}"), `ProductTemplate.tsx` (removed
+  "BEST PRICE FOUND / AED X" + green "IN STOCK" badge → "{tier} · Check live price on
+  Amazon.ae"), `TopTenTemplate.tsx:153` (QuickVerdict card → tier; QuickVerdict.tsx
+  itself unchanged — driven by that upstream value), and `RelatedContent.tsx:56-58`
+  (the "Top Rated in this Category" grid on review pages — 3rd surface, found after the
+  first pass; its query `RELATED_FOR_PRODUCT` in `product.queries.ts` now fetches
+  `priceTier` instead of `price`/`currency`). 6 source files total + this file.
+- **JSON-LD:** dropped `price`, `priceCurrency`, `availability` (and `priceValidUntil`)
+  from all THREE product offer emitters; kept `url` + `seller` (affiliate signal).
+  `schemaGenerator.ts:211-217` (generateProductSchema) and the §T3.0-gated
+  `generateTopTenListSchema` offers block (offer-fields-only deletion, no list-item/
+  dedup/aggregateRating/additionalProperty changes), plus the inline ItemList offer in
+  `TopTenTemplate.tsx`. Page and schema now AGREE: no price, no stock anywhere.
+- Tradeoff: lose merchant-listing price-in-SERP eligibility; KEEP review-star snippets
+  (aggregateRating/review are price-independent). Reversible when PA-API lands.
+- Orphaned `cleanPrice`/`priceValue` vars left in `schemaGenerator.ts` deliberately to
+  keep the gated edit surgical — remove in a separate cleanup pass.
+- **NEXT PASS (deal schema):** deal schema (`schemaGenerator.ts:590-596`) still emits stale
+  `price`/`priceCurrency`/`priceValidUntil`. Deals are the highest price-misrepresentation
+  risk — treat the same as products (drop price/currency/availability, keep url+seller).
+- **NEXT PASS (editorial prose — triage, do NOT blanket-strip):** full-page scan found
+  `AED <number>` still in editor-written copy (NOT templated price fields; JSON-LD `Offer`s
+  are clean — these are in `description`/FAQ `text` strings only).
+  - SOON — specific per-product price claims in product `verdict` ("At AED 39", "under
+    AED 70", "under AED 100"): soften to qualitative ("a budget pick"); they read as stale
+    per-product prices. Affected products incl. `philips-shaver-series-1000-s1151`,
+    `xiaomi-redmi-buds-6-play-earbuds`, `soundcore-anker-p20i-earbuds` (full list pulled
+    via GROQ `verdict match "*AED *"`). `listItems[].customVerdict`: 0 affected.
+  - KEEP — general FAQ range guidance ("expect to pay AED 800–1,500") in `faqs[].answer`
+    across 7 lists (best-electric-shaver-uae, best-beard-trimmers-uae, best-wireless-earbuds-uae,
+    best-air-fryers-uae-2026, best-laptops-uae, best-noise-cancelling-headphones-uae,
+    best-baby-monitors-uae): SEO-useful for "price uae" queries, ages slowly; just add a
+    "prices approximate, as of [month]" caveat rather than deleting.
+
+---
+
 # Parked / Future
 
 ## Arabic (en + ar bilingual) — PARKED until English is indexing well

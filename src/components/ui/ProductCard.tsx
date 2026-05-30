@@ -45,14 +45,6 @@ const getFeatureIcon = (feature: string) => {
   return <Star className="w-4 h-4 text-amber-400" />;
 };
 
-const getPriceLabel = (price: string | number | undefined | null, currency: string = 'AED') => {
-  if (!price) return "Check Price";
-  // If it's already a string (like our fallbackPrice "AED 299.00"), return it directly
-  if (typeof price === 'string') return price;
-  if (isNaN(price)) return "Check Price";
-  return `${currency} ${price.toLocaleString()}`; 
-};
-
 // --- 2. TYPES ---
 interface Specification {
   _key: string; // <-- Add this line to satisfy Sanity's array requirements
@@ -122,7 +114,8 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
     }
   }
 
-  const displayPrice = liveData?.price || product?.fallbackPrice || product?.price;
+  // Price intentionally not displayed: no live PA-API source, Sanity price is stale.
+  const priceTier = (product as any)?.priceTier as string | undefined;
   const displayImage = liveData?.imageUrl || product?.fallbackImageUrl || sanityImageUrl;
   const targetLink = liveData?.detailPageURL || product?.siteStripeLink || (product as any)?.affiliateLink || '#';
   
@@ -313,10 +306,10 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
               <div className="flex flex-col gap-0.5 w-full sm:w-auto text-center sm:text-left">
                   <span className="text-[14px] font-black text-gray-800 uppercase tracking-tight flex items-center justify-center sm:justify-start gap-1">
                     <Tag className="w-4 h-4" />
-                    {displayPrice !== "Check Price" ? "Approx. Price:" : "Price Level:"}
+                    Price Level:
                   </span>
                   <span className="text-2xl font-black text-emerald-700 tracking-tight">
-                    {getPriceLabel(displayPrice, (product as any)?.currency)}
+                    {priceTier ? `${priceTier} Tier` : 'Check price on Amazon.ae'}
                   </span>
               </div>
               

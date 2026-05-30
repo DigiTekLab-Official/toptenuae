@@ -38,9 +38,6 @@ export default function ProductTemplate({ data }: ProductTemplateProps) {
     brand
   } = data;
 
-  const displayCurrency = currency || 'AED';
-  const displayPrice = price ? price.toLocaleString() : null;
-  
   const pickingReason = customVerdict || verdict;
 
   return (
@@ -201,25 +198,15 @@ export default function ProductTemplate({ data }: ProductTemplateProps) {
             <div className="hidden lg:block bg-white rounded-3xl p-6 shadow-xl border border-slate-200 sticky top-24 z-30">
               <div className="text-center mb-6">
                 <span className="text-sm font-bold text-slate-400 uppercase tracking-widest block mb-2">
-                  Best Price Found
+                  Price
                 </span>
-                
-                {price ? (
-                  <div className="flex items-center justify-center gap-1">
-                    <span className="text-lg font-medium text-slate-500 mb-1">{displayCurrency}</span>
-                    <span className="text-5xl font-black text-slate-900 tracking-tight">
-                      {displayPrice}
-                    </span>
-                  </div>
-                ) : (
-                  <span className="text-xl font-bold text-slate-400">Check price</span>
-                )}
 
-                {price && (
-                    <div className="inline-block bg-green-100 text-green-800 text-[11px] font-bold px-3 py-1 rounded-full mt-3">
-                        IN STOCK
-                    </div>
-                )}
+                <span className="text-2xl font-black text-slate-900 tracking-tight">
+                  {priceTier ? `${priceTier} Tier` : 'Live price'}
+                </span>
+                <span className="block text-sm font-medium text-slate-500 mt-1">
+                  Check live price on {retailer || 'Amazon.ae'}
+                </span>
               </div>
 
               {affiliateLink && (
@@ -277,11 +264,10 @@ export default function ProductTemplate({ data }: ProductTemplateProps) {
       {affiliateLink && (
         <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-50 flex items-center justify-between gap-4 safe-area-pb">
            <div className="flex flex-col">
-              <span className="text-sm text-gray-500 uppercase font-bold">Best Price</span>
-              <div className="flex items-baseline gap-1">
-                 <span className="text-sm font-bold text-gray-900">{displayCurrency}</span>
-                 <span className="text-xl font-black text-gray-900">{displayPrice || '---'}</span>
-              </div>
+              <span className="text-sm text-gray-500 uppercase font-bold">Price</span>
+              <span className="text-base font-black text-gray-900">
+                 {priceTier ? `${priceTier} Tier` : 'Check on Amazon'}
+              </span>
            </div>
            <a
              href={affiliateLink}

@@ -54,7 +54,7 @@ export default function RelatedContent({ lists, products }: RelatedProps) {
                   <div className="text-sm text-gray-500">{product.brand}</div>
                   <div className="font-medium text-gray-900 truncate">{product.title}</div>
                   <div className="text-blue-600 font-bold mt-1">
-                    {product.currency} {product.price}
+                    {product.priceTier ? `${product.priceTier} Tier` : 'Check price'}
                   </div>
                 </a>
               ))}

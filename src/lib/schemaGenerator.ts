@@ -210,11 +210,7 @@ export const generateProductSchema = (data: any, category?: string, slug?: strin
     mpn: data.mpn || undefined,
     offers: {
       '@type': 'Offer',
-      price: cleanPrice,
-      priceCurrency: data.currency || 'AED',
-      availability: data.availability || 'https://schema.org/InStock',
       url: data.affiliateLink || pageUrl,
-      priceValidUntil: data.priceValidUntil || getNextYearDate(),
       seller: {
         '@type': 'Organization',
         name: data.retailer || 'Various UAE Retailers'
@@ -322,9 +318,6 @@ export const generateTopTenListSchema = (data: any, category?: string, slug?: st
           additionalProperty: specs.length > 0 ? specs : undefined, // ✅ Adds your Specs
           offers: {
             '@type': 'Offer',
-            price: cleanPrice,
-            priceCurrency: product.currency || 'AED',
-            availability: product.availability || 'https://schema.org/InStock',
             url: product.affiliateLink || productUrl,
             seller: {
               '@type': 'Organization',
