@@ -27,7 +27,7 @@ const NAV_LINKS: NavLink[] = [
   { name: "What's On", href: "/events-holidays", title: "UAE Events & Holidays", badge: null },
   
   // ✅ UPDATED: Changed from Ramadan Deals to Summer Deals, kept Flame icon
-  { name: "Summer Deals", href: "/deals", title: "Latest Deals", isHighlight: true, badge: null }, 
+  { name: "Deals", href: "/deals", title: "Latest Deals", isHighlight: true, badge: null }, 
 ];
 
 export default function Header() {

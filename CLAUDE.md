@@ -68,6 +68,7 @@ buyers-guide   → reviews
 ### Audit artifacts
 - /SEO-AUDIT/phase1-architecture.md — Full architecture report (Phase 1, 2026-05-29)
 - /SEO-AUDIT/phase4-gsc-forensic.md — Forensic GSC coverage audit (Phase 4, 2026-05-29)
+- /SEO-AUDIT/phase6-schema-enablement.md — Schema enablement (Phase 6, 2026-05-30). CORRECTED RECORD: the audit's "topTenList.mainImage absent / highest-value gap" claim was WRONG — mainImage AND author both EXIST on topTenList (topTenList.ts:46-52, 102-116) and all 11 docs are populated. Only real gap = product.author (now added, optional). Null top-ten OG = data-population, NOT a schema gap. Verify schema presence against the on-disk source file by sha, not a derived artifact.
 
 ---
 
