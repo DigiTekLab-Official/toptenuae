@@ -16,13 +16,13 @@ Disallow: /cgi-bin/
 Disallow: /wp-admin/
 Disallow: /wp-includes/
 Disallow: /wp-content/
-Disallow: /category/
-Disallow: /tag/
-Disallow: /author/
+# /category/, /tag/, /author/, /feed/ are intentionally UNBLOCKED so Googlebot
+# can crawl the 410 Gone they now return (see middleware.ts). Re-adding a
+# Disallow here would hide the 410 and leave these legacy URLs in the index
+# indefinitely. /deals/ stays blocked (working as designed).
 Disallow: /search/
 Disallow: /thank-you
 Disallow: /phpinfo.php
-Disallow: /feed/
 Disallow: /index.php/
 Disallow: /sample-page/
 Disallow: /*?s=

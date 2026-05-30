@@ -1,9 +1,9 @@
 # Cloudflare Pages redirects
 # Format: /old-path /new-path STATUS_CODE
 
-# Legacy feed redirects
-/feed /sitemap.xml 301
-/rss /sitemap.xml 301
+# Legacy /feed and /rss are dead WordPress feeds → served 410 Gone in
+# middleware.ts (T1-C). Do NOT re-add an edge 301 here: _redirects runs before
+# the worker, so a 301 would mask the 410 and the URLs would linger in the index.
 
 # Studio redirect (managed separately)
 /studio https://universal-studio.sanity.studio 301

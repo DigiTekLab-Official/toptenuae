@@ -26,6 +26,27 @@ export const onRequest = defineMiddleware(async ({ request, url, redirect }, nex
     return new Response('Not Found', { status: 404 });
   }
 
+  // --- 410 Gone: permanently-removed WordPress legacy namespaces ---
+  // Tightly scoped (startsWith / exact) so a LIVE path can never match: live
+  // category routes are bare /{slug} (e.g. /tech, /how-to-guides) — never
+  // /category/{slug}; there is no live content under /author/, /tag/, /feed, /rss.
+  // robots.txt unblocks /category|/tag|/author|/feed the SAME deploy so Googlebot
+  // can see this 410; /feed + /rss edge-301s were also removed from _redirects so
+  // they fall through to this 410 (an edge 301 would otherwise mask it).
+  // NOTE: /deals/ is deliberately absent — it stays robots-blocked & live.
+  const path = url.pathname;
+  if (
+    path.startsWith('/category/') ||
+    path.startsWith('/author/') ||
+    path.startsWith('/tag/') ||
+    path === '/feed' ||
+    path.startsWith('/feed/') ||
+    path === '/rss' ||
+    path.startsWith('/rss/')
+  ) {
+    return new Response('Gone', { status: 410 });
+  }
+
   // Consolidated redirects
   let needsRedirect = false;
   const newUrl = new URL(url);
