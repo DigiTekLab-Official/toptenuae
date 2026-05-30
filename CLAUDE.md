@@ -136,3 +136,22 @@ The reviews→top-ten **404 fix is confirmed working in production** on the v12/
 - **Do NOT touch** `schemaGenerator.ts:284-348` (`generateTopTenListSchema`) or `TOP_TEN_LIST_QUERY` — no schema/dedup refactor.
 - Remediation is **internal-linking + sitemap pruning + crawl-budget only**. Full plan: **§T3a in `/SEO-AUDIT/phase5-remediation-plan.md`**.
 - Measurement window 8–12 weeks; KPIs: `/reviews/` indexed ratio (29% → target) and GSC "Discovered – currently not indexed" count trending down.
+
+---
+
+# Parked / Future
+
+## Arabic (en + ar bilingual) — PARKED until English is indexing well
+- Decision (2026-05-30): defer Arabic build until the English catalog is
+  crawling/indexing (re-evaluate after the 4-8wk internal-linking window, ~mid-July).
+- Old WordPress/Polylang Arabic content is GONE — this is content CREATION from
+  scratch, not migration.
+- When built: Astro native i18n, en at root + ar under /ar/ subdirectory;
+  Sanity @sanity/document-internationalization for linked translations; hreflang
+  (en-ae / ar-ae / x-default) in BaseLayout; RTL is a full front-end workstream
+  (dir=rtl, mirrored layouts, Arabic fonts, Tailwind logical properties), NOT
+  just translation; sitemap i18n block for both locales.
+- Do NOT restructure current English URLs in the meantime — they become the
+  canonical `en` set.
+- Reconsider machine-translation carefully: unreviewed MT Arabic risks
+  thin-content penalties and would worsen the existing indexing problem.
