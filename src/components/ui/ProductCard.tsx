@@ -1,6 +1,4 @@
-
 import { useState, useEffect } from "react";
-
 
 import LogoIcon from "@/components/icons/LogoIcon"; 
 import { 
@@ -46,15 +44,29 @@ const getFeatureIcon = (feature: string) => {
   return <Star className="w-4 h-4 text-amber-400" />;
 };
 
-const getPriceLabel = (price: number | undefined | null, currency: string = 'AED') => {
-  if (!price || isNaN(price)) return "Check Price";
+const getPriceLabel = (price: string | number | undefined | null, currency: string = 'AED') => {
+  if (!price) return "Check Price";
+  // If it's already a string (like our fallbackPrice "AED 299.00"), return it directly
+  if (typeof price === 'string') return price;
+  if (isNaN(price)) return "Check Price";
   return `${currency} ${price.toLocaleString()}`; 
 };
 
 // --- 2. TYPES ---
 interface Specification {
+  _key: string; // <-- Add this line to satisfy Sanity's array requirements
   specLabel?: string;
   specValue?: string;
+}
+
+// Updated to include our new Sanity schema fields
+interface ExtendedProduct extends Product {
+  heroFeature?: string;
+  specifications?: Specification[];
+  asin?: string;
+  fallbackPrice?: string;
+  fallbackImageUrl?: string;
+  siteStripeLink?: string;
 }
 
 interface ProductCardProps {
@@ -63,34 +75,55 @@ interface ProductCardProps {
     badgeLabel?: string;
     customVerdict?: string;
     whySelected?: string;
-    product?: Product & {
-      heroFeature?: string;
-      specifications?: Specification[];
-    };
+    product?: ExtendedProduct;
   };
   index?: number;
 }
 
 export default function ProductCard({ item, index = 0 }: ProductCardProps) {
-  // ✅ HYDRATION FIX: Track if component is mounted to prevent hydration mismatch
   const [isMounted, setIsMounted] = useState(false);
-  
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const [liveData, setLiveData] = useState<any>(null);
   
   const product = item.product;
+
+  // ✅ PA API FALLBACK LOGIC
+  useEffect(() => {
+    setIsMounted(true);
+    
+    // Attempt to fetch live Amazon data via your own internal API route
+    // to keep your PA API credentials secure on the server.
+    const fetchAmazonData = async () => {
+      if (!product?.asin) return;
+      
+      try {
+        const response = await fetch(`/api/amazon?asin=${product.asin}`);
+        if (response.ok) {
+          const data = await response.json();
+          setLiveData(data);
+        } else {
+          console.warn(`PA API fallback triggered for ASIN: ${product.asin}`);
+        }
+      } catch (error) {
+        console.warn(`PA API fetch failed for ASIN: ${product.asin}. Using Sanity data.`);
+      }
+    };
+
+    fetchAmazonData();
+  }, [product?.asin]);
   
-  // ✅ OPTIMIZED IMAGES
-  let imageUrl: string | null = null;
-  
+  // ✅ THE CASCADE: Prefer Live Data -> Fall back to Sanity SiteStripe Data
+  let sanityImageUrl: string | null = null;
   if (product?.mainImage) {
     if ((product.mainImage as any).url) {
-      imageUrl = (product.mainImage as any).url;
+      sanityImageUrl = (product.mainImage as any).url;
     } else {
-      imageUrl = listImage(product.mainImage) || null;
+      sanityImageUrl = listImage(product.mainImage) || null;
     }
   }
+
+  const displayPrice = liveData?.price || product?.fallbackPrice || product?.price;
+  const displayImage = liveData?.imageUrl || product?.fallbackImageUrl || sanityImageUrl;
+  const targetLink = liveData?.detailPageURL || product?.siteStripeLink || (product as any)?.affiliateLink || '#';
   
   const displayName = product?.title || "Product Name Unavailable";
   const productSlug = (product as any)?.slug as string | undefined;
@@ -129,7 +162,6 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
         </div>
 
         {/* --- BADGE --- */}
-        {/* ✅ FIXED: Reserve space to prevent layout shift when badge appears */}
         <div className="mb-6 flex h-[40px]">
           {item.badgeLabel && (
             <div className="relative bg-primary text-white px-5 py-1.5 rounded-lg shadow-lg overflow-hidden border-y border-white/20">
@@ -143,15 +175,14 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
         </div>
 
         {/* --- MAIN IMAGE --- */}
-        {isMounted && imageUrl && (
+        {isMounted && displayImage && (
           <div className="mb-6 flex justify-center">
-            {/* ✅ FIXED: Add aspect ratio container to prevent CLS */}
             <div 
               className="relative w-full max-w-[320px] overflow-hidden rounded-xl bg-white border border-gray-100 shadow-sm"
               style={{ aspectRatio: '1' }}
             >
               <img
-                src={imageUrl}
+                src={displayImage}
                 alt={displayName}
                 className="absolute inset-0 w-full h-full object-contain p-3 hover:scale-105 transition-transform duration-500"
                 loading={index === 0 ? 'eager' : 'lazy'}
@@ -261,7 +292,7 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
         )}
       </div>
 
-      {/* --- EDITORIAL REVIEW LINK (followable internal link, NOT nofollow) --- */}
+      {/* --- EDITORIAL REVIEW LINK --- */}
       {productSlug && (
         <div className="px-5 md:px-6 pb-2">
           <a
@@ -275,33 +306,32 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
       )}
 
       {/* --- FOOTER CTA --- */}
-      {product?.affiliateLink && (
+      {targetLink && targetLink !== '#' && (
         <div className="bg-linear-to-r from-amber-50 to-orange-50 border-t border-amber-200 p-5">
            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex flex-col gap-0.5 w-full sm:w-auto text-center sm:text-left">
                   <span className="text-[14px] font-black text-gray-800 uppercase tracking-tight flex items-center justify-center sm:justify-start gap-1">
                     <Tag className="w-4 h-4" />
-                    {product?.price ? "Approx. Price:" : "Price Level:"}
+                    {displayPrice !== "Check Price" ? "Approx. Price:" : "Price Level:"}
                   </span>
                   <span className="text-2xl font-black text-emerald-700 tracking-tight">
-                    {getPriceLabel(product?.price, product?.currency)}
+                    {getPriceLabel(displayPrice, (product as any)?.currency)}
                   </span>
               </div>
               
-              <div className="w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95 duration-200">
+              <div className="flex flex-col items-center sm:items-end w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95 duration-200">
                  <a 
-                    href={product?.affiliateLink || '#'}
+                    href={targetLink}
                     target="_blank"
                     rel="nofollow noopener"
                     className="flex items-center justify-center gap-2 w-full sm:w-auto bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-3 px-8 rounded-lg shadow-sm text-center transition-colors"
                  >
-                    Check Price on {product?.retailer || 'Amazon'} <ExternalLink className="w-4 h-4" />
+                    Check Price on {(product as any)?.retailer || 'Amazon'} <ExternalLink className="w-4 h-4" />
                  </a>
-                 {product?.retailer && product.retailer.toLowerCase() !== 'amazon.ae' && (
-                    <div className="text-center mt-1 text-xs text-gray-500 uppercase tracking-widest font-semibold flex items-center justify-center gap-1">
-                      <Shield className="w-3 h-3 text-gray-400" /> via {product.retailer}
-                    </div>
-                  )}
+                 {/* ✅ COMPLIANCE: Micro-disclosure required by Amazon's manual review process */}
+                 <div className="mt-2 text-[10px] text-gray-500 font-medium">
+                   As an Amazon Associate I earn from qualifying purchases.
+                 </div>
               </div>
            </div>
         </div>
