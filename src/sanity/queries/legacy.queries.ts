@@ -88,7 +88,17 @@ export const GENERIC_POST_QUERY = groq`
     "categories": categories[]->{ "slug": slug.current, title },
     publishedAt, "_updatedAt": _updatedAt,
     "intro": intro,
-    "body": body,
+    "body": body[]{
+      ...,
+      _type == "relatedLink" => {
+        ...,
+        "targetPost": targetPost->{
+          title,
+          "slug": slug.current,
+          "category": coalesce(categories[0]->slug.current, category->slug.current)
+        }
+      }
+    },
     "content": content,
     "procedure": procedure,
     "closingContent": closingContent,

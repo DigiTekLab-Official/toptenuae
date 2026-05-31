@@ -23,7 +23,19 @@ const HOW_TO_QUERY = groq`
     _updatedAt,
     _createdAt,
     schemaType,
-    intro, body, faqs, howToSteps,
+    intro,
+    "body": body[]{
+      ...,
+      _type == "relatedLink" => {
+        ...,
+        "targetPost": targetPost->{
+          title,
+          "slug": slug.current,
+          "category": coalesce(categories[0]->slug.current, category->slug.current)
+        }
+      }
+    },
+    faqs, howToSteps,
     "author": Author->{ name, image, bio },
     mainImage { alt, "url": asset->url, "lqip": asset->metadata.lqip, "dimensions": asset->metadata.dimensions },
     "categories": categories[]->{ "slug": slug.current, title },
