@@ -61,19 +61,18 @@ const organizationSchema = {
     "@type": "ContactPoint",
     contactType: "Customer Service",
     areaServed: "AE",
-    availableLanguage: ["English", "Arabic"]
+    availableLanguage: ["en", "ar"]
   },
 };
 
-// Build JSON-LD schemas
-let schemas: any[] = [organizationSchema];
-if (jsonLd) {
-  if (Array.isArray(jsonLd)) {
-    schemas = [...schemas, ...jsonLd];
-  } else {
-    schemas.push(jsonLd);
-  }
-}
+// Build JSON-LD schemas.
+// De-dupe Organization: pages whose jsonLd already includes an Organization
+// (generateSchema does, and it's the richer/canonical one) should NOT also get
+// BaseLayout's own — otherwise the @graph carries two Organization nodes.
+const jsonLdArray = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+const pageHasOrg = jsonLdArray.some((s: any) => s && s["@type"] === "Organization");
+let schemas: any[] = pageHasOrg ? [] : [organizationSchema];
+schemas = [...schemas, ...jsonLdArray];
 
 const jsonLdGraph = {
   "@context": "https://schema.org",

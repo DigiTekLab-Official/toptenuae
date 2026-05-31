@@ -3,6 +3,7 @@ import { lazy } from "react";
 
 import Breadcrumb from "@/components/Breadcrumb";
 import Sidebar from "@/components/Sidebar";
+import FAQAccordion from "@/components/FAQAccordion";
 
 const TopTenTemplate = lazy(() => import("@/components/templates/TopTenTemplate"));
 const ArticleTemplate = lazy(() => import("@/components/templates/ArticleTemplate"));
@@ -79,6 +80,14 @@ export default function ArticleView({ data, category, slug }: ArticleViewProps) 
               default: return <ArticleTemplate data={data} />;
             }
           })()}
+
+          {/* FAQs — rendered here via a STATIC import so the Q&As are present in
+              the server HTML (FAQPage schema compliance). Uses <details>, so all
+              answers are in the DOM regardless of expand state. topTenList/event/
+              holiday render their own FAQ in their templates → excluded here. */}
+          {!customLayoutTypes.includes(data?._type) && data?.faqs?.length > 0 && (
+            <FAQAccordion faqs={data.faqs} />
+          )}
         </main>
         
         <Sidebar currentSlug={slug} categorySlug={activeCategorySlug} />

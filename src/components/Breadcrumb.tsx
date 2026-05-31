@@ -25,37 +25,11 @@ export default function Breadcrumb({
   isDarkBackground = false,
 }: BreadcrumbProps) {
 
-  // 1. CONSTRUCT PATHS
-  const categoryUrl = `${BASE_URL}/${categorySlug}`;
-  const postUrl = `${BASE_URL}/${categorySlug}/${postSlug}`;
+  // BreadcrumbList JSON-LD is emitted centrally by generateSchema() (in the page
+  // @graph). This component is visual-only — emitting it here too produced a
+  // DUPLICATE BreadcrumbList, so the inline schema was removed.
 
-  // 2. JSON-LD SCHEMA (Critical for Google Rich Snippets)
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      {
-        '@type': 'ListItem',
-        position: 1,
-        name: 'Home',
-        item: BASE_URL,
-      },
-      {
-        '@type': 'ListItem',
-        position: 2,
-        name: categoryName,
-        item: categoryUrl,
-      },
-      {
-        '@type': 'ListItem',
-        position: 3,
-        name: postTitle,
-        item: postUrl,
-      },
-    ],
-  };
-
-  // 3. DYNAMIC STYLES
+  // DYNAMIC STYLES
   const linkColor = isDarkBackground 
     ? 'text-purple-200 hover:text-white' 
     : 'text-gray-500 hover:text-[#4b0082]';
@@ -70,12 +44,6 @@ export default function Breadcrumb({
 
   return (
     <nav aria-label="Breadcrumb" className="w-full mb-4">
-      {/* Inject SEO Schema */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-
       <ol className="flex items-center text-sm space-x-2 overflow-hidden flex-wrap">
         
         {/* --- HOME LINK --- */}

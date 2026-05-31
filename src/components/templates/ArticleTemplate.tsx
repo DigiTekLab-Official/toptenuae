@@ -87,6 +87,9 @@ export default function ArticleTemplate({ data }: { data: any }) {
         </div>
       )}
 
+      {/* FAQs are rendered by ArticleView via <FAQAccordion> (static import) so
+          they appear in the server HTML for FAQPage schema compliance. */}
+
     </div>
   );
 }
