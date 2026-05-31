@@ -67,10 +67,31 @@ try {
   console.error(`Error fetching related content for [${slug}]:`, error);
 }
 
-const schemaData = generateSchema({ ...data, slug: { current: slug }, _type: data._type || 'product' }, 'reviews', slug);
-const canonicalUrl = `https://toptenuae.com/reviews/${slug}`;
-const seoTitle = data.seoTitle || viewData.title;
-const seoDescription = data.seoDescription || data.itemDescription || data.verdict || '';
+const schemaData = generateSchema(
+  { ...data, slug: { current: slug }, _type: data._type || 'product' },
+  'reviews',
+  slug
+);
+
+// Issue 2 fix: derive base URL from environment variable so staging/preview
+// environments don't emit a hardcoded production canonical.
+const baseUrl = import.meta.env.PUBLIC_BASE_URL || 'https://toptenuae.com';
+const canonicalUrl = `${baseUrl}/reviews/${slug}`;
+
+// Issue 1 fix: prefer Sanity seo{} block fields before falling back to
+// top-level seoTitle / seoDescription / verdict fields.
+// data.seo?.metaTitle is populated by the Sanity SEO plugin; older documents
+// may only have top-level seoTitle, so both are tried in order.
+const seoTitle =
+  data.seo?.metaTitle ||
+  data.seoTitle ||
+  viewData.title;
+
+const seoDescription =
+  data.seo?.metaDescription ||
+  data.seoDescription ||
+  data.verdict ||
+  '';
 ---
 
 <BaseLayout

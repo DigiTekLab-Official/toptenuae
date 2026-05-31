@@ -18,13 +18,59 @@ try {
 
 if (!data) return Astro.redirect('/404', 404);
 
-const schemaData = generateSchema({ ...data, slug: { current: slug }, _type: data._type || 'article' }, 'top-ten', slug);
-const canonicalUrl = `https://toptenuae.com/top-ten/${slug}`;
-const seoTitle = data.seoTitle || data.title;
-const seoDescription = data.seoDescription || '';
-const transformedData = { ...data, listItems: data.listItems || [], relatedLists: data.relatedLists || [], relatedProducts: data.relatedProducts || [] };
+// Issue 4 fix: type guard — if a non-topTenList doc somehow resolves here
+// (e.g. slug collision from a future content type), redirect to 404 rather
+// than rendering with a wrong schema. Preserves all existing valid behaviour
+// since TOP_TEN_LIST_QUERY is already scoped to _type == "topTenList".
+if (data._type && data._type !== 'topTenList') {
+  return Astro.redirect('/404');
+}
+
+// Issue 1 fix: _type fallback corrected to 'topTenList' so the schema
+// dispatcher routes to generateTopTenListSchema (case 'toptenlist') instead
+// of generateArticleSchema (case 'article') when _type is unexpectedly absent.
+const schemaData = generateSchema(
+  {
+    ...data,
+    slug: { current: slug },
+    _type: data._type || 'topTenList',
+  },
+  'top-ten',
+  slug
+);
+
+// Issue 3 fix: derive base URL from environment variable so staging/preview
+// environments don't emit a hardcoded production canonical.
+const baseUrl = import.meta.env.PUBLIC_BASE_URL || 'https://toptenuae.com';
+const canonicalUrl = `${baseUrl}/top-ten/${slug}`;
+
+// Issue 2 fix: prefer Sanity seo{} block fields before falling back to
+// top-level seoTitle / seoDescription, then data.intro for description.
+const seoTitle =
+  data.seo?.metaTitle ||
+  data.seoTitle ||
+  data.title;
+
+const seoDescription =
+  data.seo?.metaDescription ||
+  data.seoDescription ||
+  data.intro ||
+  '';
+
+const transformedData = {
+  ...data,
+  listItems: data.listItems || [],
+  relatedLists: data.relatedLists || [],
+  relatedProducts: data.relatedProducts || [],
+};
 ---
 
-<BaseLayout title={seoTitle} description={seoDescription} canonical={canonicalUrl} ogImage={data.mainImage?.url} jsonLd={schemaData}>
+<BaseLayout
+  title={seoTitle}
+  description={seoDescription}
+  canonical={canonicalUrl}
+  ogImage={data.mainImage?.url}
+  jsonLd={schemaData}
+>
   <ArticleView data={transformedData} category="top-ten" slug={slug} client:load />
 </BaseLayout>

@@ -12,11 +12,18 @@ const { category, slug } = Astro.params;
 
 if (!category || !slug) return Astro.redirect('/404');
 
-// HOW-TO query (inline since it's only used here)
+// HOW-TO query
+// FIX #1 (High Priority): Added schemaType, _updatedAt, _createdAt so the
+// Sanity schema-selector radio button (NewsArticle / HowTo / FAQPage) actually
+// reaches the frontend instead of being silently dropped.
 const HOW_TO_QUERY = groq`
   *[_type == "howTo" && slug.current == $slug][0]{
     _id, _type, title, "slug": slug.current,
-    publishedAt, intro, body, faqs, howToSteps,
+    publishedAt,
+    _updatedAt,
+    _createdAt,
+    schemaType,
+    intro, body, faqs, howToSteps,
     "author": Author->{ name, image, bio },
     mainImage { alt, "url": asset->url, "lqip": asset->metadata.lqip, "dimensions": asset->metadata.dimensions },
     "categories": categories[]->{ "slug": slug.current, title },
@@ -94,6 +101,11 @@ const seoTitle = data.seo?.metaTitle || data.title || 'Article';
 const seoDescription = data.seo?.metaDescription || '';
 const canonicalUrl = `https://toptenuae.com/${masterCategory}/${slug}`;
 const isToolPage = data._type === 'tool';
+
+// FIX #5 (Opportunity #2): howToSteps is intentionally NOT passed to ArticleView /
+// ToolLayout. It is fetched solely for structured-data generation in generateSchema()
+// above. Readers see `body`; Google sees the JSON-LD HowTo steps. No duplicate
+// content, no clutter in the editor preview.
 ---
 
 {isToolPage ? (
