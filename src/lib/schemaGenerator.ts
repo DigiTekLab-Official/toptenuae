@@ -195,14 +195,11 @@ export const generateProductSchema = (
       : undefined,
     sku: data.sku || undefined,
     mpn: data.mpn || undefined,
-    offers: {
-      '@type': 'Offer',
-      url: data.affiliateLink || pageUrl,
-      seller: {
-        '@type': 'Organization',
-        name: data.retailer || 'Various UAE Retailers',
-      },
-    },
+    // offers intentionally omitted: with no live price (no PA-API), a price-less
+    // Offer makes Google attempt Merchant-listing validation and fail ("missing
+    // field price"). Removing it keeps the Product + Review (stars) snippet valid
+    // and clears the GSC Merchant-listings error. Affiliate link lives in the
+    // visible "Check price on Amazon" CTA.
     mainEntityOfPage: {
       '@type': 'WebPage',
       '@id': getPageId(category, slug),
