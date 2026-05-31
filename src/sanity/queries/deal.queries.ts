@@ -6,8 +6,8 @@ import groq from 'groq';
 // =============================================================================
 
 export const ALL_ACTIVE_DEALS = groq`
-  *[_type == "deal" && isActive == true] | order(featured desc, _createdAt desc) {
-    _type, _id, _createdAt,
+  *[_type == "deal" && isActive == true && (!defined(dealEndDate) || dealEndDate > now())] | order(featured desc, _createdAt desc) {
+    _type, _id, _createdAt, _updatedAt,
     "title": coalesce(title, product->title),
     description,
     "image": coalesce(image.asset->url, product->mainImage.asset->url),
@@ -31,9 +31,9 @@ export const ALL_ACTIVE_DEALS = groq`
 export const ALL_DEALS_QUERY = ALL_ACTIVE_DEALS;
 
 export const FEATURED_DEALS = groq`
-  *[_type == "deal" && isActive == true && featured == true] 
+  *[_type == "deal" && isActive == true && featured == true && (!defined(dealEndDate) || dealEndDate > now())]
     | order(_createdAt desc)[0...10] {
-      _type, _id, _createdAt,
+      _type, _id, _createdAt, _updatedAt,
       "title": coalesce(title, product->title),
       description,
       "image": coalesce(image.asset->url, product->mainImage.asset->url),
@@ -47,9 +47,9 @@ export const FEATURED_DEALS = groq`
 `;
 
 export const DEALS_BY_CATEGORY = groq`
-  *[_type == "deal" && isActive == true && category == $category] 
+  *[_type == "deal" && isActive == true && category == $category && (!defined(dealEndDate) || dealEndDate > now())]
     | order(_createdAt desc)[0...50] {
-      _type, _id, _createdAt,
+      _type, _id, _createdAt, _updatedAt,
       "title": coalesce(title, product->title),
       description,
       "image": coalesce(image.asset->url, product->mainImage.asset->url),

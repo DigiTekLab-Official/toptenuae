@@ -184,9 +184,19 @@ price OR stock; rely on the "Check Price on Amazon.ae" CTA for live price.
   (aggregateRating/review are price-independent). Reversible when PA-API lands.
 - Orphaned `cleanPrice`/`priceValue` vars left in `schemaGenerator.ts` deliberately to
   keep the gated edit surgical — remove in a separate cleanup pass.
-- **NEXT PASS (deal schema):** deal schema (`schemaGenerator.ts:590-596`) still emits stale
-  `price`/`priceCurrency`/`priceValidUntil`. Deals are the highest price-misrepresentation
-  risk — treat the same as products (drop price/currency/availability, keep url+seller).
+- **Deals price honesty (CORRECTED 2026-05-31):** the earlier "treat deals like products /
+  strip price" framing was WRONG — a deal IS a price claim; stripping destroys the page.
+  Implemented instead: (1) auto-hide expired deals via `dealEndDate > now()` gate on all 3
+  deal queries (`deal.queries.ts`) + `DealsFeed.tsx` + the aggregate schema in
+  `deals/index.astro` (undated = evergreen; `isActive` = manual kill-switch); (2) per-card
+  "Last updated" stamp from `_updatedAt` (`DealCard.tsx`) + dynamic page footer date;
+  (3) KEEP price + `priceValidUntil=dealEndDate`, but omit the `getNextYearDate()`
+  fabrication when no end date (`generateDealSchema`), and add per-offer `priceValidUntil`
+  in the `AggregateOffer`.
+  - **FAST-FOLLOW (still TODO):** the `/deals` hero "Summer Deals Are Live Now" banner +
+    3 hardcoded coupon codes (`AHBMAY20`/`HELLOPRIME`/`NEW10`) are hardcoded/time-bound and
+    unverifiable — make them CMS-managed via `siteSettings` (headline + `dealCoupons[]` +
+    active toggle, current values as fallback) so they don't go stale.
 - **NEXT PASS (editorial prose — triage, do NOT blanket-strip):** full-page scan found
   `AED <number>` still in editor-written copy (NOT templated price fields; JSON-LD `Offer`s
   are clean — these are in `description`/FAQ `text` strings only).

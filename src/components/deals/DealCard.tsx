@@ -166,6 +166,12 @@ export default function DealCard({ deal }: DealCardProps) {
                  <CountdownTimer endDate={deal.dealEndDate} />
                </div>
             )}
+
+            {deal._updatedAt && (
+               <div className="mt-2 text-[10px] text-slate-400">
+                 Last updated: {new Date(deal._updatedAt).toLocaleDateString('en-AE', { day: 'numeric', month: 'short', year: 'numeric' })}
+               </div>
+            )}
           </div>
         </div>
         

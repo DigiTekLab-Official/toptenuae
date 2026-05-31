@@ -13,12 +13,22 @@ try {
   console.error('Failed to fetch deals:', error);
 }
 
-// Aggregate pricing for schema
-const validPrices = Array.isArray(deals)
-  ? deals.map((d: any) => d?.dealPrice ?? d?.price ?? null).filter((p): p is number => typeof p === 'number' && p > 0)
-  : [];
+// Active (non-expired) deals only — schema must agree with the feed.
+const nowMs = Date.now();
+const activeDeals = (Array.isArray(deals) ? deals : []).filter(
+  (d: any) => !d?.dealEndDate || new Date(d.dealEndDate).getTime() > nowMs
+);
+const validPrices = activeDeals
+  .map((d: any) => d?.dealPrice ?? d?.price ?? null)
+  .filter((p): p is number => typeof p === 'number' && p > 0);
 const lowPrice = validPrices.length ? Math.min(...validPrices) : 0;
 const highPrice = validPrices.length ? Math.max(...validPrices) : 0;
+
+// Freshness: most recent edit across active deals (fallback: today)
+const lastUpdated = activeDeals.length
+  ? new Date(Math.max(...activeDeals.map((d: any) => new Date(d._updatedAt || d._createdAt).getTime())))
+  : new Date();
+const lastUpdatedStr = lastUpdated.toLocaleDateString('en-AE', { day: 'numeric', month: 'long', year: 'numeric' });
 
 const baseSchemas = generateSchema({ title: 'Top Deals in UAE', _type: 'deal' }, 'deals', 'latest');
 
@@ -30,16 +40,17 @@ const aggregateDealSchema = {
   brand: { '@type': 'Brand', name: 'TopTenUAE' },
   offers: {
     '@type': 'AggregateOffer',
-    offerCount: Array.isArray(deals) ? deals.length : 0,
+    offerCount: activeDeals.length,
     lowPrice, highPrice,
     priceCurrency: 'AED',
     availability: 'https://schema.org/InStock',
-    offers: (Array.isArray(deals) ? deals.slice(0, 15) : []).map((deal: any) => ({
+    offers: activeDeals.slice(0, 15).map((deal: any) => ({
       '@type': 'Offer',
       name: deal?.title || deal?.name || 'TopTenUAE Deal',
       price: typeof deal?.dealPrice === 'number' ? deal.dealPrice : (deal?.price ?? 0),
       priceCurrency: 'AED',
       url: deal?.affiliateLink || 'https://toptenuae.com/deals',
+      ...(deal?.dealEndDate ? { priceValidUntil: deal.dealEndDate } : {}),
     })),
   },
 };
@@ -102,7 +113,7 @@ const allSchemas = [...(Array.isArray(baseSchemas) ? baseSchemas : [baseSchemas]
     <div class="container mx-auto px-4 max-w-4xl mt-12 text-center">
       <p class="text-slate-400 text-xs leading-relaxed">
         <strong>Transparency:</strong> TopTenUAE is a participant in the Amazon Services LLC Associates Program.
-        Prices and availability are subject to change. Verified as of 2026.
+        Prices and availability are subject to change. Last updated {lastUpdatedStr}.
       </p>
     </div>
   </div>

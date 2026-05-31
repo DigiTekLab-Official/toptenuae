@@ -17,6 +17,11 @@ export default function DealsFeed({ initialDeals }: DealsFeedProps) {
   const filteredDeals = useMemo(() => {
     let result = [...initialDeals];
 
+    // Defense-in-depth: drop expired deals client-side too (mirror the server now() gate),
+    // so SSR and client agree even if the cached payload is briefly stale.
+    const nowTs = Date.now();
+    result = result.filter(d => !d.dealEndDate || new Date(d.dealEndDate).getTime() > nowTs);
+
     // 1. Filter by Category
     if (selectedCategory !== 'All') {
       if (selectedCategory === 'Prime Exclusive') {

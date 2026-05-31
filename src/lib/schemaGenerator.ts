@@ -586,14 +586,15 @@ export const generateDealSchema = (data: any, category?: string, slug?: string) 
     description: cleanText(data.description || ''),
     price: data.dealPrice || data.price,
     priceCurrency: data.currency || 'AED',
-    priceValidUntil: data.dealEndDate || getNextYearDate(),
     url: data.affiliateLink || dealUrl,
     availability: 'https://schema.org/InStock',
     image: data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE],
     seller: {
       '@type': 'Organization',
       name: data.retailer || 'Various UAE Retailers'
-    }
+    },
+    // Keep priceValidUntil ONLY when a real dealEndDate exists (no fabricated 1-yr fallback)
+    ...(data.dealEndDate ? { priceValidUntil: data.dealEndDate } : {})
   };
 };
 
