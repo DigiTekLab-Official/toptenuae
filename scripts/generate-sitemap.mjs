@@ -24,7 +24,18 @@ async function generateSitemap() {
   console.log('🚀 Starting SEO-Boosted Sitemap Generation...');
 
   try {
-    const data = await client.fetch(query);
+    // Bounded fetch: a SLOW Sanity response must not hang the CI build.
+    const FETCH_TIMEOUT_MS = 15000;
+    let timer;
+    const timeout = new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error(`Sanity fetch timed out after ${FETCH_TIMEOUT_MS}ms`)), FETCH_TIMEOUT_MS);
+    });
+    let data;
+    try {
+      data = await Promise.race([client.fetch(query), timeout]);
+    } finally {
+      clearTimeout(timer);
+    }
     console.log(`✅ Fetched ${data.length} items from Sanity.`);
 
     // 1. Calculate the latest global update date for Static Category pages
@@ -130,8 +141,11 @@ ${dynamicRoutes}
     console.log('🎉 SEO-Optimized sitemap.xml generated.');
 
   } catch (error) {
-    console.error('❌ Error:', error);
-    process.exit(1);
+    // Resilient: a Sanity outage/timeout must NOT block the production deploy.
+    // Keep the last-committed public/sitemap.xml as the fallback and continue.
+    console.error('⚠️ Sitemap generation failed — keeping last-committed public/sitemap.xml:', error);
+    const existing = path.join(path.dirname(fileURLToPath(import.meta.url)), '../public/sitemap.xml');
+    process.exit(fs.existsSync(existing) ? 0 : 1);
   }
 }
 
