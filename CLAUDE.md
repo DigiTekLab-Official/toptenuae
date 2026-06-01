@@ -269,6 +269,20 @@ Merchant-listings `offers` cleanup (see below) must hit BOTH sources or the flag
 
 ---
 
+## REPO HYGIENE — phantom "# <filepath>" header comments in public/ (2026-06-01)
+
+Something (editor/tool/extension — source unidentified) auto-prepends a provenance header
+comment matching the file path to files under `public/` — `// public/sitemap.xml`,
+`# public/_redirects`, `# public/robots.txt` seen 3× so far. They are **inert** (`#`/`//` are
+comments in those formats — no robots/redirect/sitemap behavior change; the sitemap one was
+even invalid-XML JS `//` but the build regenerates `public/sitemap.xml` clean anyway) and have
+each been discarded via `git checkout`. **Annoyance:** creates phantom `git status` diffs.
+**TODO (low priority):** identify the source (likely an IDE "insert filepath header" setting or
+a formatter/extension) and disable it so working-tree status isn't noisy. If a stray
+`# <path>`/`// <path>` first line reappears on a `public/` file, it's this — safe to discard.
+
+---
+
 # Parked / Future
 
 ## Arabic (en + ar bilingual) — PARKED until English is indexing well
