@@ -241,6 +241,34 @@ routes (SSR content routes have no `getStaticPaths` → invisible to it) into a 
 
 ---
 
+## FINDING — top-ten pages emit DUPLICATE ItemList schema (2026-06-01, NOT fixed)
+
+`/top-ten/{slug}` pages render **TWO complete `ItemList` structured-data blocks for the same
+~10 products**:
+1. server `generateTopTenListSchema` (`schemaGenerator.ts`, `@id …#toplist`) — the §T3.0-gated
+   284-348 block; and
+2. an inline `ItemList` built client-side in `TopTenTemplate.tsx` (no `@id`).
+
+Confirmed live (`best-noise-cancelling-headphones-uae`): 2 ItemLists × 10 items = 20 nested
+Product nodes, each carrying the same price-less `Offer` (url+seller, no price). This is
+**redundant/duplicate structured data**. **Separate task, NOT done:** investigate whether
+consolidating to ONE ItemList (drop the inline `TopTenTemplate` copy, keep the server one, or
+vice-versa) improves `/top-ten/` indexing / avoids duplicate-entity confusion. Tie-in: any
+Merchant-listings `offers` cleanup (see below) must hit BOTH sources or the flag persists.
+
+### Merchant-listings `offers` cleanup — product DONE, top-ten PENDING GSC confirmation
+- **Product pages (`/reviews/{slug}`): DONE** (`807f4a7`, verified live) — removed the
+  price-less `offers` from `generateProductSchema`; `aggregateRating` + `review` (stars) retained,
+  clearing the GSC "Merchant listings: missing field price" error. (Price-less Offer was the
+  accepted trade-off of stale-price removal; an Offer w/o price fails Merchant-listing validation.)
+- **Top-ten pages: HELD** — same price-less Offer exists in BOTH ItemList sources above. Exact
+  offers-only diffs prepared (gated `generateTopTenListSchema` ~309-316 + inline `TopTenTemplate`
+  ~219-226). **Do NOT apply until GSC's Merchant-listings report is confirmed to actually flag a
+  `/top-ten/` URL** — Google may not validate Products nested in an ItemList carousel as merchant
+  listings, so it could be optional tidiness not worth touching the gated block.
+
+---
+
 # Parked / Future
 
 ## Arabic (en + ar bilingual) — PARKED until English is indexing well
