@@ -283,6 +283,43 @@ a formatter/extension) and disable it so working-tree status isn't noisy. If a s
 
 ---
 
+## GA4 path-analysis "4 serious issues" — ALL verified live, NONE needed fixing (2026-06-02)
+
+A GA4 analysis (ChatGPT, Jan–Jun 2026 UAE traffic) flagged 4 "serious issues" from
+page-path data. **Every one verified against live `curl` behavior → already-handled or
+noise. Zero fixes applied.** (No redirects/canonicals/§T3.0-gated schema touched.)
+
+1. **"Duplicate URLs"** (`/reviews/{slug}` vs `/top-ten/{slug}`; `/lifestyle/charity` vs
+   `/how-to-guides/charity`) — **REFUTED, no live duplicate.** The air-fryer pair is the
+   existing `/reviews/{list-slug}` → **301** → `/top-ten/{slug}` (→200); GA4 logs the
+   *requested* path even when it 301s, so one rendered page looks like two. The charity
+   pair are **both dead → 404** (no doc with slug `charity`); the real article is a `howTo`
+   at slug `charity-organizations-uae-donations` (`/how-to-guides/charity-organizations-uae-donations`
+   → 200). No self-canonical duplicate exists.
+2. **Flat / AMP legacy URLs** (`/best-wireless-earbuds-uae`, `/best-beard-trimmers-uae`,
+   `/best-electric-shaver-uae`, `…/amp/`, `/how-to-pay-zakat-in-uae-online`,
+   `/where-to-donate-used-toys-uae/`) — **all correct:** live single-segment slugs
+   **301→canonical** (→200); legacy AMP two-segment paths terminate in **404**. Flat-slug +
+   soft-404 logic working as designed.
+3. **`/[category]/[slug]` literal-placeholder paths** — **NOISE.** Encoded
+   `%5Bcategory%5D/%5Bslug%5D` → 404; the template string does NOT render. Bot/scraper junk,
+   no route exposure.
+4. **"Educational toys"** (`/best-educational-toys-uae`, `/best-educational-toys-in-uae`) —
+   **dead legacy, correct.** Sanity has NO educational-toys doc (`slug match
+   "*educational-toys*"` + `title match "*educational toys*"` → 0). Both return **410 Gone**.
+
+**LESSON (important for future GA4 work): GA4 records the REQUESTED path, not the redirect
+outcome** — path-only analysis is blind to our redirect/410/soft-404 layer and will mis-flag
+already-handled URLs as live problems. **Always `curl` against live before acting on a
+GA4-path "issue."**
+
+**Two cosmetic-only items noted, deliberately NOT fixed (SEO-correct as-is):** (a) some dead
+paths use `302→/404` rather than a direct 404 — but the terminal status is a true 404, so
+Google sees 404; (b) AMP / trailing-slash URLs take **2 hops** (308 slash-strip → then
+301/302) — harmless since the terminal status is correct.
+
+---
+
 # Parked / Future
 
 ## Arabic (en + ar bilingual) — PARKED until English is indexing well
