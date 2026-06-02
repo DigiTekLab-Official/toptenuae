@@ -1,23 +1,66 @@
 ---
-// GTM as a simple inline script - loads after page is interactive
+/**
+ * Enterprise Analytics Router (Astro v4+)
+ * Optimized for Core Web Vitals (TBT/INP) via Idle-Deferral
+ * Supports global consent initialization states
+ */
 const gtmId = import.meta.env.PUBLIC_GTM_ID || 'GTM-N3PB47W';
+const gtagId = import.meta.env.PUBLIC_GTAG_ID;
 ---
 
-<script is:inline define:vars={{ gtmId }}>
-  // Load GTM after page is idle
+<script is:inline define:vars={{ gtagId }}>
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function() { dataLayer.push(arguments); };
+  
+  // Enterprise Default Consent State (GDPR / CCPA / CPRA Ready)
+  // Modify defaults or hook into a Consent Management Platform (CMP) like Cookiebot/OneTrust
+  gtag('consent', 'default', {
+    'ad_storage': 'denied',
+    'ad_user_data': 'denied',
+    'ad_personalization': 'denied',
+    'analytics_storage': 'denied',
+    'wait_for_update': 500 // Milliseconds to wait for CMP to update flags
+  });
+
+  // Early GA4 Configuration if tracking ID is present
+  if (gtagId) {
+    gtag('js', new Date());
+    gtag('config', gtagId, {
+      'anonymize_ip': true, // Legacy but safe fallback
+      'send_page_view': true,
+      'transport_type': 'beacon' // Forces non-blocking navigator.sendBeacon
+    });
+  }
+</script>
+
+<script is:inline define:vars={{ gtmId, gtagId }}>
   if (typeof window !== 'undefined') {
-    const loadGTM = () => {
-      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-      })(window,document,'script','dataLayer',gtmId);
+    const injectTrackingScripts = () => {
+      const docHead = document.getElementsByTagName('head')[0];
+
+      // A. Conditionally load gtag.js library (only if not handled inside GTM tags)
+      if (gtagId && !window.google_tag_manager) {
+        const gtagScript = document.createElement('script');
+        gtagScript.async = true;
+        gtagScript.src = `https://www.googletagmanager.com/gtag/js?id=${gtagId}`;
+        docHead.appendChild(gtagScript);
+      }
+
+      // B. Load GTM Container
+      if (gtmId) {
+        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer',gtmId);
+      }
     };
-    
+
+    // Defer injection until main thread is completely free to maximize TBT/INP scores
     if ('requestIdleCallback' in window) {
-      requestIdleCallback(loadGTM, { timeout: 3000 });
+      requestIdleCallback(() => injectTrackingScripts(), { timeout: 3500 });
     } else {
-      setTimeout(loadGTM, 3000);
+      setTimeout(injectTrackingScripts, 3500);
     }
   }
 </script>
