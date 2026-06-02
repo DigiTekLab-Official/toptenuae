@@ -281,6 +281,16 @@ Rejected **Option A** (port aviation/school branching INTO the gated map) — wo
 first-ever *additive* gated change (~25 lines inside 284-348) for a cosmetic, non-ranking flag; not
 worth the gated-file risk vs the ~6 non-gated call-site lines of Option 1.
 
+**Residual Carousel flag — ACCEPTED / WON'T-FIX (cosmetic, 2026-06-02):** after Option 1, Rich
+Results Test shows Product snippets 10 valid + Breadcrumb/FAQ/Organization valid, but ONE residual
+"Carousels: 1 invalid — two mutually-exclusive properties." **Cause:** each `ListItem` in the server
+ItemList carries BOTH `url` (`schemaGenerator.ts:288`) AND a nested `item` (the Product) — Google's
+two Carousel formats are mutually exclusive: "summary page" (`ListItem.url`, no nested item) vs
+"all-in-one page" (nested `item`, no `url`); having both conflicts. **Won't fix:** we use no Carousel
+rich result and aren't pursuing one; zero ranking/traffic impact; all real rich results (Product
+stars, Breadcrumb, FAQ) are valid. If Carousel eligibility is ever wanted, drop one of `url`/`item`
+from the ListItem per the chosen format.
+
 **Honest cost note:** this flag was cosmetic — invalid rich-result items don't affect indexing or
 ranking, and the Carousel rich result was never being awarded anyway. Fixed for GSC-report
 cleanliness + to remove the structural duplicate, at near-zero risk. **Schema work CLOSED after this.**
