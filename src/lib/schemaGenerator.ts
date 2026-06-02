@@ -306,14 +306,10 @@ export const generateTopTenListSchema = (
             ? { '@type': 'Brand', name: cleanText(product.brand) }
             : undefined,
           additionalProperty: specs.length > 0 ? specs : undefined,
-          offers: {
-            '@type': 'Offer',
-            url: product.affiliateLink || productUrl,
-            seller: {
-              '@type': 'Organization',
-              name: product.retailer || 'Various UAE Retailers',
-            },
-          },
+          // offers removed: a price-less Offer fails GSC Merchant-listings
+          // validation ("missing field price"). Confirmed flagging /top-ten/
+          // URLs in GSC (best-laptops-uae). aggregateRating/review (stars)
+          // retained — price-independent, the valuable rich result.
         },
       };
 

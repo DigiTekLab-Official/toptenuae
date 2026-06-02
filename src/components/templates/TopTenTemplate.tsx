@@ -216,14 +216,10 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
             "name": entity.title,
             "description": item.customVerdict || entity.verdict,
             "image": entity.mainImage?.url,
-            "offers": {
-              "@type": "Offer",
-              "url": entity.affiliateLink || undefined,
-              "seller": {
-                "@type": "Organization",
-                "name": "Various UAE Retailers"
-              }
-            },
+            // offers removed: price-less Offer fails GSC Merchant-listings
+            // ("missing field price"); confirmed flagging /top-ten/ URLs.
+            // Must match the server generateTopTenListSchema removal — both
+            // sources emit the same ItemList, so fixing one alone leaves the flag.
             // ✅ SEO BOOST: Include Tech Specs in Schema
             "additionalProperty": entity.specifications?.map(spec => ({
               "@type": "PropertyValue",

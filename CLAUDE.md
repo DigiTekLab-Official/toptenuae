@@ -261,11 +261,23 @@ Merchant-listings `offers` cleanup (see below) must hit BOTH sources or the flag
   price-less `offers` from `generateProductSchema`; `aggregateRating` + `review` (stars) retained,
   clearing the GSC "Merchant listings: missing field price" error. (Price-less Offer was the
   accepted trade-off of stale-price removal; an Offer w/o price fails Merchant-listing validation.)
-- **Top-ten pages: HELD** — same price-less Offer exists in BOTH ItemList sources above. Exact
-  offers-only diffs prepared (gated `generateTopTenListSchema` ~309-316 + inline `TopTenTemplate`
-  ~219-226). **Do NOT apply until GSC's Merchant-listings report is confirmed to actually flag a
-  `/top-ten/` URL** — Google may not validate Products nested in an ItemList carousel as merchant
-  listings, so it could be optional tidiness not worth touching the gated block.
+- **Top-ten pages: DONE (2026-06-02)** — GSC **CONFIRMED** the Merchant-listings flag DOES hit
+  `/top-ten/` URLs (best-laptops-uae: "20 invalid / missing field price"), so the held fix was
+  applied. Google DOES validate Products nested in the ItemList carousel as merchant listings —
+  the "optional tidiness" caveat is resolved: it was a real flag. Both offers-only diffs shipped
+  together (fixing one alone leaves the flag, since both sources emit the same ItemList):
+  - **Diff A** — removed the price-less `offers` object from `generateTopTenListSchema`
+    (§T3.0-gated block, was ~309-316). Offers-only deletion; `additionalProperty`, the
+    `aggregateRating` ListItem block, dedup, and ListItem structure UNTOUCHED.
+  - **Diff B** — removed the price-less `offers` from the inline `TopTenTemplate.tsx` ItemList
+    (was ~219-226). `additionalProperty` retained.
+  - Result mirrors product pages: ItemList items carry NO `offers`, but `aggregateRating`/review
+    (stars) survive in the server schema — the price-independent rich result GSC shows as "10
+    valid". Same trade-off/reversibility as the product-page fix (`807f4a7`).
+  - Build-gated clean, deployed via `git push`. **Pending:** user clicks GSC "Validate Fix" on the
+    Merchant-listings report; expect the 20 invalid to clear over the validation window.
+  - NOTE: the duplicate-ItemList finding above is still OPEN (two ItemLists still emit, now both
+    offers-free) — consolidation remains a separate task.
 
 ---
 
