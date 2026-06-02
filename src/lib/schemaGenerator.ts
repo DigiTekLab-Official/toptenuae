@@ -726,8 +726,18 @@ export function generateSchema(
     }
 
     case 'toptenlist': {
-      const listSchema = generateTopTenListSchema(data, category, slug);
-      if (listSchema) schemas.push(listSchema);
+      // One ItemList per page. The gated server builder (284-348) types every
+      // item as Product; aviation/institution lists rely on TopTenTemplate's
+      // inline ItemList for correct Airline/Airport/School typing, so skip the
+      // server one there (also removes its latent wrong-typed Product list).
+      // Product lists keep the richer server ItemList (all 10 aggregateRatings).
+      const firstItemType = data.listItems?.[0]?.product?._type;
+      const isTypedList =
+        firstItemType === 'aviationEntity' || firstItemType === 'institution';
+      if (!isTypedList) {
+        const listSchema = generateTopTenListSchema(data, category, slug);
+        if (listSchema) schemas.push(listSchema);
+      }
       break;
     }
 

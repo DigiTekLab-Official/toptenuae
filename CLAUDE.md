@@ -241,20 +241,49 @@ routes (SSR content routes have no `getStaticPaths` → invisible to it) into a 
 
 ---
 
-## FINDING — top-ten pages emit DUPLICATE ItemList schema (2026-06-01, NOT fixed)
+## FINDING — top-ten pages emitted DUPLICATE ItemList schema → RESOLVED 2026-06-02 (Option 1, render-level)
 
-`/top-ten/{slug}` pages render **TWO complete `ItemList` structured-data blocks for the same
-~10 products**:
-1. server `generateTopTenListSchema` (`schemaGenerator.ts`, `@id …#toplist`) — the §T3.0-gated
-   284-348 block; and
-2. an inline `ItemList` built client-side in `TopTenTemplate.tsx` (no `@id`).
+**RESOLVED.** `/top-ten/{slug}` pages previously rendered **TWO complete `ItemList` blocks for the
+same ~10 products**: (1) server `generateTopTenListSchema` (`@id …#toplist`, §T3.0-gated 284-348)
+and (2) an inline `ItemList` in `TopTenTemplate.tsx` (no `@id`). Google's Rich Results Test on
+`best-laptops-uae` flagged this as **real errors** (not just redundancy): "Carousels: multiple
+ListItem elements defined on page" + "Product snippets: 20 invalid" (20 = 2 ItemLists × 10).
 
-Confirmed live (`best-noise-cancelling-headphones-uae`): 2 ItemLists × 10 items = 20 nested
-Product nodes, each carrying the same price-less `Offer` (url+seller, no price). This is
-**redundant/duplicate structured data**. **Separate task, NOT done:** investigate whether
-consolidating to ONE ItemList (drop the inline `TopTenTemplate` copy, keep the server one, or
-vice-versa) improves `/top-ten/` indexing / avoids duplicate-entity confusion. Tie-in: any
-Merchant-listings `offers` cleanup (see below) must hit BOTH sources or the flag persists.
+**Diagnosis (verified, no edits during investigation):**
+- The two ItemLists are genuinely redundant (same products/order). The **server one is canonical
+  for product lists** — richer (`@id`, `url`, `numberOfItems`, `mainEntityOfPage`, `sku`, `brand`,
+  and per-item `aggregateRating`). The inline one structurally NEVER emits `aggregateRating` →
+  its 10 nodes are the invalid ones.
+- **All 10 `best-laptops-uae` products already have real `customerRating`+`reviewCount` in Sanity**
+  (incl. the 2 Google named — MacBook Air M4 4.6/234, Vivobook 14 4.7/12). So **Issue 2 needed NO
+  rating-fill** — it resolves automatically once the rating-less inline duplicate is gone. Do NOT
+  invent ratings; none were needed.
+- **Wrinkle:** the inline schema is the ONLY source that types non-product items correctly. 2 live
+  lists use them: `world-safest-airlines-2026` (`aviationEntity`→Airline/Airport) and
+  `top-10-schools-dubai-2026-khda-fees-reviews` (`institution`→School). The server builder types
+  EVERYTHING as `Product` (would mislabel an airline). So a blanket inline-delete would regress
+  those 2 pages.
+
+**Fix shipped = Option 1 (render-level wiring, NOT the gated map):** one ItemList per page, by type.
+The §T3.0-gated `generateTopTenListSchema` body (252-327, incl. 284-348) is **byte-for-byte
+untouched** — only the *call-site* changed:
+- `TopTenTemplate.tsx` — inline `<script>` JSON-LD now renders ONLY when `(isAviationPost ||
+  isEducationPost)`. Product lists no longer emit it (server schema covers them).
+- `schemaGenerator.ts` dispatcher `case 'toptenlist'` (~728, OUTSIDE the gated block) — skips the
+  server `generateTopTenListSchema` when `firstItemType` is `aviationEntity`/`institution`, so those
+  2 lists keep ONLY the correctly-typed inline ItemList (also removes the latent wrong-typed Product
+  ItemList they used to emit).
+- **Net:** product lists → rich server ItemList only (all 10 `aggregateRating`s); aviation/school →
+  inline ItemList only (correct Airline/Airport/School). The just-shipped offers-removal +
+  aggregateRating are untouched.
+
+Rejected **Option A** (port aviation/school branching INTO the gated map) — would have been the
+first-ever *additive* gated change (~25 lines inside 284-348) for a cosmetic, non-ranking flag; not
+worth the gated-file risk vs the ~6 non-gated call-site lines of Option 1.
+
+**Honest cost note:** this flag was cosmetic — invalid rich-result items don't affect indexing or
+ranking, and the Carousel rich result was never being awarded anyway. Fixed for GSC-report
+cleanliness + to remove the structural duplicate, at near-zero risk. **Schema work CLOSED after this.**
 
 ### Merchant-listings `offers` cleanup — product DONE, top-ten PENDING GSC confirmation
 - **Product pages (`/reviews/{slug}`): DONE** (`807f4a7`, verified live) — removed the

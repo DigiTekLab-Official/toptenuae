@@ -235,10 +235,18 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
   return (
     <div className="w-full min-w-0">
       
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      {/* Inline ItemList ONLY for aviation/school lists — the server
+          generateTopTenListSchema types every item as Product and cannot
+          represent Airline/Airport/School. For product lists, the richer
+          server ItemList (with per-item aggregateRating) is the single
+          source; rendering this too would duplicate the ItemList (Carousel
+          "multiple ListItem" error). One ItemList per page, by type. */}
+      {(isAviationPost || isEducationPost) && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      )}
 
       {/* --- TOP DISCLAIMER --- */}
       {showDisclaimer && !isEducationPost && !isAviationPost && (
