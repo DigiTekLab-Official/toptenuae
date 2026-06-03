@@ -105,13 +105,17 @@ if (correctCategory !== category) {
 const schemaData = generateSchema(data, category, slug);
 
 // SEO metadata
-const primaryCat = data.categories?.[0]?.slug?.current || data.category?.slug?.current;
-const masterCategory = normalizeCategory(primaryCat || 'reviews');
 const imageUrl = data.mainImage?.url || data.mainImage?.asset?.url || null;
 
 const seoTitle = data.seo?.metaTitle || data.title || 'Article';
 const seoDescription = data.seo?.metaDescription || '';
-const canonicalUrl = `https://toptenuae.com/${masterCategory}/${slug}`;
+// Self-canonical: reuse the type-aware `correctCategory` (line ~93), which the
+// redirect guard above guarantees equals the served URL segment. The old
+// `masterCategory` ignored content type and defaulted to 'reviews' (and the
+// `primaryCat` read was undefined due to a string-vs-object slug shape), so
+// howTo/tool/holiday pages emitted a wrong /reviews/ canonical that contradicted
+// their own JSON-LD and suppressed indexing.
+const canonicalUrl = `https://toptenuae.com/${correctCategory}/${slug}`;
 const isToolPage = data._type === 'tool';
 
 // FIX #5 (Opportunity #2): howToSteps is intentionally NOT passed to ArticleView /
