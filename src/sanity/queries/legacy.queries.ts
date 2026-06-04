@@ -105,7 +105,7 @@ export const GENERIC_POST_QUERY = groq`
     showAffiliateDisclosure,
     faqs[] { _key, question, answer },
     howToSteps,
-    startDate, endDate, locationName, address, ticketPrice, ticketUrl, isTicketAvailable, status
+    startDate, endDate, isAllDay, locationName, address, ticketPrice, ticketUrl, isTicketAvailable, status
   }
 `;
 

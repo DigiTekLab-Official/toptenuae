@@ -26,6 +26,7 @@ export interface EventSanityData {
   address?: string | { street?: string; city?: string; country?: string }; 
   ticketPrice?: string | number;
   ticketUrl?: string;
+  isTicketAvailable?: boolean;
   intro?: any;
   body?: any;
   faqs?: any[];
@@ -39,8 +40,12 @@ export default function EventTemplate({ data }: { data: EventSanityData }) {
   // --- LOGIC ---
   const hasVenue = !!data.locationName || !!data.address;
   
-  // Safe Ticket Check: Ensure price isn't null/undefined, but allow 0 (Free)
-  const hasTickets = !!data.ticketUrl || (data.ticketPrice !== undefined && data.ticketPrice !== null && data.ticketPrice !== "");
+  // Safe Ticket Check: Ensure price isn't null/undefined, but allow 0 (Free).
+  // Respect the editor's explicit "tickets off" switch: when isTicketAvailable is
+  // false (e.g. a public holiday), never show the ticket/entry card — previously
+  // ticketPrice:0 alone made this true, so the card showed for ticketless events.
+  const hasTickets = data.isTicketAvailable !== false &&
+    (!!data.ticketUrl || (data.ticketPrice !== undefined && data.ticketPrice !== null && data.ticketPrice !== ""));
 
   // "Yearly List" Logic: Hide specific details for generic "2026 Events" lists
   const isYearlyList = !!(
@@ -75,10 +80,10 @@ export default function EventTemplate({ data }: { data: EventSanityData }) {
           {data.startDate && !isYearlyList && (
              <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-md px-3 py-2 rounded-lg shadow-sm border border-gray-100 text-center min-w-15">
                <span className="block text-xs font-bold text-red-600 uppercase tracking-wider">
-                 {new Date(data.startDate).toLocaleDateString('en-US', { month: 'short' })}
+                 {new Date(data.startDate).toLocaleDateString('en-US', { month: 'short', timeZone: 'Asia/Dubai' })}
                </span>
                <span className="block text-xl font-black text-slate-900 leading-none mt-0.5">
-                 {new Date(data.startDate).getDate()}
+                 {new Date(data.startDate).toLocaleDateString('en-US', { day: 'numeric', timeZone: 'Asia/Dubai' })}
                </span>
              </div>
           )}
