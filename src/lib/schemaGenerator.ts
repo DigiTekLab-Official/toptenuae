@@ -749,6 +749,13 @@ export function generateSchema(
     case 'event':
     case 'holiday': {
       schemas.push(generateEventSchema(data, category, slug));
+      // Also emit an Article alongside the Event: the Event type carries only the
+      // event date (startDate/endDate), NOT publish/modified dates, so Google had
+      // no freshness signal for these dated posts. @type follows the doc's
+      // schemaType (default 'Article'; opt into 'NewsArticle' on genuine dated
+      // announcements). The #event and #article @ids are distinct and both
+      // reference the same WebPage, so there is no collision.
+      schemas.push(generateArticleSchema(data, category, slug));
       break;
     }
 
