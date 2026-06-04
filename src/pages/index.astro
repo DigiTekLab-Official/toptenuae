@@ -12,10 +12,10 @@ import {
   CreditCard, PieChart,
 } from '@/components/icons';
 
-// Configuration
+// Configuration - ADDED 'whats-on' to the selected categories array
 const SELECTED_CATEGORIES = [
   'tech', 'top-ten', 'reviews', 'how-to-guides',
-  'events-holidays', 'parenting-kids', 'finance-tools',
+  'events-holidays', 'whats-on', 'parenting-kids', 'finance-tools',
 ];
 
 // Tool icon config
@@ -41,8 +41,21 @@ try {
 
 const { heroPost, sections, upcomingPosts } = data || {};
 
+// Map sections and enforce strict descending date sorting based on publishedAt or _updatedAt
 const sortedSections = SELECTED_CATEGORIES
-  .map((slug: string) => sections?.find((s: any) => s.slug === slug))
+  .map((slug: string) => {
+    const section = sections?.find((s: any) => s.slug === slug);
+    if (!section) return null;
+
+    // Direct frontend array sorting to catch changes instantly on deployment
+    const sortedPosts = section.posts ? [...section.posts].sort((a: any, b: any) => {
+      const dateA = new Date(a.publishedAt || a._updatedAt || 0).getTime();
+      const dateB = new Date(b.publishedAt || b._updatedAt || 0).getTime();
+      return dateB - dateA; // Newest posts first
+    }) : [];
+
+    return { ...section, posts: sortedPosts };
+  })
   .filter(Boolean);
 
 const heroDescription = heroPost ? (cleanText(heroPost?.intro) || 'Expert reviews and comprehensive rankings for the UAE market.') : '';

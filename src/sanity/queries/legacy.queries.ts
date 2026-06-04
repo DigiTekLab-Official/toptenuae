@@ -25,14 +25,16 @@ export const HOME_QUERY = groq`{
     "slug": slug.current,
     description,
     "posts": *[
-      (_type in ["topTenList", "article", "tool", "product", "howTo", "holiday"]) &&
+      // FIX 1: Added 'deal' and 'post' to catch all standard content types
+      (_type in ["topTenList", "article", "tool", "product", "howTo", "holiday", "deal", "post", "event"]) &&
       (
         ^._id in categories[]._ref ||
         ^._id in displayCategories[]._ref ||
         category._ref == ^._id ||
         categories[0]._ref == ^._id
       )
-    ] | order(publishedAt desc)[0...4] {
+    // FIX 2: Added coalesce to fallback to _createdAt if publishedAt is empty
+    ] | order(coalesce(publishedAt, _createdAt) desc)[0...4] {
       _id,
       _type,
       title,
