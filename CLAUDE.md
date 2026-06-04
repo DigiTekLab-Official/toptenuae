@@ -401,6 +401,36 @@ timezone can never roll the calendar date again.
 storage for all-day events. Verify event-date rendering against the Dubai-local date of
 the stored instant, not the editor's local Studio display.
 
+## SECURITY INCIDENT — universal-studio/.env tracked write tokens (2026-06-04, remediated)
+
+**What happened:** `universal-studio/.env` was **tracked in git** (commits `d6275326e`,
+and briefly re-added by `7b66d657c`), exposing **write tokens for all 3 projects**:
+`GOVTJOBS_WRITE_TOKEN`, `TECHBUY_WRITE_TOKEN`, `TOPTEN_WRITE_TOKEN` (project `kxdjzy8e`).
+Repo is **private** (`DigiTekLab-Official/universal-studio`) — limited blast radius, but
+private ≠ safe for live creds (collaborators/forks/clones/CI logs/future public-flip). The
+TOPTEN token **also appeared in a screenshot** (out-of-band leak git can't account for).
+Each token is dataset-scoped **write** (can edit/delete an entire dataset).
+
+**Remediation (done):**
+- **All 3 tokens ROTATED** in Sanity (revoke + regenerate). This is the real fix — the
+  strings still readable in git history (`git show d6275326e:.env`) are now **dead/inert**.
+- `.env` **untracked** (`git rm --cached`, leaves the file on disk so local `--env-file`
+  tooling keeps working) and **git-ignored** (`.env`, `.env.*`, `!.env.example` added to
+  `universal-studio/.gitignore`). Commits local-only on `feature/exam-collection-architecture`.
+- **History scrub (filter-repo/BFG + force-push) deemed OPTIONAL / deferred** — rotation
+  alone neutralizes the risk; dead tokens in old commits are harmless. Force-push held until
+  that shared feature branch is merged/quiet (rewriting history disrupts collaborators).
+- Lesson re git pathspec: `git commit -- .env` *re-commits the working-tree file* instead of
+  recording a `git rm --cached` deletion. To untrack: `git rm --cached .env` then commit with
+  **no pathspec** (commit only the staged deletion). First attempt got this wrong; corrected.
+
+**GUARDRAIL (future):** `universal-studio` holds **multiple projects' secrets** in one repo
+(GovtJobs/TechBuy/TopTenUAE). **Never commit `.env`** (now gitignored — keep it that way),
+**never screenshot token values**, and use short-lived Editor-scoped tokens that are revoked
+after one-off tasks (e.g. the holiday migration). The holiday migration script reads
+`TOPTEN_WRITE_TOKEN` via `--env-file=…/universal-studio/.env` and pins
+`projectId='kxdjzy8e'`/`dataset='production'` in code so it can never write to the wrong project.
+
 # Parked / Future
 
 ## Arabic (en + ar bilingual) — PARKED until English is indexing well
