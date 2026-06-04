@@ -371,6 +371,36 @@ Google sees 404; (b) AMP / trailing-slash URLs take **2 hops** (308 slash-strip 
 
 ---
 
+## Holiday/event rendering — all-day TZ trap + two render bugs (2026-06-04)
+
+**All-day-event timezone trap (the June-14-vs-15 bug):** holiday `startDate` is a
+timezone-sensitive `datetime`, but a public holiday is a calendar DATE with no time.
+The Hijri doc's startDate was authored in **IST** as "June 15 00:01" → Sanity stored
+`2026-06-14T18:31:00Z`, which is **June 15 only in IST**; in UTC and **Asia/Dubai it is
+June 14** (22:31). So the UAE-rendered site (and the Event JSON-LD via
+`formatIsoDate`'s `.split('T')[0]` UTC-date-portion) showed June 14. **No rendering fix
+can recover June 15 from that instant** — the date-part is the 14th in UTC, Dubai, and
+the raw string. **Short-term fix applied:** set the start time to **noon** (stored
+`2026-06-15T06:30Z` → June 15 in Dubai). **Permanent fix (PLANNED, see PART 2 task):**
+change holiday `startDate`/`endDate` from `datetime` → date-only `date` type so editor
+timezone can never roll the calendar date again.
+
+**Two genuine render bugs fixed (commit `8ff9efc`, verified live):**
+1. **Booking card showed on a ticketless holiday** — `EventTemplate.tsx` `hasTickets`
+   keyed off `ticketPrice` being defined (`0` counts as defined) and **ignored
+   `isTicketAvailable`**, so the "Free Entry / booking required" card rendered even with
+   tickets OFF. Fixed: gate on `data.isTicketAvailable !== false`. (Also added
+   `isTicketAvailable` to the `EventSanityData` TS interface.)
+2. **Event time ("10:31 PM") showed on an all-day event** — the `{!data.isAllDay && …}`
+   time guard was correct, but **`GENERIC_POST_QUERY` never projected `isAllDay`**, so it
+   was `undefined` → guard always passed. Fixed: project `isAllDay`. Also switched the
+   `EventTemplate` date badge from server-local (UTC) to `Asia/Dubai` for consistency
+   with the detail row's `formatDate`.
+
+**Lesson:** for a UAE site, render event dates in `Asia/Dubai`, and prefer date-only
+storage for all-day events. Verify event-date rendering against the Dubai-local date of
+the stored instant, not the editor's local Studio display.
+
 # Parked / Future
 
 ## Arabic (en + ar bilingual) — PARKED until English is indexing well
