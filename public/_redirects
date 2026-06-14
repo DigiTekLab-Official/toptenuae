@@ -7,3 +7,10 @@
 
 # Studio redirect (managed separately)
 /studio https://universal-studio.sanity.studio 301
+
+# Redirect for dead legacy WP article -> site `/tech` category
+/nasa-astronaut-don-pettit-burj-khalifa-image-from-space /tech 301
+
+# GSC soft-404 fixes: map old single-segment paths to new hierarchy
+/how-to-clean-washing-machine /how-to-guides/how-to-clean-washing-machine 301
+/how-to-clean-washing-machine/ /how-to-guides/how-to-clean-washing-machine 301
