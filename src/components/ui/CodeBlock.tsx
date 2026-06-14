@@ -1,21 +1,42 @@
 import { lazy, Suspense } from 'react';
 
-// Light build: only includes registered languages (~50KB vs ~1.6MB)
+// 1. Tell TypeScript exactly what props this lazy component accepts
+interface SyntaxHighlighterProps {
+  children: React.ReactNode;
+  language?: string;
+  style?: any;
+  customStyle?: React.CSSProperties;
+  showLineNumbers?: boolean;
+  wrapLines?: boolean;
+}
+
+// 2. Light build: only includes registered languages (~50KB vs ~1.6MB)
 const SyntaxHighlighter = lazy(
-  () => import('react-syntax-highlighter/dist/esm/prism-light').then(mod => ({ default: mod.default }))
+  // @ts-ignore - Bypassing missing TS definitions for this deep CJS path
+  () => import('react-syntax-highlighter/dist/cjs/prism-light').then(mod => ({ 
+    default: mod.default as React.ComponentType<SyntaxHighlighterProps> 
+  }))
 );
 
 // Register only the languages actually used on the site
 const registerLanguages = async () => {
   const [{ default: SHL }, js, ts, css, bash, json, html] = await Promise.all([
-    import('react-syntax-highlighter/dist/esm/prism-light'),
-    import('react-syntax-highlighter/dist/esm/languages/prism/javascript'),
-    import('react-syntax-highlighter/dist/esm/languages/prism/typescript'),
-    import('react-syntax-highlighter/dist/esm/languages/prism/css'),
-    import('react-syntax-highlighter/dist/esm/languages/prism/bash'),
-    import('react-syntax-highlighter/dist/esm/languages/prism/json'),
-    import('react-syntax-highlighter/dist/esm/languages/prism/markup'),
+    // @ts-ignore
+    import('react-syntax-highlighter/dist/cjs/prism-light'),
+    // @ts-ignore
+    import('react-syntax-highlighter/dist/cjs/languages/prism/javascript'),
+    // @ts-ignore
+    import('react-syntax-highlighter/dist/cjs/languages/prism/typescript'),
+    // @ts-ignore
+    import('react-syntax-highlighter/dist/cjs/languages/prism/css'),
+    // @ts-ignore
+    import('react-syntax-highlighter/dist/cjs/languages/prism/bash'),
+    // @ts-ignore
+    import('react-syntax-highlighter/dist/cjs/languages/prism/json'),
+    // @ts-ignore
+    import('react-syntax-highlighter/dist/cjs/languages/prism/markup'),
   ]);
+  
   SHL.registerLanguage('javascript', js.default);
   SHL.registerLanguage('js', js.default);
   SHL.registerLanguage('typescript', ts.default);

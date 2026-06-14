@@ -28,7 +28,7 @@ export default defineConfig({
       chunkSizeWarningLimit: 600,
     },
     ssr: {
-      external: ['node:crypto', 'node:buffer'],
+      external: ['node:crypto', 'node:buffer'],      
     },
   },
 

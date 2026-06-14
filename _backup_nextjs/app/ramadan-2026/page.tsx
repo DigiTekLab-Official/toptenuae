@@ -216,7 +216,17 @@ export default function RamadanPage() {
 
           {/* AMAZON STYLE BANNER */}
           <section className="relative overflow-hidden bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl shadow-lg text-white">
-            <div className="absolute inset-0 opacity-10 bg-[url('/images/pattern.png')]"></div>
+            {/* Inline SVG Pattern */}
+            <div className="absolute inset-0 opacity-20">
+              <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <pattern id="dotPattern" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+                    <circle cx="2" cy="2" r="1.5" fill="#ffffff" />
+                  </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#dotPattern)" />
+              </svg>
+            </div>
             
             <div className="relative z-10 p-6 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="text-center md:text-left">
