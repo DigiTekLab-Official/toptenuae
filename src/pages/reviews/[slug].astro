@@ -9,7 +9,12 @@ import RelatedContent from '@/components/views/RelatedContent';
 
 const { slug } = Astro.params;
 if (!slug) {
-  return Astro.redirect('/404');
+  // Was: return Astro.redirect('/404');
+  // A missing slug is not a real URL — return 404 status directly rather than
+  // redirecting to the /404 route (a 302 → /404 is what GSC classifies as
+  // "Redirect error"). This path is effectively unreachable given Astro's
+  // routing, but kept correct for safety.
+  return new Response('Not Found', { status: 404 });
 }
 
 let data: any = null;
@@ -37,6 +42,7 @@ if (!data) {
   }
 
   // 3. Smart 301 Redirects for wrong content types
+  //    (unchanged — these are correct single-hop 301s to the canonical route)
   if (fallbackData) {
     if (fallbackData._type === 'topTenList') {
       return Astro.redirect(`/top-ten/${slug}`, 301);
@@ -50,8 +56,15 @@ if (!data) {
     }
   }
 
-  // 4. If it genuinely doesn't exist in Sanity, THEN 404
-  return Astro.redirect('/404');
+  // 4. Genuinely doesn't exist in Sanity → return 410 GONE directly.
+  //    Was: return Astro.redirect('/404');  →  emitted 302 → /404, which GSC
+  //    classifies as "Redirect error" (confirmed via curl: HTTP/2 302 +
+  //    location:/404). Returning the status directly on the requested URL is
+  //    the correct signal. 410 (not 404) because these are permanently-ended
+  //    deals / removed products that will not return at this slug — 410 clears
+  //    the index faster than 404 and stops recrawl churn. Switch to 404 only if
+  //    a slug pattern might be reused for future content.
+  return new Response('Gone', { status: 410 });
 }
 
 // 5. If data exists, format it and render the page normally
