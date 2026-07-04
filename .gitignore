@@ -234,3 +234,5 @@ firestore-debug.log
 chromewebdata_*.html
 # Sentry Config File
 .env.sentry-build-plugin
+.astro/
+.claude/settings.local.json
