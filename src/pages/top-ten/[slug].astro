@@ -16,7 +16,27 @@ try {
   console.error(`Error fetching top-ten list [${slug}]:`, error);
 }
 
-if (!data) return Astro.redirect('/404', 404);
+if (!data) {
+  // Commit 2a: legacy /top-ten/{product} → canonical /reviews/{product}.
+  // GSC shows a 404 cluster where old /top-ten/{slug} URLs point at slugs that
+  // are actually live products (canonical at /reviews/{slug}). Probe ONLY for an
+  // exact product with this slug — scoped to _type == "product" so a cross-type
+  // slug collision (howTo/holiday/tool/etc.) can never trigger this redirect.
+  let productId: string | null = null;
+  try {
+    productId = await client.fetch(
+      `*[_type == "product" && slug.current == $slug][0]._id`,
+      { slug }
+    );
+  } catch (error) {
+    console.error(`Error probing product for top-ten slug [${slug}]:`, error);
+  }
+  if (productId) {
+    return Astro.redirect(`/reviews/${slug}`, 301);
+  }
+  // No exact product → preserve existing null-list behavior unchanged.
+  return Astro.redirect('/404', 404);
+}
 
 // Issue 4 fix: type guard — if a non-topTenList doc somehow resolves here
 // (e.g. slug collision from a future content type), redirect to 404 rather
