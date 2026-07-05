@@ -19,3 +19,16 @@
 # Map both slash variants directly to the verified 200 canonical successor.
 /events-holidays/ramadan-2026 /events-holidays/ramadan-2026-uae 301
 /events-holidays/ramadan-2026/ /events-holidays/ramadan-2026-uae 301
+
+# GSC 404 fix (Commit 2c): two legacy /tech/ DeepSeek slugs → live consolidated
+# guide. No published Sanity doc currently exists at either source slug (verified
+# against the live published dataset). The prior production (Next.js) redirect map
+# consolidated both of these exact URLs to the one surviving DeepSeek guide with
+# permanent 301s (_backup_nextjs/next.config.ts). That successor is published as a
+# howTo at `how-to-guides/how-to-use-deepseek-ai-data-extraction-analysis`, returns
+# 200, self-canonicalizes, and is in the sitemap. Map both slash variants directly
+# to the verified 200 successor (avoids the current 302→/404 and any multi-hop).
+/tech/deepseek-ai-startup-disrupting-big-tech-with-innovation /how-to-guides/how-to-use-deepseek-ai-data-extraction-analysis 301
+/tech/deepseek-ai-startup-disrupting-big-tech-with-innovation/ /how-to-guides/how-to-use-deepseek-ai-data-extraction-analysis 301
+/tech/deepseek-ai-revolutionary-data-retrieval-method /how-to-guides/how-to-use-deepseek-ai-data-extraction-analysis 301
+/tech/deepseek-ai-revolutionary-data-retrieval-method/ /how-to-guides/how-to-use-deepseek-ai-data-extraction-analysis 301
