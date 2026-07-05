@@ -12,3 +12,10 @@
 # GSC soft-404 fixes: map old single-segment paths to new hierarchy
 /how-to-clean-washing-machine /how-to-guides/how-to-clean-washing-machine 301
 /how-to-clean-washing-machine/ /how-to-guides/how-to-clean-washing-machine 301
+
+# GSC 404 fix (Commit 2b): legacy events-holidays Ramadan slug → live successor.
+# No published Sanity doc currently exists at `ramadan-2026`; the live Ramadan
+# 2026 UAE holiday is published at `ramadan-2026-uae` and self-canonicalizes there.
+# Map both slash variants directly to the verified 200 canonical successor.
+/events-holidays/ramadan-2026 /events-holidays/ramadan-2026-uae 301
+/events-holidays/ramadan-2026/ /events-holidays/ramadan-2026-uae 301
