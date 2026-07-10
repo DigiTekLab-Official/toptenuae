@@ -15,6 +15,8 @@ export const PRODUCT_BY_SLUG = groq`
     price,
     currency,
     availability,
+    availabilityStatus,
+    availabilityCheckedAt,
     priceTier,
     retailer,
     affiliateLink,

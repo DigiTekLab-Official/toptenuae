@@ -25,6 +25,8 @@ export default function ProductTemplate({ data }: ProductTemplateProps) {
     price,
     currency = 'AED',
     priceTier,
+    availabilityStatus,
+    availabilityCheckedAt,
     customerRating,
     ratingCount,
     realComplaint,
@@ -39,6 +41,8 @@ export default function ProductTemplate({ data }: ProductTemplateProps) {
   } = data;
 
   const pickingReason = customVerdict || verdict;
+  const isUnavailable = availabilityStatus === 'unavailable';
+  const availabilityMessage = `Currently unavailable on Amazon.ae — checked ${availabilityCheckedAt || 'date not recorded'}`;
 
   return (
     <article className="font-sans bg-slate-50 min-h-screen pb-24 lg:pb-20"> 
@@ -209,7 +213,9 @@ export default function ProductTemplate({ data }: ProductTemplateProps) {
                 </span>
               </div>
 
-              {affiliateLink && (
+              {isUnavailable ? (
+                <p className="text-center text-sm font-semibold text-slate-700 mb-4">{availabilityMessage}</p>
+              ) : affiliateLink && (
                 <a
                   href={affiliateLink}
                   target="_blank"
@@ -261,7 +267,11 @@ export default function ProductTemplate({ data }: ProductTemplateProps) {
       </div>
       
       {/* MOBILE ONLY STICKY BOTTOM BAR */}
-      {affiliateLink && (
+      {isUnavailable ? (
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-50 safe-area-pb text-center">
+          <p className="text-sm font-semibold text-slate-700">{availabilityMessage}</p>
+        </div>
+      ) : affiliateLink && (
         <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-50 flex items-center justify-between gap-4 safe-area-pb">
            <div className="flex flex-col">
               <span className="text-sm text-gray-500 uppercase font-bold">Price</span>

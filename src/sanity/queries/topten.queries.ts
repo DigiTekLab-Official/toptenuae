@@ -29,7 +29,7 @@ export const TOP_TEN_BY_SLUG = groq`
       product->{
         _type, title,
         "slug": slug.current, // ✅ PERFECT: This enables the Schema URL fix
-        priceTier, price, currency, availability, 
+        priceTier, price, currency, availability, availabilityStatus, availabilityCheckedAt,
         affiliateLink, 
         
         // ✅ FIX 2: Added 'reviewCount' to satisfy Schema requirements

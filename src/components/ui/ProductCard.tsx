@@ -118,6 +118,9 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
   const priceTier = (product as any)?.priceTier as string | undefined;
   const displayImage = liveData?.imageUrl || product?.fallbackImageUrl || sanityImageUrl;
   const targetLink = liveData?.detailPageURL || product?.siteStripeLink || (product as any)?.affiliateLink || '#';
+  const isUnavailable = (product as any)?.availabilityStatus === 'unavailable';
+  const availabilityCheckedAt = (product as any)?.availabilityCheckedAt || 'date not recorded';
+  const availabilityMessage = `Currently unavailable on Amazon.ae — checked ${availabilityCheckedAt}`;
   
   const displayName = product?.title || "Product Name Unavailable";
   const productSlug = (product as any)?.slug as string | undefined;
@@ -300,7 +303,11 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
       )}
 
       {/* --- FOOTER CTA --- */}
-      {targetLink && targetLink !== '#' && (
+      {isUnavailable ? (
+        <div className="bg-linear-to-r from-amber-50 to-orange-50 border-t border-amber-200 p-5 text-center">
+          <p className="font-semibold text-gray-800">{availabilityMessage}</p>
+        </div>
+      ) : targetLink && targetLink !== '#' && (
         <div className="bg-linear-to-r from-amber-50 to-orange-50 border-t border-amber-200 p-5">
            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex flex-col gap-0.5 w-full sm:w-auto text-center sm:text-left">
