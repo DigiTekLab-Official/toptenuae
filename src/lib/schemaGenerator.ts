@@ -164,9 +164,8 @@ export const generateFeaturedContentSchema = (posts: any[]) => {
 
 // =============================================================================
 // 6. PRODUCT SCHEMA
-// price/priceCurrency/availability intentionally omitted from offers — see
-// stale-price removal decision (CLAUDE.md). Offer carries url + seller only.
-// cleanPrice/priceValue vars retained as orphans pending separate cleanup pass.
+// Amazon.ae customer averages remain visible and attributed in the UI, but are
+// intentionally excluded from publisher-authored Product structured data.
 // =============================================================================
 export const generateProductSchema = (
   data: any,
@@ -183,7 +182,6 @@ export const generateProductSchema = (
   const schema: any = {
     '@context': 'https://schema.org',
     '@type': 'Product',
-    '@id': `${pageUrl}#product`,
     name: cleanText(data.title || data.itemName),
     url: pageUrl,
     image: images,
@@ -193,46 +191,7 @@ export const generateProductSchema = (
     brand: data.brand
       ? { '@type': 'Brand', name: cleanText(data.brand) }
       : undefined,
-    sku: data.sku || undefined,
-    mpn: data.mpn || undefined,
-    // offers intentionally omitted: with no live price (no PA-API), a price-less
-    // Offer makes Google attempt Merchant-listing validation and fail ("missing
-    // field price"). Removing it keeps the Product + Review (stars) snippet valid
-    // and clears the GSC Merchant-listings error. Affiliate link lives in the
-    // visible "Check price on Amazon" CTA.
-    mainEntityOfPage: {
-      '@type': 'WebPage',
-      '@id': getPageId(category, slug),
-    },
   };
-
-  if (data.customerRating && data.reviewCount) {
-    schema.aggregateRating = {
-      '@type': 'AggregateRating',
-      ratingValue: data.customerRating,
-      reviewCount: data.reviewCount,
-      bestRating: 5,
-      worstRating: 1,
-    };
-  }
-
-  if (data.verdict && data.customerRating) {
-    schema.review = {
-      '@type': 'Review',
-      author: {
-        '@type': 'Organization',
-        name: 'TopTenUAE Editorial Team',
-        '@id': `${baseUrl}/#organization`,
-      },
-      reviewRating: {
-        '@type': 'Rating',
-        ratingValue: data.customerRating,
-        bestRating: 5,
-      },
-      reviewBody: cleanText(data.verdict),
-      datePublished: data.publishedAt || data._createdAt,
-    };
-  }
 
   return schema;
 };
@@ -275,13 +234,6 @@ export const generateTopTenListSchema = (
         ? `${baseUrl}/${category || 'reviews'}/${productSlug}`
         : `${pageUrl}#rank-${index + 1}`;
 
-      const specs =
-        product.specifications?.map((spec: any) => ({
-          '@type': 'PropertyValue',
-          name: spec.specLabel,
-          value: spec.specValue,
-        })) || [];
-
       const listItem: any = {
         '@type': 'ListItem',
         position: index + 1,
@@ -301,27 +253,11 @@ export const generateTopTenListSchema = (
           image: product.mainImage?.url
             ? [product.mainImage.url]
             : [DEFAULT_IMAGE],
-          sku: product.sku || undefined,
           brand: product.brand
             ? { '@type': 'Brand', name: cleanText(product.brand) }
             : undefined,
-          additionalProperty: specs.length > 0 ? specs : undefined,
-          // offers removed: a price-less Offer fails GSC Merchant-listings
-          // validation ("missing field price"). Confirmed flagging /top-ten/
-          // URLs in GSC (best-laptops-uae). aggregateRating/review (stars)
-          // retained — price-independent, the valuable rich result.
         },
       };
-
-      if (product.customerRating && product.customerRating > 0) {
-        listItem.item.aggregateRating = {
-          '@type': 'AggregateRating',
-          ratingValue: product.customerRating,
-          reviewCount: product.reviewCount || 1,
-          bestRating: 5,
-          worstRating: 1,
-        };
-      }
 
       return listItem;
     }),
@@ -730,7 +666,7 @@ export function generateSchema(
       // item as Product; aviation/institution lists rely on TopTenTemplate's
       // inline ItemList for correct Airline/Airport/School typing, so skip the
       // server one there (also removes its latent wrong-typed Product list).
-      // Product lists keep the richer server ItemList (all 10 aggregateRatings).
+      // Product lists keep the server ItemList with lightweight Product nodes.
       const firstItemType = data.listItems?.[0]?.product?._type;
       const isTypedList =
         firstItemType === 'aviationEntity' || firstItemType === 'institution';
