@@ -3,12 +3,12 @@
  * Enterprise Analytics Router (Astro v4+)
  * Optimized for Core Web Vitals (TBT/INP) via Idle-Deferral
  * Supports global consent initialization states
+ * src/components/analytics/GTMScript.astro
  */
 const gtmId = import.meta.env.PUBLIC_GTM_ID || 'GTM-N3PB47W';
-const gtagId = import.meta.env.PUBLIC_GTAG_ID;
 ---
 
-<script is:inline define:vars={{ gtagId }}>
+<script is:inline>
   window.dataLayer = window.dataLayer || [];
   window.gtag = function() { dataLayer.push(arguments); };
   
@@ -22,31 +22,13 @@ const gtagId = import.meta.env.PUBLIC_GTAG_ID;
     'wait_for_update': 500 // Milliseconds to wait for CMP to update flags
   });
 
-  // Early GA4 Configuration if tracking ID is present
-  if (gtagId) {
-    gtag('js', new Date());
-    gtag('config', gtagId, {
-      'anonymize_ip': true, // Legacy but safe fallback
-      'send_page_view': true,
-      'transport_type': 'beacon' // Forces non-blocking navigator.sendBeacon
-    });
-  }
 </script>
 
-<script is:inline define:vars={{ gtmId, gtagId }}>
+<script is:inline define:vars={{ gtmId }}>
   if (typeof window !== 'undefined') {
     const injectTrackingScripts = () => {
-      const docHead = document.getElementsByTagName('head')[0];
-
-      // A. Conditionally load gtag.js library (only if not handled inside GTM tags)
-      if (gtagId && !window.google_tag_manager) {
-        const gtagScript = document.createElement('script');
-        gtagScript.async = true;
-        gtagScript.src = `https://www.googletagmanager.com/gtag/js?id=${gtagId}`;
-        docHead.appendChild(gtagScript);
-      }
-
-      // B. Load GTM Container
+      // GTM is the only analytics delivery path. GA4 is configured in the
+      // published container rather than through a second direct gtag.js load.
       if (gtmId) {
         (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
         new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
