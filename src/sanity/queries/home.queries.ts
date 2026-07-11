@@ -11,6 +11,7 @@ export const HOME_QUERY = groq`{
     *[_type in ["topTenList", "article"]] | order(publishedAt desc) [0]
   ) {
     _id,
+    _type,
     title,
     "slug": slug.current,
     intro,
@@ -40,8 +41,10 @@ export const HOME_QUERY = groq`{
   },
   "upcomingPosts": *[_type in ["topTenList", "article"] && category->slug.current == "upcoming"] | order(publishedAt desc)[0...4] {
     _id,
+    _type,
     title,
     "slug": slug.current,
+    "categorySlug": category->slug.current,
     mainImage { "url": asset->url, alt }
   }
 }`;

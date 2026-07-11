@@ -3,6 +3,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getHomePageData, HOME_SECTION_CATEGORIES } from '@/repositories/home.repository';
 import { cleanText, formatDate, getConciseAlt } from '@/lib/utils/sanity-text';
+import { buildContentPath } from '@/lib/contentRoute';
 import { generateSchema } from '@/lib/schemaGenerator';
 import HomeNewsletter from '@/components/HomeNewsletter';
 import LogoIcon from '@/components/icons/LogoIcon';
@@ -47,6 +48,7 @@ const sortedSections = HOME_SECTION_CATEGORIES
 
 const heroDescription = heroPost ? (cleanText(heroPost?.intro) || 'Expert reviews and comprehensive rankings for the UAE market.') : '';
 const heroImageUrl = heroPost?.mainImage?.url || null;
+const heroPath = heroPost ? buildContentPath(heroPost) : null;
 
 // Schema
 const featuredPosts = [
@@ -143,7 +145,7 @@ const seoDescription = 'Discover trending products, expert reviews, and free UAE
 
                 <div class="flex flex-wrap gap-4">
                   <a
-                    href={`/${heroPost.categorySlug}/${heroPost.slug}`}
+                    href={heroPath || '/top-ten'}
                     class="inline-flex items-center gap-3 bg-white text-slate-900 font-bold px-8 py-4 rounded-full hover:bg-amber-400 hover:text-slate-900 transition-all transform hover:-translate-y-1 shadow-xl shadow-white/5 group"
                     aria-label={`Read full review: ${heroPost.title}`}
                   >
@@ -207,9 +209,11 @@ const seoDescription = 'Discover trending products, expert reviews, and free UAE
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {upcomingPosts.map((post: any) => {
                 const cardImageUrl = post.mainImage?.url || null;
+                const postPath = buildContentPath(post);
+                if (!postPath) return null;
                 return (
                   <a
-                    href={`/upcoming/${post.slug}`}
+                    href={postPath}
                     class="group flex flex-col bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:border-primary/20 transition-all duration-300 transform hover:-translate-y-1"
                   >
                     <div class="relative overflow-hidden bg-gray-100 aspect-16/10">
@@ -275,7 +279,11 @@ const seoDescription = 'Discover trending products, expert reviews, and free UAE
                 {section.posts.map((post: any, idx: number) => {
                   const isTool = post._type === 'tool';
                   const isProduct = post._type === 'product';
-                  const postLink = `/${section.slug}/${post.slug}`;
+                  const postLink = buildContentPath({
+                    ...post,
+                    categorySlug: section.slug,
+                  });
+                  if (!postLink) return null;
                   const cardImageUrl = post.mainImage?.url || null;
                   const conciseAlt = getConciseAlt(post.mainImage?.alt, post.title);
 

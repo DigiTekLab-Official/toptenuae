@@ -1,7 +1,10 @@
 // src/types/content/home.ts
 
+import type { SupportedContentType } from '@/lib/contentRoute';
+
 export interface HomeHeroPost {
   _id: string;
+  _type: SupportedContentType;
   title: string;
   slug: string;
   intro?: string;
@@ -14,7 +17,7 @@ export interface HomeHeroPost {
 
 export interface HomeSectionPost {
   _id: string;
-  _type: string;
+  _type: SupportedContentType;
   title: string;
   slug: string;
   publishedAt?: string;
@@ -33,8 +36,10 @@ export interface HomeSection {
 
 export interface HomeUpcomingPost {
   _id: string;
+  _type: SupportedContentType;
   title: string;
   slug: string;
+  categorySlug?: string;
   mainImage?: {
     url: string;
     alt?: string;
