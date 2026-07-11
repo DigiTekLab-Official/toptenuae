@@ -45,48 +45,72 @@ async function generateSitemap() {
     }
     console.log(`✅ Fetched ${data.length} items from Sanity.`);
 
-    // 1. Calculate the latest global update date for Static Category pages
-    const latestUpdate = data.reduce((latest, item) => {
-      const itemDate = new Date(item._updatedAt);
-      return itemDate > latest ? itemDate : latest;
-    }, new Date(0)).toISOString();
+    const STATIC_ROUTES = [
+      { url: '', priority: 1.0, changeFrequency: 'daily' },
+      { url: '/top-ten', priority: 0.9, changeFrequency: 'daily' },
+      { url: '/reviews', priority: 0.9, changeFrequency: 'daily' },
+      { url: '/how-to-guides', priority: 0.9, changeFrequency: 'weekly' },
+      { url: '/deals', priority: 0.9, changeFrequency: 'hourly' },
+      { url: '/finance-tools', priority: 0.8, changeFrequency: 'monthly' },
+      { url: '/events-holidays', priority: 0.8, changeFrequency: 'weekly' },
+      { url: '/travel-tourism', priority: 0.8, changeFrequency: 'weekly' },
+      { url: '/ramadan-2026', priority: 0.8, changeFrequency: 'weekly' },
+      { url: '/about-us', priority: 0.5, changeFrequency: 'yearly' },
+      { url: '/contact-us', priority: 0.5, changeFrequency: 'yearly' },
+      { url: '/privacy-policy', priority: 0.3, changeFrequency: 'yearly' },
+      { url: '/terms-and-conditions', priority: 0.3, changeFrequency: 'yearly' },
+      { url: '/affiliate-disclosure', priority: 0.3, changeFrequency: 'yearly' },
+      { url: '/disclaimer', priority: 0.3, changeFrequency: 'yearly' },
+      { url: '/cookies-policy', priority: 0.3, changeFrequency: 'yearly' },
+    ];
+    const staticRoutePaths = new Set(STATIC_ROUTES.map((route) => route.url));
 
-    // 2. Build Dynamic Routes
+    // 1. Build Dynamic Routes
     const dynamicRoutes = data.map((item) => {
       let urlPath = '';
+      const normalizedSlug = String(item.slug).toLowerCase();
+
+      // Category routing performs an exact slug lookup after middleware
+      // lowercases the request. A mixed-case category slug therefore cannot
+      // resolve as its own canonical page and must not enter the sitemap.
+      if (item._type === 'category' && item.slug !== normalizedSlug) {
+        console.warn(`⚠️ Skipped non-canonical category slug: ${item.slug}`);
+        return '';
+      }
 
       // FIX 2: Strict Routing Logic
       switch (item._type) {
         case 'category':
-          urlPath = `/${item.slug}`;
+          urlPath = `/${normalizedSlug}`;
+          if (staticRoutePaths.has(urlPath)) return '';
           break;
         case 'article': 
           // Check for category to route correctly, fallback to reviews
           const cat = item.category || 'reviews';
-          if (['how-to-guides', 'guides'].includes(cat)) urlPath = `/how-to-guides/${item.slug}`;
-          else if (['travel-tourism', 'travel'].includes(cat)) urlPath = `/travel-tourism/${item.slug}`;
-          else urlPath = `/reviews/${item.slug}`;
+          if (['how-to-guides', 'guides'].includes(cat)) urlPath = `/how-to-guides/${normalizedSlug}`;
+          else if (['travel-tourism', 'travel'].includes(cat)) urlPath = `/travel-tourism/${normalizedSlug}`;
+          else urlPath = `/reviews/${normalizedSlug}`;
           break;
           
         case 'product': 
-          urlPath = `/reviews/${item.slug}`; 
+          urlPath = `/reviews/${normalizedSlug}`;
           break;
           
         case 'howTo': 
-          urlPath = `/how-to-guides/${item.slug}`; 
+          urlPath = `/how-to-guides/${normalizedSlug}`;
           break;
           
         case 'topTenList': 
-          urlPath = `/top-ten/${item.slug}`; 
+          urlPath = `/top-ten/${normalizedSlug}`;
           break;
           
         case 'holiday': 
         case 'event':
-          urlPath = `/events-holidays/${item.slug}`; 
+          urlPath = `/events-holidays/${normalizedSlug}`;
           break;
           
         case 'tool': 
-          urlPath = `/finance-tools/${item.slug}`; 
+          urlPath = `/finance-tools/${normalizedSlug}`;
           break;
 
         case 'deal':
@@ -108,30 +132,12 @@ async function generateSitemap() {
   </url>`;
     }).join('');
 
-    // 3. SEO-Boosted Static Routes
-    const STATIC_ROUTES = [
-      { url: '', priority: 1.0, changeFrequency: 'daily' },
-      { url: '/top-ten', priority: 0.9, changeFrequency: 'daily' },
-      { url: '/reviews', priority: 0.9, changeFrequency: 'daily' },
-      { url: '/how-to-guides', priority: 0.9, changeFrequency: 'weekly' },
-      { url: '/deals', priority: 0.9, changeFrequency: 'hourly' }, 
-      { url: '/finance-tools', priority: 0.8, changeFrequency: 'monthly' },
-      { url: '/events-holidays', priority: 0.8, changeFrequency: 'weekly' },
-      { url: '/travel-tourism', priority: 0.8, changeFrequency: 'weekly' },
-      { url: '/ramadan-2026', priority: 0.8, changeFrequency: 'weekly' },
-      { url: '/about-us', priority: 0.5, changeFrequency: 'yearly' },
-      { url: '/contact-us', priority: 0.5, changeFrequency: 'yearly' },
-      { url: '/privacy-policy', priority: 0.3, changeFrequency: 'yearly' },
-      { url: '/terms-and-conditions', priority: 0.3, changeFrequency: 'yearly' },
-      { url: '/affiliate-disclosure', priority: 0.3, changeFrequency: 'yearly' },
-      { url: '/disclaimer', priority: 0.3, changeFrequency: 'yearly' },
-      { url: '/cookies-policy', priority: 0.3, changeFrequency: 'yearly' },
-    ];
-
+    // 2. Static routes do not have a reliable content-modified timestamp.
+    // Omitting lastmod is more accurate than marking every hub and policy page
+    // as changed whenever any unrelated Sanity document is updated.
     const staticXml = STATIC_ROUTES.map(route => `
   <url>
     <loc>${BASE_URL}${route.url}</loc>
-    <lastmod>${latestUpdate}</lastmod>
     <changefreq>${route.changeFrequency}</changefreq>
     <priority>${route.priority}</priority>
   </url>`).join('');
