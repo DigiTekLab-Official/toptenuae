@@ -11,6 +11,7 @@ import PortableText from "@/components/sanity/PortableText";
 import FAQAccordion from "@/components/FAQAccordion";
 import AffiliateDisclosure from "../ui/AffiliateDisclosure";
 import LogoIcon from "@/components/icons/LogoIcon";
+import EditorialTrust from "@/components/EditorialTrust";
 
 // --- CARDS ---
 import ProductCard from "../ui/ProductCard";       
@@ -254,6 +255,10 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
           <AffiliateDisclosure />
         </div>
       )}
+
+      <div className="mb-6 space-y-6">
+        <EditorialTrust data={data} />
+      </div>
 
       {isEducationPost && (
          <div className="bg-slate-50 border-b border-gray-100 py-2 px-4 mb-6 text-sm text-gray-600 flex items-start gap-2 leading-relaxed">

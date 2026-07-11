@@ -1,13 +1,31 @@
-// Barrel exports for Sanity library
-export { client } from './client';
-export { projectId, dataset } from '../env';
-export * from './queries';
+// src/sanity/lib/index.ts
+// Sanity runtime utilities and helpers
+// NOTE: Query exports removed - import queries from @/sanity/queries instead
+
+export { client, sanityFetch } from './client';
+export { projectId, dataset, apiVersion } from '../env';
 export {
   urlFor,
   mainImage,
-  listImage,
+  archiveCardImage,
+  featureCardImage,
+  thumbnailImage,
+  heroBannerImage,
+  productCardImage,
+  ogImage,
   blurImage,
+  optimizedImage,
+  getImageDimensions,
+  getAspectRatio,
+  isValidImage,
+  getDominantColor,
+  getLQIP,
+  sanityImageUrl,
+  // Legacy aliases for backward compatibility
+  listImage,
   cardImage,
-  discoverImage,
   thumbImage,
+  discoverImage,
+  sidebarImage,
+  urlForImage,
 } from './image';

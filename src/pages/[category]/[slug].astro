@@ -3,7 +3,8 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import ToolLayout from '@/layouts/ToolLayout.astro';
 import { client } from '@/sanity/lib/client';
-import { GENERIC_POST_QUERY, TOP_TEN_LIST_QUERY } from '@/sanity/lib/queries';
+import { GENERIC_POST_QUERY } from '@/sanity/queries/post.queries';
+import { TOP_TEN_LIST_QUERY } from '@/sanity/queries/topten.queries';
 import { generateSchema } from '@/lib/schemaGenerator';
 import ArticleView from '@/components/views/ArticleView';
 import groq from 'groq';
@@ -39,7 +40,7 @@ const HOW_TO_QUERY = groq`
     "author": Author->{ name, image, bio },
     mainImage { alt, "url": asset->url, "lqip": asset->metadata.lqip, "dimensions": asset->metadata.dimensions },
     "categories": categories[]->{ "slug": slug.current, title },
-    seo { metaTitle, metaDescription, shareImage }
+    seo { metaTitle, metaDescription, canonicalUrl, noIndex, ogImage }
   }
 `;
 
@@ -107,15 +108,16 @@ const schemaData = generateSchema(data, category, slug);
 // SEO metadata
 const imageUrl = data.mainImage?.url || data.mainImage?.asset?.url || null;
 
-const seoTitle = data.seo?.metaTitle || data.title || 'Article';
-const seoDescription = data.seo?.metaDescription || '';
+const seoTitle = data.seo?.metaTitle || data.seoTitle || data.title || 'Article';
+const seoDescription = data.seo?.metaDescription || data.seoDescription || data.intro || '';
 // Self-canonical: reuse the type-aware `correctCategory` (line ~93), which the
 // redirect guard above guarantees equals the served URL segment. The old
 // `masterCategory` ignored content type and defaulted to 'reviews' (and the
 // `primaryCat` read was undefined due to a string-vs-object slug shape), so
 // howTo/tool/holiday pages emitted a wrong /reviews/ canonical that contradicted
 // their own JSON-LD and suppressed indexing.
-const canonicalUrl = `https://toptenuae.com/${correctCategory}/${slug}`;
+const baseUrl = import.meta.env.PUBLIC_BASE_URL || 'https://toptenuae.com';
+const canonicalUrl = data.seo?.canonicalUrl || `${baseUrl}/${correctCategory}/${slug}`;
 const isToolPage = data._type === 'tool';
 
 // FIX #5 (Opportunity #2): howToSteps is intentionally NOT passed to ArticleView /
@@ -130,6 +132,7 @@ const isToolPage = data._type === 'tool';
     description={seoDescription}
     canonical={canonicalUrl}
     ogImage={imageUrl}
+    noIndex={data.seo?.noIndex === true}
     jsonLd={schemaData}
   >
     <ToolLayout data={data} category={category} slug={slug} />
@@ -140,8 +143,9 @@ const isToolPage = data._type === 'tool';
     description={seoDescription}
     canonical={canonicalUrl}
     ogImage={imageUrl}
+    noIndex={data.seo?.noIndex === true}
     jsonLd={schemaData}
   >
-    <ArticleView data={data} category={category} slug={slug} client:load />
+    <ArticleView data={data} category={category} slug={slug} />
   </BaseLayout>
 )}

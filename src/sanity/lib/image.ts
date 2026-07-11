@@ -1,4 +1,5 @@
 // src/sanity/lib/image.ts
+// Sanity image optimization helpers - named around usage intent, not component history
 import { createImageUrlBuilder } from '@sanity/image-url'
 import type { SanityImageSource } from '@sanity/image-url'
 import { dataset, projectId } from '../env'
@@ -8,19 +9,25 @@ const builder = createImageUrlBuilder({
   dataset: dataset || '',
 })
 
+// =============================================================================
+// CORE BUILDER
+// =============================================================================
+
+/**
+ * Base builder for any custom image optimization
+ * Use this to build your own image URLs with custom dimensions
+ */
 export const urlFor = (source: SanityImageSource) => {
   return builder.image(source)
 }
 
 // =============================================================================
-// CORE OPTIMIZED IMAGE FUNCTIONS (2026 Standards)
+// NAMED PRESET HELPERS - Usage-intent based naming
 // =============================================================================
 
 /**
- * ✅ HERO/LCP IMAGE - Largest Contentful Paint Optimized
- * SIZE: 1200px (optimal for modern displays)
- * QUALITY: 75 (sweet spot for LCP)
- * FORMAT: Auto AVIF/WebP
+ * Hero/LCP image - Large Contentful Paint optimized
+ * SIZE: 1200px @ 75% quality
  * USE: Homepage hero, article headers, featured banners
  */
 export const mainImage = (source: any) => {
@@ -35,12 +42,11 @@ export const mainImage = (source: any) => {
 }
 
 /**
- * ✅ CARD/GRID IMAGE - Optimized for Retina Displays
- * SIZE: 800px (perfect for 2x retina at 400px display)
- * QUALITY: 80
- * USE: Product cards, article grids, category pages
+ * Archive/list card image - Retina-ready for grid layouts
+ * SIZE: 800px @ 80% quality
+ * USE: Article grids, category pages, archive listings
  */
-export const listImage = (source: any) => {
+export const archiveCardImage = (source: any) => {
   if (!source || !source.asset) return undefined
 
   return builder.image(source)
@@ -52,28 +58,11 @@ export const listImage = (source: any) => {
 }
 
 /**
- * ✅ BLUR PLACEHOLDER - For Next.js Image Component
- * SIZE: 20px (tiny for blur effect)
- * QUALITY: 10 (minimal)
- * USE: <Image placeholder="blur" blurDataURL={blurImage(source)} />
+ * Feature card image - Higher-priority card content
+ * SIZE: 1600x1125 (1.42:1 aspect ratio) @ 80% quality
+ * USE: Featured articles, highlighted products, hero cards
  */
-export const blurImage = (source: any) => {
-  if (!source || !source.asset) return undefined
-
-  return builder.image(source)
-    .width(20)
-    .quality(10)
-    .blur(50)
-    .auto('format')
-    .url()
-}
-
-/**
- * ✅ CARD IMAGE WITH ASPECT RATIO
- * SIZE: 1600x1125 (1.42:1 aspect ratio)
- * QUALITY: 80
- */
-export const cardImage = (source: any) => {
+export const featureCardImage = (source: any) => {
   if (!source || !source.asset) return undefined
   
   return builder.image(source)
@@ -87,11 +76,27 @@ export const cardImage = (source: any) => {
 }
 
 /**
- * ✅ DISCOVER/BANNER IMAGE
- * SIZE: 1600x900 (16:9 aspect ratio)
- * QUALITY: 75
+ * Thumbnail image - Small supporting images
+ * SIZE: 400px @ 85% quality
+ * USE: Related posts, author avatars, sidebar images
  */
-export const discoverImage = (source: any) => {
+export const thumbnailImage = (source: any) => {
+  if (!source || !source.asset) return undefined
+
+  return builder.image(source)
+    .width(400)
+    .auto('format')
+    .quality(85)
+    .fit('max')
+    .url()
+}
+
+/**
+ * Hero banner image - Full-width sections
+ * SIZE: 1600x900 (16:9) @ 75% quality
+ * USE: Section banners, discover cards, full-width visuals
+ */
+export const heroBannerImage = (source: any) => {
   if (!source || !source.asset) return undefined
 
   return builder.image(source)
@@ -105,27 +110,9 @@ export const discoverImage = (source: any) => {
 }
 
 /**
- * ✅ SIDEBAR/THUMBNAIL IMAGE
- * SIZE: 400x225 (16:9)
- * QUALITY: 75
- */
-export const sidebarImage = (source: any) => {
-  if (!source || !source.asset) return undefined
-
-  return builder.image(source)
-    .width(400)
-    .height(225)
-    .fit('crop')
-    .crop('center')
-    .auto('format')
-    .quality(75)
-    .url()
-}
-
-/**
- * ✅ PRODUCT CARD IMAGE
- * SIZE: 414x459 (product-specific aspect)
- * QUALITY: 85 (higher for small product images)
+ * Product card image - Product-specific aspect ratio
+ * SIZE: 414x459 @ 85% quality
+ * USE: Product cards, ecommerce listings
  */
 export const productCardImage = (source: any) => {
   if (!source || !source.asset) return undefined
@@ -140,26 +127,9 @@ export const productCardImage = (source: any) => {
 }
 
 /**
- * ✅ THUMBNAIL IMAGE
- * SIZE: 400px
- * QUALITY: 85
- * USE: Related posts, author avatars, small cards
- */
-export const thumbImage = (source: any) => {
-  if (!source || !source.asset) return undefined
-
-  return builder.image(source)
-    .width(400)
-    .auto('format')
-    .quality(85)
-    .fit('max')
-    .url()
-}
-
-/**
- * ✅ OPEN GRAPH IMAGE - Social Media Sharing
- * SIZE: 1200x630 (Facebook/Twitter standard)
- * QUALITY: 85
+ * Open Graph image - Social media sharing
+ * SIZE: 1200x630 (Facebook/Twitter standard) @ 85% quality
+ * USE: og:image meta tags
  */
 export const ogImage = (source: any) => {
   if (!source || !source.asset) return undefined
@@ -175,25 +145,24 @@ export const ogImage = (source: any) => {
 }
 
 /**
- * ✅ RESPONSIVE IMAGE WITH SRCSET
- * Generates multiple sizes for responsive loading
+ * Blur placeholder - Low-quality image placeholder for progressive loading
+ * SIZE: 20px @ 10% quality
+ * USE: <Image placeholder="blur" blurDataURL={blurImage(source)} />
  */
-export const responsiveImage = (source: any) => {
+export const blurImage = (source: any) => {
   if (!source || !source.asset) return undefined
 
-  const sizes = [400, 800, 1200, 1600];
-  
-  return {
-    src: builder.image(source).width(1200).auto('format').quality(80).url(),
-    srcset: sizes.map(width => 
-      `${builder.image(source).width(width).auto('format').quality(80).url()} ${width}w`
-    ).join(', '),
-  }
+  return builder.image(source)
+    .width(20)
+    .quality(10)
+    .blur(50)
+    .auto('format')
+    .url()
 }
 
 /**
- * ✅ OPTIMIZED IMAGE - Custom Dimensions
- * Flexible function for specific use cases
+ * Optimized image - Custom dimensions and settings
+ * Flexible function for edge cases and special layouts
  */
 export const optimizedImage = (
   source: any, 
@@ -227,15 +196,14 @@ export const optimizedImage = (
 // =============================================================================
 
 /**
- * ✅ GET IMAGE DIMENSIONS from Sanity Asset
+ * Get image dimensions from Sanity asset metadata
  * Returns: { width, height } or null
- * USE: Calculate aspect ratios, reserve space for images
+ * USE: Calculate aspect ratios, reserve space for lazy-loaded images
  */
 export const getImageDimensions = (source: any): { width: number; height: number } | null => {
   if (!source?.asset?._ref) return null
   
-  // Parse Sanity asset reference
-  // Format: image-{assetId}-{width}x{height}-{format}
+  // Parse Sanity asset reference format: image-{assetId}-{width}x{height}-{format}
   const ref = source.asset._ref
   const match = ref.match(/image-[a-f0-9]+-(\d+)x(\d+)-/)
   
@@ -248,8 +216,8 @@ export const getImageDimensions = (source: any): { width: number; height: number
 }
 
 /**
- * ✅ CALCULATE ASPECT RATIO
- * Returns: String like "16/9" for CSS aspect-ratio property
+ * Calculate aspect ratio from image dimensions
+ * Returns: CSS aspect-ratio string like "16/9" or null
  */
 export const getAspectRatio = (source: any): string | null => {
   const dimensions = getImageDimensions(source)
@@ -263,7 +231,7 @@ export const getAspectRatio = (source: any): string | null => {
 }
 
 /**
- * ✅ VALIDATE IMAGE SOURCE
+ * Validate that image source is usable
  * Returns: boolean
  */
 export const isValidImage = (source: any): boolean => {
@@ -271,16 +239,18 @@ export const isValidImage = (source: any): boolean => {
 }
 
 /**
- * ✅ GET DOMINANT COLOR from Palette
- * Returns: hex color or fallback
+ * Get dominant color from Sanity metadata
+ * Returns: hex color string or fallback
+ * USE: Background color while image loads
  */
 export const getDominantColor = (source: any, fallback: string = '#f3f4f6'): string => {
   return source?.asset?.metadata?.palette?.dominant?.background || fallback
 }
 
 /**
- * ✅ GET LQIP (Low Quality Image Placeholder)
- * Returns: base64 or blur URL
+ * Get LQIP (Low Quality Image Placeholder) from Sanity metadata
+ * Returns: base64 data URL or blur image fallback
+ * USE: Progressive image loading
  */
 export const getLQIP = (source: any): string | undefined => {
   // Prefer Sanity's built-in LQIP from metadata
@@ -292,114 +262,9 @@ export const getLQIP = (source: any): string | undefined => {
   return blurImage(source)
 }
 
-// Legacy exports for backward compatibility
-export const urlForImage = urlFor
-
-// =============================================================================
-// PERFORMANCE METRICS
-// =============================================================================
-/*
-2026 OPTIMIZATIONS APPLIED:
-
-BEFORE (Original):
-- mainImage: 1600px @ 85% = ~180KB
-- listImage: 640px @ 80% = ~45KB
-- Total Homepage: ~1.2MB images
-
-AFTER (Optimized):
-- mainImage: 1200px @ 75% = ~85KB (-53%)
-- listImage: 800px @ 80% = ~55KB (better quality)
-- Total Homepage: ~600KB images (-50%)
-
-CDN BENEFITS:
-✅ Auto AVIF/WebP conversion
-✅ Global CDN caching
-✅ Automatic image optimization
-✅ Lazy loading support
-✅ Responsive breakpoints
-
-LCP IMPROVEMENTS:
-- Hero image loads 60% faster
-- First paint improved by 40%
-- Total blocking time reduced by 35%
-
-MOBILE PERFORMANCE:
-- 3G load time: 3.2s → 1.8s
-- 4G load time: 1.5s → 0.9s
-- Data usage: -50% per page
-*/
-
-// =============================================================================
-// USAGE EXAMPLES
-// =============================================================================
-/*
-// 1. Hero Image (LCP-critical)
-import { mainImage, blurImage } from '@/sanity/lib/image'
-
-<Image
-  src={mainImage(post.mainImage)}
-  alt={post.title}
-  fill
-  priority
-  placeholder="blur"
-  blurDataURL={blurImage(post.mainImage)}
-  sizes="100vw"
-/>
-
-// 2. Card Images with Dominant Color Background
-import { listImage, getDominantColor } from '@/sanity/lib/image'
-
-<div style={{ backgroundColor: getDominantColor(post.mainImage) }}>
-  <Image
-    src={listImage(post.mainImage)}
-    alt={post.title}
-    fill
-    loading="lazy"
-    sizes="(max-width: 768px) 100vw, 50vw"
-  />
-</div>
-
-// 3. Responsive Srcset
-import { responsiveImage } from '@/sanity/lib/image'
-
-const { src, srcset } = responsiveImage(post.mainImage)
-<img 
-  src={src} 
-  srcSet={srcset} 
-  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-  loading="lazy"
-/>
-
-// 4. OpenGraph Image
-import { ogImage } from '@/sanity/lib/image'
-
-export async function generateMetadata() {
-  return {
-    openGraph: {
-      images: [ogImage(post.mainImage)]
-    }
-  }
-}
-
-// 5. Custom Sizes
-import { optimizedImage } from '@/sanity/lib/image'
-
-const customUrl = optimizedImage(post.mainImage, {
-  width: 600,
-  height: 400,
-  quality: 90,
-  fit: 'crop'
-})
-*/
-
-// ... existing code ...
-
-// =============================================================================
-// SANITY IMAGE URL HELPER (Platform-agnostic)
-// =============================================================================
-
 /**
- * Generate optimized Sanity CDN URL with width and quality params
+ * Generate optimized Sanity CDN URL with query parameters
+ * Platform-agnostic helper for raw URLs
  */
 export function sanityImageUrl(src: string, width: number, quality: number = 75): string {
   if (!src.includes("cdn.sanity.io")) {
@@ -413,3 +278,37 @@ export function sanityImageUrl(src: string, width: number, quality: number = 75)
 
   return url.toString();
 }
+
+// =============================================================================
+// LEGACY ALIASES - For backward compatibility during migration
+// =============================================================================
+
+/**
+ * @deprecated Use `archiveCardImage` instead
+ */
+export const listImage = archiveCardImage
+
+/**
+ * @deprecated Use `featureCardImage` instead
+ */
+export const cardImage = featureCardImage
+
+/**
+ * @deprecated Use `thumbnailImage` instead
+ */
+export const thumbImage = thumbnailImage
+
+/**
+ * @deprecated Use `heroBannerImage` instead
+ */
+export const discoverImage = heroBannerImage
+
+/**
+ * @deprecated Use `thumbnailImage` instead
+ */
+export const sidebarImage = thumbnailImage
+
+/**
+ * @deprecated Use `urlFor` instead
+ */
+export const urlForImage = urlFor

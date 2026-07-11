@@ -45,13 +45,12 @@ export default function Sidebar({ currentSlug }: SidebarProps) {
               <ShieldCheck className="w-7 h-7 text-[#4b0082]" />
            </div>
            <div>
-              <h3 className="font-bold text-gray-900 leading-tight">Editorial Team</h3>
-              <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Expert Reviewers</p>
+              <h3>How we rank</h3>
+              <p className="text-xs uppercase tracking-wider">Research-based</p>
            </div>
         </div>
-        <p className="text-sm text-gray-600 leading-relaxed mb-4 relative z-10">
-          We research, test, and review the best products in the UAE so you don't have to. 
-          <span className="font-semibold text-gray-900"> Unbiased & Independent.</span>
+        <p>
+          We compare products sold in the UAE using verified Amazon.ae customer reviews, manufacturer specifications, and local warranty and availability. We don't test in a lab.
         </p>
       </div>
 

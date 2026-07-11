@@ -7,7 +7,7 @@ const query = Astro.url.searchParams.get('q')?.trim() || '';
 
 const SEARCH_QUERY = `
   *[
-    _type in ["topTenList","howTo","news","post","article","holiday","tool"] &&
+    _type in ["product","topTenList","howTo","news","post","article","holiday","tool"] &&
     !(_id in path("drafts.**")) &&
     (
       title match ["* " + $term + " *", $term + " *", "* " + $term, $term] ||
@@ -34,6 +34,15 @@ const SEARCH_QUERY = `
 
 const formatDate = (date: string) =>
   new Date(date).toLocaleDateString('en-AE', { month: 'long', day: 'numeric', year: 'numeric' });
+
+const resultPath = (post: any) => {
+  if (post._type === 'product') return `/reviews/${post.slug}`;
+  if (post._type === 'topTenList') return `/top-ten/${post.slug}`;
+  if (post._type === 'holiday' || post._type === 'event') return `/events-holidays/${post.slug}`;
+  if (post._type === 'tool') return `/finance-tools/${post.slug}`;
+  if (post._type === 'howTo') return `/how-to-guides/${post.slug}`;
+  return `/${post.slug}`;
+};
 
 let posts: any[] = [];
 if (query.length > 1) {
@@ -98,7 +107,7 @@ if (query.length > 1) {
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {posts.map((post: any) => (
-          <a href={`/${post.slug}`} class="group flex flex-col bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300">
+          <a href={resultPath(post)} class="group flex flex-col bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300">
             <div class="relative h-56 w-full overflow-hidden bg-gray-100">
               {post.imageUrl ? (
                 <img src={post.imageUrl} alt={post.title} class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" />

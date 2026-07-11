@@ -1,14 +1,22 @@
 // src/sanity/queries/product.queries.ts
+// Product queries - Note: For TopTenUAE, products function as review entities
 import groq from 'groq';
 
 // =============================================================================
 // PRODUCT QUERIES
 // =============================================================================
 
+/**
+ * PRODUCT_BY_SLUG - Fetch single product/review by slug
+ * Returns full product data including SEO, images, and category relationships
+ * NOTE: Product data should be normalized by the repository into review-oriented DTOs
+ */
 export const PRODUCT_BY_SLUG = groq`
   *[_type == "product" && slug.current == $slug][0] {
     _type,
     _id,
+    _createdAt,
+    _updatedAt,
     title,
     brand,
     "slug": slug.current,
@@ -20,6 +28,7 @@ export const PRODUCT_BY_SLUG = groq`
     priceTier,
     retailer,
     affiliateLink,
+    affiliateLinks[]->{merchant, merchantLabel, affiliateUrl, note, isPrimary, lastCheckedAt},
     pros,
     cons,
     keyFeatures,
@@ -27,23 +36,42 @@ export const PRODUCT_BY_SLUG = groq`
     customerRating,
     reviewCount,
     verdict,
+    realComplaint,
     mainImage { "url": asset->url, alt },
     itemDescription, 
+    whoItsFor,
+    whoShouldAvoid,
+    testingMethodology,
+    researchType,
+    sources[]{title, publisher, url, accessedAt},
+    alternatives[]->{_id, title, "slug": slug.current, brand, verdict, mainImage{"url": asset->url, alt}},
+    uaeCommerce,
+    lastPriceCheckedAt,
+    originalPublishedAt,
+    lastReviewedAt,
+    affiliateDisclosure,
+    author->{name, "slug": slug.current, role, bio, expertise, credentials, socialLinks, profileUrl, image{"url": asset->url, alt}},
+    reviewedBy->{name, "slug": slug.current, role, bio, expertise, credentials, profileUrl},
+    seo,
     // SEO Data
     "seoTitle": coalesce(seo.metaTitle, title),
     "seoDescription": coalesce(seo.metaDescription, itemDescription, ""),
-    "seoImage": coalesce(seo.openGraphImage.asset->url, mainImage.asset->url),
+    "seoImage": coalesce(seo.ogImage.asset->url, mainImage.asset->url),
     "category": category->{title, "slug": slug.current},
     "categories": categories[]->{ "slug": slug.current, title }
   }
 `;
 
-// Backward compatibility alias
+/**
+ * @deprecated Use PRODUCT_BY_SLUG directly - alias will be removed in future refactor
+ */
 export const PRODUCT_BY_SLUG_QUERY = PRODUCT_BY_SLUG;
 
-// Related content for a product page: lists that feature it + co-listed sibling
-// products (products are related via shared top-ten lists, not categories —
-// products carry no category data). Powers RelatedContent (crawl-link signal).
+/**
+ * RELATED_FOR_PRODUCT - Fetch related content for a product review page
+ * Returns top-ten lists featuring this product + co-featured products for crawl link signals
+ * Use for: "Related articles" and "Similar products" sections on review pages
+ */
 export const RELATED_FOR_PRODUCT = groq`{
   "lists": *[_type == "topTenList" && references($id)] | order(publishedAt desc)[0...3]{
     title,
@@ -60,6 +88,10 @@ export const RELATED_FOR_PRODUCT = groq`{
     }
 }`;
 
+/**
+ * ALL_PRODUCTS - Fetch all products with basic metadata
+ * Use for: Product listings, archives, feeds
+ */
 export const ALL_PRODUCTS = groq`
   *[_type == "product"] | order(publishedAt desc)[0...100]{
     _id,
@@ -76,6 +108,10 @@ export const ALL_PRODUCTS = groq`
   }
 `;
 
+/**
+ * PRODUCTS_BY_CATEGORY - Fetch products in a specific category
+ * Use for: Category-specific product listings
+ */
 export const PRODUCTS_BY_CATEGORY = groq`
   *[_type == "product" && category->slug.current == $categorySlug] 
     | order(publishedAt desc)[0...50]{
@@ -92,6 +128,10 @@ export const PRODUCTS_BY_CATEGORY = groq`
     }
 `;
 
+/**
+ * PRODUCT_SEARCH - Search products by title or brand
+ * Use for: Search results, autocomplete
+ */
 export const PRODUCT_SEARCH = groq`
   *[_type == "product" && (title match $searchTerm || brand match $searchTerm)]
     | order(publishedAt desc)[0...50]{

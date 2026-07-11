@@ -2,7 +2,7 @@
 // src/pages/top-ten/[slug].astro
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { client } from '@/sanity/lib/client';
-import { TOP_TEN_LIST_QUERY } from '@/sanity/lib/queries';
+import { TOP_TEN_LIST_QUERY } from '@/sanity/queries/topten.queries';
 import { generateSchema } from '@/lib/schemaGenerator';
 import ArticleView from '@/components/views/ArticleView';
 
@@ -62,7 +62,7 @@ const schemaData = generateSchema(
 // Issue 3 fix: derive base URL from environment variable so staging/preview
 // environments don't emit a hardcoded production canonical.
 const baseUrl = import.meta.env.PUBLIC_BASE_URL || 'https://toptenuae.com';
-const canonicalUrl = `${baseUrl}/top-ten/${slug}`;
+const canonicalUrl = data.seo?.canonicalUrl || `${baseUrl}/top-ten/${slug}`;
 
 // Issue 2 fix: prefer Sanity seo{} block fields before falling back to
 // top-level seoTitle / seoDescription, then data.intro for description.
@@ -90,7 +90,8 @@ const transformedData = {
   description={seoDescription}
   canonical={canonicalUrl}
   ogImage={data.mainImage?.url}
+  noIndex={data.seo?.noIndex === true}
   jsonLd={schemaData}
 >
-  <ArticleView data={transformedData} category="top-ten" slug={slug} client:load />
+  <ArticleView data={transformedData} category="top-ten" slug={slug} />
 </BaseLayout>

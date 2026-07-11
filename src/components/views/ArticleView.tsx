@@ -1,13 +1,11 @@
 // src/components/views/ArticleView.tsx
-import { lazy } from "react";
-
 import Breadcrumb from "@/components/Breadcrumb";
 import Sidebar from "@/components/Sidebar";
 import FAQAccordion from "@/components/FAQAccordion";
 
-const TopTenTemplate = lazy(() => import("@/components/templates/TopTenTemplate"));
-const ArticleTemplate = lazy(() => import("@/components/templates/ArticleTemplate"));
-const EventTemplate = lazy(() => import("@/components/templates/EventTemplate"));
+import TopTenTemplate from "@/components/templates/TopTenTemplate";
+import ArticleTemplate from "@/components/templates/ArticleTemplate";
+import EventTemplate from "@/components/templates/EventTemplate";
 
 interface ArticleViewProps {
   data: any;

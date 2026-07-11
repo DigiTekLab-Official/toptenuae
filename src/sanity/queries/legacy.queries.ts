@@ -1,82 +1,22 @@
-// src/sanity/queries/legacy.queries.ts --- LEGACY QUERIES STILL IN USE ---
+// src/sanity/queries/legacy.queries.ts --- DEPRECATED: PHASE OUT IN PROGRESS ---
 import groq from 'groq';
 
 // =============================================================================
-// ADDITIONAL LEGACY QUERIES - Still used in pages
+// ⚠️  DEPRECATION NOTICE
+// =============================================================================
+// This file is being phased out. Queries have been moved to domain-specific files:
+//
+// - HOME_QUERY                → src/sanity/queries/home.queries.ts (moved in this refactor)
+// - GENERIC_POST_QUERY        → src/sanity/queries/post.queries.ts
+// - REVIEWS_HUB_QUERY         → src/sanity/queries/review.queries.ts
+// - CATEGORY_PAGE_QUERY       → src/sanity/queries/category.queries.ts (moved in previous refactor)
+//
+// Import from the specific query files instead of this file.
+// This file will be removed in a future refactor.
 // =============================================================================
 
 /**
- * Homepage query - Returns featured post, categorized sections, and upcoming posts
- */
-export const HOME_QUERY = groq`{
-  "heroPost": coalesce(
-    *[_type in ["topTenList", "article"] && isFeaturedOnHome == true] | order(publishedAt desc) [0],
-    *[_type in ["topTenList", "article"]] | order(publishedAt desc) [0]
-  ) {
-    _id,
-    title,
-    "slug": slug.current,
-    intro,
-    mainImage { "url": asset->url, alt },
-    "categorySlug": coalesce(categories[0]->slug.current, category->slug.current)
-  },
-  "sections": *[_type == "category" && slug.current in $categories] | order(order asc, title asc) {
-    title,
-    "slug": slug.current,
-    description,
-    "posts": *[
-      // FIX 1: Added 'deal' and 'post' to catch all standard content types
-      (_type in ["topTenList", "article", "tool", "product", "howTo", "holiday", "deal", "post", "event"]) &&
-      (
-        ^._id in categories[]._ref ||
-        ^._id in displayCategories[]._ref ||
-        category._ref == ^._id ||
-        categories[0]._ref == ^._id
-      )
-    // FIX 2: Added coalesce to fallback to _createdAt if publishedAt is empty
-    ] | order(coalesce(publishedAt, _createdAt) desc)[0...4] {
-      _id,
-      _type,
-      title,
-      "slug": slug.current,
-      publishedAt,
-      mainImage { "url": asset->url, alt }
-    }
-  },
-  "upcomingPosts": *[_type in ["topTenList", "article"] && category->slug.current == "upcoming"] | order(publishedAt desc)[0...4] {
-    _id,
-    title,
-    "slug": slug.current,
-    mainImage { "url": asset->url, alt }
-  }
-}`;
-
-/**
- * Category page query - Returns category with all related items
- */
-export const CATEGORY_PAGE_QUERY = groq`
-  *[_type == "category" && slug.current == $slug][0]{
-    title, 
-    description, 
-    "slug": slug.current,
-    "seo": seo { metaTitle, metaDescription },
-    "mainImage": coalesce(
-      mainImage, 
-      image,
-      *[references(^._id)][0].mainImage
-    ) { "url": asset->url, alt },
-    "items": *[
-      _type in ["topTenList", "howTo", "tool", "holiday", "deal", "article"] &&
-      (references(^._id) || category._ref == ^._id || categories[]._ref == ^._id)
-    ] | order(coalesce(publishedAt, _createdAt) desc)[0...100] {
-      _type, title, "slug": slug.current, publishedAt,
-      "mainImage": coalesce(mainImage, image, product->mainImage) { "url": asset->url, alt },
-      "rawExcerpt": coalesce(description, intro, "")
-    }
-  }
-`;
-
-/**
+ * @deprecated Use `GENERIC_POST_QUERY` from `@/sanity/queries/post.queries` instead
  * Generic post query - Works for articles, tools, how-tos, and other content types
  */
 export const GENERIC_POST_QUERY = groq`
@@ -112,6 +52,7 @@ export const GENERIC_POST_QUERY = groq`
 `;
 
 /**
+ * @deprecated Use `REVIEWS_HUB_QUERY` from `@/sanity/queries/review.queries` instead
  * Reviews hub query - Returns featured reviews and all reviews
  */
 export const REVIEWS_HUB_QUERY = groq`{

@@ -82,12 +82,6 @@ export default function QuickSummaryTable({ items }: { items: ListItem[] }) {
           </tbody>
         </table>
       </div>
-      
-      <div className="bg-gray-50 px-6 py-3 text-center border-t border-gray-200">
-        <span className="text-sm font-medium text-gray-500">
-          *We tested 20+ brands to find these winners.
-        </span>
-      </div>
     </div>
   );
 }

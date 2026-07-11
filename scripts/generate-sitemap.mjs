@@ -13,12 +13,19 @@ const client = createClient({
 const BASE_URL = 'https://toptenuae.com';
 
 // FIX 1: Removed "deal" from this list so they are never fetched.
-const query = `*[_type in ["topTenList", "article", "howTo", "tool", "holiday", "product", "event"] && defined(slug.current)] {
+const query = `*[_type in ["category", "topTenList", "article", "howTo", "tool", "holiday", "product", "event"] && defined(slug.current) && coalesce(seo.noIndex, false) != true] {
   _type,
   "slug": slug.current,
   _updatedAt,
-  "category": category->slug.current
+  "category": coalesce(categories[0]->slug.current, category->slug.current)
 }`;
+
+const escapeXml = (value) => String(value)
+  .replaceAll('&', '&amp;')
+  .replaceAll('<', '&lt;')
+  .replaceAll('>', '&gt;')
+  .replaceAll('"', '&quot;')
+  .replaceAll("'", '&apos;');
 
 async function generateSitemap() {
   console.log('🚀 Starting SEO-Boosted Sitemap Generation...');
@@ -50,6 +57,9 @@ async function generateSitemap() {
 
       // FIX 2: Strict Routing Logic
       switch (item._type) {
+        case 'category':
+          urlPath = `/${item.slug}`;
+          break;
         case 'article': 
           // Check for category to route correctly, fallback to reviews
           const cat = item.category || 'reviews';
@@ -91,7 +101,7 @@ async function generateSitemap() {
 
       return `
   <url>
-    <loc>${BASE_URL}${urlPath}</loc>
+    <loc>${escapeXml(`${BASE_URL}${urlPath}`)}</loc>
     <lastmod>${new Date(item._updatedAt).toISOString()}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

@@ -8,9 +8,14 @@ import groq from 'groq';
 export const TOP_TEN_BY_SLUG = groq`
   *[_type == "topTenList" && slug.current == $slug][0] {
     _type,
+    _id,
+    _createdAt,
+    _updatedAt,
     title,
     "slug": slug.current,
     publishedAt,
+    originalPublishedAt,
+    lastReviewedAt,
     "updatedAt": _updatedAt, 
     "seoTitle": coalesce(seo.metaTitle, title),
     
@@ -18,9 +23,20 @@ export const TOP_TEN_BY_SLUG = groq`
     "seoDescription": coalesce(seo.metaDescription, intro, ""),
     
     mainImage { "url": asset->url, alt },
+    seo,
+    author->{name, "slug": slug.current, role, bio, expertise, credentials, socialLinks, profileUrl, image{"url": asset->url, alt}},
+    reviewedBy->{name, "slug": slug.current, role, bio, expertise, credentials, profileUrl},
     intro,
     "body": body[],
     closingContent,
+    keyTakeaways,
+    whoItsFor,
+    whoShouldAvoid,
+    methodology,
+    uaeContext,
+    sources[]{title, publisher, url, accessedAt},
+    affiliateDisclosure,
+    relatedContent[]->{_type, title, "slug": slug.current, intro, verdict, mainImage{"url": asset->url, alt}},
     showAffiliateDisclosure,
     faqs[] { _key, question, answer },
     
@@ -30,7 +46,9 @@ export const TOP_TEN_BY_SLUG = groq`
         _type, title,
         "slug": slug.current, // ✅ PERFECT: This enables the Schema URL fix
         priceTier, price, currency, availability, availabilityStatus, availabilityCheckedAt,
-        affiliateLink, 
+        affiliateLink,
+        lastPriceCheckedAt,
+        uaeCommerce,
         
         // ✅ FIX 2: Added 'reviewCount' to satisfy Schema requirements
         customerRating, reviewCount, verdict,

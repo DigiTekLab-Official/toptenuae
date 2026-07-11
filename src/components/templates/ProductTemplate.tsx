@@ -1,3 +1,4 @@
+// src/components/templates/ProductTemplate.tsx
 import { 
   CheckCircle2, 
   XCircle, 
@@ -11,6 +12,7 @@ import {
   Settings // ✅ Imported for Specs
 } from "@/components/icons";
 import PortableText from '@/components/sanity/PortableText';
+import EditorialTrust from '@/components/EditorialTrust';
 
 interface ProductTemplateProps {
   data: any;
@@ -89,6 +91,7 @@ export default function ProductTemplate({ data }: ProductTemplateProps) {
           
           {/* LEFT COLUMN: Image & Review (Span 8) */}
           <div className="lg:col-span-8 space-y-8">
+            <EditorialTrust data={data} />
             
             {/* Main Product Image */}
             <div className="bg-white rounded-3xl p-8 shadow-xl border border-slate-100 flex items-center justify-center relative overflow-hidden group">
@@ -180,6 +183,13 @@ export default function ProductTemplate({ data }: ProductTemplateProps) {
                    <PortableText value={itemDescription} />
                  </div>
               </div>
+            )}
+
+            {data.alternatives?.length > 0 && (
+              <section className="rounded-3xl border border-slate-200 bg-white p-6 md:p-8">
+                <h2 className="text-2xl font-bold text-slate-900">Alternatives to consider</h2>
+                <ul className="mt-4 grid gap-3 sm:grid-cols-2">{data.alternatives.map((item: any) => <li key={item._id}><a className="block rounded-xl border border-slate-200 p-4 font-semibold text-purple-700 hover:border-purple-300" href={`/reviews/${item.slug}`}>{item.title}</a></li>)}</ul>
+              </section>
             )}
 
             {/* Why We Picked This */}

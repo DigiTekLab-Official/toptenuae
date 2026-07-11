@@ -2,7 +2,7 @@
 // src/pages/[category]/index.astro
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { client } from '@/sanity/lib/client';
-import { CATEGORY_PAGE_QUERY } from '@/sanity/lib/queries';
+import { CATEGORY_PAGE_QUERY } from '@/sanity/queries/category.queries';
 import Sidebar from '@/components/Sidebar';
 import { cleanText } from '@/lib/utils/sanity-text';
 import { listImage } from '@/sanity/lib/image';

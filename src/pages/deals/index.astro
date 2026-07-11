@@ -2,7 +2,7 @@
 // src/pages/deals/index.astro
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { client } from '@/sanity/lib/client';
-import { ALL_DEALS_QUERY } from '@/sanity/lib/queries';
+import { ALL_DEALS_QUERY } from '@/sanity/queries/deal.queries';
 import { generateSchema } from '@/lib/schemaGenerator';
 import DealsFeed from '@/components/deals/DealsFeed';
 

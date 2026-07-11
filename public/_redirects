@@ -32,3 +32,20 @@
 /tech/deepseek-ai-startup-disrupting-big-tech-with-innovation/ /how-to-guides/how-to-use-deepseek-ai-data-extraction-analysis 301
 /tech/deepseek-ai-revolutionary-data-retrieval-method /how-to-guides/how-to-use-deepseek-ai-data-extraction-analysis 301
 /tech/deepseek-ai-revolutionary-data-retrieval-method/ /how-to-guides/how-to-use-deepseek-ai-data-extraction-analysis 301
+
+# GSC fix (Commit 3): three bare single-segment legacy paths reported as
+# "Redirect error" in GSC, verified via direct fetch to be true 404s — unlike
+# /reviews/[slug], /parenting-kids/[slug], and /tech/[slug], bare top-level
+# paths have no cross-collection slug-lookup fallback, so nothing catches them.
+# All three targets verified live (200, self-canonicalizing):
+#   - best-baby-monitor: exact slug not live; live version is plural + -uae
+#     suffixed at top-ten/best-baby-monitors-uae
+#   - best-beard-trimmers-uae: same slug, just missing the top-ten/ prefix
+#   - nutricook-air-fryer-slim-xl-review: old slug had a "-review" suffix not
+#     present in the live slug; mapped to reviews/nutricook-air-fryer-slim-xl
+/best-baby-monitor /top-ten/best-baby-monitors-uae 301
+/best-baby-monitor/ /top-ten/best-baby-monitors-uae 301
+/best-beard-trimmers-uae /top-ten/best-beard-trimmers-uae 301
+/best-beard-trimmers-uae/ /top-ten/best-beard-trimmers-uae 301
+/nutricook-air-fryer-slim-xl-review /reviews/nutricook-air-fryer-slim-xl 301
+/nutricook-air-fryer-slim-xl-review/ /reviews/nutricook-air-fryer-slim-xl 301

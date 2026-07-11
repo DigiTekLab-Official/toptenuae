@@ -1,8 +1,7 @@
 ---
 // src/pages/index.astro
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { client } from '@/sanity/lib/client';
-import { HOME_QUERY } from '@/sanity/lib/queries';
+import { getHomePageData, HOME_SECTION_CATEGORIES } from '@/repositories/home.repository';
 import { cleanText, formatDate, getConciseAlt } from '@/lib/utils/sanity-text';
 import { generateSchema } from '@/lib/schemaGenerator';
 import HomeNewsletter from '@/components/HomeNewsletter';
@@ -11,12 +10,6 @@ import {
   Calculator, Percent, Coins,
   CreditCard, PieChart,
 } from '@/components/icons';
-
-// Configuration - ADDED 'whats-on' to the selected categories array
-const SELECTED_CATEGORIES = [
-  'tech', 'top-ten', 'reviews', 'how-to-guides',
-  'events-holidays', 'whats-on', 'parenting-kids', 'finance-tools',
-];
 
 // Tool icon config
 const getToolConfig = (slug: string) => {
@@ -28,21 +21,15 @@ const getToolConfig = (slug: string) => {
   return { icon: Calculator, ctaLabel: 'Use Tool', iconColor: 'text-primary', iconBg: 'bg-primary/10', gradient: 'from-[#4b0082] to-purple-600' };
 };
 
-// Data fetching
-let data: any = null;
-let fetchError = false;
-
-try {
-  data = await client.fetch(HOME_QUERY, { categories: SELECTED_CATEGORIES });
-} catch (error) {
-  console.error('Sanity Fetch Critical Error:', error);
-  fetchError = true;
-}
-
-const { heroPost, sections, upcomingPosts } = data || {};
+// Data fetching - now goes through the repository, not a raw client/query import.
+// getHomePageData() defaults to HOME_SECTION_CATEGORIES internally, but we pass
+// it explicitly here since we reuse the same list below for section ordering.
+const { heroPost, sections, upcomingPosts, error: fetchError } = await getHomePageData({
+  categories: HOME_SECTION_CATEGORIES,
+});
 
 // Map sections and enforce strict descending date sorting based on publishedAt or _updatedAt
-const sortedSections = SELECTED_CATEGORIES
+const sortedSections = HOME_SECTION_CATEGORIES
   .map((slug: string) => {
     const section = sections?.find((s: any) => s.slug === slug);
     if (!section) return null;

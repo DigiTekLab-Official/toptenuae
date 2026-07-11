@@ -445,7 +445,6 @@ export const generateArticleSchema = (
     : {
         '@type': 'Organization',
         '@id': `${baseUrl}/#organization`,
-        name: 'TopTenUAE Editorial Team',
       };
 
   return {

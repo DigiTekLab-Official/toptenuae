@@ -2,7 +2,7 @@
 // src/pages/reviews/[slug].astro
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { client } from '@/sanity/lib/client';
-import { PRODUCT_BY_SLUG_QUERY, RELATED_FOR_PRODUCT } from '@/sanity/lib/queries';
+import { PRODUCT_BY_SLUG_QUERY, RELATED_FOR_PRODUCT } from '@/sanity/queries/product.queries';
 import { generateSchema } from '@/lib/schemaGenerator';
 import ProductView from '@/components/views/ProductView';
 import RelatedContent from '@/components/views/RelatedContent';
@@ -89,7 +89,7 @@ const schemaData = generateSchema(
 // Issue 2 fix: derive base URL from environment variable so staging/preview
 // environments don't emit a hardcoded production canonical.
 const baseUrl = import.meta.env.PUBLIC_BASE_URL || 'https://toptenuae.com';
-const canonicalUrl = `${baseUrl}/reviews/${slug}`;
+const canonicalUrl = data.seo?.canonicalUrl || `${baseUrl}/reviews/${slug}`;
 
 // Issue 1 fix: prefer Sanity seo{} block fields before falling back to
 // top-level seoTitle / seoDescription / verdict fields.
@@ -112,8 +112,9 @@ const seoDescription =
   description={seoDescription}
   canonical={canonicalUrl}
   ogImage={data.mainImage?.url}
+  noIndex={data.seo?.noIndex === true}
   jsonLd={schemaData}
 >
-  <ProductView data={viewData} client:load />
+  <ProductView data={viewData} />
   <RelatedContent lists={related.lists} products={related.products} />
 </BaseLayout>

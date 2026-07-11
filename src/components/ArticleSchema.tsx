@@ -1,3 +1,4 @@
+// src/components/ArticleSchema.tsx
 import { discoverImage } from '@/sanity/lib/image'
 
 export default function ArticleSchema({

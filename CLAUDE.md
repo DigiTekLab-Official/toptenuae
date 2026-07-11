@@ -431,6 +431,96 @@ after one-off tasks (e.g. the holiday migration). The holiday migration script r
 `TOPTEN_WRITE_TOKEN` via `--env-file=…/universal-studio/.env` and pins
 `projectId='kxdjzy8e'`/`dataset='production'` in code so it can never write to the wrong project.
 
+## 2026-07-10 — E-E-A-T remediation + measurement audit
+
+**Verified correct (no action needed):** GA4 `G-PQMW1T9DF6` via `GTM-N3PB47W`
+(the banner was stale); CSP; legacy flat-slug 301s (two hops, resolving 200);
+`/reviews/{list-slug}` → `/top-ten` 301; and 88/88 products have valid `/dp/`
+ASINs.
+
+**Security:** `TOPTEN_WRITE_TOKEN` leaked again through Codex diagnostic stdout,
+not git. It was rotated. This is the second exposure (see 2026-06-04); Sanity
+has no per-token audit log, so treat the prior exposure window as unbounded.
+Use expiring Editor-scoped tokens per task; never keep a standing token.
+
+**Shipped frontend:**
+- Removed `aggregateRating` from all Product JSON-LD (`c7345ee`). Amazon customer
+  ratings remain visible and cited to Amazon.ae.
+- Removed hardcoded testing claims from `src/` (Sidebar byline,
+  `affiliate-disclosure.astro`, and `QuickSummaryTable.tsx:88`; the latter was
+  unused because the component has no imports).
+- Added optional `availabilityStatus` and `availabilityCheckedAt`
+  (`126dac9` / `64eb01106`).
+
+**Aggregate-rating decision record:** On 2026-06-02, the deliberate choice was
+to retain `aggregateRating` because GSC showed 10 valid Product rich results. On
+2026-07-10, that decision was deliberately reversed on provenance grounds:
+Amazon's customer averages, published as our aggregate, are self-serving markup
+under Google's policy. This was a knowingly accepted compliance trade—not a bug
+fix—and it sacrificed a live rich result. Revisit it only if Google's guidance
+changes.
+
+**Shipped Sanity remediation (21 writes, all verified verbatim; rollback IDs in
+`SEO-AUDIT/`):**
+- Batch 1: `best-beard-trimmers-uae` — removed fabricated Virat Kohli
+  endorsement from FAQPage JSON-LD, meta, and `seo.keywords[8]`.
+- Batch 2: `best-baby-monitors-uae` (6 writes) — one list document and five
+  product documents.
+- Batch 3: `best-baby-skincare-uae` (5 writes) — removed efficacy claims,
+  replacing them with ingredient/use descriptions rather than verb-only edits.
+- Batch 4 partial: `best-electric-shaver-uae` (6 writes) and
+  `best-wireless-earbuds-uae` (4 writes).
+
+**Method:** `claims-remediation.csv` contains destructive whole-field
+`proposedText` values. Always dry-run, print the complete live field, hand-write
+the replacement, and excise only the unsupported clause; the CSV's
+`surroundingSentence` is truncated.
+
+**Stock:** Three-plus-one laptops were dead on Amazon.ae. All 40 links on the
+four 7% pages (shaver, trimmer, baby skincare, baby monitors) were live. Dead
+links cluster in the 2% laptop tier; SKUs rotate and that tier is structurally
+high-maintenance.
+
+**Remaining:** Batch 4 (about 30 rows) → methodology on 12 lists → rebuild
+(nothing above is live until rebuilt) → §T3a internal linking.
+
+## 2026-07-11 — Claims remediation completed
+
+**Batch 4 (final 8) and Batch 5 (7) applied and verified.** The full-site
+phrase scan covered 14 patterns, including bare `Testing`, `we found`, and
+`we put`. It returns exactly one intentional hit: the Sharaf DG line on
+`best-laptops-uae`, which advises readers to test laptops in-store and is not
+a first-hand claim by TopTenUAE. It was deliberately kept.
+
+**Total removed:** 61 fields across approximately 25 documents. Every live
+field was read in full, corrected surgically, and verified character for
+character; no good content was lost. Batch rollback IDs are in `SEO-AUDIT/*`.
+
+**Audit lesson:** `claims-remediation.csv` (108 rows) was incomplete because
+it missed bare `Testing`; the omissions were caught only by the full-document
+scan. Scan live documents, not only the CSV.
+
+**Final completion:** Batch 6 updated 15 fields across 14 documents in
+revision `PGyO8GOXYxu6ZJgc2gJmRH`, following methodology additions on all 12
+lists. The final scan contains only known-good matches: mechanical uses of
+`prevents`, the attributed Eucerin statement, the pH 5.5 product
+specification, Sharaf DG reader advice, and the `crash-free`/`attested`
+substring matches.
+
+**INTEGRITY WORK COMPLETE:** Six batches corrected approximately 76 fields
+across approximately 30 documents without losing valid content. Fabricated
+first-hand claims have been removed from every published document. Infant
+product efficacy claims were also removed or corrected, including Aquaphor's
+“heals everything,” Eucerin's unqualified “clinically proven” statement, and
+Mustela's “prevents, relieves, repairs.” The CSV was incomplete; the live
+full-document scan is the authoritative audit.
+
+**Verified live:** The skincare page no longer contains `rash-free` or
+`specifically tested`; Aquaphor's pros no longer say “Heals everything”; the
+baby eczema cream no longer makes the unqualified “clinically proven to reduce
+itching” claim; and the airline-safety page no longer carries the unrelated
+Amazon/Remington product methodology. The remediation is deployed and live.
+
 # Parked / Future
 
 ## Arabic (en + ar bilingual) — PARKED until English is indexing well
