@@ -51,7 +51,7 @@ export const CATEGORY_PAGE_QUERY = groq`
       *[references(^._id)][0].mainImage
     ) { "url": asset->url, alt },
     "items": *[
-      _type in ["topTenList", "howTo", "tool", "holiday", "deal", "article"] &&
+      _type in ["topTenList", "howTo", "tool", "holiday", "deal", "article", "product"] &&
       (references(^._id) || category._ref == ^._id || categories[]._ref == ^._id)
     ] | order(coalesce(publishedAt, _createdAt) desc)[0...100] {
       _type, title, "slug": slug.current, publishedAt,

@@ -25,6 +25,26 @@ const getPageId = (category?: string, slug?: string) => {
   return `${baseUrl}/${category}/${slug}#webpage`;
 };
 
+const buildAuthorNode = (author?: { name?: string; url?: string }) => {
+  const name = cleanText(author?.name || '').trim();
+  const normalizedName = name.toLowerCase();
+  const isOrganization =
+    !name ||
+    normalizedName === 'toptenuae' ||
+    normalizedName === 'top ten uae' ||
+    normalizedName.includes('team');
+
+  if (isOrganization) {
+    return { '@id': `${baseUrl}/#organization` };
+  }
+
+  return {
+    '@type': 'Person',
+    name,
+    ...(author?.url ? { url: author.url } : {}),
+  };
+};
+
 // =============================================================================
 // 1. ORGANIZATION SCHEMA
 // =============================================================================
@@ -164,8 +184,8 @@ export const generateFeaturedContentSchema = (posts: any[]) => {
 
 // =============================================================================
 // 6. PRODUCT SCHEMA
-// Amazon.ae customer averages remain visible and attributed in the UI, but are
-// intentionally excluded from publisher-authored Product structured data.
+// Product reviews are editorial Articles about a Thing, not merchant Product
+// entities. Amazon.ae customer averages remain visible and attributed in the UI.
 // =============================================================================
 export const generateProductSchema = (
   data: any,
@@ -174,26 +194,49 @@ export const generateProductSchema = (
 ) => {
   const pageUrl =
     category && slug ? `${baseUrl}/${category}/${slug}` : baseUrl;
+  const webpageId = `${pageUrl}#webpage`;
+  const articleId = `${pageUrl}#article`;
 
   const images = data.mainImage?.url
     ? [data.mainImage.url]
     : data.images?.map((img: any) => img.url).filter(Boolean) || [DEFAULT_IMAGE];
 
-  const schema: any = {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    name: cleanText(data.title || data.itemName),
-    url: pageUrl,
-    image: images,
-    description: cleanText(
-      data.verdict || data.itemDescription || data.intro || data.description || ''
-    ),
-    brand: data.brand
-      ? { '@type': 'Brand', name: cleanText(data.brand) }
-      : undefined,
-  };
+  const description = cleanText(
+    data.seoDescription ||
+      data.verdict ||
+      data.itemDescription ||
+      data.intro ||
+      data.description ||
+      ''
+  );
 
-  return schema;
+  return [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      '@id': webpageId,
+      mainEntity: { '@id': articleId },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      '@id': articleId,
+      headline: cleanText(data.title || data.itemName),
+      description,
+      image: images,
+      inLanguage: 'en-AE',
+      datePublished: data.originalPublishedAt || data._createdAt,
+      dateModified: data.lastReviewedAt || data._updatedAt,
+      author: buildAuthorNode(data.author),
+      publisher: { '@id': `${baseUrl}/#organization` },
+      mainEntityOfPage: { '@id': webpageId },
+      about: {
+        '@type': 'Thing',
+        name: cleanText(data.title || data.itemName),
+        image: images[0],
+      },
+    },
+  ];
 };
 
 // =============================================================================
@@ -435,18 +478,6 @@ export const generateArticleSchema = (
         ? 'NewsArticle'
         : 'Article';
 
-  // GAP B FIX: use Person when a named author exists; fall back to Organization
-  const authorNode = data.author?.name
-    ? {
-        '@type': 'Person',
-        name: cleanText(data.author.name),
-        ...(data.author.url ? { url: data.author.url } : {}),
-      }
-    : {
-        '@type': 'Organization',
-        '@id': `${baseUrl}/#organization`,
-      };
-
   return {
     '@context': 'https://schema.org',
     '@type': schemaType,
@@ -458,7 +489,7 @@ export const generateArticleSchema = (
     image: images,
     datePublished: data.publishedAt || data._createdAt,
     dateModified: data._updatedAt || data.publishedAt || data._createdAt,
-    author: authorNode,
+    author: buildAuthorNode(data.author),
     publisher: {
       '@type': 'Organization',
       '@id': `${baseUrl}/#organization`,
@@ -656,7 +687,7 @@ export function generateSchema(
 
   switch (targetType) {
     case 'product': {
-      schemas.push(generateProductSchema(data, category, slug));
+      schemas.push(...generateProductSchema(data, category, slug));
       break;
     }
 

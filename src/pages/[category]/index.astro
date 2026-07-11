@@ -97,6 +97,15 @@ if (!categorySlug || categorySlug === 'null') return Astro.redirect('/404');
 const validItems = (data.items || []).filter((item: any) => item && item.slug);
 const isFinanceTools = categorySlug === 'finance-tools';
 
+const getItemHref = (item: any): string => {
+  if (item._type === 'product') return `/reviews/${item.slug}`;
+  if (item._type === 'topTenList') return `/top-ten/${item.slug}`;
+  if (item._type === 'howTo') return `/how-to-guides/${item.slug}`;
+  if (item._type === 'tool') return `/finance-tools/${item.slug}`;
+  if (item._type === 'holiday') return `/events-holidays/${item.slug}`;
+  return `/${normalizeCategory(categorySlug)}/${item.slug}`;
+};
+
 // Tool config helper
 const getToolConfig = (slug: string) => {
   if (!slug) return { ctaLabel: 'Calculate', iconColor: 'text-purple-600 group-hover:text-white', iconBg: 'bg-purple-50 group-hover:bg-purple-600' };
@@ -183,7 +192,7 @@ const seoDescription = cleanText(data.description) || `Explore the best content 
               if (isFinanceTools) {
                 const config = getToolConfig(post.slug);
                 return (
-                  <a href={`/${categorySlug}/${post.slug}`} class="group bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-xl transition-all p-6 flex flex-col items-start h-full">
+                  <a href={getItemHref(post)} class="group bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-xl transition-all p-6 flex flex-col items-start h-full">
                     <div class={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 transition-colors ${config.iconBg}`}>
                       <svg class={`w-7 h-7 transition-colors ${config.iconColor}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
                     </div>
@@ -201,7 +210,7 @@ const seoDescription = cleanText(data.description) || `Explore the best content 
 
               const optimizedImageUrl = post.mainImage ? ((post.mainImage as any).url || listImage(post.mainImage)) : null;
               return (
-                <a href={`/${categorySlug}/${post.slug}`} class="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-xl transition-all overflow-hidden flex flex-col h-full">
+                <a href={getItemHref(post)} class="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-xl transition-all overflow-hidden flex flex-col h-full">
                   <div class="h-52 relative bg-gray-100 shrink-0">
                     {optimizedImageUrl ? (
                       <img src={optimizedImageUrl} alt={post.title || 'Article image'} class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
