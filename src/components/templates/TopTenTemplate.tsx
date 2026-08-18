@@ -26,6 +26,7 @@ if (typeof window !== "undefined") {
 // --- INTERFACES ---
 interface TopTenData {
   title: string;
+  slug?: string;
   intro: any; 
   body: any; 
   closingContent?: any;
@@ -91,8 +92,21 @@ interface ListItem {
   product: Product;
 }
 
+const getAffiliateCategory = (slug = '', title = '') => {
+  const value = `${slug} ${title}`.toLowerCase();
+  if (value.includes('electric-shaver') || value.includes('electric shaver')) return 'electric_shaver';
+  if (value.includes('beard-trimmer') || value.includes('beard trimmer')) return 'beard_trimmer';
+  if (value.includes('air-fryer') || value.includes('air fryer')) return 'air_fryer';
+  if (value.includes('baby-monitor') || value.includes('baby monitor')) return 'baby_monitor';
+  if (value.includes('earbud')) return 'earbuds';
+  if (value.includes('laptop')) return 'laptop';
+  if (value.includes('headphone')) return 'headphones';
+  return undefined;
+};
+
 // --- MAIN TEMPLATE ---
 export default function TopTenTemplate({ data }: { data: TopTenData }) {
+  const affiliateCategory = getAffiliateCategory(data.slug, data.title);
   // ✅ FIXED: Use useMemo to stabilize heroImageUrl across re-renders
   const heroImageUrl = useMemo(() => {
     return data?.mainImage?.url || null;
@@ -148,6 +162,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
   // --- QUICK VERDICT DATA ---
   // Extract top 3 picks for the "Quick Verdict" component
   const quickPicks = data.listItems?.slice(0, 3).map(item => ({
+    rank: item.rank,
     tag: item.badgeLabel || (item.rank === 1 ? "Best Overall" : item.rank === 2 ? "Runner Up" : "Great Value"),
     title: item.product.title,
     rating: item.product.customerRating || 0,
@@ -234,7 +249,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
   };
 
   return (
-    <div className="w-full min-w-0">
+    <div className="w-full min-w-0" data-affiliate-category={affiliateCategory}>
       
       {/* Inline ItemList ONLY for aviation/school lists — the server
           generateTopTenListSchema types every item as Product and cannot
@@ -308,6 +323,12 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
         </div>
       )}
 
+      {/* Purchase-decision summary is intentionally near the top so readers
+          can compare verified CMS attributes before scrolling through cards. */}
+      {data.listItems && data.listItems.length > 0 && !isEducationPost && !isAviationPost && (
+        <ComparisonSummaryTable items={data.listItems} category={affiliateCategory} />
+      )}
+
       <div className="space-y-2">
           {/* INTRO CONTENT BLOCK */}
           <div className="prose prose-lg max-w-none text-slate-800 leading-relaxed bg-linear-to-b from-slate-100 to-white px-6 py-0 rounded-2xl border border-slate-200 shadow-inner mb-6">
@@ -320,7 +341,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
 
           {/* --- 3. QUICK VERDICT (Hide for Schools & Aviation) --- */}
           {!isEducationPost && !isAviationPost && quickPicks.length > 0 && (
-             <QuickVerdict picks={quickPicks} />
+             <QuickVerdict picks={quickPicks} category={affiliateCategory} />
           )}
    
         {/* RECOMMENDATIONS LOOP */}
@@ -348,7 +369,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
                   ) 
                   : (
                      // ✅ PASSES ITEM + SPECS TO PRODUCT CARD
-                     <ProductCard item={item as any} />
+                     <ProductCard item={item as any} category={affiliateCategory} />
                   )}
 
                   {/* Visual Separator */}
@@ -358,15 +379,6 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
                 </React.Fragment>
               ))}
             </div>
-          </div>
-        )}
-
-        {/* COMPARISON TABLE (Only for Products) */}
-        {data.listItems && data.listItems.length > 0 && !isEducationPost && !isAviationPost && (
-          <div className="w-full overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0">
-             <div className="min-w-150"> 
-               <ComparisonSummaryTable items={data.listItems} />
-             </div>
           </div>
         )}
 

@@ -6,6 +6,7 @@ import { client } from '@/sanity/lib/client';
 import { GENERIC_POST_QUERY } from '@/sanity/queries/post.queries';
 import { TOP_TEN_LIST_QUERY } from '@/sanity/queries/topten.queries';
 import { generateSchema } from '@/lib/schemaGenerator';
+import { getGscSeoOverride } from '@/lib/seo/gsc-overrides';
 import ArticleView from '@/components/views/ArticleView';
 import groq from 'groq';
 
@@ -108,8 +109,9 @@ const schemaData = generateSchema(data, category, slug);
 // SEO metadata
 const imageUrl = data.mainImage?.url || data.mainImage?.asset?.url || null;
 
-const seoTitle = data.seo?.metaTitle || data.seoTitle || data.title || 'Article';
-const seoDescription = data.seo?.metaDescription || data.seoDescription || data.intro || '';
+const gscSeoOverride = getGscSeoOverride(slug);
+const seoTitle = gscSeoOverride?.title || data.seo?.metaTitle || data.seoTitle || data.title || 'Article';
+const seoDescription = gscSeoOverride?.description || data.seo?.metaDescription || data.seoDescription || data.intro || '';
 // Self-canonical: reuse the type-aware `correctCategory` (line ~93), which the
 // redirect guard above guarantees equals the served URL segment. The old
 // `masterCategory` ignored content type and defaulted to 'reviews' (and the

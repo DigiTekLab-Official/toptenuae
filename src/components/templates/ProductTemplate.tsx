@@ -228,6 +228,8 @@ export default function ProductTemplate({ data }: ProductTemplateProps) {
               ) : affiliateLink && (
                 <a
                   href={affiliateLink}
+                  data-affiliate-product={title}
+                  data-affiliate-cta="review_cta"
                   target="_blank"
                   rel="nofollow sponsored noopener"
                   className="group flex items-center justify-center gap-2 w-full bg-[#0071e3] hover:bg-[#0076df] text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-blue-200 transition-all hover:-translate-y-1 hover:shadow-xl text-lg mb-4"
@@ -291,6 +293,8 @@ export default function ProductTemplate({ data }: ProductTemplateProps) {
            </div>
            <a
              href={affiliateLink}
+             data-affiliate-product={title}
+             data-affiliate-cta="review_cta"
              target="_blank"
              rel="nofollow sponsored noopener"
              className="bg-[#0071e3] text-white font-bold py-3 px-6 rounded-xl shadow-md hover:bg-[#0076df] active:scale-95 transition-transform flex items-center gap-2"

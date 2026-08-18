@@ -45,6 +45,13 @@ const getFeatureIcon = (feature: string) => {
   return <Star className="w-4 h-4 text-amber-400" />;
 };
 
+const firstDecisionSentence = (value?: string) => {
+  const normalized = value?.trim();
+  if (!normalized) return undefined;
+  const sentenceEnd = normalized.search(/[.!?](?=\s+[A-Z])/);
+  return sentenceEnd >= 0 ? normalized.slice(0, sentenceEnd + 1) : normalized;
+};
+
 // --- 2. TYPES ---
 interface Specification {
   _key: string; // <-- Add this line to satisfy Sanity's array requirements
@@ -71,18 +78,16 @@ interface ProductCardProps {
     product?: ExtendedProduct;
   };
   index?: number;
+  category?: string;
 }
 
-export default function ProductCard({ item, index = 0 }: ProductCardProps) {
-  const [isMounted, setIsMounted] = useState(false);
+export default function ProductCard({ item, index = 0, category }: ProductCardProps) {
   const [liveData, setLiveData] = useState<any>(null);
   
   const product = item.product;
 
   // ✅ PA API FALLBACK LOGIC
   useEffect(() => {
-    setIsMounted(true);
-    
     // Attempt to fetch live Amazon data via your own internal API route
     // to keep your PA API credentials secure on the server.
     const fetchAmazonData = async () => {
@@ -131,6 +136,8 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
   const keyFeatures = product?.keyFeatures || [];
   const pros = product?.pros || [];
   const cons = product?.cons || [];
+  const whyBuy = firstDecisionSentence(item.whySelected);
+  const skipIf = cons[0]?.trim();
 
   return (
     <article
@@ -172,7 +179,7 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
         </div>
 
         {/* --- MAIN IMAGE --- */}
-        {isMounted && displayImage && (
+        {displayImage && (
           <div className="mb-6 flex justify-center">
             <div 
               className="relative w-full max-w-[320px] overflow-hidden rounded-xl bg-white border border-gray-100 shadow-sm"
@@ -277,14 +284,21 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
           </div>
         )}
 
-        {/* --- WHY WE PICKED THIS --- */}
-        {item.whySelected && (
-          <div className="mb-4 p-4 bg-slate-100 rounded-xl border border-slate-300 border-l-4 border-l-slate-600">
-            <div className="flex items-center gap-2 mb-1">
-              <Info className="w-3 h-3 text-primary" />
-              <h3 className="text-sm font-bold text-primary uppercase tracking-widest">Why we picked this</h3>
-            </div>
-            <p className="text-sm text-slate-900 font-semibold leading-relaxed italic">"{item.whySelected}"</p>
+        {/* --- PURCHASE DECISION --- */}
+        {(whyBuy || skipIf) && (
+          <div className="mb-4 grid gap-3 md:grid-cols-2">
+            {whyBuy && (
+              <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+                <h3 className="text-sm font-bold text-emerald-900">Why buy this one</h3>
+                <p className="mt-1 text-sm leading-relaxed text-slate-800">{whyBuy}</p>
+              </div>
+            )}
+            {skipIf && (
+              <div className="rounded-xl border border-rose-200 bg-rose-50 p-4">
+                <h3 className="text-sm font-bold text-rose-900">Skip if</h3>
+                <p className="mt-1 text-sm leading-relaxed text-slate-800">{skipIf}</p>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -323,11 +337,15 @@ export default function ProductCard({ item, index = 0 }: ProductCardProps) {
               <div className="flex flex-col items-center sm:items-end w-full sm:w-auto transform transition-transform hover:scale-105 active:scale-95 duration-200">
                  <a 
                     href={targetLink}
+                    data-affiliate-product={displayName}
+                    data-affiliate-cta="product_card"
+                    data-affiliate-category={category}
+                    data-affiliate-position={item.rank}
                     target="_blank"
-                    rel="nofollow noopener"
+                    rel="nofollow sponsored noopener"
                     className="flex items-center justify-center gap-2 w-full sm:w-auto bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-3 px-8 rounded-lg shadow-sm text-center transition-colors"
                  >
-                    Check Price on {(product as any)?.retailer || 'Amazon'} <ExternalLink className="w-4 h-4" />
+                    Check latest price on {(product as any)?.retailer || 'Amazon.ae'} <ExternalLink className="w-4 h-4" />
                  </a>
                  {/* ✅ COMPLIANCE: Micro-disclosure required by Amazon's manual review process */}
                  <div className="mt-2 text-[10px] text-gray-500 font-medium">

@@ -5,6 +5,7 @@ import { client } from '@/sanity/lib/client';
 import { TOP_TEN_LIST_QUERY } from '@/sanity/queries/topten.queries';
 import { generateSchema } from '@/lib/schemaGenerator';
 import ArticleView from '@/components/views/ArticleView';
+import { getGscSeoOverride } from '@/lib/seo/gsc-overrides';
 
 const { slug } = Astro.params;
 if (!slug) return Astro.redirect('/404', 404);
@@ -66,12 +67,15 @@ const canonicalUrl = data.seo?.canonicalUrl || `${baseUrl}/top-ten/${slug}`;
 
 // Issue 2 fix: prefer Sanity seo{} block fields before falling back to
 // top-level seoTitle / seoDescription, then data.intro for description.
+const gscSeoOverride = getGscSeoOverride(slug);
 const seoTitle =
+  gscSeoOverride?.title ||
   data.seo?.metaTitle ||
   data.seoTitle ||
   data.title;
 
 const seoDescription =
+  gscSeoOverride?.description ||
   data.seo?.metaDescription ||
   data.seoDescription ||
   data.intro ||

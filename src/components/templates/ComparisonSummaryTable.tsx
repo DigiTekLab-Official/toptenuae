@@ -12,6 +12,10 @@ interface Product {
   affiliateLink?: string;
   retailer?: string;
   customerRating?: number;
+  priceTier?: string;
+  keyFeatures?: string[];
+  cons?: string[];
+  specifications?: { specLabel?: string; specValue?: string }[];
 }
 
 interface ListItem {
@@ -21,8 +25,53 @@ interface ListItem {
   product: Product;
 }
 
-export default function ComparisonSummaryTable({ items }: { items: ListItem[] }) {
+const findDetail = (product: Product, patterns: RegExp[]) => {
+  const details = [
+    ...(product.keyFeatures || []),
+    ...(product.specifications || []).map((spec) =>
+      [spec.specLabel, spec.specValue].filter(Boolean).join(': ')
+    ),
+  ].filter(Boolean);
+  return details.find((detail) => patterns.some((pattern) => pattern.test(detail))) || 'Not stated';
+};
+
+const decisionDetails = (product: Product, category?: string) => {
+  if (category === 'electric_shaver') {
+    return {
+      firstLabel: 'Shave style',
+      firstValue: findDetail(product, [/foil/i, /rotary/i, /blade/i, /head/i]),
+      secondLabel: 'Wet / dry',
+      secondValue: findDetail(product, [/wet/i, /dry/i, /waterproof/i, /water resistant/i]),
+    };
+  }
+  if (category === 'beard_trimmer') {
+    return {
+      firstLabel: 'Length / settings',
+      firstValue: findDetail(product, [/length/i, /setting/i, /comb/i]),
+      secondLabel: 'Runtime / wet use',
+      secondValue: findDetail(product, [/runtime/i, /battery/i, /minute/i, /waterproof/i, /shower/i]),
+    };
+  }
+  if (category === 'air_fryer') {
+    return {
+      firstLabel: 'Capacity',
+      firstValue: findDetail(product, [/capacity/i, /\d+(?:\.\d+)?\s*l\b/i]),
+      secondLabel: 'Basket / key feature',
+      secondValue: findDetail(product, [/basket/i, /drawer/i, /dual/i, /window/i, /heating/i]),
+    };
+  }
+  return {
+    firstLabel: 'Key feature',
+    firstValue: product.keyFeatures?.[0] || 'Not stated',
+    secondLabel: 'Also consider',
+    secondValue: product.keyFeatures?.[1] || 'Not stated',
+  };
+};
+
+export default function ComparisonSummaryTable({ items, category }: { items: ListItem[]; category?: string }) {
   if (!items || items.length === 0) return null;
+  const quickItems = items.slice(0, 6);
+  const labels = decisionDetails({ title: '' }, category);
 
   return (
     <div className="my-12 font-sans">
@@ -31,8 +80,8 @@ export default function ComparisonSummaryTable({ items }: { items: ListItem[] })
            <ShieldCheck className="w-6 h-6 text-primary" />
         </div>
         <div>
-           <h3 className="text-xl font-bold text-gray-900">The Final Verdict: 2026 Comparison</h3>
-           <p className="text-sm text-gray-500">A quick recap of all top-rated products.</p>
+           <h2 className="text-xl font-bold text-gray-900">Quick picks: compare before you buy</h2>
+           <p className="text-sm text-gray-500">The strongest use case and main compromise for each leading option.</p>
         </div>
       </div>
 
@@ -44,28 +93,28 @@ export default function ComparisonSummaryTable({ items }: { items: ListItem[] })
           {/* ✅ UPDATED: Used bg-primary instead of #4b0082 */}
           <thead className="bg-primary text-white text-sm uppercase tracking-wider">
             <tr>
-              <th className="px-3 py-4 font-bold w-[8%] text-center">Rank</th>
-              <th className="px-3 py-4 font-bold w-[15%]">Image</th>
-              <th className="px-3 py-4 font-bold w-[30%]">Product Name</th>
-              <th className="px-3 py-4 font-bold w-[20%]">Award</th>
-              <th className="px-3 py-4 font-bold w-[12%] text-center">Rating</th>
-              <th className="px-3 py-4 font-bold w-[15%] text-center">Check Price</th>
+              <th className="px-3 py-4 font-bold">Product</th>
+              <th className="px-3 py-4 font-bold">Best for</th>
+              <th className="px-3 py-4 font-bold">{labels.firstLabel}</th>
+              <th className="px-3 py-4 font-bold">{labels.secondLabel}</th>
+              <th className="px-3 py-4 font-bold">Price tier</th>
+              <th className="px-3 py-4 font-bold">Main compromise</th>
+              <th className="px-3 py-4 font-bold text-center">Amazon.ae</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 bg-white">
-            {items.map((item) => {
+            {quickItems.map((item) => {
               const product = item.product || {};
               // ✅ FIX: Use direct URL
               const imageUrl = product.mainImage?.url || null;
               const title = product.title || "Product Name Unavailable";
+              const details = decisionDetails(product, category);
 
               return (
                 <tr key={item._key || item.rank} className="hover:bg-gray-50 transition-colors group">
-                  <td className="px-4 py-4 text-center font-black text-xl text-gray-400 group-hover:text-primary">
-                    #{item.rank}
-                  </td>
-                  <td className="px-4 py-4">
-                    <div className="relative h-16 w-16 overflow-hidden rounded-md border border-gray-200 bg-white flex items-center justify-center">
+                  <td className="px-3 py-4 font-bold text-gray-900 leading-snug">
+                    <div className="flex items-center gap-3">
+                    <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md border border-gray-200 bg-white flex items-center justify-center">
                       {imageUrl ? (
                         <img 
                           src={imageUrl} 
@@ -76,11 +125,10 @@ export default function ComparisonSummaryTable({ items }: { items: ListItem[] })
                         <span className="text-xs text-gray-400 text-center">No Image</span>
                       )}
                     </div>
+                    <span><span className="text-primary">#{item.rank}</span> {title}</span>
+                    </div>
                   </td>
-                  <td className="px-4 py-4 font-bold text-gray-900 leading-snug">
-                    {title}
-                  </td>
-                  <td className="px-4 py-4">
+                  <td className="px-3 py-4">
                      {item.badgeLabel ? (
                       <span className="inline-flex items-center gap-1 rounded-full bg-primary-50 px-3 py-1 text-xs font-bold text-primary border border-primary-100">
                         {item.badgeLabel}
@@ -90,28 +138,25 @@ export default function ComparisonSummaryTable({ items }: { items: ListItem[] })
                     )}
                   </td>
                   
-                  {/* RATING COLUMN */}
-                  <td className="px-4 py-4 text-center">
-                    {product.customerRating ? (
-                      <div className="flex items-center justify-center gap-1 font-bold text-gray-700">
-                        <span className="text-amber-500 fill-amber-500 text-lg">★</span>
-                        {product.customerRating}
-                      </div>
-                    ) : (
-                      <span className="text-xs text-gray-400">-</span>
-                    )}
-                  </td>
+                  <td className="px-3 py-4 text-sm text-gray-700">{details.firstValue}</td>
+                  <td className="px-3 py-4 text-sm text-gray-700">{details.secondValue}</td>
+                  <td className="px-3 py-4 text-sm font-semibold text-gray-700">{product.priceTier || 'Not stated'}</td>
+                  <td className="px-3 py-4 text-sm text-gray-700">{product.cons?.[0] || 'Not stated'}</td>
 
-                  <td className="px-4 py-4 text-center">
+                  <td className="px-3 py-4 text-center">
                     {product.affiliateLink ? (
                       <a 
                         href={product.affiliateLink} 
+                        data-affiliate-product={title}
+                        data-affiliate-cta="comparison_table"
+                        data-affiliate-category={category}
+                        data-affiliate-position={item.rank}
                         target="_blank"
-                        rel="nofollow noopener"
+                        rel="nofollow sponsored noopener"
                         // Amazon Yellow (#FFD814) replaced with Tailwind standard 'bg-yellow-400'
                         className="inline-flex items-center justify-center bg-yellow-400 hover:bg-yellow-500 text-black font-bold text-sm px-4 py-2 rounded-lg shadow-sm transition-transform active:scale-95 whitespace-nowrap"
                       >
-                        Check <ExternalLink className="w-3 h-3 ml-1" />
+                        Check price <ExternalLink className="w-3 h-3 ml-1" />
                       </a>
                     ) : (
                       <span className="text-xs text-gray-400 italic flex justify-center gap-1"><Minus className="w-3 h-3"/> Unavailable</span>
@@ -128,11 +173,12 @@ export default function ComparisonSummaryTable({ items }: { items: ListItem[] })
           MOBILE CARD VIEW (Visible only on Mobile)
           ======================== */}
       <div className="md:hidden space-y-4">
-        {items.map((item) => {
+        {quickItems.map((item) => {
           const product = item.product || {};
           // ✅ FIX: Use direct URL
           const imageUrl = product.mainImage?.url || null;
           const title = product.title || "Product Name Unavailable";
+          const details = decisionDetails(product, category);
 
           return (
             <div 
@@ -183,15 +229,25 @@ export default function ComparisonSummaryTable({ items }: { items: ListItem[] })
                              </div>
                         )}
                     </div>
+                    <dl className="grid grid-cols-2 gap-2 text-xs text-gray-700">
+                      <div><dt className="font-bold text-gray-900">{details.firstLabel}</dt><dd>{details.firstValue}</dd></div>
+                      <div><dt className="font-bold text-gray-900">{details.secondLabel}</dt><dd>{details.secondValue}</dd></div>
+                      <div><dt className="font-bold text-gray-900">Price tier</dt><dd>{product.priceTier || 'Not stated'}</dd></div>
+                      <div><dt className="font-bold text-gray-900">Main compromise</dt><dd>{product.cons?.[0] || 'Not stated'}</dd></div>
+                    </dl>
                     
                     {product.affiliateLink && (
                        <a 
                           href={product.affiliateLink}
+                          data-affiliate-product={title}
+                          data-affiliate-cta="comparison_table"
+                          data-affiliate-category={category}
+                          data-affiliate-position={item.rank}
                           target="_blank"
-                          rel="nofollow noopener"
+                          rel="nofollow sponsored noopener"
                           className="mt-1 w-full flex items-center justify-center gap-2 bg-yellow-400 text-black font-bold text-sm py-2 rounded-lg shadow-sm hover:bg-yellow-500"
                        >
-                          Check Price <ExternalLink className="w-3 h-3" />
+                          Check latest price on Amazon.ae <ExternalLink className="w-3 h-3" />
                        </a>
                     )}
                  </div>

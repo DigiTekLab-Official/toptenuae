@@ -165,6 +165,13 @@ const jsonLdGraph = {
     <GTMScript />
     <ClarityScript />
 
+    {/* First-party affiliate funnel measurement. GTM can subscribe to the
+        `affiliate_click` dataLayer event without exposing visitor identity. */}
+    <script>
+      import { installAffiliateClickTracking } from '@/lib/affiliate/click-tracking.js';
+      installAffiliateClickTracking(window);
+    </script>
+
     {/* Speculative Rules API — pre-render high-traffic pages */}
     <script is:inline type="speculationrules">
     {

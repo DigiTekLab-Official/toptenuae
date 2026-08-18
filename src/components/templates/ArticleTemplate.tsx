@@ -11,6 +11,7 @@ export default function ArticleTemplate({ data }: { data: any }) {
   const hasAffiliateLink = !!data.affiliateLink;
   // If it's a "Guide", we usually don't want the Price Box unless explicitly set
   const showProductBox = (hasPrice || hasAffiliateLink) && data._type !== 'howTo';
+  const isToyDonationGuide = data.slug === 'where-to-donate-used-toys-uae';
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -20,6 +21,32 @@ export default function ArticleTemplate({ data }: { data: any }) {
         <div className="text-xl md:text-2xl font-medium text-slate-700 leading-relaxed mb-10 border-l-4 border-[#4b0082] pl-6">
            <PortableText value={data.intro} />
         </div>
+      )}
+
+      {isToyDonationGuide && (
+        <section className="mb-10 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 md:p-6" aria-labelledby="toy-donation-quick-answer">
+          <h2 id="toy-donation-quick-answer" className="text-xl font-black text-emerald-950">Where to donate toys: quick answer</h2>
+          <p className="mt-2 text-sm leading-relaxed text-slate-700">
+            Start with an organisation that currently lists toys among its accepted items. Confirm the handover method and availability before travelling because collection points and campaign dates can change.
+          </p>
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            <a href="https://www.toyswithwings.org/donate-a-toy" target="_blank" rel="noopener noreferrer" className="rounded-xl border border-emerald-200 bg-white p-4 hover:border-emerald-400">
+              <strong className="block text-slate-900">Toys With Wings</strong>
+              <span className="mt-1 block text-sm text-slate-600">Check its current selected donation location or campaign instructions before drop-off.</span>
+            </a>
+            <a href="https://dubaicharity.org/en/inkind-donations" target="_blank" rel="noopener noreferrer" className="rounded-xl border border-emerald-200 bg-white p-4 hover:border-emerald-400">
+              <strong className="block text-slate-900">Dubai Charity Association</strong>
+              <span className="mt-1 block text-sm text-slate-600">Its in-kind channel lists toys and provides a collection request route.</span>
+            </a>
+            <a href="https://www.sahemnational.ae/sahem-faq/" target="_blank" rel="noopener noreferrer" className="rounded-xl border border-emerald-200 bg-white p-4 hover:border-emerald-400">
+              <strong className="block text-slate-900">Sahem National</strong>
+              <span className="mt-1 block text-sm text-slate-600">Its published pickup service includes toys; confirm your area and quantity in the app.</span>
+            </a>
+          </div>
+          <p className="mt-4 text-sm font-semibold text-slate-800">
+            Donate clean, safe and complete toys. Remove leaking batteries, pack loose pieces together and ask before including soft toys, large ride-ons or damaged items.
+          </p>
+        </section>
       )}
 
       {/* 2. PRODUCT / PRICE BOX (Only show if it's actually a product/review) */}
@@ -45,12 +72,14 @@ export default function ArticleTemplate({ data }: { data: any }) {
             {data.affiliateLink ? (
               <a 
                 href={data.affiliateLink} 
+                data-affiliate-product={data.title}
+                data-affiliate-cta="article_cta"
                 target="_blank" 
-                rel="nofollow noopener"
+                rel="nofollow sponsored noopener"
                 className="flex items-center justify-center gap-2 bg-[#4b0082] text-white font-bold py-4 px-8 rounded-xl hover:bg-[#3a006b] transition-all shadow-lg hover:shadow-xl w-full md:w-auto"
               >
                 <ShoppingCart className="w-5 h-5" />
-                Check Price
+                Check latest price on Amazon.ae
               </a>
             ) : (
                <span className="text-slate-400 font-medium text-sm">Not currently available</span>

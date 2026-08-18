@@ -1,10 +1,8 @@
 
-import { useState, useEffect } from "react";
-
-
 import { ArrowRight, Star, Trophy } from "@/components/icons";
 
 interface QuickPick {
+  rank: number;
   tag: string;
   title: string;
   rating: number;
@@ -13,15 +11,8 @@ interface QuickPick {
   affiliateLink?: string;
 }
 
-export default function QuickVerdict({ picks }: { picks: QuickPick[] }) {
-  // ✅ HYDRATION FIX: Only render after hydration
-  const [isMounted, setIsMounted] = useState(false);
-  
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-  
-  if (!isMounted || !picks || picks.length === 0) return null;
+export default function QuickVerdict({ picks, category }: { picks: QuickPick[]; category?: string }) {
+  if (!picks || picks.length === 0) return null;
 
   return (
     <div className="mb-12 bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden font-sans">
@@ -35,10 +26,10 @@ export default function QuickVerdict({ picks }: { picks: QuickPick[] }) {
           
           <div>
             <h2 className="text-xl font-black text-gray-900 tracking-tight">
-              Quick Verdict: Top 3 Picks
+              Top 3 Shortlist
             </h2>
             <p className="text-base font-medium text-gray-500 mt-0.5">
-              Don't have time to scroll? Here are the tested winners.
+              Start with these picks, then check the trade-offs below.
             </p>
           </div>
         </div>
@@ -93,11 +84,15 @@ export default function QuickVerdict({ picks }: { picks: QuickPick[] }) {
                    {/* --- FIX 3: Blue Button --- */}
                    <a 
                      href={pick.affiliateLink || "#"}
+                     data-affiliate-product={pick.title}
+                     data-affiliate-cta="quick_picks"
+                     data-affiliate-category={category}
+                     data-affiliate-position={pick.rank}
                      target="_blank"
-                     rel="nofollow noopener"
+                     rel="nofollow sponsored noopener"
                      className="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-md transition-all active:scale-95"
                    >
-                     Check Price <ArrowRight className="w-4 h-4 inline ml-1" />
+                     Check latest price on Amazon.ae <ArrowRight className="w-4 h-4 inline ml-1" />
                    </a>
                 </div>
               </div>
