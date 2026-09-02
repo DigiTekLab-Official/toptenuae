@@ -35,6 +35,7 @@ interface TopTenData {
   publishedAt?: string;
   faqs?: { _key: string; question: string; answer: string }[];
   listItems?: ListItem[];
+  relatedBuyerGuide?: { title: string; slug: string; category?: string };
   showAffiliateDisclosure?: boolean;
 }
 
@@ -88,6 +89,7 @@ interface ListItem {
   rank: number;
   badgeLabel?: string;
   whySelected?: string;
+  skipIf?: string;
   customVerdict?: string;
   product: Product;
 }
@@ -274,6 +276,22 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
       <div className="mb-6 space-y-6">
         <EditorialTrust data={data} />
       </div>
+
+      {data.relatedBuyerGuide?.slug && (
+        <aside className="mb-8 rounded-2xl border border-primary-200 bg-primary-50 p-5" aria-label="Related buyer guide">
+          <p className="text-sm font-bold uppercase tracking-wider text-primary">Choose before you compare</p>
+          <p className="mt-1 text-sm leading-relaxed text-slate-700">
+            Not sure which type or specification fits your needs?{' '}
+            <a
+              href={`/${data.relatedBuyerGuide.category || 'reviews'}/${data.relatedBuyerGuide.slug}`}
+              className="font-bold text-primary underline decoration-primary/30 underline-offset-4 hover:decoration-primary"
+            >
+              Read {data.relatedBuyerGuide.title}
+            </a>
+            {' '}before comparing the recommendations below.
+          </p>
+        </aside>
+      )}
 
       {isEducationPost && (
          <div className="bg-slate-50 border-b border-gray-100 py-2 px-4 mb-6 text-sm text-gray-600 flex items-start gap-2 leading-relaxed">

@@ -21,7 +21,8 @@ interface Product {
 interface ListItem {
   _key: string;
   rank: number;
-  badgeLabel?: string; 
+  badgeLabel?: string;
+  skipIf?: string;
   product: Product;
 }
 
@@ -58,6 +59,14 @@ const decisionDetails = (product: Product, category?: string) => {
       firstValue: findDetail(product, [/capacity/i, /\d+(?:\.\d+)?\s*l\b/i]),
       secondLabel: 'Basket / key feature',
       secondValue: findDetail(product, [/basket/i, /drawer/i, /dual/i, /window/i, /heating/i]),
+    };
+  }
+  if (category === 'laptop') {
+    return {
+      firstLabel: 'Processor',
+      firstValue: findDetail(product, [/processor/i, /intel core/i, /ryzen/i, /apple m\d/i, /snapdragon/i]),
+      secondLabel: 'Memory / storage',
+      secondValue: findDetail(product, [/\bram\b/i, /memory/i, /storage/i, /\bssd\b/i]),
     };
   }
   return {
@@ -141,7 +150,7 @@ export default function ComparisonSummaryTable({ items, category }: { items: Lis
                   <td className="px-3 py-4 text-sm text-gray-700">{details.firstValue}</td>
                   <td className="px-3 py-4 text-sm text-gray-700">{details.secondValue}</td>
                   <td className="px-3 py-4 text-sm font-semibold text-gray-700">{product.priceTier || 'Not stated'}</td>
-                  <td className="px-3 py-4 text-sm text-gray-700">{product.cons?.[0] || 'Not stated'}</td>
+                  <td className="px-3 py-4 text-sm text-gray-700">{item.skipIf || product.cons?.[0] || 'Not stated'}</td>
 
                   <td className="px-3 py-4 text-center">
                     {product.affiliateLink ? (
@@ -233,7 +242,7 @@ export default function ComparisonSummaryTable({ items, category }: { items: Lis
                       <div><dt className="font-bold text-gray-900">{details.firstLabel}</dt><dd>{details.firstValue}</dd></div>
                       <div><dt className="font-bold text-gray-900">{details.secondLabel}</dt><dd>{details.secondValue}</dd></div>
                       <div><dt className="font-bold text-gray-900">Price tier</dt><dd>{product.priceTier || 'Not stated'}</dd></div>
-                      <div><dt className="font-bold text-gray-900">Main compromise</dt><dd>{product.cons?.[0] || 'Not stated'}</dd></div>
+                      <div><dt className="font-bold text-gray-900">Main compromise</dt><dd>{item.skipIf || product.cons?.[0] || 'Not stated'}</dd></div>
                     </dl>
                     
                     {product.affiliateLink && (

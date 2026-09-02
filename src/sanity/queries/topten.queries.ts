@@ -36,12 +36,17 @@ export const TOP_TEN_BY_SLUG = groq`
     uaeContext,
     sources[]{title, publisher, url, accessedAt},
     affiliateDisclosure,
+    relatedBuyerGuide->{
+      title,
+      "slug": slug.current,
+      "category": categories[0]->slug.current
+    },
     relatedContent[]->{_type, title, "slug": slug.current, intro, verdict, mainImage{"url": asset->url, alt}},
     showAffiliateDisclosure,
     faqs[] { _key, question, answer },
     
     listItems[] | order(rank asc) {
-      _key, rank, badgeLabel, whySelected, customVerdict,
+      _key, rank, badgeLabel, whySelected, skipIf, customVerdict,
       product->{
         _type, title,
         "slug": slug.current, // ✅ PERFECT: This enables the Schema URL fix

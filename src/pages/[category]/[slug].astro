@@ -91,7 +91,13 @@ if (data._type === 'holiday' || data._type === 'event') defaultCat = 'events-hol
 if (data._type === 'tool') defaultCat = 'finance-tools';
 if (data._type === 'howTo') defaultCat = 'how-to-guides';
 
-const rawCategory = data.category?.slug?.current || data.categories?.[0]?.slug?.current || defaultCat;
+const rawCategory =
+  data.categorySlug ||
+  data.category?.slug?.current ||
+  data.category?.slug ||
+  data.categories?.[0]?.slug?.current ||
+  data.categories?.[0]?.slug ||
+  defaultCat;
 const correctCategory = normalizeCategory(rawCategory);
 
 // Validate & redirect if needed

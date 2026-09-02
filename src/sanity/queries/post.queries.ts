@@ -19,6 +19,7 @@ export const GENERIC_POST_QUERY = groq`
     seo,
     "mainImage": coalesce(mainImage, image, coverImage, product->mainImage) { "url": asset->url, alt },
     "category": coalesce(categories[0], category)->{ "title": title, "slug": slug.current, "menuLabel": menuLabel },
+    "categorySlug": coalesce(categories[0]->slug.current, category->slug.current),
     "categories": categories[]->{ "slug": slug.current, title },
     publishedAt, "_updatedAt": _updatedAt, "_createdAt": _createdAt, schemaType,
     "intro": intro,

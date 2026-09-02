@@ -75,6 +75,7 @@ interface ProductCardProps {
     badgeLabel?: string;
     customVerdict?: string;
     whySelected?: string;
+    skipIf?: string;
     product?: ExtendedProduct;
   };
   index?: number;
@@ -137,7 +138,7 @@ export default function ProductCard({ item, index = 0, category }: ProductCardPr
   const pros = product?.pros || [];
   const cons = product?.cons || [];
   const whyBuy = firstDecisionSentence(item.whySelected);
-  const skipIf = cons[0]?.trim();
+  const skipIf = firstDecisionSentence(item.skipIf) || cons[0]?.trim();
 
   return (
     <article

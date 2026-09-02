@@ -51,7 +51,7 @@ export const CATEGORY_PAGE_QUERY = groq`
       *[references(^._id)][0].mainImage
     ) { "url": asset->url, alt },
     "items": *[
-      _type in ["topTenList", "howTo", "tool", "holiday", "deal", "article", "product"] &&
+      _type in ["topTenList", "buyerGuide", "howTo", "tool", "holiday", "deal", "article", "product"] &&
       (references(^._id) || category._ref == ^._id || categories[]._ref == ^._id)
     ] | order(coalesce(publishedAt, _createdAt) desc)[0...100] {
       _type, title, "slug": slug.current, publishedAt,
@@ -66,7 +66,7 @@ export const CATEGORY_PAGE_QUERY = groq`
  * Use for: category archives, filtered content displays
  */
 export const CATEGORY_ARCHIVE_QUERY = groq`
-  *[_type in ["article", "product", "topTenList", "howTo"] 
+  *[_type in ["article", "product", "topTenList", "buyerGuide", "howTo"]
     && references(*[_type == "category" && slug.current == $category]._id)]
     | order(publishedAt desc)[0...50]{
       _id,

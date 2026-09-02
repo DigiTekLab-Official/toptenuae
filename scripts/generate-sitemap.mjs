@@ -13,7 +13,7 @@ const client = createClient({
 const BASE_URL = 'https://toptenuae.com';
 
 // FIX 1: Removed "deal" from this list so they are never fetched.
-const query = `*[_type in ["category", "topTenList", "article", "howTo", "tool", "holiday", "product", "event"] && defined(slug.current) && coalesce(seo.noIndex, false) != true] {
+const query = `*[_type in ["category", "topTenList", "article", "buyerGuide", "howTo", "tool", "holiday", "product", "event"] && defined(slug.current) && coalesce(seo.noIndex, false) != true] {
   _type,
   "slug": slug.current,
   _updatedAt,
@@ -98,6 +98,10 @@ async function generateSitemap() {
           
         case 'howTo': 
           urlPath = `/how-to-guides/${normalizedSlug}`;
+          break;
+
+        case 'buyerGuide':
+          urlPath = `/${item.category || 'reviews'}/${normalizedSlug}`;
           break;
           
         case 'topTenList': 

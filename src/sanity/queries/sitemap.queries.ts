@@ -72,7 +72,7 @@ export const SITEMAP_CATEGORIES_QUERY = groq`
 
 export const SITEMAP_ENTRIES_QUERY = groq`
   *[
-    _type in ["category", "topTenList", "product", "howTo", "holiday", "tool"] &&
+    _type in ["category", "topTenList", "product", "buyerGuide", "howTo", "holiday", "tool"] &&
     defined(slug.current) &&
     coalesce(seo.noIndex, false) != true
   ] {
