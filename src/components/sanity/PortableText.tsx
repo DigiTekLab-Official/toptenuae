@@ -216,11 +216,15 @@ const components: PortableTextComponents = {
     link: ({ children, value }) => {
       const href = value?.href || "#";
       const isExternal = href.startsWith("http");
+      const isAmazonAffiliate = /^https?:\/\/(?:www\.)?(?:amazon\.ae|amzn\.to)(?:\/|$)/i.test(href);
       return (
         <a
           href={href}
+          data-affiliate-product={isAmazonAffiliate ? (typeof children === 'string' ? children : 'Inline Amazon recommendation') : undefined}
+          data-affiliate-cta={isAmazonAffiliate ? "inline_link" : undefined}
+          data-affiliate-position={isAmazonAffiliate ? "editorial" : undefined}
           target={isExternal || value?.blank ? "_blank" : "_self"}
-          rel={isExternal ? "noopener noreferrer" : undefined}
+          rel={isAmazonAffiliate ? "nofollow sponsored noopener" : isExternal ? "noopener noreferrer" : undefined}
           className="text-primary underline decoration-primary/30 underline-offset-4 font-semibold hover:text-primary-700 hover:decoration-primary transition-all"
         >
           {children}

@@ -15,6 +15,7 @@ type NavLink = {
 // ✅ UPDATED NAVIGATION LIST
 const NAV_LINKS: NavLink[] = [
   { name: "Rankings", href: "/top-ten", title: "Best of UAE Ranked", badge: null },
+  { name: "Buying Guides", href: "/buying-guides", title: "Practical UAE Buying Guides", badge: null },
   { name: "Best Buys", href: "/reviews", title: "Product & Service Reviews", badge: null },
   { name: "Guides", href: "/how-to-guides", title: "Guides and Tutorials", badge: null },
   

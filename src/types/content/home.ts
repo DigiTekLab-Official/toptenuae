@@ -46,10 +46,25 @@ export interface HomeUpcomingPost {
   };
 }
 
+export interface HomeBuyerGuide {
+  _id: string;
+  _type: 'buyerGuide';
+  title: string;
+  slug: string;
+  categorySlug: string;
+  categoryTitle?: string;
+  summary?: unknown;
+  mainImage?: {
+    url: string;
+    alt?: string;
+  };
+}
+
 export interface HomePageData {
   heroPost: HomeHeroPost | null;
   sections: HomeSection[];
   upcomingPosts: HomeUpcomingPost[];
+  buyerGuides: HomeBuyerGuide[];
   /** true if the Sanity fetch itself failed (distinct from "fetched fine, just empty") */
   error: boolean;
 }

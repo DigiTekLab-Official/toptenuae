@@ -44,6 +44,17 @@ export const TOP_TEN_BY_SLUG = groq`
     relatedContent[]->{_type, title, "slug": slug.current, intro, verdict, mainImage{"url": asset->url, alt}},
     showAffiliateDisclosure,
     faqs[] { _key, question, answer },
+    "sidebarPosts": *[
+      _type in ["topTenList", "howTo", "post"] &&
+      slug.current != $slug
+    ] | order(publishedAt desc)[0...5] {
+      _type,
+      title,
+      "slug": slug.current,
+      "category": coalesce(categories[0]->slug.current, category->slug.current),
+      publishedAt,
+      "imageUrl": mainImage.asset->url
+    },
     
     listItems[] | order(rank asc) {
       _key, rank, badgeLabel, whySelected, skipIf, customVerdict,

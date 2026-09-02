@@ -97,6 +97,32 @@ if (!categorySlug || categorySlug === 'null') return Astro.redirect('/404');
 const validItems = (data.items || []).filter((item: any) => item && item.slug);
 const isFinanceTools = categorySlug === 'finance-tools';
 
+const FEATURED_GUIDE_BY_TOPIC: Record<string, string> = {
+  laptops: 'how-to-choose-a-laptop-in-uae',
+  'air-fryers': 'what-air-fryer-size-should-you-buy',
+  'electric-shavers': 'foil-vs-rotary-electric-shaver-uae',
+  'beard-trimmers': 'beard-trimmer-length-attachment-guide',
+  'baby-monitors': 'wi-fi-vs-non-wi-fi-baby-monitor',
+};
+const featuredGuideSlug = FEATURED_GUIDE_BY_TOPIC[categorySlug];
+const featuredGuide = featuredGuideSlug
+  ? validItems.find((item: any) => item._type === 'buyerGuide' && item.slug === featuredGuideSlug)
+  : null;
+const gridItems = featuredGuide
+  ? validItems.filter((item: any) => item.slug !== featuredGuide.slug)
+  : validItems;
+const sidebarPosts = validItems
+  .filter((item: any) => ['topTenList', 'howTo', 'post'].includes(item._type))
+  .slice(0, 5)
+  .map((item: any) => ({
+    _type: item._type,
+    title: item.title,
+    slug: item.slug,
+    category: categorySlug,
+    publishedAt: item.publishedAt,
+    imageUrl: item.mainImage?.url,
+  }));
+
 const getItemHref = (item: any): string => {
   if (item._type === 'product') return `/reviews/${item.slug}`;
   if (item._type === 'topTenList') return `/top-ten/${item.slug}`;
@@ -187,8 +213,18 @@ const seoDescription = cleanText(data.description) || `Explore the best content 
     <div class="container mx-auto px-4 py-16 max-w-7xl">
       <div class="flex flex-col lg:flex-row gap-12">
         <main class="flex-1">
+          {featuredGuide && (
+            <section class="mb-8 rounded-2xl border border-purple-200 bg-purple-50 p-6 md:p-7" aria-labelledby="featured-buying-guide">
+              <p class="text-xs font-black uppercase tracking-[0.18em] text-[#4b0082]">Start here</p>
+              <h2 id="featured-buying-guide" class="mt-2 text-2xl font-black text-slate-900">{featuredGuide.title}</h2>
+              <p class="mt-2 max-w-2xl text-slate-600">{cleanText(featuredGuide.rawExcerpt) || 'Use this practical UAE guide to narrow your requirements before comparing the recommended products.'}</p>
+              <a href={getItemHref(featuredGuide)} class="mt-4 inline-flex items-center rounded-full bg-[#4b0082] px-5 py-2.5 text-sm font-bold text-white hover:bg-purple-800 transition-colors">
+                Read the buying guide →
+              </a>
+            </section>
+          )}
           <div class={`grid gap-8 ${isFinanceTools ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1 md:grid-cols-2'}`}>
-            {validItems.map((post: any) => {
+            {gridItems.map((post: any) => {
               if (isFinanceTools) {
                 const config = getToolConfig(post.slug);
                 return (
@@ -240,7 +276,7 @@ const seoDescription = cleanText(data.description) || `Explore the best content 
         </main>
 
         <aside class="w-full lg:w-80 shrink-0 space-y-8">
-          <Sidebar currentSlug="" categorySlug={categorySlug} client:visible />
+          <Sidebar currentSlug="" categorySlug={categorySlug} recentPosts={sidebarPosts} />
         </aside>
       </div>
     </div>

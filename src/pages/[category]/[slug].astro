@@ -4,46 +4,13 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import ToolLayout from '@/layouts/ToolLayout.astro';
 import { client } from '@/sanity/lib/client';
 import { GENERIC_POST_QUERY } from '@/sanity/queries/post.queries';
-import { TOP_TEN_LIST_QUERY } from '@/sanity/queries/topten.queries';
 import { generateSchema } from '@/lib/schemaGenerator';
 import { getGscSeoOverride } from '@/lib/seo/gsc-overrides';
 import ArticleView from '@/components/views/ArticleView';
-import groq from 'groq';
 
 const { category, slug } = Astro.params;
 
 if (!category || !slug) return Astro.redirect('/404');
-
-// HOW-TO query
-// FIX #1 (High Priority): Added schemaType, _updatedAt, _createdAt so the
-// Sanity schema-selector radio button (NewsArticle / HowTo / FAQPage) actually
-// reaches the frontend instead of being silently dropped.
-const HOW_TO_QUERY = groq`
-  *[_type == "howTo" && slug.current == $slug][0]{
-    _id, _type, title, "slug": slug.current,
-    publishedAt,
-    _updatedAt,
-    _createdAt,
-    schemaType,
-    intro,
-    "body": body[]{
-      ...,
-      _type == "relatedLink" => {
-        ...,
-        "targetPost": targetPost->{
-          title,
-          "slug": slug.current,
-          "category": coalesce(categories[0]->slug.current, category->slug.current)
-        }
-      }
-    },
-    faqs, howToSteps,
-    "author": Author->{ name, image, bio },
-    mainImage { alt, "url": asset->url, "lqip": asset->metadata.lqip, "dimensions": asset->metadata.dimensions },
-    "categories": categories[]->{ "slug": slug.current, title },
-    seo { metaTitle, metaDescription, canonicalUrl, noIndex, ogImage }
-  }
-`;
 
 // Category normalization
 const normalizeCategory = (categorySlug: string) => {
@@ -56,34 +23,20 @@ const normalizeCategory = (categorySlug: string) => {
   return map[categorySlug] || categorySlug;
 };
 
-// Fetch valid categories + doc type in parallel (2 fetches instead of 3)
-let validCategories = new Set<string>();
-let docType: string | null = null;
-
-try {
-  const [categories, fetchedType] = await Promise.all([
-    client.fetch(groq`*[_type == "category"]{ "slug": slug.current }`),
-    client.fetch(groq`*[slug.current == $slug][0]._type`, { slug }),
-  ]);
-  validCategories = new Set(categories.map((c: any) => c.slug));
-  docType = fetchedType;
-} catch { /* ignore */ }
-
-// Fetch data based on content type
+// A single type-aware projection replaces the old category-list query, type
+// probe and content query. Dedicated content types are redirected before this
+// generic payload is rendered, preserving every canonical route.
 let data: any = null;
 try {
-  if (docType === 'topTenList') {
-    data = await client.fetch(TOP_TEN_LIST_QUERY, { slug });
-  } else if (docType === 'howTo') {
-    data = await client.fetch(HOW_TO_QUERY, { slug });
-  } else {
-    data = await client.fetch(GENERIC_POST_QUERY, { slug });
-  }
+  data = await client.fetch(GENERIC_POST_QUERY, { slug });
 } catch (error) {
   console.error(`Error fetching content [${slug}]:`, error);
 }
 
 if (!data) return Astro.redirect('/404');
+
+if (data._type === 'topTenList') return Astro.redirect(`/top-ten/${slug}`, 301);
+if (data._type === 'product') return Astro.redirect(`/reviews/${slug}`, 301);
 
 // Determine correct category
 let defaultCat = 'reviews';
@@ -99,11 +52,6 @@ const rawCategory =
   data.categories?.[0]?.slug ||
   defaultCat;
 const correctCategory = normalizeCategory(rawCategory);
-
-// Validate & redirect if needed
-if (validCategories.size > 0 && !validCategories.has(correctCategory)) {
-  return Astro.redirect('/404');
-}
 
 if (correctCategory !== category) {
   return Astro.redirect(`/${correctCategory}/${slug}`, 301);

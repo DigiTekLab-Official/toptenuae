@@ -81,19 +81,25 @@ export default function QuickVerdict({ picks, category }: { picks: QuickPick[]; 
                       )}
                    </div>
 
-                   {/* --- FIX 3: Blue Button --- */}
-                   <a 
-                     href={pick.affiliateLink || "#"}
-                     data-affiliate-product={pick.title}
-                     data-affiliate-cta="quick_picks"
-                     data-affiliate-category={category}
-                     data-affiliate-position={pick.rank}
-                     target="_blank"
-                     rel="nofollow sponsored noopener"
-                     className="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-md transition-all active:scale-95"
-                   >
-                     Check latest price on Amazon.ae <ArrowRight className="w-4 h-4 inline ml-1" />
-                   </a>
+                   {/* Never emit a tracked affiliate CTA with a placeholder URL. */}
+                   {pick.affiliateLink ? (
+                     <a
+                       href={pick.affiliateLink}
+                       data-affiliate-product={pick.title}
+                       data-affiliate-cta="quick_picks"
+                       data-affiliate-category={category}
+                       data-affiliate-position={pick.rank}
+                       target="_blank"
+                       rel="nofollow sponsored noopener"
+                       className="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-md transition-all active:scale-95"
+                     >
+                       Check latest price on Amazon.ae <ArrowRight className="w-4 h-4 inline ml-1" />
+                     </a>
+                   ) : (
+                     <span className="block w-full rounded-lg bg-slate-100 py-3 text-center text-sm font-semibold text-slate-500">
+                       Amazon link being verified
+                     </span>
+                   )}
                 </div>
               </div>
             </div>

@@ -44,7 +44,7 @@ export const SITE_SEARCH_QUERY = groq`
       },
       _score
     }[0...3],
-    *[_type == "article" && (title match $searchTerm || description match $searchTerm)] {
+    *[_type in ["article", "buyerGuide"] && (title match $searchTerm || description match $searchTerm || intro match $searchTerm)] {
       _type,
       _id,
       "contentType": "article",
@@ -52,6 +52,7 @@ export const SITE_SEARCH_QUERY = groq`
       "slug": slug.current,
       "image": mainImage { "url": asset->url, alt },
       "excerpt": description,
+      "categorySlug": coalesce(categories[0]->slug.current, category->slug.current),
       publishedAt,
       _score
     }[0...3],
@@ -73,7 +74,7 @@ export const SITE_SEARCH_QUERY = groq`
 `;
 
 export const SEARCH_SUGGESTIONS_QUERY = groq`
-  *[_type in ["product", "topTenList", "howTo", "holiday", "tool"] && title match $searchTerm]
+  *[_type in ["product", "topTenList", "buyerGuide", "howTo", "holiday", "tool"] && title match $searchTerm]
     | order(_score desc)[0...8] {
       _type,
       title,

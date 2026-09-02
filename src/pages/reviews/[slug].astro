@@ -2,7 +2,7 @@
 // src/pages/reviews/[slug].astro
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { client } from '@/sanity/lib/client';
-import { PRODUCT_BY_SLUG_QUERY, RELATED_FOR_PRODUCT } from '@/sanity/queries/product.queries';
+import { PRODUCT_PAGE_QUERY } from '@/sanity/queries/product.queries';
 import { generateSchema } from '@/lib/schemaGenerator';
 import ProductView from '@/components/views/ProductView';
 import RelatedContent from '@/components/views/RelatedContent';
@@ -18,40 +18,35 @@ if (!slug) {
 }
 
 let data: any = null;
+let fallbackData: any = null;
+let related: { lists: any[]; products: any[] } = { lists: [], products: [] };
 try {
-  // 1. Try to fetch as a product first
-  data = await client.fetch(PRODUCT_BY_SLUG_QUERY, { slug });
+  const result = await client.fetch(PRODUCT_PAGE_QUERY, { slug });
+  data = result?.data || null;
+  fallbackData = result?.fallback || null;
+  related = result?.related || related;
 } catch (error) {
   console.error(`Error fetching product review [${slug}]:`, error);
 }
 
 // 2. If no product data is found, check if it's actually another content type (like topTenList)
 if (!data) {
-  let fallbackData: any = null;
-  try {
-    fallbackData = await client.fetch(
-      `*[slug.current == $slug][0]{ 
-        _type, 
-        "categorySlug": category->slug.current, 
-        "categories": categories[]->slug.current 
-      }`,
-      { slug }
-    );
-  } catch (error) {
-    console.error(`Error fetching fallback type for [${slug}]:`, error);
-  }
-
   // 3. Smart 301 Redirects for wrong content types
   //    (unchanged — these are correct single-hop 301s to the canonical route)
   if (fallbackData) {
     if (fallbackData._type === 'topTenList') {
       return Astro.redirect(`/top-ten/${slug}`, 301);
     }
-    if (fallbackData._type === 'holiday' || fallbackData._type === 'event' || fallbackData._type === 'article') {
+    if (fallbackData._type === 'holiday' || fallbackData._type === 'event') {
       return Astro.redirect(`/events-holidays/${slug}`, 301);
     }
-    if (fallbackData._type === 'howTo' || fallbackData._type === 'tool') {
-      const catSlug = fallbackData.categorySlug || fallbackData.categories?.[0] || (fallbackData._type === 'howTo' ? 'how-to-guides' : 'finance-tools');
+    if (['howTo', 'tool', 'article', 'post', 'buyerGuide'].includes(fallbackData._type)) {
+      const defaultCategory = fallbackData._type === 'howTo'
+        ? 'how-to-guides'
+        : fallbackData._type === 'tool'
+          ? 'finance-tools'
+          : 'reviews';
+      const catSlug = fallbackData.categorySlug || fallbackData.categories?.[0] || defaultCategory;
       return Astro.redirect(`/${catSlug}/${slug}`, 301);
     }
   }
@@ -72,13 +67,6 @@ const viewData = {
   ...data,
   title: data.title.toLowerCase().endsWith('review') ? data.title : `${data.title} Review`,
 };
-
-let related: { lists: any[]; products: any[] } = { lists: [], products: [] };
-try {
-  related = await client.fetch(RELATED_FOR_PRODUCT, { id: data._id });
-} catch (error) {
-  console.error(`Error fetching related content for [${slug}]:`, error);
-}
 
 const schemaData = generateSchema(
   { ...data, slug: { current: slug }, _type: data._type || 'product' },

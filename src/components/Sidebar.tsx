@@ -1,34 +1,13 @@
 // src/components/Sidebar.tsx
-import { useState, useEffect } from "react";
-import { client } from "@/sanity/lib/client";
-
-
 import { Clock, TrendingUp, ShieldCheck } from "@/components/icons";
-
-// Query remains the same...
-const SIDEBAR_QUERY = `
-  *[_type in ["topTenList", "howTo", "post"] && slug.current != $currentSlug]
-  | order(publishedAt desc)[0...5] {
-    title,
-    "slug": slug.current,
-    "category": categories[0]->slug.current, 
-    publishedAt,
-    "imageUrl": mainImage.asset->url
-  }
-`;
 
 interface SidebarProps {
   currentSlug: string;
   categorySlug?: string;
+  recentPosts?: any[];
 }
 
-export default function Sidebar({ currentSlug }: SidebarProps) {
-  const [recentPosts, setRecentPosts] = useState<any[]>([]);
-
-  useEffect(() => {
-    client.fetch(SIDEBAR_QUERY, { currentSlug }).then(setRecentPosts).catch(() => {});
-  }, [currentSlug]);
-
+export default function Sidebar({ recentPosts = [] }: SidebarProps) {
   return (
     // FIX: 
     // 1. 'w-full': Full width on mobile/tablet (stacks at bottom)
@@ -64,8 +43,11 @@ export default function Sidebar({ currentSlug }: SidebarProps) {
         
         <div className="flex flex-col gap-6">
           {recentPosts.map((post: any) => {
-            const categoryPrefix = post.category ? post.category : 'reviews';
-            const postUrl = `/${categoryPrefix}/${post.slug}`;
+            const postUrl = post._type === 'topTenList'
+              ? `/top-ten/${post.slug}`
+              : post._type === 'howTo'
+                ? `/how-to-guides/${post.slug}`
+                : `/${post.category || 'reviews'}/${post.slug}`;
 
             return (
               <a key={post.slug} 

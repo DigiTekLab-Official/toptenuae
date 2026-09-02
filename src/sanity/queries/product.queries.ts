@@ -68,6 +68,91 @@ export const PRODUCT_BY_SLUG = groq`
 export const PRODUCT_BY_SLUG_QUERY = PRODUCT_BY_SLUG;
 
 /**
+ * PRODUCT_PAGE_QUERY - One request for a review, its route fallback metadata,
+ * and related content. The previous route issued a product request followed by
+ * a second related-content request for every successful review page.
+ */
+export const PRODUCT_PAGE_QUERY = groq`{
+  "data": *[_type == "product" && slug.current == $slug][0] {
+    _type,
+    _id,
+    _createdAt,
+    _updatedAt,
+    title,
+    brand,
+    "slug": slug.current,
+    price,
+    currency,
+    availability,
+    availabilityStatus,
+    availabilityCheckedAt,
+    priceTier,
+    retailer,
+    affiliateLink,
+    affiliateLinks[]->{merchant, merchantLabel, affiliateUrl, note, isPrimary, lastCheckedAt},
+    pros,
+    cons,
+    keyFeatures,
+    specifications[] { specLabel, specValue },
+    customerRating,
+    reviewCount,
+    verdict,
+    realComplaint,
+    mainImage { "url": asset->url, alt },
+    itemDescription,
+    whoItsFor,
+    whoShouldAvoid,
+    testingMethodology,
+    researchType,
+    sources[]{title, publisher, url, accessedAt},
+    alternatives[]->{_id, title, "slug": slug.current, brand, verdict, mainImage{"url": asset->url, alt}},
+    uaeCommerce,
+    lastPriceCheckedAt,
+    originalPublishedAt,
+    lastReviewedAt,
+    affiliateDisclosure,
+    author->{name, "slug": slug.current, role, bio, expertise, credentials, socialLinks, profileUrl, image{"url": asset->url, alt}},
+    reviewedBy->{name, "slug": slug.current, role, bio, expertise, credentials, profileUrl},
+    seo,
+    "seoTitle": coalesce(seo.metaTitle, title),
+    "seoDescription": coalesce(seo.metaDescription, itemDescription, ""),
+    "seoImage": coalesce(seo.ogImage.asset->url, mainImage.asset->url),
+    "category": category->{title, "slug": slug.current},
+    "categories": categories[]->{ "slug": slug.current, title }
+  },
+  "fallback": *[slug.current == $slug][0]{
+    _type,
+    "categorySlug": category->slug.current,
+    "categories": categories[]->slug.current
+  },
+  "related": {
+    "lists": *[
+      _type == "topTenList" &&
+      references(*[_type == "product" && slug.current == $slug][0]._id)
+    ] | order(publishedAt desc)[0...3]{
+      title,
+      "slug": slug.current,
+      mainImage { asset->{ url } }
+    },
+    "products": *[
+      _type == "product" &&
+      slug.current != $slug &&
+      count(*[
+        _type == "topTenList" &&
+        references(^._id) &&
+        references(*[_type == "product" && slug.current == $slug][0]._id)
+      ]) > 0
+    ] | order(_updatedAt desc)[0...8]{
+      title,
+      "slug": slug.current,
+      brand,
+      priceTier,
+      mainImage { asset->{ url } }
+    }
+  }
+}`;
+
+/**
  * RELATED_FOR_PRODUCT - Fetch related content for a product review page
  * Returns top-ten lists featuring this product + co-featured products for crawl link signals
  * Use for: "Related articles" and "Similar products" sections on review pages

@@ -49,6 +49,7 @@ async function generateSitemap() {
       { url: '', priority: 1.0, changeFrequency: 'daily' },
       { url: '/top-ten', priority: 0.9, changeFrequency: 'daily' },
       { url: '/reviews', priority: 0.9, changeFrequency: 'daily' },
+      { url: '/buying-guides', priority: 0.9, changeFrequency: 'weekly' },
       { url: '/how-to-guides', priority: 0.9, changeFrequency: 'weekly' },
       { url: '/deals', priority: 0.9, changeFrequency: 'hourly' },
       { url: '/finance-tools', priority: 0.8, changeFrequency: 'monthly' },

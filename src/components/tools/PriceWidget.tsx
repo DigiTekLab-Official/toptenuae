@@ -60,6 +60,9 @@ export default function PriceWidget({
 
           <a 
             href={link} 
+            data-affiliate-product={title || 'Price widget product'}
+            data-affiliate-cta="price_widget"
+            data-affiliate-position="editorial"
             target="_blank" 
             rel="nofollow sponsored noopener noreferrer"
             className={`${buttonBg} ${buttonText} px-6 py-3 rounded-lg font-bold text-sm flex items-center gap-2 shadow-sm transition-transform hover:-translate-y-0.5 whitespace-nowrap`}

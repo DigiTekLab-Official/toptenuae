@@ -22,6 +22,7 @@ export const GENERIC_POST_QUERY = groq`
     "categorySlug": coalesce(categories[0]->slug.current, category->slug.current),
     "categories": categories[]->{ "slug": slug.current, title },
     publishedAt, "_updatedAt": _updatedAt, "_createdAt": _createdAt, schemaType,
+    "author": coalesce(author, Author)->{ name, image, bio },
     "intro": intro,
     "body": body[]{
       ...,
@@ -40,6 +41,17 @@ export const GENERIC_POST_QUERY = groq`
     showAffiliateDisclosure,
     faqs[] { _key, question, answer },
     howToSteps,
-    startDate, endDate, isAllDay, locationName, address, ticketPrice, ticketUrl, isTicketAvailable, status
+    startDate, endDate, isAllDay, locationName, address, ticketPrice, ticketUrl, isTicketAvailable, status,
+    "sidebarPosts": *[
+      _type in ["topTenList", "howTo", "post"] &&
+      slug.current != $slug
+    ] | order(publishedAt desc)[0...5] {
+      _type,
+      title,
+      "slug": slug.current,
+      "category": coalesce(categories[0]->slug.current, category->slug.current),
+      publishedAt,
+      "imageUrl": mainImage.asset->url
+    }
   }
 `;

@@ -46,5 +46,19 @@ export const HOME_QUERY = groq`{
     "slug": slug.current,
     "categorySlug": category->slug.current,
     mainImage { "url": asset->url, alt }
+  },
+  "buyerGuides": *[
+    _type == "buyerGuide" &&
+    defined(slug.current) &&
+    coalesce(seo.noIndex, false) != true
+  ] | order(coalesce(publishedAt, _createdAt) desc)[0...5] {
+    _id,
+    _type,
+    title,
+    "slug": slug.current,
+    "categorySlug": coalesce(categories[0]->slug.current, category->slug.current),
+    "categoryTitle": coalesce(categories[0]->title, category->title),
+    "summary": coalesce(description, intro, ""),
+    mainImage { "url": asset->url, alt }
   }
 }`;

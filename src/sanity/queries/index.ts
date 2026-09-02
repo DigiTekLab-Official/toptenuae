@@ -8,6 +8,7 @@ export * from './settings.queries';
 
 // Content-specific queries
 export * from './home.queries';
+export * from './buyer-guide.queries';
 export * from './post.queries';
 export * from './review.queries';
 export * from './search.queries';

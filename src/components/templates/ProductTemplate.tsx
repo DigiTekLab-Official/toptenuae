@@ -45,9 +45,10 @@ export default function ProductTemplate({ data }: ProductTemplateProps) {
   const pickingReason = customVerdict || verdict;
   const isUnavailable = availabilityStatus === 'unavailable';
   const availabilityMessage = `Currently unavailable on Amazon.ae — checked ${availabilityCheckedAt || 'date not recorded'}`;
+  const affiliateCategory = data.category?.slug || data.categories?.[0]?.slug || 'product-review';
 
   return (
-    <article className="font-sans bg-slate-50 min-h-screen pb-24 lg:pb-20"> 
+    <article className="font-sans bg-slate-50 min-h-screen pb-24 lg:pb-20" data-affiliate-category={affiliateCategory}>
       
       {/* --- 1. HERO HEADER --- */}
       <div className="bg-[#4b0082] relative overflow-hidden text-white pt-12 pb-32 px-4">
@@ -230,6 +231,8 @@ export default function ProductTemplate({ data }: ProductTemplateProps) {
                   href={affiliateLink}
                   data-affiliate-product={title}
                   data-affiliate-cta="review_cta"
+                  data-affiliate-category={affiliateCategory}
+                  data-affiliate-position="review"
                   target="_blank"
                   rel="nofollow sponsored noopener"
                   className="group flex items-center justify-center gap-2 w-full bg-[#0071e3] hover:bg-[#0076df] text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-blue-200 transition-all hover:-translate-y-1 hover:shadow-xl text-lg mb-4"
@@ -295,6 +298,8 @@ export default function ProductTemplate({ data }: ProductTemplateProps) {
              href={affiliateLink}
              data-affiliate-product={title}
              data-affiliate-cta="review_cta"
+             data-affiliate-category={affiliateCategory}
+             data-affiliate-position="review"
              target="_blank"
              rel="nofollow sponsored noopener"
              className="bg-[#0071e3] text-white font-bold py-3 px-6 rounded-xl shadow-md hover:bg-[#0076df] active:scale-95 transition-transform flex items-center gap-2"

@@ -3,6 +3,7 @@ export type SupportedContentType =
   | 'article'
   | 'post'
   | 'product'
+  | 'buyerGuide'
   | 'howTo'
   | 'tool'
   | 'holiday'
@@ -60,7 +61,7 @@ export const buildContentPath = ({
   const typePrefix = ROUTE_PREFIX_BY_TYPE[_type];
   if (typePrefix) return `/${typePrefix}/${normalizedSlug}`;
 
-  if (_type === 'article' || _type === 'post') {
+  if (_type === 'article' || _type === 'post' || _type === 'buyerGuide') {
     const normalizedCategory = normalizeRouteSegment(categorySlug);
     const articlePrefix = normalizedCategory
       ? ARTICLE_ROUTE_BY_CATEGORY[normalizedCategory]

@@ -88,7 +88,7 @@ export default function ArticleView({ data, category, slug }: ArticleViewProps) 
           )}
         </main>
         
-        <Sidebar currentSlug={slug} categorySlug={activeCategorySlug} />
+        <Sidebar currentSlug={slug} categorySlug={activeCategorySlug} recentPosts={data?.sidebarPosts || []} />
       </div>
     </div>
   );
