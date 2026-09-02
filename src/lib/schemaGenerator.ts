@@ -470,13 +470,18 @@ export const generateArticleSchema = (
   const headline = cleanText(data.title) || 'TopTenUAE Article';
   const images = data.mainImage?.url ? [data.mainImage.url] : [DEFAULT_IMAGE];
 
-  // Fix #4: Sanity radio button wins; _type fallback preserved
+  // buyerGuide is an authoritative document type, so infer Guide even for
+  // existing documents created before the Studio selector offered that value.
+  // The nested SEO selection remains supported without requiring a migration.
+  const selectedSchemaType = data.schemaType || data.seo?.schemaType;
   const schemaType =
-    data.schemaType === 'NewsArticle'
-      ? 'NewsArticle'
-      : data._type === 'news'
+    data._type === 'buyerGuide' || selectedSchemaType === 'Guide'
+      ? 'Guide'
+      : selectedSchemaType === 'NewsArticle'
         ? 'NewsArticle'
-        : 'Article';
+        : data._type === 'news'
+          ? 'NewsArticle'
+          : 'Article';
 
   return {
     '@context': 'https://schema.org',
@@ -682,7 +687,12 @@ export function generateSchema(
   // GAP A FIX: toLowerCase() normalises Sanity schemaType values
   // ('HowTo' → 'howto', 'FAQPage' → 'faqpage', 'NewsArticle' → 'newsarticle')
   // so each case string must be the lowercased form of the Sanity value.
-  const rawType = data.schemaType || data._type;
+  // A buyerGuide's document type is authoritative. This avoids a second piece
+  // of required state and prevents unrelated articles from being converted.
+  const rawType =
+    data._type === 'buyerGuide'
+      ? 'buyerGuide'
+      : data.schemaType || data._type;
   const targetType = rawType ? rawType.toLowerCase() : 'article';
 
   switch (targetType) {
@@ -727,6 +737,12 @@ export function generateSchema(
 
     case 'howto': {
       schemas.push(generateHowToSchema(data, category, slug));
+      break;
+    }
+
+    case 'buyerguide':
+    case 'guide': {
+      schemas.push(generateArticleSchema(data, category, slug));
       break;
     }
 
