@@ -8,8 +8,13 @@ import { cleanText } from '@/lib/utils/sanity-text';
 // CONFIGURATION
 // =============================================================================
 const baseUrl = import.meta.env.PUBLIC_BASE_URL || 'https://toptenuae.com';
-const ORGANIZATION_LOGO = `${baseUrl}/icon.png`;
+const ORGANIZATION_LOGO = `${baseUrl}/images/brand/logo.svg`;
 const DEFAULT_IMAGE = `${baseUrl}/images/brand/og-default.png`;
+const ORGANIZATION_PROFILES = [
+  'https://www.facebook.com/TopTenUAEofficial',
+  'https://x.com/top10_uae',
+  'https://www.instagram.com/toptenuae_/',
+];
 
 // =============================================================================
 // HELPERS
@@ -59,8 +64,6 @@ export const generateOrganizationSchema = () => ({
     '@type': 'ImageObject',
     '@id': `${baseUrl}/#logo`,
     url: ORGANIZATION_LOGO,
-    width: 512,
-    height: 512,
     caption: 'TopTenUAE Logo',
   },
   image: {
@@ -83,7 +86,7 @@ export const generateOrganizationSchema = () => ({
     areaServed: 'AE',
     availableLanguage: ['en', 'ar'],
   },
-  sameAs: [],
+  sameAs: ORGANIZATION_PROFILES,
 });
 
 // =============================================================================

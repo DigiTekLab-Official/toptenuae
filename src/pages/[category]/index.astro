@@ -158,7 +158,7 @@ const jsonLd = {
     itemListElement: validItems.map((item: any, index: number) => ({
       '@type': 'ListItem',
       position: index + 1,
-      url: `https://toptenuae.com/${categorySlug}/${item.slug}`,
+      url: new URL(getItemHref(item), 'https://toptenuae.com').href,
       name: cleanText(item.title),
     })),
   },

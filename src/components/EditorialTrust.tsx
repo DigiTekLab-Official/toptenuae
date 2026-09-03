@@ -5,18 +5,20 @@ const formatDate = (value?: string) => value
   : '';
 
 export default function EditorialTrust({data}: {data: any}) {
-  const updated = data.lastReviewedAt || data._updatedAt;
+  const reviewedAt = data.lastReviewedAt;
+  const updatedAt = reviewedAt ? undefined : data._updatedAt;
   const methodology = data.testingMethodology || data.methodology;
   const sources = Array.isArray(data.sources) ? data.sources.filter((source: any) => source?.title && source?.url) : [];
   const uaeCommerce = data.uaeCommerce;
 
   return <>
-    {(data.author?.name || data.reviewedBy?.name || updated) && (
+    {(data.author?.name || data.reviewedBy?.name || reviewedAt || updatedAt) && (
       <section aria-label="Editorial information" className="rounded-2xl border border-slate-200 bg-white p-5 text-sm text-slate-700">
         <div className="flex flex-wrap gap-x-6 gap-y-2">
           {data.author?.name && <span>Written by <strong>{data.author.name}</strong>{data.author.role ? `, ${data.author.role}` : ''}</span>}
           {data.reviewedBy?.name && <span>Reviewed by <strong>{data.reviewedBy.name}</strong>{data.reviewedBy.role ? `, ${data.reviewedBy.role}` : ''}</span>}
-          {updated && <span>Fact-checked <time dateTime={updated}>{formatDate(updated)}</time></span>}
+          {reviewedAt && <span>Reviewed <time dateTime={reviewedAt}>{formatDate(reviewedAt)}</time></span>}
+          {updatedAt && <span>Updated <time dateTime={updatedAt}>{formatDate(updatedAt)}</time></span>}
         </div>
         {data.author?.bio && <p className="mt-3 leading-relaxed">{data.author.bio}</p>}
       </section>

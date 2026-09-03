@@ -57,8 +57,13 @@ if (correctCategory !== category) {
   return Astro.redirect(`/${correctCategory}/${slug}`, 301);
 }
 
-// Generate schema
-const schemaData = generateSchema(data, category, slug);
+// Generate schema. Stored HowTo steps are not rendered by this route, so do not
+// emit a HowTo node that describes content readers cannot see. Other page-level
+// schemas (Organization, BreadcrumbList and visible FAQs) remain unchanged.
+const generatedSchemas = generateSchema(data, category, slug);
+const schemaData = data._type === 'howTo' && Array.isArray(generatedSchemas)
+  ? generatedSchemas.filter((schema: any) => schema?.['@type'] !== 'HowTo')
+  : generatedSchemas;
 
 // SEO metadata
 const imageUrl = data.mainImage?.url || data.mainImage?.asset?.url || null;
@@ -75,11 +80,6 @@ const seoDescription = gscSeoOverride?.description || data.seo?.metaDescription 
 const baseUrl = import.meta.env.PUBLIC_BASE_URL || 'https://toptenuae.com';
 const canonicalUrl = data.seo?.canonicalUrl || `${baseUrl}/${correctCategory}/${slug}`;
 const isToolPage = data._type === 'tool';
-
-// FIX #5 (Opportunity #2): howToSteps is intentionally NOT passed to ArticleView /
-// ToolLayout. It is fetched solely for structured-data generation in generateSchema()
-// above. Readers see `body`; Google sees the JSON-LD HowTo steps. No duplicate
-// content, no clutter in the editor preview.
 ---
 
 {isToolPage ? (

@@ -1,12 +1,23 @@
 ---
 // src/pages/about-us.astro
 import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const aboutPageSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'AboutPage',
+  '@id': 'https://toptenuae.com/about-us#webpage',
+  url: 'https://toptenuae.com/about-us',
+  name: 'About TopTenUAE',
+  about: { '@id': 'https://toptenuae.com/#organization' },
+  isPartOf: { '@id': 'https://toptenuae.com/#website' },
+};
 ---
 
 <BaseLayout
   title="About Us | Top Ten UAE"
   description="Learn how TopTenUAE curates the best product recommendations for UAE residents through data-driven analysis and local expertise."
   canonical="https://toptenuae.com/about-us"
+  jsonLd={aboutPageSchema}
 >
   <div class="bg-white">
     <section class="relative bg-primary py-20 px-4 sm:px-6 lg:px-8 text-center text-white overflow-hidden">
@@ -98,15 +109,5 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
         <a href="/contact-us" class="inline-block bg-transparent border-2 border-white text-white font-bold py-3 px-8 rounded-full hover:bg-white/10 transition-colors">Get in Touch with Our Team</a>
       </div>
     </section>
-
-    <script is:inline type="application/ld+json" set:html={JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      name: "Top Ten UAE",
-      url: "https://toptenuae.com",
-      logo: "https://toptenuae.com/logo.png",
-      description: "Expert-curated top 10 product lists and buying guides for the UAE market.",
-      sameAs: ["https://facebook.com/toptenuae", "https://twitter.com/toptenuae"],
-    })} />
   </div>
 </BaseLayout>

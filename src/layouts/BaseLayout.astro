@@ -5,6 +5,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer.astro';
 import GTMScript from '@/components/analytics/GTMScript.astro';
 import ClarityScript from '@/components/analytics/ClarityScript.astro';
+import { generateOrganizationSchema } from '@/lib/schemaGenerator';
 import '@/styles/globals.css';
 
 interface Props {
@@ -33,37 +34,7 @@ const canonicalUrl = canonical || new URL(Astro.url.pathname, siteUrl).href;
 const resolvedOgImage = ogImage || '/images/brand/og-default.png';
 const ogImageUrl = resolvedOgImage.startsWith('http') ? resolvedOgImage : `${siteUrl}${resolvedOgImage}`;
 
-const organizationSchema = {
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  "@id": `${siteUrl}/#organization`,
-  name: "TopTenUAE",
-  alternateName: "Top Ten UAE",
-  url: siteUrl,
-  logo: {
-    "@type": "ImageObject",
-    "@id": `${siteUrl}/#logo`,
-    url: `${siteUrl}/icon.png`,
-    width: 512,
-    height: 512,
-    caption: "TopTenUAE Logo"
-  },
-  image: {
-    "@type": "ImageObject",
-    url: `${siteUrl}/images/brand/og-default.png`,
-    width: 1200,
-    height: 630
-  },
-  description: "Expert reviews, rankings, and smart tools for UAE residents.",
-  foundingDate: "2020",
-  areaServed: { "@type": "Country", name: "United Arab Emirates" },
-  contactPoint: {
-    "@type": "ContactPoint",
-    contactType: "Customer Service",
-    areaServed: "AE",
-    availableLanguage: ["en", "ar"]
-  },
-};
+const organizationSchema = generateOrganizationSchema();
 
 // Build JSON-LD schemas.
 // De-dupe Organization: pages whose jsonLd already includes an Organization
@@ -129,8 +100,8 @@ const jsonLdGraph = {
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageUrl} />
-    <meta name="twitter:creator" content="@toptenuae" />
-    <meta name="twitter:site" content="@toptenuae" />
+    <meta name="twitter:creator" content="@top10_uae" />
+    <meta name="twitter:site" content="@top10_uae" />
     
     {/* Preload LCP font */}
     <link
