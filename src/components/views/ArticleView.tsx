@@ -5,6 +5,7 @@ import FAQAccordion from "@/components/FAQAccordion";
 
 import TopTenTemplate from "@/components/templates/TopTenTemplate";
 import ArticleTemplate from "@/components/templates/ArticleTemplate";
+import ArticleHero from "@/components/ArticleHero";
 import EventTemplate from "@/components/templates/EventTemplate";
 
 interface ArticleViewProps {
@@ -57,14 +58,7 @@ export default function ArticleView({ data, category, slug }: ArticleViewProps) 
             </div>
 
             {showHeaderImage && (
-               <div className="mt-6 relative w-full h-auto aspect-video rounded-xl overflow-hidden bg-gray-100">
-                 <img 
-                   src={data.mainImage.url} 
-                   alt={data.mainImage.alt || data.title}
-                   className="absolute inset-0 w-full h-full object-cover"
-                   loading="eager"
-                 />
-               </div>
+              <ArticleHero image={data.mainImage} alt={data.mainImage.alt || data.title} />
             )}
           </header>
 

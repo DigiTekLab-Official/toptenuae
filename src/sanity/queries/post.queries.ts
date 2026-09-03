@@ -17,7 +17,24 @@ export const GENERIC_POST_QUERY = groq`
     "seoTitle": coalesce(seo.metaTitle, title),
     "seoDescription": coalesce(seo.metaDescription, description, ""),
     seo,
-    "mainImage": coalesce(mainImage, image, coverImage, product->mainImage) { "url": asset->url, alt },
+    "mainImage": coalesce(featuredImage, mainImage, image, coverImage, product->mainImage) {
+      asset->{
+        _id,
+        url,
+        metadata {
+          dimensions {
+            width,
+            height,
+            aspectRatio
+          },
+          lqip
+        }
+      },
+      alt,
+      hotspot,
+      crop,
+      "url": asset->url
+    },
     "category": coalesce(categories[0], category)->{ "title": title, "slug": slug.current, "menuLabel": menuLabel },
     "categorySlug": coalesce(categories[0]->slug.current, category->slug.current),
     "categories": categories[]->{ "slug": slug.current, title },
