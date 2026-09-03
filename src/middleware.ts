@@ -1,7 +1,13 @@
 // src/middleware.ts
 import { defineMiddleware } from 'astro:middleware';
+import {
+  AI_REFERRAL_COOKIE_MAX_AGE_SECONDS,
+  AI_REFERRAL_COOKIE_NAME,
+  getAiReferralAttribution,
+  serializeAiReferralAttribution,
+} from '@/lib/analytics/ai-referral-attribution.js';
 
-export const onRequest = defineMiddleware(async ({ request, url, redirect }, next) => {
+export const onRequest = defineMiddleware(async ({ request, url, redirect, cookies }, next) => {
   const hostname = request.headers.get('host') || '';
 
   // Skip static assets and API routes
@@ -50,6 +56,10 @@ export const onRequest = defineMiddleware(async ({ request, url, redirect }, nex
   // ─────────────────────────────────────────────────────────────────────────
   let needsRedirect = false;
   const newUrl = new URL(url);
+  const incomingAiAttribution = getAiReferralAttribution({
+    utmSource: url.searchParams.get('utm_source'),
+    referrer: request.headers.get('referer'),
+  });
 
   // 1. Force non-www
   if (hostname.startsWith('www.')) {
@@ -96,11 +106,39 @@ export const onRequest = defineMiddleware(async ({ request, url, redirect }, nex
   //    }
 
   if (needsRedirect) {
+    if (incomingAiAttribution) {
+      cookies.set(
+        AI_REFERRAL_COOKIE_NAME,
+        serializeAiReferralAttribution(incomingAiAttribution),
+        {
+          path: '/',
+          maxAge: AI_REFERRAL_COOKIE_MAX_AGE_SECONDS,
+          httpOnly: true,
+          sameSite: 'lax',
+          secure: url.protocol === 'https:',
+        }
+      );
+    }
     return redirect(newUrl.toString(), 301);
   }
 
   // Continue and add security headers (unchanged)
+  const hadAiReferralCookie = cookies.has(AI_REFERRAL_COOKIE_NAME);
   const response = await next();
+  const isSuccessfulHtml =
+    response.status >= 200 &&
+    response.status < 300 &&
+    response.headers.get('content-type')?.includes('text/html');
+
+  if (hadAiReferralCookie && isSuccessfulHtml) {
+    cookies.delete(AI_REFERRAL_COOKIE_NAME, {
+      path: '/',
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: url.protocol === 'https:',
+    });
+  }
+
   const csp = [
     "default-src 'self'",
     "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://www.clarity.ms https://*.clarity.ms https://challenges.cloudflare.com",

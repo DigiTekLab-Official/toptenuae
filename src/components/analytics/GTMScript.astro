@@ -1,11 +1,20 @@
 ---
 const gtmId = import.meta.env.PUBLIC_GTM_ID || 'GTM-N3PB47W';
+const { aiReferralAttribution = null } = Astro.props;
 ---
 
-<script is:inline define:vars={{ gtmId }}>
+<script is:inline define:vars={{ gtmId, aiReferralAttribution }}>
   if (gtmId) {
     (function (w, d, s, l, i) {
       w[l] = w[l] || [];
+      if (aiReferralAttribution) {
+        w[l].push({
+          event: 'ai_referral_attribution',
+          ai_referral_source: aiReferralAttribution.source,
+          ai_referral_method: aiReferralAttribution.method,
+          ai_referral_landing_page: w.location.pathname,
+        });
+      }
       w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
       var f = d.getElementsByTagName(s)[0],
           j = d.createElement(s),
