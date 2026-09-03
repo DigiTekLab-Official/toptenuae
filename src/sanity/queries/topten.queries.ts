@@ -59,7 +59,7 @@ export const TOP_TEN_BY_SLUG = groq`
     listItems[] | order(rank asc) {
       _key, rank, badgeLabel, whySelected, skipIf, customVerdict,
       product->{
-        _type, title,
+        _type, title, brand,
         "slug": slug.current, // ✅ PERFECT: This enables the Schema URL fix
         priceTier, price, currency, availability, availabilityStatus, availabilityCheckedAt,
         affiliateLink,

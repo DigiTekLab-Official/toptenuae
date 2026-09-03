@@ -13,7 +13,23 @@ export const BUYER_GUIDES_INDEX_QUERY = groq`
     "categorySlug": coalesce(categories[0]->slug.current, category->slug.current),
     "categoryTitle": coalesce(categories[0]->title, category->title, "Other buying guides"),
     "summary": coalesce(description, intro, ""),
-    mainImage { "url": asset->url, alt },
+    "mainImage": coalesce(featuredImage, mainImage) {
+      asset->{
+        _id,
+        url,
+        metadata {
+          dimensions {
+            width,
+            height,
+            aspectRatio
+          }
+        }
+      },
+      alt,
+      crop,
+      hotspot,
+      "url": asset->url
+    },
     "updatedAt": coalesce(_updatedAt, publishedAt, _createdAt)
   }
 `;

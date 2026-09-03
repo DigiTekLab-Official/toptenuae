@@ -59,6 +59,6 @@ export const HOME_QUERY = groq`{
     "categorySlug": coalesce(categories[0]->slug.current, category->slug.current),
     "categoryTitle": coalesce(categories[0]->title, category->title),
     "summary": coalesce(description, intro, ""),
-    mainImage { "url": asset->url, alt }
+    "mainImage": coalesce(featuredImage, mainImage) { "url": asset->url, alt }
   }
 }`;

@@ -26,61 +26,86 @@ interface ListItem {
   product: Product;
 }
 
+interface DecisionDetail { label: string; value: string }
+
 const findDetail = (product: Product, patterns: RegExp[]) => {
-  const details = [
-    ...(product.keyFeatures || []),
-    ...(product.specifications || []).map((spec) =>
-      [spec.specLabel, spec.specValue].filter(Boolean).join(': ')
-    ),
-  ].filter(Boolean);
-  return details.find((detail) => patterns.some((pattern) => pattern.test(detail))) || 'Not stated';
+  const spec = (product.specifications || []).find(({ specLabel, specValue }) =>
+    patterns.some((pattern) => pattern.test(`${specLabel || ''} ${specValue || ''}`))
+  );
+  if (spec?.specValue) return spec.specValue;
+
+  return (product.keyFeatures || []).find((detail) =>
+    patterns.some((pattern) => pattern.test(detail))
+  ) || 'Not stated';
 };
 
-const decisionDetails = (product: Product, category?: string) => {
+const householdSize = (capacity: string) => {
+  if (/dual/i.test(capacity)) return 'Larger households / two-part meals';
+  const litres = Number(capacity.match(/(\d+(?:\.\d+)?)\s*l/i)?.[1]);
+  if (!litres) return 'Check usable basket area';
+  if (litres <= 5) return 'Usually 1–2 people';
+  if (litres <= 7) return 'Usually 3–4 people';
+  return 'Usually larger households';
+};
+
+const decisionDetails = (product: Product, category?: string): DecisionDetail[] => {
   if (category === 'electric_shaver') {
-    return {
-      firstLabel: 'Shave style',
-      firstValue: findDetail(product, [/foil/i, /rotary/i, /blade/i, /head/i]),
-      secondLabel: 'Wet / dry',
-      secondValue: findDetail(product, [/wet/i, /dry/i, /waterproof/i, /water resistant/i]),
-    };
+    return [
+      { label: 'Shaver type', value: findDetail(product, [/foil/i, /rotary/i]) },
+      { label: 'Wet / dry', value: findDetail(product, [/wet/i, /dry/i, /waterproof/i, /water resistant/i]) },
+      { label: 'Head / blades', value: findDetail(product, [/blade/i, /head/i, /element/i]) },
+    ];
   }
   if (category === 'beard_trimmer') {
-    return {
-      firstLabel: 'Length / settings',
-      firstValue: findDetail(product, [/length/i, /setting/i, /comb/i]),
-      secondLabel: 'Runtime / wet use',
-      secondValue: findDetail(product, [/runtime/i, /battery/i, /minute/i, /waterproof/i, /shower/i]),
-    };
+    return [
+      { label: 'Length range', value: findDetail(product, [/length/i, /setting/i, /\bmm\b/i]) },
+      { label: 'Attachments', value: findDetail(product, [/attachment/i, /comb/i, /piece/i]) },
+      { label: 'Waterproofing', value: findDetail(product, [/waterproof/i, /water resistant/i, /washable/i, /shower/i]) },
+    ];
   }
   if (category === 'air_fryer') {
-    return {
-      firstLabel: 'Capacity',
-      firstValue: findDetail(product, [/capacity/i, /\d+(?:\.\d+)?\s*l\b/i]),
-      secondLabel: 'Basket / key feature',
-      secondValue: findDetail(product, [/basket/i, /drawer/i, /dual/i, /window/i, /heating/i]),
-    };
+    const capacity = findDetail(product, [/capacity/i, /\d+(?:\.\d+)?\s*l\b/i, /dual/i]);
+    return [
+      { label: 'Capacity', value: capacity },
+      { label: 'Basket type', value: findDetail(product, [/basket/i, /drawer/i, /dual/i]) },
+      { label: 'Household fit', value: householdSize(capacity) },
+      { label: 'Key feature', value: findDetail(product, [/window/i, /heating/i, /programme/i, /program/i, /technology/i]) },
+    ];
   }
   if (category === 'laptop') {
-    return {
-      firstLabel: 'Processor',
-      firstValue: findDetail(product, [/processor/i, /intel core/i, /ryzen/i, /apple m\d/i, /snapdragon/i]),
-      secondLabel: 'Memory / storage',
-      secondValue: findDetail(product, [/\bram\b/i, /memory/i, /storage/i, /\bssd\b/i]),
-    };
+    return [
+      { label: 'Processor', value: findDetail(product, [/processor/i, /intel core/i, /ryzen/i, /apple m\d/i, /snapdragon/i]) },
+      { label: 'RAM', value: findDetail(product, [/\bram\b/i, /memory/i]) },
+      { label: 'Storage', value: findDetail(product, [/storage/i, /\bssd\b/i]) },
+      { label: 'Display', value: findDetail(product, [/display/i, /screen/i, /oled/i, /resolution/i]) },
+    ];
   }
-  return {
-    firstLabel: 'Key feature',
-    firstValue: product.keyFeatures?.[0] || 'Not stated',
-    secondLabel: 'Also consider',
-    secondValue: product.keyFeatures?.[1] || 'Not stated',
-  };
+  if (category === 'baby_monitor') {
+    return [
+      { label: 'Connection', value: findDetail(product, [/non.?wi.?fi/i, /wi.?fi/i, /hybrid/i, /local/i]) },
+      { label: 'Viewing', value: findDetail(product, [/screen/i, /display/i, /app/i, /phone/i]) },
+      { label: 'Range / privacy', value: findDetail(product, [/range/i, /privacy/i, /encrypted/i, /local/i, /cloud/i]) },
+    ];
+  }
+  if (category === 'coffee_maker') {
+    return [
+      { label: 'Machine type', value: findDetail(product, [/machine type/i, /bean.to.cup/i, /capsule/i, /drip filter/i, /manual pump/i, /semi.automatic/i]) },
+      { label: 'Coffee format', value: findDetail(product, [/coffee format/i, /whole bean/i, /ground coffee/i, /capsule/i, /ese pod/i]) },
+      { label: 'Milk system', value: findDetail(product, [/milk system/i, /milk frother/i, /steam wand/i, /lattecrema/i]) },
+      { label: 'Water tank', value: findDetail(product, [/water tank/i, /\d+(?:\.\d+)?\s*l\b/i]) },
+      { label: 'Footprint', value: findDetail(product, [/footprint/i, /dimensions/i, /\d+(?:\.\d+)?\s*[×x]\s*\d/i]) },
+      { label: 'Cleaning', value: findDetail(product, [/cleaning effort/i, /cleaning/i, /rinse/i, /dishwasher/i]) },
+    ];
+  }
+  return [
+    { label: 'Key feature', value: product.keyFeatures?.[0] || 'Not stated' },
+    { label: 'Also consider', value: product.keyFeatures?.[1] || 'Not stated' },
+  ];
 };
 
 export default function ComparisonSummaryTable({ items, category }: { items: ListItem[]; category?: string }) {
   if (!items || items.length === 0) return null;
   const quickItems = items.slice(0, 6);
-  const labels = decisionDetails({ title: '' }, category);
 
   return (
     <div className="my-12 font-sans">
@@ -104,8 +129,7 @@ export default function ComparisonSummaryTable({ items, category }: { items: Lis
             <tr>
               <th className="px-3 py-4 font-bold">Product</th>
               <th className="px-3 py-4 font-bold">Best for</th>
-              <th className="px-3 py-4 font-bold">{labels.firstLabel}</th>
-              <th className="px-3 py-4 font-bold">{labels.secondLabel}</th>
+              <th className="px-3 py-4 font-bold">Key details</th>
               <th className="px-3 py-4 font-bold">Price tier</th>
               <th className="px-3 py-4 font-bold">Main compromise</th>
               <th className="px-3 py-4 font-bold text-center">Amazon.ae</th>
@@ -147,8 +171,16 @@ export default function ComparisonSummaryTable({ items, category }: { items: Lis
                     )}
                   </td>
                   
-                  <td className="px-3 py-4 text-sm text-gray-700">{details.firstValue}</td>
-                  <td className="px-3 py-4 text-sm text-gray-700">{details.secondValue}</td>
+                  <td className="px-3 py-4 text-sm text-gray-700">
+                    <dl className="space-y-1.5">
+                      {details.map((detail) => (
+                        <div key={detail.label}>
+                          <dt className="inline font-bold text-gray-900">{detail.label}: </dt>
+                          <dd className="inline">{detail.value}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </td>
                   <td className="px-3 py-4 text-sm font-semibold text-gray-700">{product.priceTier || 'Not stated'}</td>
                   <td className="px-3 py-4 text-sm text-gray-700">{item.skipIf || product.cons?.[0] || 'Not stated'}</td>
 
@@ -239,8 +271,9 @@ export default function ComparisonSummaryTable({ items, category }: { items: Lis
                         )}
                     </div>
                     <dl className="grid grid-cols-2 gap-2 text-xs text-gray-700">
-                      <div><dt className="font-bold text-gray-900">{details.firstLabel}</dt><dd>{details.firstValue}</dd></div>
-                      <div><dt className="font-bold text-gray-900">{details.secondLabel}</dt><dd>{details.secondValue}</dd></div>
+                      {details.map((detail) => (
+                        <div key={detail.label}><dt className="font-bold text-gray-900">{detail.label}</dt><dd>{detail.value}</dd></div>
+                      ))}
                       <div><dt className="font-bold text-gray-900">Price tier</dt><dd>{product.priceTier || 'Not stated'}</dd></div>
                       <div><dt className="font-bold text-gray-900">Main compromise</dt><dd>{item.skipIf || product.cons?.[0] || 'Not stated'}</dd></div>
                     </dl>

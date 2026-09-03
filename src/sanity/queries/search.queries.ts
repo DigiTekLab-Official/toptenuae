@@ -14,6 +14,16 @@ import groq from 'groq';
  */
 export const SITE_SEARCH_QUERY = groq`
   [
+    *[_type == "category" && defined(slug.current) && (title match $searchTerm || menuLabel match $searchTerm || description match $searchTerm)] {
+      _type,
+      _id,
+      "contentType": "category",
+      title,
+      "slug": slug.current,
+      "image": ogImage { "url": asset->url },
+      "excerpt": description,
+      _score
+    }[0...2],
     *[_type == "product" && (title match $searchTerm || brand match $searchTerm)] {
       _type,
       _id,
@@ -50,7 +60,7 @@ export const SITE_SEARCH_QUERY = groq`
       "contentType": "article",
       title,
       "slug": slug.current,
-      "image": mainImage { "url": asset->url, alt },
+      "image": coalesce(featuredImage, mainImage) { "url": asset->url, alt },
       "excerpt": description,
       "categorySlug": coalesce(categories[0]->slug.current, category->slug.current),
       publishedAt,
@@ -74,7 +84,7 @@ export const SITE_SEARCH_QUERY = groq`
 `;
 
 export const SEARCH_SUGGESTIONS_QUERY = groq`
-  *[_type in ["product", "topTenList", "buyerGuide", "howTo", "holiday", "tool"] && title match $searchTerm]
+  *[_type in ["category", "product", "topTenList", "buyerGuide", "howTo", "holiday", "tool"] && title match $searchTerm]
     | order(_score desc)[0...8] {
       _type,
       title,

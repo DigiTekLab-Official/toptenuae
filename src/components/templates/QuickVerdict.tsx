@@ -5,13 +5,16 @@ interface QuickPick {
   rank: number;
   tag: string;
   title: string;
-  rating: number;
+  rating?: number;
   priceEstimate?: string;
   imageUrl: string;
   affiliateLink?: string;
+  bestFor?: string;
+  whySelected: string;
+  limitation: string;
 }
 
-export default function QuickVerdict({ picks, category }: { picks: QuickPick[]; category?: string }) {
+export default function QuickVerdict({ picks, category, showRationale = false }: { picks: QuickPick[]; category?: string; showRationale?: boolean }) {
   if (!picks || picks.length === 0) return null;
 
   return (
@@ -26,16 +29,18 @@ export default function QuickVerdict({ picks, category }: { picks: QuickPick[]; 
           
           <div>
             <h2 className="text-xl font-black text-gray-900 tracking-tight">
-              Top 3 Shortlist
+              {showRationale ? 'Best picks by buyer need' : 'Top 3 Shortlist'}
             </h2>
             <p className="text-base font-medium text-gray-500 mt-0.5">
-              Start with these picks, then check the trade-offs below.
+              {showRationale
+                ? 'A concise shortlist with the buyer fit, reason and main trade-off for each recommendation.'
+                : 'Start with these picks, then check the trade-offs below.'}
             </p>
           </div>
         </div>
 
       {/* Grid Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-100">
+      <div className={`grid grid-cols-1 ${picks.length >= 4 ? 'lg:grid-cols-4' : 'md:grid-cols-3'} divide-y lg:divide-y-0 lg:divide-x divide-gray-100`}>
         {picks.map((pick, index) => {
           return (
             <div key={index} className="flex flex-col h-full group relative">
@@ -52,6 +57,14 @@ export default function QuickVerdict({ picks, category }: { picks: QuickPick[]; 
                 <h3 className="text-lg font-bold text-gray-900 leading-snug mb-4 min-h-14 shrink-0">
                    {pick.title}
                 </h3>
+
+                {showRationale && (
+                  <div className="mb-4 space-y-3 text-sm leading-relaxed text-slate-700">
+                    <p><strong className="text-slate-900">Best for:</strong> {pick.bestFor || pick.tag}</p>
+                    <p><strong className="text-slate-900">Why selected:</strong> {pick.whySelected}</p>
+                    <p><strong className="text-slate-900">Important limitation:</strong> {pick.limitation}</p>
+                  </div>
+                )}
 
                 {/* Clickable Image */}
                 <div className="relative w-full h-40 mb-4 flex items-center justify-center">
@@ -70,10 +83,10 @@ export default function QuickVerdict({ picks, category }: { picks: QuickPick[]; 
                 {/* Rating & Price */}
                 <div className="mt-auto space-y-4">
                    <div className="flex items-center justify-between">
-                      <div className="flex text-amber-500">
+                      {pick.rating ? <div className="flex text-amber-500">
                           <Star className="w-4 h-4 fill-current" />
                           <span className="ml-1 text-sm font-bold text-gray-700">{pick.rating}/5</span>
-                      </div>
+                      </div> : <span />}
                       {pick.priceEstimate && (
                         <div className="text-sm font-bold text-gray-900">
                            {pick.priceEstimate}

@@ -3,6 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import { client } from '@/sanity/lib/client';
 import { BUYER_GUIDES_INDEX_QUERY } from '@/sanity/queries/buyer-guide.queries';
 import { cleanText } from '@/lib/utils/sanity-text';
+import { responsiveSanityImage } from '@/sanity/lib/image';
 
 type BuyerGuide = {
   _id: string;
@@ -11,7 +12,17 @@ type BuyerGuide = {
   categorySlug: string;
   categoryTitle: string;
   summary?: unknown;
-  mainImage?: { url?: string; alt?: string };
+  mainImage?: {
+    url?: string;
+    alt?: string;
+    asset?: {
+      _id?: string;
+      url?: string;
+      metadata?: { dimensions?: { width?: number; height?: number; aspectRatio?: number } };
+    };
+    crop?: unknown;
+    hotspot?: unknown;
+  };
   updatedAt?: string;
 };
 
@@ -75,24 +86,42 @@ const jsonLd = {
                 <a href={`/${group.slug}`} class="text-sm font-bold text-[#4b0082] hover:underline">View topic →</a>
               </div>
               <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
-                {group.guides.map((guide) => (
-                  <article class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all hover:border-[#4b0082]/30 hover:shadow-md">
-                    <a href={`/${guide.categorySlug}/${guide.slug}`} class="group grid h-full sm:grid-cols-[160px_1fr]">
-                      <div class="min-h-36 bg-slate-100">
-                        {guide.mainImage?.url ? (
-                          <img src={guide.mainImage.url} alt={guide.mainImage.alt || guide.title} class="h-full w-full object-cover" loading="lazy" />
-                        ) : (
-                          <div class="flex h-full min-h-36 items-center justify-center text-xs font-black uppercase tracking-wider text-slate-400">TopTenUAE</div>
-                        )}
-                      </div>
-                      <div class="flex flex-col p-5">
-                        <h3 class="text-lg font-bold leading-snug text-slate-900 transition-colors group-hover:text-[#4b0082]">{guide.title}</h3>
-                        <p class="mt-2 line-clamp-2 text-sm leading-relaxed text-slate-600">{cleanText(guide.summary) || 'Practical guidance for choosing the right option in the UAE.'}</p>
-                        <span class="mt-4 text-sm font-bold text-[#4b0082]">Read buying guide →</span>
-                      </div>
-                    </a>
-                  </article>
-                ))}
+                {group.guides.map((guide) => {
+                  const thumbnail = responsiveSanityImage(guide.mainImage, {
+                    widths: [320, 480, 640],
+                    defaultWidth: 480,
+                    aspectRatio: 16 / 9,
+                  });
+
+                  return (
+                    <article class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all hover:border-[#4b0082]/30 hover:shadow-md">
+                      <a href={`/${guide.categorySlug}/${guide.slug}`} class="group grid h-full sm:grid-cols-[160px_1fr]">
+                        <div class="relative min-h-36 overflow-hidden bg-slate-100">
+                          {thumbnail ? (
+                            <img
+                              src={thumbnail.src}
+                              srcset={thumbnail.srcSet}
+                              sizes="(min-width: 640px) 160px, calc(100vw - 2rem)"
+                              alt={guide.mainImage?.alt || guide.title}
+                              width={thumbnail.width}
+                              height={thumbnail.height}
+                              class="absolute inset-0 h-full w-full object-cover"
+                              loading="lazy"
+                              decoding="async"
+                            />
+                          ) : (
+                            <div class="flex h-full min-h-36 items-center justify-center text-xs font-black uppercase tracking-wider text-slate-400">TopTenUAE</div>
+                          )}
+                        </div>
+                        <div class="flex flex-col p-5">
+                          <h3 class="text-lg font-bold leading-snug text-slate-900 transition-colors group-hover:text-[#4b0082]">{guide.title}</h3>
+                          <p class="mt-2 line-clamp-2 text-sm leading-relaxed text-slate-600">{cleanText(guide.summary) || 'Practical guidance for choosing the right option in the UAE.'}</p>
+                          <span class="mt-4 text-sm font-bold text-[#4b0082]">Read buying guide →</span>
+                        </div>
+                      </a>
+                    </article>
+                  );
+                })}
               </div>
             </section>
           ))}

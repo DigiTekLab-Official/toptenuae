@@ -215,7 +215,9 @@ const components: PortableTextComponents = {
   marks: {
     link: ({ children, value }) => {
       const href = value?.href || "#";
-      const isExternal = href.startsWith("http");
+      const siteUrl = import.meta.env.PUBLIC_BASE_URL || "https://toptenuae.com";
+      const isSameSite = href === siteUrl || href.startsWith(`${siteUrl}/`);
+      const isExternal = href.startsWith("http") && !isSameSite;
       const isAmazonAffiliate = /^https?:\/\/(?:www\.)?(?:amazon\.ae|amzn\.to)(?:\/|$)/i.test(href);
       return (
         <a

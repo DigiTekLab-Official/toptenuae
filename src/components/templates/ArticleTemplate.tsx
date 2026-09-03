@@ -18,9 +18,12 @@ export default function ArticleTemplate({ data }: { data: any }) {
       
       {/* 1. INTRO / EXCERPT */}
       {data.intro && (
-        <div className="text-xl md:text-2xl font-medium text-slate-700 leading-relaxed mb-10 border-l-4 border-[#4b0082] pl-6">
+        <section className="text-xl md:text-2xl font-medium text-slate-700 leading-relaxed mb-10 border-l-4 border-[#4b0082] pl-6" aria-labelledby={data._type === 'buyerGuide' ? 'buyer-guide-quick-answer' : undefined}>
+          {data._type === 'buyerGuide' && (
+            <h2 id="buyer-guide-quick-answer" className="mb-2 text-sm font-black uppercase tracking-wider text-primary">Quick answer</h2>
+          )}
            <PortableText value={data.intro} />
-        </div>
+        </section>
       )}
 
       {isToyDonationGuide && (

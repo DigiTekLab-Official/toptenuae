@@ -265,7 +265,7 @@ export const generateTopTenListSchema = (
     ),
     url: pageUrl,
     numberOfItems: validItems.length,
-    itemListOrder: 'https://schema.org/ItemListOrderDescending',
+    itemListOrder: 'https://schema.org/ItemListOrderAscending',
     mainEntityOfPage: {
       '@type': 'WebPage',
       '@id': getPageId(category, slug),
@@ -274,7 +274,7 @@ export const generateTopTenListSchema = (
       const product = item.product;
       const productSlug = product.slug?.current || product.slug;
       const productUrl = productSlug
-        ? `${baseUrl}/${category || 'reviews'}/${productSlug}`
+        ? `${baseUrl}/reviews/${productSlug}`
         : `${pageUrl}#rank-${index + 1}`;
 
       const listItem: any = {

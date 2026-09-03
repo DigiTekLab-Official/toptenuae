@@ -216,6 +216,63 @@ export const getImageDimensions = (source: any): { width: number; height: number
 }
 
 /**
+ * Build responsive Sanity image attributes while respecting stored crop and
+ * hotspot data and never requesting an image larger than the source asset.
+ */
+export const responsiveSanityImage = (
+  source: any,
+  options: {
+    widths: number[]
+    defaultWidth: number
+    aspectRatio?: number
+    quality?: number
+  }
+) => {
+  if (!source?.asset) return null
+
+  const sourceDimensions = source.asset.metadata?.dimensions || getImageDimensions(source)
+  const largestRequestedWidth = Math.max(options.defaultWidth, ...options.widths)
+  const maxWidth = sourceDimensions?.width && sourceDimensions?.height
+    ? options.aspectRatio
+      ? Math.min(sourceDimensions.width, Math.floor(sourceDimensions.height * options.aspectRatio))
+      : sourceDimensions.width
+    : largestRequestedWidth
+  const widths = [...new Set(options.widths)]
+    .filter((width) => width > 0 && width <= maxWidth)
+    .sort((a, b) => a - b)
+
+  if (widths.length === 0) widths.push(maxWidth)
+
+  const displayWidth = Math.min(options.defaultWidth, maxWidth)
+  const displayHeight = options.aspectRatio
+    ? Math.round(displayWidth / options.aspectRatio)
+    : sourceDimensions?.width && sourceDimensions?.height
+      ? Math.round(displayWidth * sourceDimensions.height / sourceDimensions.width)
+      : displayWidth
+  const imageUrl = (width: number) => {
+    let imageBuilder = urlFor(source)
+      .width(width)
+      .auto('format')
+      .quality(options.quality || 78)
+
+    if (options.aspectRatio) {
+      imageBuilder = imageBuilder
+        .height(Math.round(width / options.aspectRatio))
+        .fit('crop')
+    }
+
+    return imageBuilder.url()
+  }
+
+  return {
+    src: imageUrl(displayWidth),
+    srcSet: widths.map((width) => `${imageUrl(width)} ${width}w`).join(', '),
+    width: displayWidth,
+    height: displayHeight,
+  }
+}
+
+/**
  * Calculate aspect ratio from image dimensions
  * Returns: CSS aspect-ratio string like "16/9" or null
  */

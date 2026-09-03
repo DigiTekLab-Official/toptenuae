@@ -57,8 +57,8 @@ export const PRODUCT_BY_SLUG = groq`
     "seoTitle": coalesce(seo.metaTitle, title),
     "seoDescription": coalesce(seo.metaDescription, itemDescription, ""),
     "seoImage": coalesce(seo.ogImage.asset->url, mainImage.asset->url),
-    "category": category->{title, "slug": slug.current},
-    "categories": categories[]->{ "slug": slug.current, title }
+    "category": coalesce(category, subCategory)->{title, "slug": slug.current},
+    "categories": coalesce(categories, displayCategories)[]->{ "slug": slug.current, title }
   }
 `;
 
@@ -117,13 +117,13 @@ export const PRODUCT_PAGE_QUERY = groq`{
     "seoTitle": coalesce(seo.metaTitle, title),
     "seoDescription": coalesce(seo.metaDescription, itemDescription, ""),
     "seoImage": coalesce(seo.ogImage.asset->url, mainImage.asset->url),
-    "category": category->{title, "slug": slug.current},
-    "categories": categories[]->{ "slug": slug.current, title }
+    "category": coalesce(category, subCategory)->{title, "slug": slug.current},
+    "categories": coalesce(categories, displayCategories)[]->{ "slug": slug.current, title }
   },
   "fallback": *[slug.current == $slug][0]{
     _type,
-    "categorySlug": category->slug.current,
-    "categories": categories[]->slug.current
+    "categorySlug": coalesce(category->slug.current, subCategory->slug.current),
+    "categories": coalesce(categories, displayCategories)[]->slug.current
   },
   "related": {
     "lists": *[

@@ -7,21 +7,23 @@ const query = Astro.url.searchParams.get('q')?.trim() || '';
 
 const SEARCH_QUERY = `
   *[
-    _type in ["product","topTenList","buyerGuide","howTo","news","post","article","holiday","tool"] &&
+    _type in ["category","product","topTenList","buyerGuide","howTo","news","post","article","holiday","tool"] &&
     !(_id in path("drafts.**")) &&
     (
       title match ["* " + $term + " *", $term + " *", "* " + $term, $term] ||
       pt::text(intro) match ["* " + $term + " *", $term + " *", "* " + $term, $term] ||
       pt::text(body) match ["* " + $term + " *", $term + " *", "* " + $term, $term] ||
-      categories[]->title match ["* " + $term + " *", $term + " *", "* " + $term, $term]
+      categories[]->title match ["* " + $term + " *", $term + " *", "* " + $term, $term] ||
+      menuLabel match ["* " + $term + " *", $term + " *", "* " + $term, $term] ||
+      description match ["* " + $term + " *", $term + " *", "* " + $term, $term]
     )
   ] {
     title,
     "slug": slug.current,
-    "imageUrl": mainImage.asset->url,
+    "imageUrl": coalesce(featuredImage.asset->url, mainImage.asset->url, ogImage.asset->url),
     publishedAt,
     "categories": categories[]->title,
-    intro,
+    "intro": coalesce(intro, description),
     _type,
     "categorySlug": coalesce(categories[0]->slug.current, category->slug.current),
     "score": (
@@ -38,6 +40,7 @@ const formatDate = (date: string) =>
 
 const resultPath = (post: any) => {
   if (post._type === 'product') return `/reviews/${post.slug}`;
+  if (post._type === 'category') return `/${post.slug}`;
   if (post._type === 'topTenList') return `/top-ten/${post.slug}`;
   if (post._type === 'holiday' || post._type === 'event') return `/events-holidays/${post.slug}`;
   if (post._type === 'tool') return `/finance-tools/${post.slug}`;

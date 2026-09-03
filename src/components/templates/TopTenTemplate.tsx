@@ -100,15 +100,81 @@ const getAffiliateCategory = (slug = '', title = '') => {
   if (value.includes('beard-trimmer') || value.includes('beard trimmer')) return 'beard_trimmer';
   if (value.includes('air-fryer') || value.includes('air fryer')) return 'air_fryer';
   if (value.includes('baby-monitor') || value.includes('baby monitor')) return 'baby_monitor';
+  if (value.includes('coffee-maker') || value.includes('coffee maker')) return 'coffee_maker';
   if (value.includes('earbud')) return 'earbuds';
   if (value.includes('laptop')) return 'laptop';
   if (value.includes('headphone')) return 'headphones';
   return undefined;
 };
 
+const phase3Categories = new Set(['laptop', 'air_fryer', 'electric_shaver', 'beard_trimmer', 'baby_monitor', 'coffee_maker']);
+const phase3CommercialSlugs = new Set([
+  'best-laptops-uae',
+  'best-air-fryers-uae-2026',
+  'best-electric-shaver-uae',
+  'best-beard-trimmers-uae',
+  'best-baby-monitors-uae',
+  'best-coffee-makers-uae',
+]);
+
+const directAnswers: Record<string, string> = {
+  laptop: 'For most UAE students and office users, 16GB RAM and a 512GB SSD are practical starting points. Gaming and demanding creative work also need an appropriate dedicated GPU.',
+  air_fryer: 'For most UAE households, a 5–7L air fryer suits three or four people. Larger households or cooks making two foods at once should consider a 7–10L or dual-basket model.',
+  electric_shaver: 'Choose a foil shaver for frequent straight passes and precise edges; choose a rotary shaver for multidirectional growth and the curves of the jaw and neck.',
+  beard_trimmer: 'Choose a beard trimmer by the length range and comb increments you will actually use. Roughly 0.5–2mm suits stubble, 3–5mm a short beard, and 6–10mm a medium beard.',
+  baby_monitor: 'Choose a non-Wi-Fi baby monitor for simple local viewing and fewer cloud dependencies, or a Wi-Fi model for remote app access. Hybrid monitors provide both but require more setup and security care.',
+  coffee_maker: 'For most UAE buyers, the right coffee maker is determined by drink style and daily effort: capsule for speed, filter for several mugs, manual espresso for control, or bean-to-cup for one-touch fresh coffee.',
+};
+
+const uaeChecks: Record<string, string[]> = {
+  laptop: [
+    'Confirm the exact processor, RAM and storage variant; marketplace titles can group several configurations.',
+    'Check whether the keyboard is English-only or Arabic/English and whether that matches your preference.',
+    'Verify the seller, UAE warranty coverage and included Type-G-compatible charger before ordering.',
+    'For gaming or creator laptops, allow clear ventilation in warm rooms rather than using the device on soft furnishings.',
+  ],
+  air_fryer: [
+    'Confirm 220–240V compatibility and a UAE Type-G plug; avoid relying on a travel adaptor for a high-power appliance.',
+    'Compare usable basket floor area and external footprint, not litres alone, and leave the maker’s required ventilation clearance.',
+    'Check the exact seller, return terms and UAE warranty shown on the current Amazon.ae listing.',
+  ],
+  electric_shaver: [
+    'Confirm charger voltage and plug compatibility, especially for an imported marketplace variant.',
+    'Check the local cost and availability of replacement foils, cutters or rotary heads before choosing a model.',
+    'If stored in a humid bathroom, clean and dry the head as directed rather than leaving it wet.',
+  ],
+  beard_trimmer: [
+    'Verify the exact combs and attachments included with the listed regional variant.',
+    'Check charging and UAE plug compatibility, plus the stated waterproof or washable-parts guidance.',
+    'Compare seller and UAE warranty details, especially for marketplace imports.',
+  ],
+  baby_monitor: [
+    'For Wi-Fi models, check app support, update policy and whether recordings stay local or use cloud storage.',
+    'Use a unique password and current firmware; non-Wi-Fi does not automatically mean every radio link has the same privacy design.',
+    'Reinforced walls can reduce quoted range, so judge placement around your actual apartment or villa layout.',
+    'Verify the included plug, seller and UAE warranty for the exact Amazon.ae variant.',
+  ],
+  coffee_maker: [
+    'Confirm 220–240V compatibility and that the exact offer includes a UAE Type-G plug; a plug adaptor does not convert voltage.',
+    'Check the current seller, written UAE warranty terms and authorised service route before ordering.',
+    'Measure width, depth, overhead refill access and ventilation clearance for your counter.',
+    'Confirm local availability of capsules, water filters, descaler, milk-system parts and replacement jugs before choosing a format.',
+  ],
+};
+
+const overallAudience: Record<string, string> = {
+  laptop: 'most students, office users and everyday buyers',
+  air_fryer: 'most households wanting a versatile everyday air fryer',
+  electric_shaver: 'most buyers balancing shave quality, comfort and cost',
+  beard_trimmer: 'most buyers who need dependable everyday beard maintenance',
+  baby_monitor: 'parents wanting the strongest all-round feature balance',
+  coffee_maker: 'most households wanting fresh coffee without a manual espresso workflow',
+};
+
 // --- MAIN TEMPLATE ---
 export default function TopTenTemplate({ data }: { data: TopTenData }) {
   const affiliateCategory = getAffiliateCategory(data.slug, data.title);
+  const isPhase3Cluster = !!affiliateCategory && phase3Categories.has(affiliateCategory) && phase3CommercialSlugs.has(data.slug || '');
   // ✅ FIXED: Use useMemo to stabilize heroImageUrl across re-renders
   const heroImageUrl = useMemo(() => {
     return data?.mainImage?.url || null;
@@ -161,17 +227,46 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
 
   const isMedicalPost = hasMedicalKeywords && !checkText.includes("trimmer");
 
-  // --- QUICK VERDICT DATA ---
-  // Extract top 3 picks for the "Quick Verdict" component
-  const quickPicks = data.listItems?.slice(0, 3).map(item => ({
+  const toQuickPick = (item: ListItem, tag = item.badgeLabel || (item.rank === 1 ? 'Best Overall' : 'Recommended')) => ({
     rank: item.rank,
-    tag: item.badgeLabel || (item.rank === 1 ? "Best Overall" : item.rank === 2 ? "Runner Up" : "Great Value"),
+    tag,
     title: item.product.title,
-    rating: item.product.customerRating || 0,
+    rating: item.product.customerRating,
     priceEstimate: item.product.priceTier ? `${item.product.priceTier} Tier` : undefined,
     imageUrl: item.product.mainImage?.url || "",
-    affiliateLink: item.product.affiliateLink
-  })) || [];
+    affiliateLink: item.product.affiliateLink,
+    bestFor: (() => {
+      if (tag === 'Best Overall' && affiliateCategory) return overallAudience[affiliateCategory];
+      if (tag === 'Best Value') return 'buyers prioritising useful features at a lower price tier';
+      if (tag === 'Best Premium') return 'buyers willing to pay more for higher-end features';
+      const labelledUse = item.badgeLabel
+        ?.replace(/^best\s+(overall|value|premium)(?:\s*[-:])?\s*/i, '')
+        .replace(/^best\s+for\s+/i, '')
+        .replace(/^best\s+/i, '');
+      if (labelledUse) return labelledUse;
+      return tag;
+    })(),
+    whySelected: item.whySelected || item.customVerdict || item.product.pros?.[0] || 'A strong fit for the use case shown above.',
+    limitation: item.skipIf || item.product.cons?.[0] || 'Check the exact specification and seller terms before ordering.',
+  });
+
+  // Preserve the original shortlist elsewhere; only the five proven clusters
+  // get semantic, deduplicated recommendation roles.
+  const defaultQuickPicks = data.listItems?.slice(0, 3).map((item) =>
+    toQuickPick(item, item.badgeLabel || (item.rank === 1 ? 'Best Overall' : item.rank === 2 ? 'Runner Up' : 'Great Value'))
+  ) || [];
+  const recommendationCandidates = (data.listItems || []).filter((item) =>
+    item.product?.title && !/unavailable|verify stock/i.test(item.badgeLabel || '')
+  );
+  const selectedItems: { item: ListItem; tag: string }[] = [];
+  const addPick = (item: ListItem | undefined, tag: string) => {
+    if (item && !selectedItems.some(({ item: selected }) => selected._key === item._key)) selectedItems.push({ item, tag });
+  };
+  addPick(recommendationCandidates.find((item) => /best overall/i.test(item.badgeLabel || '')) || recommendationCandidates[0], 'Best Overall');
+  addPick(recommendationCandidates.find((item) => /best (?:simple )?value/i.test(item.badgeLabel || '')), 'Best Value');
+  addPick(recommendationCandidates.find((item) => /best premium/i.test(item.badgeLabel || '')), 'Best Premium');
+  addPick(recommendationCandidates.find((item) => /best for|best gaming|best hybrid|best non.?wi.?fi/i.test(item.badgeLabel || '')), recommendationCandidates.find((item) => /best for|best gaming|best hybrid|best non.?wi.?fi/i.test(item.badgeLabel || ''))?.badgeLabel || 'Best for a specific need');
+  const quickPicks = isPhase3Cluster ? selectedItems.slice(0, 4).map(({ item, tag }) => toQuickPick(item, tag)) : defaultQuickPicks;
 
   // --- SCHEMA.ORG JSON-LD GENERATOR ---
   // Google Structured Data for Rich Snippets
@@ -277,6 +372,14 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
         <EditorialTrust data={data} />
       </div>
 
+      {isPhase3Cluster && affiliateCategory && (
+        <section className="mb-8 rounded-2xl border border-indigo-200 bg-indigo-50/70 p-5 md:p-6" aria-labelledby="quick-answer-heading">
+          <h2 id="quick-answer-heading" className="text-sm font-black uppercase tracking-wider text-primary">Quick answer</h2>
+          <p className="mt-2 text-base font-semibold leading-relaxed text-slate-800">{directAnswers[affiliateCategory]}</p>
+          <p className="mt-2 text-sm leading-relaxed text-slate-600">Recommendations are based on the documented specifications and buyer fit shown below, not an unsupported claim of hands-on testing. Confirm the current Amazon.ae variant, seller and warranty before ordering.</p>
+        </section>
+      )}
+
       {data.relatedBuyerGuide?.slug && (
         <aside className="mb-8 rounded-2xl border border-primary-200 bg-primary-50 p-5" aria-label="Related buyer guide">
           <p className="text-sm font-bold uppercase tracking-wider text-primary">Choose before you compare</p>
@@ -291,6 +394,10 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
             {' '}before comparing the recommendations below.
           </p>
         </aside>
+      )}
+
+      {isPhase3Cluster && quickPicks.length > 0 && (
+        <QuickVerdict picks={quickPicks} category={affiliateCategory} showRationale />
       )}
 
       {isEducationPost && (
@@ -347,6 +454,15 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
         <ComparisonSummaryTable items={data.listItems} category={affiliateCategory} />
       )}
 
+      {isPhase3Cluster && affiliateCategory && (
+        <section className="mb-10 rounded-2xl border border-slate-200 bg-slate-50 p-5 md:p-6" aria-labelledby="uae-buying-checks">
+          <h2 id="uae-buying-checks" className="text-xl font-black text-slate-900">UAE buying checks</h2>
+          <ul className="mt-3 grid gap-2 text-sm leading-relaxed text-slate-700 md:grid-cols-2">
+            {uaeChecks[affiliateCategory].map((check) => <li key={check} className="flex gap-2"><span aria-hidden="true" className="font-black text-primary">✓</span><span>{check}</span></li>)}
+          </ul>
+        </section>
+      )}
+
       <div className="space-y-2">
           {/* INTRO CONTENT BLOCK */}
           <div className="prose prose-lg max-w-none text-slate-800 leading-relaxed bg-linear-to-b from-slate-100 to-white px-6 py-0 rounded-2xl border border-slate-200 shadow-inner mb-6">
@@ -358,7 +474,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
           </div>
 
           {/* --- 3. QUICK VERDICT (Hide for Schools & Aviation) --- */}
-          {!isEducationPost && !isAviationPost && quickPicks.length > 0 && (
+          {!isPhase3Cluster && !isEducationPost && !isAviationPost && quickPicks.length > 0 && (
              <QuickVerdict picks={quickPicks} category={affiliateCategory} />
           )}
    
