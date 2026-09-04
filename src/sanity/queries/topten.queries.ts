@@ -41,7 +41,7 @@ export const TOP_TEN_BY_SLUG = groq`
       "slug": slug.current,
       "category": categories[0]->slug.current
     },
-    relatedContent[]->{_type, title, "slug": slug.current, intro, verdict, mainImage{"url": asset->url, alt}},
+    relatedContent[]->{_id, _type, title, "slug": slug.current, "categorySlug": coalesce(categories[0]->slug.current, category->slug.current), intro, verdict, mainImage{"url": asset->url, alt}},
     showAffiliateDisclosure,
     faqs[] { _key, question, answer },
     "sidebarPosts": *[

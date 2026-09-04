@@ -44,7 +44,7 @@ export default function BuyButton({ url, retailer = 'amazon', customLabel }: Buy
     <a
       href={url}
       target="_blank"
-      rel="nofollow noopener noreferrer"
+      rel="nofollow sponsored noopener noreferrer"
       className={`group w-full sm:w-auto inline-flex items-center justify-center px-8 py-3 text-base font-bold rounded-full shadow-sm hover:shadow-md transition-all transform active:scale-[0.98] ${styleClass}`}
     >
       <span>{label}</span>

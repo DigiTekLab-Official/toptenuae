@@ -12,6 +12,7 @@ import FAQAccordion from "@/components/FAQAccordion";
 import AffiliateDisclosure from "../ui/AffiliateDisclosure";
 import LogoIcon from "@/components/icons/LogoIcon";
 import EditorialTrust from "@/components/EditorialTrust";
+import { buildContentPath } from "@/lib/contentRoute";
 
 // --- CARDS ---
 import ProductCard from "../ui/ProductCard";       
@@ -36,6 +37,7 @@ interface TopTenData {
   faqs?: { _key: string; question: string; answer: string }[];
   listItems?: ListItem[];
   relatedBuyerGuide?: { title: string; slug: string; category?: string };
+  relatedContent?: { _id?: string; _type: 'topTenList' | 'buyerGuide' | 'howTo' | 'review'; title: string; slug: string; categorySlug?: string }[];
   showAffiliateDisclosure?: boolean;
 }
 
@@ -101,13 +103,14 @@ const getAffiliateCategory = (slug = '', title = '') => {
   if (value.includes('air-fryer') || value.includes('air fryer')) return 'air_fryer';
   if (value.includes('baby-monitor') || value.includes('baby monitor')) return 'baby_monitor';
   if (value.includes('coffee-maker') || value.includes('coffee maker')) return 'coffee_maker';
+  if (value.includes('tyre-inflator') || value.includes('tyre inflator')) return 'tyre_inflator';
   if (value.includes('earbud')) return 'earbuds';
   if (value.includes('laptop')) return 'laptop';
   if (value.includes('headphone')) return 'headphones';
   return undefined;
 };
 
-const phase3Categories = new Set(['laptop', 'air_fryer', 'electric_shaver', 'beard_trimmer', 'baby_monitor', 'coffee_maker']);
+const phase3Categories = new Set(['laptop', 'air_fryer', 'electric_shaver', 'beard_trimmer', 'baby_monitor', 'coffee_maker', 'tyre_inflator']);
 const phase3CommercialSlugs = new Set([
   'best-laptops-uae',
   'best-air-fryers-uae-2026',
@@ -115,6 +118,7 @@ const phase3CommercialSlugs = new Set([
   'best-beard-trimmers-uae',
   'best-baby-monitors-uae',
   'best-coffee-makers-uae',
+  'best-tyre-inflators-uae',
 ]);
 
 const directAnswers: Record<string, string> = {
@@ -124,6 +128,7 @@ const directAnswers: Record<string, string> = {
   beard_trimmer: 'Choose a beard trimmer by the length range and comb increments you will actually use. Roughly 0.5–2mm suits stubble, 3–5mm a short beard, and 6–10mm a medium beard.',
   baby_monitor: 'Choose a non-Wi-Fi baby monitor for simple local viewing and fewer cloud dependencies, or a Wi-Fi model for remote app access. Hybrid monitors provide both but require more setup and security care.',
   coffee_maker: 'For most UAE buyers, the right coffee maker is determined by drink style and daily effort: capsule for speed, filter for several mugs, manual espresso for control, or bean-to-cup for one-touch fresh coffee.',
+  tyre_inflator: 'For most UAE drivers, a compact cordless inflator is convenient for routine top-ups, while a 12V corded model is the safer choice for repeated use or larger tyres because it does not depend on a stored battery charge.',
 };
 
 const uaeChecks: Record<string, string[]> = {
@@ -160,6 +165,12 @@ const uaeChecks: Record<string, string[]> = {
     'Measure width, depth, overhead refill access and ventilation clearance for your counter.',
     'Confirm local availability of capsules, water filters, descaler, milk-system parts and replacement jugs before choosing a format.',
   ],
+  tyre_inflator: [
+    'Use the cold-tyre pressure printed on the vehicle placard or in the owner’s manual; the maximum pressure printed on the tyre is not the normal target.',
+    'Check tyre pressure before long highway trips and after major load changes, using a shaded or cool starting point where practical.',
+    'Do not leave a lithium-battery inflator in a parked car during extreme heat; follow the maker’s storage-temperature guidance and recharge it periodically.',
+    'For SUVs, compare duty cycle, hose and power-cable reach—not just the headline maximum PSI.',
+  ],
 };
 
 const overallAudience: Record<string, string> = {
@@ -169,6 +180,7 @@ const overallAudience: Record<string, string> = {
   beard_trimmer: 'most buyers who need dependable everyday beard maintenance',
   baby_monitor: 'parents wanting the strongest all-round feature balance',
   coffee_maker: 'most households wanting fresh coffee without a manual espresso workflow',
+  tyre_inflator: 'most drivers wanting a compact tool for routine pressure top-ups',
 };
 
 // --- MAIN TEMPLATE ---
@@ -538,6 +550,27 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
 
         {/* FAQ ACCORDION */}
         {data.faqs && data.faqs.length > 0 && <FAQAccordion faqs={data.faqs} />}
+
+        {data.relatedContent && data.relatedContent.length > 0 && (
+          <section className="mt-12 border-t border-slate-200 pt-8" aria-labelledby="related-buying-guides-heading">
+            <h2 id="related-buying-guides-heading" className="text-2xl font-black text-slate-900">Related UAE buying guides</h2>
+            <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              {data.relatedContent.map((item) => {
+                const href = buildContentPath({
+                  _type: item._type === 'review' ? 'article' : item._type,
+                  slug: item.slug,
+                  categorySlug: item.categorySlug || 'reviews',
+                });
+                if (!href) return null;
+                return (
+                  <a key={item._id || `${item._type}-${item.slug}`} href={href} className="rounded-2xl border border-slate-200 bg-white p-5 font-bold leading-snug text-slate-900 shadow-sm transition hover:border-primary/30 hover:text-primary hover:shadow-md">
+                    {item.title} <span aria-hidden="true">→</span>
+                  </a>
+                );
+              })}
+            </div>
+          </section>
+        )}
         
         {/* DISCLAIMER FOOTER */}
         {(showDisclaimer || isMedicalPost) && !isEducationPost && !isAviationPost && (

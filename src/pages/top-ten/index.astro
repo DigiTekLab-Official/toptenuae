@@ -4,22 +4,26 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import { client } from '@/sanity/lib/client';
 
 const SECTIONS_CONFIG: Record<string, { title: string; color: string; bg: string }> = {
-  'tech': { title: 'Tech & Gadgets', color: 'text-blue-600', bg: 'bg-blue-50' },
-  'home-kitchen': { title: 'Home & Kitchen', color: 'text-emerald-600', bg: 'bg-emerald-50' },
-  'parenting': { title: 'Parenting & Baby', color: 'text-pink-600', bg: 'bg-pink-50' },
-  'health': { title: 'Health & Fitness', color: 'text-teal-600', bg: 'bg-teal-50' },
   'beauty': { title: 'Beauty & Grooming', color: 'text-purple-600', bg: 'bg-purple-50' },
+  'automotive': { title: 'Automotive', color: 'text-orange-600', bg: 'bg-orange-50' },
+  'home-kitchen': { title: 'Home & Kitchen', color: 'text-emerald-600', bg: 'bg-emerald-50' },
+  'health': { title: 'Fitness & Wellness', color: 'text-teal-600', bg: 'bg-teal-50' },
+  'parenting': { title: 'Parenting & Baby', color: 'text-pink-600', bg: 'bg-pink-50' },
+  'tech': { title: 'Tech & Gadgets', color: 'text-blue-600', bg: 'bg-blue-50' },
   'travel': { title: 'Travel & Hotels', color: 'text-sky-600', bg: 'bg-sky-50' },
   'lifestyle': { title: 'Lifestyle & Places', color: 'text-indigo-600', bg: 'bg-indigo-50' },
 };
+
+const SHORTCUT_SECTIONS = ['beauty', 'automotive', 'home-kitchen', 'health'];
 
 let featured: any[] = [];
 let grouped: Record<string, any[]> = {};
 
 try {
   featured = await client.fetch(`
-    *[_type == "topTenList" && isFeaturedReview == true] | order(_updatedAt desc) [0...8] {
+    *[_type == "topTenList" && isFeaturedReview == true] | order(_updatedAt desc) {
       _id, title, "slug": slug.current,
+      "section": reviewSection,
       "categorySlug": coalesce(category->slug.current, categories[0]->slug.current, "top-ten"),
       "imageUrl": mainImage.asset->url
     }
@@ -38,14 +42,23 @@ try {
   lists.forEach((item: any) => {
     if (grouped[item.section]) grouped[item.section].push(item);
   });
+
+  const priority = Object.keys(SECTIONS_CONFIG);
+  featured = featured
+    .sort((a: any, b: any) => {
+      const aIndex = priority.indexOf(a.section);
+      const bIndex = priority.indexOf(b.section);
+      return (aIndex < 0 ? priority.length : aIndex) - (bIndex < 0 ? priority.length : bIndex);
+    })
+    .slice(0, 8);
 } catch (error) {
   console.error('Error fetching top-ten data:', error);
 }
 ---
 
 <BaseLayout
-  title="Top 10 Lists & Buying Guides UAE | Best of UAE Ranked"
-  description="Discover the best products and services in the UAE. Unbiased Top 10 lists for Tech, Home, Parenting, and more, updated for 2026."
+  title="Products Worth Buying in the UAE | Practical Buying Guides"
+  description="Shortlist products with honest trade-offs, buyer-fit comparisons, UAE availability checks and practical local buying considerations."
   canonical="https://toptenuae.com/top-ten"
 >
   <div class="min-h-screen bg-slate-50 font-sans pb-20">
@@ -57,20 +70,35 @@ try {
         <div class="flex justify-center mb-6">
           <span class="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-amber-400/20 border border-amber-400/30 text-amber-300 text-sm font-bold uppercase tracking-wider">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
-            Official Rankings 2026
+            Compared for UAE Conditions
           </span>
         </div>
         <h1 class="text-4xl md:text-6xl font-black mb-6 leading-tight">
-          Featured Buying Guides <br class="hidden md:block" />
-          <span class="text-transparent bg-clip-text bg-linear-to-r from-amber-200 to-amber-400">Best of UAE</span>
+          Products Worth Buying <br class="hidden md:block" />
+          <span class="text-transparent bg-clip-text bg-linear-to-r from-amber-200 to-amber-400">in the UAE</span>
         </h1>
         <p class="text-lg md:text-base text-purple-100 max-w-2xl mx-auto leading-relaxed">
-          We compare products for UAE shoppers and explain the evidence behind each ranking.
+          We compare products by buyer fit, real trade-offs, UAE availability and practical local considerations so you can shortlist faster before checking the latest price.
         </p>
       </div>
     </div>
 
     <div class="max-w-7xl mx-auto px-4 py-12 space-y-16">
+      <nav class="flex flex-wrap justify-center gap-3" aria-label="Priority buying guide categories">
+        {SHORTCUT_SECTIONS.map((key) => {
+          const config = SECTIONS_CONFIG[key];
+          const hasPublishedGuides = (grouped[key] || []).length > 0;
+          return hasPublishedGuides ? (
+            <a href={`#section-${key}`} class="rounded-full border border-[#4b0082]/15 bg-white px-5 py-2.5 text-sm font-bold text-[#4b0082] shadow-sm transition hover:border-[#4b0082]/35 hover:shadow-md">
+              {config.title}
+            </a>
+          ) : (
+            <span class="rounded-full border border-slate-200 bg-slate-100 px-5 py-2.5 text-sm font-bold text-slate-500" aria-label={`${config.title} guides coming soon`}>
+              {config.title} <span class="font-medium">— coming soon</span>
+            </span>
+          );
+        })}
+      </nav>
       {/* Featured */}
       <section>
         <div class="flex items-center gap-3 mb-8">
@@ -112,7 +140,7 @@ try {
         if (items.length === 0) return null;
 
         return (
-          <section class="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm relative overflow-hidden">
+          <section id={`section-${key}`} class="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm relative overflow-hidden scroll-mt-24">
             <div class="flex items-center gap-4 mb-8 relative z-10">
               <div class={`${config.bg} p-3 rounded-xl`}>
                 <svg class={`w-8 h-8 ${config.color}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>

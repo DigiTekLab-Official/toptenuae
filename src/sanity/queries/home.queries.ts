@@ -8,6 +8,7 @@ import groq from 'groq';
 export const HOME_QUERY = groq`{
   "heroPost": coalesce(
     *[_type in ["topTenList", "article"] && isFeaturedOnHome == true] | order(publishedAt desc) [0],
+    *[_type == "topTenList" && reviewSection in ["beauty", "automotive", "home-kitchen", "health"]] | order(coalesce(lastReviewedAt, _updatedAt) desc) [0],
     *[_type in ["topTenList", "article"]] | order(publishedAt desc) [0]
   ) {
     _id,
@@ -60,5 +61,19 @@ export const HOME_QUERY = groq`{
     "categoryTitle": coalesce(categories[0]->title, category->title),
     "summary": coalesce(description, intro, ""),
     "mainImage": coalesce(featuredImage, mainImage) { "url": asset->url, alt }
+  },
+  "commercialGuides": *[
+    _type == "topTenList" &&
+    reviewSection in ["beauty", "automotive", "home-kitchen", "health", "parenting", "tech"] &&
+    defined(slug.current) &&
+    count(listItems[defined(product->affiliateLink)]) > 0 &&
+    coalesce(seo.noIndex, false) != true
+  ] | order(coalesce(lastReviewedAt, _updatedAt) desc) {
+    _id,
+    _type,
+    title,
+    "slug": slug.current,
+    reviewSection,
+    publishedAt
   }
 }`;

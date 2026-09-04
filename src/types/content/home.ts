@@ -60,11 +60,21 @@ export interface HomeBuyerGuide {
   };
 }
 
+export interface HomeCommercialGuide {
+  _id: string;
+  _type: 'topTenList';
+  title: string;
+  slug: string;
+  reviewSection: string;
+  publishedAt?: string;
+}
+
 export interface HomePageData {
   heroPost: HomeHeroPost | null;
   sections: HomeSection[];
   upcomingPosts: HomeUpcomingPost[];
   buyerGuides: HomeBuyerGuide[];
+  commercialGuides: HomeCommercialGuide[];
   /** true if the Sanity fetch itself failed (distinct from "fetched fine, just empty") */
   error: boolean;
 }

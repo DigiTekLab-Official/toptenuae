@@ -51,10 +51,11 @@ export async function getHomePageData(params?: {
       sections: data?.sections ?? [],
       upcomingPosts: data?.upcomingPosts ?? [],
       buyerGuides: data?.buyerGuides ?? [],
+      commercialGuides: data?.commercialGuides ?? [],
       error: false,
     };
   } catch (error) {
     console.error('[HomeRepository] Error fetching homepage data:', error);
-    return { heroPost: null, sections: [], upcomingPosts: [], buyerGuides: [], error: true };
+    return { heroPost: null, sections: [], upcomingPosts: [], buyerGuides: [], commercialGuides: [], error: true };
   }
 }
