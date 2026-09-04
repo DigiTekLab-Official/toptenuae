@@ -319,27 +319,15 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
           }
         };
       } 
-      // LOGIC C: Product Schema (Laptops, Tech, etc.)
+      // LOGIC C: Editorial ranking item (Laptops, Tech, etc.)
       else {
         return {
           "@type": "ListItem",
           "position": item.rank,
-          "item": {
-            "@type": "Product",
-            "name": entity.title,
-            "description": item.customVerdict || entity.verdict,
-            "image": entity.mainImage?.url,
-            // offers removed: price-less Offer fails GSC Merchant-listings
-            // ("missing field price"); confirmed flagging /top-ten/ URLs.
-            // Must match the server generateTopTenListSchema removal — both
-            // sources emit the same ItemList, so fixing one alone leaves the flag.
-            // ✅ SEO BOOST: Include Tech Specs in Schema
-            "additionalProperty": entity.specifications?.map(spec => ({
-              "@type": "PropertyValue",
-              "name": spec.specLabel,
-              "value": spec.specValue
-            }))
-          }
+          "name": entity.title,
+          "url": entity.slug?.current
+            ? `https://toptenuae.com/reviews/${entity.slug.current}`
+            : undefined
         };
       }
     })
@@ -348,12 +336,9 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
   return (
     <div className="w-full min-w-0" data-affiliate-category={affiliateCategory}>
       
-      {/* Inline ItemList ONLY for aviation/school lists — the server
-          generateTopTenListSchema types every item as Product and cannot
-          represent Airline/Airport/School. For product lists, the richer
-          server ItemList (with per-item aggregateRating) is the single
-          source; rendering this too would duplicate the ItemList (Carousel
-          "multiple ListItem" error). One ItemList per page, by type. */}
+      {/* Inline ItemList ONLY for aviation/school lists because those entries
+          need Airline/Airport/School typing. Product ranking pages receive the
+          server-rendered editorial ItemList, avoiding duplicate ItemLists. */}
       {(isAviationPost || isEducationPost) && (
         <script
           type="application/ld+json"

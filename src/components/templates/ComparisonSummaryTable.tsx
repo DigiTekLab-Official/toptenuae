@@ -105,7 +105,7 @@ const decisionDetails = (product: Product, category?: string): DecisionDetail[] 
 
 export default function ComparisonSummaryTable({ items, category }: { items: ListItem[]; category?: string }) {
   if (!items || items.length === 0) return null;
-  const quickItems = items.slice(0, 6);
+  const quickItems = items;
 
   return (
     <div className="my-12 font-sans">

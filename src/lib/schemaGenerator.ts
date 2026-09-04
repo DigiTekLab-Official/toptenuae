@@ -283,26 +283,10 @@ export const generateTopTenListSchema = (
       const listItem: any = {
         '@type': 'ListItem',
         position: index + 1,
+        name: cleanText(
+          product.title || item.itemName || `Rank #${index + 1}`
+        ),
         url: productUrl,
-        item: {
-          '@type': 'Product',
-          name: cleanText(
-            product.title || item.itemName || `Rank #${index + 1}`
-          ),
-          url: productUrl,
-          description: cleanText(
-            item.customVerdict ||
-              product.verdict ||
-              product.itemDescription ||
-              ''
-          ),
-          image: product.mainImage?.url
-            ? [product.mainImage.url]
-            : [DEFAULT_IMAGE],
-          brand: product.brand
-            ? { '@type': 'Brand', name: cleanText(product.brand) }
-            : undefined,
-        },
       };
 
       return listItem;
@@ -705,11 +689,11 @@ export function generateSchema(
     }
 
     case 'toptenlist': {
-      // One ItemList per page. The gated server builder (284-348) types every
-      // item as Product; aviation/institution lists rely on TopTenTemplate's
-      // inline ItemList for correct Airline/Airport/School typing, so skip the
-      // server one there (also removes its latent wrong-typed Product list).
-      // Product lists keep the server ItemList with lightweight Product nodes.
+      // One ItemList per page. Aviation/institution lists rely on
+      // TopTenTemplate's inline ItemList for correct Airline/Airport/School
+      // typing, so skip the server list there. Editorial product rankings use
+      // plain ListItems: emitting Product without truthful Offer, Review or
+      // AggregateRating data makes every entry invalid for Product snippets.
       const firstItemType = data.listItems?.[0]?.product?._type;
       const isTypedList =
         firstItemType === 'aviationEntity' || firstItemType === 'institution';

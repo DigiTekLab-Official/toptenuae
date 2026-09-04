@@ -21,6 +21,7 @@ export default function SanityTable({ value }: SanityTableProps) {
   const [headerRow, ...dataRows] = rows;
   const columnCount = headerRow?.cells?.length || 0;
   const isTwoColumnTable = columnCount === 2;
+  const isWideTable = columnCount >= 5;
 
   // ========================
   // LAYOUT 1: TWO-COLUMN TABLE
@@ -69,8 +70,8 @@ export default function SanityTable({ value }: SanityTableProps) {
   return (
     <div className="my-8">
       {/* DESKTOP VIEW (Hidden on Mobile) */}
-      <div className="hidden md:block overflow-hidden border border-gray-400 shadow-sm">
-        <table className="w-full text-base text-left border-collapse">
+      <div className={`${isWideTable ? "block" : "hidden md:block"} max-w-full overflow-x-auto border border-gray-400 shadow-sm`}>
+        <table className={`${isWideTable ? "min-w-[72rem]" : "w-full"} text-base text-left border-collapse`}>
           <thead className="bg-[#312e81] text-white">
             <tr>
               {headerRow.cells.map((cell, index) => (
@@ -102,7 +103,7 @@ export default function SanityTable({ value }: SanityTableProps) {
       </div>
 
       {/* MOBILE CARD VIEW (Visible only on Mobile) */}
-      <div className="md:hidden space-y-6">
+      <div className={`${isWideTable ? "hidden" : "md:hidden"} space-y-6`}>
         {dataRows.map((row) => (
           <div 
             key={row._key} 
