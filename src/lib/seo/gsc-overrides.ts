@@ -19,7 +19,7 @@ const GSC_SEO_OVERRIDES: Record<string, { title: string; description: string }> 
   },
   'best-beard-trimmers-uae': {
     title: 'Best Beard Trimmers UAE: 7 Picks for Men',
-    description: 'Compare the best beard trimmers available to UAE shoppers, with picks for stubble, long beards, travel and sensitive skin plus honest trade-offs.',
+    description: 'Compare the best beard trimmers available to UAE shoppers, with picks for stubble, long beards, travel and multi-grooming plus honest trade-offs.',
   },
   'best-wireless-earbuds-uae': {
     title: 'Best Wireless Earbuds UAE: 10 Picks',
