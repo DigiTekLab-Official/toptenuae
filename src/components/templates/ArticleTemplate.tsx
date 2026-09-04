@@ -4,6 +4,7 @@
 import { Star, ShoppingCart, Info } from "@/components/icons";
 // ✅ IMPORT PORTABLE TEXT (Crucial for fixing missing content)
 import PortableText from "@/components/sanity/PortableText";
+import EditorialTrust from "@/components/EditorialTrust";
 
 export default function ArticleTemplate({ data }: { data: any }) {
   // 1. Safe Checks
@@ -12,6 +13,12 @@ export default function ArticleTemplate({ data }: { data: any }) {
   // If it's a "Guide", we usually don't want the Price Box unless explicitly set
   const showProductBox = (hasPrice || hasAffiliateLink) && data._type !== 'howTo';
   const isToyDonationGuide = data.slug === 'where-to-donate-used-toys-uae';
+  const hasEditorialTrustData = Boolean(
+    data.lastReviewedAt ||
+    data.methodology?.length ||
+    data.testingMethodology?.length ||
+    data.sources?.length
+  );
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -108,6 +115,12 @@ export default function ArticleTemplate({ data }: { data: any }) {
         )}
 
       </article>
+
+      {hasEditorialTrustData && (
+        <div className="mt-10 space-y-6">
+          <EditorialTrust data={data} />
+        </div>
+      )}
 
       {/* 4. CLOSING / VERDICT */}
       {data.closingContent && (
