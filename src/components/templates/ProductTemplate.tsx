@@ -234,7 +234,7 @@ export default function ProductTemplate({ data }: ProductTemplateProps) {
                   data-affiliate-category={affiliateCategory}
                   data-affiliate-position="review"
                   target="_blank"
-                  rel="nofollow sponsored noopener"
+                  rel="nofollow sponsored noopener noreferrer"
                   className="group flex items-center justify-center gap-2 w-full bg-[#0071e3] hover:bg-[#0076df] text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-blue-200 transition-all hover:-translate-y-1 hover:shadow-xl text-lg mb-4"
                 >
                   View on {retailer || 'Amazon'}
@@ -301,7 +301,7 @@ export default function ProductTemplate({ data }: ProductTemplateProps) {
              data-affiliate-category={affiliateCategory}
              data-affiliate-position="review"
              target="_blank"
-             rel="nofollow sponsored noopener"
+             rel="nofollow sponsored noopener noreferrer"
              className="bg-[#0071e3] text-white font-bold py-3 px-6 rounded-xl shadow-md hover:bg-[#0076df] active:scale-95 transition-transform flex items-center gap-2"
            >
              View on {retailer || 'Amazon'}

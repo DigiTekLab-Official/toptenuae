@@ -226,7 +226,7 @@ const components: PortableTextComponents = {
           data-affiliate-cta={isAmazonAffiliate ? "inline_link" : undefined}
           data-affiliate-position={isAmazonAffiliate ? "editorial" : undefined}
           target={isExternal || value?.blank ? "_blank" : "_self"}
-          rel={isAmazonAffiliate ? "nofollow sponsored noopener" : isExternal ? "noopener noreferrer" : undefined}
+          rel={isAmazonAffiliate ? "nofollow sponsored noopener noreferrer" : isExternal ? "noopener noreferrer" : undefined}
           className="text-primary underline decoration-primary/30 underline-offset-4 font-semibold hover:text-primary-700 hover:decoration-primary transition-all"
         >
           {children}

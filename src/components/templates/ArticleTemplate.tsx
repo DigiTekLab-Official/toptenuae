@@ -85,7 +85,7 @@ export default function ArticleTemplate({ data }: { data: any }) {
                 data-affiliate-product={data.title}
                 data-affiliate-cta="article_cta"
                 target="_blank" 
-                rel="nofollow sponsored noopener"
+                rel="nofollow sponsored noopener noreferrer"
                 className="flex items-center justify-center gap-2 bg-[#4b0082] text-white font-bold py-4 px-8 rounded-xl hover:bg-[#3a006b] transition-all shadow-lg hover:shadow-xl w-full md:w-auto"
               >
                 <ShoppingCart className="w-5 h-5" />

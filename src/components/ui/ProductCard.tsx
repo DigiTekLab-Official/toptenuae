@@ -343,7 +343,7 @@ export default function ProductCard({ item, index = 0, category }: ProductCardPr
                     data-affiliate-category={category}
                     data-affiliate-position={item.rank}
                     target="_blank"
-                    rel="nofollow sponsored noopener"
+                    rel="nofollow sponsored noopener noreferrer"
                     className="flex items-center justify-center gap-2 w-full sm:w-auto bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-3 px-8 rounded-lg shadow-sm text-center transition-colors"
                  >
                     Check latest price on {(product as any)?.retailer || 'Amazon.ae'} <ExternalLink className="w-4 h-4" />
