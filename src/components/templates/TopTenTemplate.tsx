@@ -13,6 +13,7 @@ import AffiliateDisclosure from "../ui/AffiliateDisclosure";
 import LogoIcon from "@/components/icons/LogoIcon";
 import EditorialTrust from "@/components/EditorialTrust";
 import { buildContentPath } from "@/lib/contentRoute";
+import { getAffiliateCategory } from "@/lib/affiliate/category.js";
 
 // --- CARDS ---
 import ProductCard from "../ui/ProductCard";       
@@ -28,6 +29,7 @@ if (typeof window !== "undefined") {
 interface TopTenData {
   title: string;
   slug?: string;
+  reviewSection?: string;
   intro: any; 
   body: any; 
   closingContent?: any;
@@ -95,20 +97,6 @@ interface ListItem {
   customVerdict?: string;
   product: Product;
 }
-
-const getAffiliateCategory = (slug = '', title = '') => {
-  const value = `${slug} ${title}`.toLowerCase();
-  if (value.includes('electric-shaver') || value.includes('electric shaver')) return 'electric_shaver';
-  if (value.includes('beard-trimmer') || value.includes('beard trimmer')) return 'beard_trimmer';
-  if (value.includes('air-fryer') || value.includes('air fryer')) return 'air_fryer';
-  if (value.includes('baby-monitor') || value.includes('baby monitor')) return 'baby_monitor';
-  if (value.includes('coffee-maker') || value.includes('coffee maker')) return 'coffee_maker';
-  if (value.includes('tyre-inflator') || value.includes('tyre inflator')) return 'tyre_inflator';
-  if (value.includes('earbud')) return 'earbuds';
-  if (value.includes('laptop')) return 'laptop';
-  if (value.includes('headphone')) return 'headphones';
-  return undefined;
-};
 
 const phase3Categories = new Set(['laptop', 'air_fryer', 'electric_shaver', 'beard_trimmer', 'baby_monitor', 'coffee_maker', 'tyre_inflator']);
 const phase3CommercialSlugs = new Set([
@@ -185,7 +173,7 @@ const overallAudience: Record<string, string> = {
 
 // --- MAIN TEMPLATE ---
 export default function TopTenTemplate({ data }: { data: TopTenData }) {
-  const affiliateCategory = getAffiliateCategory(data.slug, data.title);
+  const affiliateCategory = getAffiliateCategory(data.slug, data.title, data.reviewSection);
   const isPhase3Cluster = !!affiliateCategory && phase3Categories.has(affiliateCategory) && phase3CommercialSlugs.has(data.slug || '');
   // ✅ FIXED: Use useMemo to stabilize heroImageUrl across re-renders
   const heroImageUrl = useMemo(() => {
@@ -248,7 +236,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
     imageUrl: item.product.mainImage?.url || "",
     affiliateLink: item.product.affiliateLink,
     bestFor: (() => {
-      if (tag === 'Best Overall' && affiliateCategory) return overallAudience[affiliateCategory];
+      if (tag === 'Best Overall' && affiliateCategory && overallAudience[affiliateCategory]) return overallAudience[affiliateCategory];
       if (tag === 'Best Value') return 'buyers prioritising useful features at a lower price tier';
       if (tag === 'Best Premium') return 'buyers willing to pay more for higher-end features';
       const labelledUse = item.badgeLabel

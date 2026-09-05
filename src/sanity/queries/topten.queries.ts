@@ -12,6 +12,7 @@ export const TOP_TEN_BY_SLUG = groq`
     _createdAt,
     _updatedAt,
     title,
+    reviewSection,
     "slug": slug.current,
     publishedAt,
     originalPublishedAt,
