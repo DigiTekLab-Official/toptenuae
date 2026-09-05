@@ -15,6 +15,7 @@ interface ArticleViewProps {
 }
 
 export default function ArticleView({ data, category, slug }: ArticleViewProps) {
+  const isCommercialTopTen = data?._type === 'topTenList' && data.listItems?.some((item: any) => item?.product?._type === 'product');
   // --- STANDARD LAYOUT FOR ARTICLES/REVIEWS ---
   // Tools are handled by ToolLayout.astro (server-rendered, zero React)
   const displayDate = data?._updatedAt || data?.publishedAt || new Date().toISOString();
@@ -45,8 +46,8 @@ export default function ArticleView({ data, category, slug }: ArticleViewProps) 
 
       <div className="flex flex-col lg:flex-row gap-8 lg:gap-5">
         <main className="flex-1 min-w-0 bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-8">
-          <header className="border-b border-gray-100 pb-6 mb-6">
-            <h1 className="text-3xl md:text-4xl lg:text-4xl font-black text-gray-900 mb-4 leading-tight tracking-tight">
+          <header className={isCommercialTopTen ? "border-b border-gray-100 pb-3 mb-3" : "border-b border-gray-100 pb-6 mb-6"}>
+            <h1 className={`${isCommercialTopTen ? "text-2xl mb-3" : "text-3xl mb-4"} md:text-4xl lg:text-4xl font-black text-gray-900 leading-tight tracking-tight`}>
               {data?.title}
             </h1>
             <div className="flex items-center text-sm text-gray-500 gap-4">

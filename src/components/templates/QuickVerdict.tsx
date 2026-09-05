@@ -8,10 +8,11 @@ interface QuickPick {
   rating?: number;
   priceEstimate?: string;
   imageUrl: string;
+  imageAlt?: string;
   affiliateLink?: string;
   bestFor?: string;
-  whySelected: string;
-  limitation: string;
+  whySelected?: string;
+  limitation?: string;
 }
 
 export default function QuickVerdict({ picks, category, showRationale = false }: { picks: QuickPick[]; category?: string; showRationale?: boolean }) {
@@ -40,7 +41,7 @@ export default function QuickVerdict({ picks, category, showRationale = false }:
         </div>
 
       {/* Grid Layout */}
-      <div className={`grid grid-cols-1 ${picks.length >= 4 ? 'lg:grid-cols-4' : 'md:grid-cols-3'} divide-y lg:divide-y-0 lg:divide-x divide-gray-100`}>
+      <div className={`grid grid-cols-1 ${picks.length >= 4 ? 'sm:grid-cols-2 xl:grid-cols-4' : picks.length === 3 ? 'md:grid-cols-3' : picks.length === 2 ? 'sm:grid-cols-2' : ''} divide-y lg:divide-y-0 lg:divide-x divide-gray-100`}>
         {picks.map((pick, index) => {
           return (
             <div key={index} className="flex flex-col h-full group relative">
@@ -51,34 +52,24 @@ export default function QuickVerdict({ picks, category, showRationale = false }:
                 {pick.tag}
               </div>
 
-              <div className="p-6 flex flex-col flex-1">
+              <div className="p-4 flex flex-col flex-1 min-w-0 break-words">
                 
                 {/* Product Title */}
                 <h3 className="text-lg font-bold text-gray-900 leading-snug mb-4 min-h-14 shrink-0">
                    {pick.title}
                 </h3>
 
-                {showRationale && (
+                {showRationale && (pick.bestFor || pick.whySelected || pick.limitation) && (
                   <div className="mb-4 space-y-3 text-sm leading-relaxed text-slate-700">
-                    <p><strong className="text-slate-900">Best for:</strong> {pick.bestFor || pick.tag}</p>
-                    <p><strong className="text-slate-900">Why selected:</strong> {pick.whySelected}</p>
-                    <p><strong className="text-slate-900">Important limitation:</strong> {pick.limitation}</p>
+                    {pick.bestFor && <p><strong className="text-slate-900">Best for:</strong> {pick.bestFor}</p>}
+                    {pick.whySelected && <p><strong className="text-slate-900">Why selected:</strong> {pick.whySelected}</p>}
+                    {pick.limitation && <p><strong className="text-slate-900">Skip if:</strong> {pick.limitation}</p>}
                   </div>
                 )}
 
-                {/* Clickable Image */}
-                <div className="relative w-full h-40 mb-4 flex items-center justify-center">
-                   {pick.imageUrl ? (
-                     <img 
-                       src={pick.imageUrl} 
-                       alt={pick.title} 
-                       className="absolute inset-0 w-full h-full object-contain hover:scale-105 transition-transform duration-300"
-                       loading="lazy"
-                     />
-                   ) : (
-                     <div className="w-full h-full bg-gray-50 flex items-center justify-center text-gray-300 text-xs">No Image</div>
-                   )}
-                </div>
+                {pick.imageUrl && <div className="relative w-full h-40 mb-4 flex items-center justify-center">
+                  <img src={pick.imageUrl} alt={pick.imageAlt || pick.title} className="absolute inset-0 w-full h-full object-contain" loading="lazy" />
+                </div>}
 
                 {/* Rating & Price */}
                 <div className="mt-auto space-y-4">
@@ -95,7 +86,7 @@ export default function QuickVerdict({ picks, category, showRationale = false }:
                    </div>
 
                    {/* Never emit a tracked affiliate CTA with a placeholder URL. */}
-                   {pick.affiliateLink ? (
+                   {pick.affiliateLink && (
                      <a
                        href={pick.affiliateLink}
                        data-affiliate-product={pick.title}
@@ -108,10 +99,6 @@ export default function QuickVerdict({ picks, category, showRationale = false }:
                      >
                        Check latest price on Amazon.ae <ArrowRight className="w-4 h-4 inline ml-1" />
                      </a>
-                   ) : (
-                     <span className="block w-full rounded-lg bg-slate-100 py-3 text-center text-sm font-semibold text-slate-500">
-                       Amazon link being verified
-                     </span>
                    )}
                 </div>
               </div>

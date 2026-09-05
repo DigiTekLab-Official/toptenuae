@@ -1,5 +1,8 @@
 
 import React, { useMemo } from "react";
+import { directAnswers, uaeChecks } from "./topTenFallbacks";
+import { splitBuyingGuideContent } from "@/lib/topTenSections";
+import { parseAmazonAffiliateDestination } from "@/lib/affiliate/click-tracking.js";
 
 import { ArrowDown, Shield } from "@/components/icons";
 
@@ -41,6 +44,7 @@ interface TopTenData {
   relatedBuyerGuide?: { title: string; slug: string; category?: string };
   relatedContent?: { _id?: string; _type: 'topTenList' | 'buyerGuide' | 'howTo' | 'review'; title: string; slug: string; categorySlug?: string }[];
   showAffiliateDisclosure?: boolean;
+  affiliateDisclosure?: string;
 }
 
 interface Product {
@@ -98,83 +102,17 @@ interface ListItem {
   product: Product;
 }
 
-const phase3Categories = new Set(['laptop', 'air_fryer', 'electric_shaver', 'beard_trimmer', 'baby_monitor', 'coffee_maker', 'tyre_inflator']);
-const phase3CommercialSlugs = new Set([
-  'best-laptops-uae',
-  'best-air-fryers-uae-2026',
-  'best-electric-shaver-uae',
-  'best-beard-trimmers-uae',
-  'best-baby-monitors-uae',
-  'best-coffee-makers-uae',
-  'best-tyre-inflators-uae',
-]);
-
-const directAnswers: Record<string, string> = {
-  laptop: 'For most UAE students and office users, 16GB RAM and a 512GB SSD are practical starting points. Gaming and demanding creative work also need an appropriate dedicated GPU.',
-  air_fryer: 'For most UAE households, a 5–7L air fryer suits three or four people. Larger households or cooks making two foods at once should consider a 7–10L or dual-basket model.',
-  electric_shaver: 'Choose a foil shaver for frequent straight passes and precise edges; choose a rotary shaver for multidirectional growth and the curves of the jaw and neck.',
-  beard_trimmer: 'Choose a beard trimmer by the length range and comb increments you will actually use. Roughly 0.5–2mm suits stubble, 3–5mm a short beard, and 6–10mm a medium beard.',
-  baby_monitor: 'Choose a non-Wi-Fi baby monitor for simple local viewing and fewer cloud dependencies, or a Wi-Fi model for remote app access. Hybrid monitors provide both but require more setup and security care.',
-  coffee_maker: 'For most UAE buyers, the right coffee maker is determined by drink style and daily effort: capsule for speed, filter for several mugs, manual espresso for control, or bean-to-cup for one-touch fresh coffee.',
-  tyre_inflator: 'For most UAE drivers, a compact cordless inflator is convenient for routine top-ups, while a 12V corded model is the safer choice for repeated use or larger tyres because it does not depend on a stored battery charge.',
-};
-
-const uaeChecks: Record<string, string[]> = {
-  laptop: [
-    'Confirm the exact processor, RAM and storage variant; marketplace titles can group several configurations.',
-    'Check whether the keyboard is English-only or Arabic/English and whether that matches your preference.',
-    'Verify the seller, UAE warranty coverage and included Type-G-compatible charger before ordering.',
-    'For gaming or creator laptops, allow clear ventilation in warm rooms rather than using the device on soft furnishings.',
-  ],
-  air_fryer: [
-    'Confirm 220–240V compatibility and a UAE Type-G plug; avoid relying on a travel adaptor for a high-power appliance.',
-    'Compare usable basket floor area and external footprint, not litres alone, and leave the maker’s required ventilation clearance.',
-    'Check the exact seller, return terms and UAE warranty shown on the current Amazon.ae listing.',
-  ],
-  electric_shaver: [
-    'Confirm charger voltage and plug compatibility, especially for an imported marketplace variant.',
-    'Check the local cost and availability of replacement foils, cutters or rotary heads before choosing a model.',
-    'If stored in a humid bathroom, clean and dry the head as directed rather than leaving it wet.',
-  ],
-  beard_trimmer: [
-    'Verify the exact combs and attachments included with the listed regional variant.',
-    'Check charging and UAE plug compatibility, plus the stated waterproof or washable-parts guidance.',
-    'Compare seller and UAE warranty details, especially for marketplace imports.',
-  ],
-  baby_monitor: [
-    'For Wi-Fi models, check app support, update policy and whether recordings stay local or use cloud storage.',
-    'Use a unique password and current firmware; non-Wi-Fi does not automatically mean every radio link has the same privacy design.',
-    'Reinforced walls can reduce quoted range, so judge placement around your actual apartment or villa layout.',
-    'Verify the included plug, seller and UAE warranty for the exact Amazon.ae variant.',
-  ],
-  coffee_maker: [
-    'Confirm 220–240V compatibility and that the exact offer includes a UAE Type-G plug; a plug adaptor does not convert voltage.',
-    'Check the current seller, written UAE warranty terms and authorised service route before ordering.',
-    'Measure width, depth, overhead refill access and ventilation clearance for your counter.',
-    'Confirm local availability of capsules, water filters, descaler, milk-system parts and replacement jugs before choosing a format.',
-  ],
-  tyre_inflator: [
-    'Use the cold-tyre pressure printed on the vehicle placard or in the owner’s manual; the maximum pressure printed on the tyre is not the normal target.',
-    'Check tyre pressure before long highway trips and after major load changes, using a shaded or cool starting point where practical.',
-    'Do not leave a lithium-battery inflator in a parked car during extreme heat; follow the maker’s storage-temperature guidance and recharge it periodically.',
-    'For SUVs, compare duty cycle, hose and power-cable reach—not just the headline maximum PSI.',
-  ],
-};
-
-const overallAudience: Record<string, string> = {
-  laptop: 'most students, office users and everyday buyers',
-  air_fryer: 'most households wanting a versatile everyday air fryer',
-  electric_shaver: 'most buyers balancing shave quality, comfort and cost',
-  beard_trimmer: 'most buyers who need dependable everyday beard maintenance',
-  baby_monitor: 'parents wanting the strongest all-round feature balance',
-  coffee_maker: 'most households wanting fresh coffee without a manual espresso workflow',
-  tyre_inflator: 'most drivers wanting a compact tool for routine pressure top-ups',
-};
-
 // --- MAIN TEMPLATE ---
 export default function TopTenTemplate({ data }: { data: TopTenData }) {
   const affiliateCategory = getAffiliateCategory(data.slug, data.title, data.reviewSection);
-  const isPhase3Cluster = !!affiliateCategory && phase3Categories.has(affiliateCategory) && phase3CommercialSlugs.has(data.slug || '');
+  const items = (data.listItems || []).filter(item => item?.product?.title);
+  // Product references are the schema's commercial discriminator; titles are not.
+  const isCommercial = items.some(item => item.product._type === 'product');
+  const sections = splitBuyingGuideContent(data.body, data.closingContent);
+  const bestOverall = items.find(item => /best (overall|all.round)/i.test(item.badgeLabel || ''));
+  const quickAnswer = sections.quickAnswer.length ? sections.quickAnswer : affiliateCategory ? directAnswers[affiliateCategory] : undefined;
+  const checks = sections.checks.length ? sections.checks : undefined;
+  const fallbackChecks = !checks && affiliateCategory ? uaeChecks[affiliateCategory] : undefined;
   // ✅ FIXED: Use useMemo to stabilize heroImageUrl across re-renders
   const heroImageUrl = useMemo(() => {
     return data?.mainImage?.url || null;
@@ -208,12 +146,12 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
   const firstItemType = data.listItems?.[0]?.product?._type;
 
   const isAviationPost = 
-    firstItemType === 'aviationEntity' || 
+    !isCommercial && (firstItemType === 'aviationEntity' ||
     checkText.includes('airline') || 
-    checkText.includes('airport');
+    checkText.includes('airport'));
 
   const isEducationPost = 
-    !isAviationPost && ( 
+    !isCommercial && !isAviationPost && (
       firstItemType === 'institution' || 
       checkText.includes('education') || 
       checkText.includes('school') ||
@@ -227,46 +165,22 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
 
   const isMedicalPost = hasMedicalKeywords && !checkText.includes("trimmer");
 
-  const toQuickPick = (item: ListItem, tag = item.badgeLabel || (item.rank === 1 ? 'Best Overall' : 'Recommended')) => ({
-    rank: item.rank,
-    tag,
-    title: item.product.title,
-    rating: item.product.customerRating,
-    priceEstimate: item.product.priceTier ? `${item.product.priceTier} Tier` : undefined,
-    imageUrl: item.product.mainImage?.url || "",
-    affiliateLink: item.product.affiliateLink,
-    bestFor: (() => {
-      if (tag === 'Best Overall' && affiliateCategory && overallAudience[affiliateCategory]) return overallAudience[affiliateCategory];
-      if (tag === 'Best Value') return 'buyers prioritising useful features at a lower price tier';
-      if (tag === 'Best Premium') return 'buyers willing to pay more for higher-end features';
-      const labelledUse = item.badgeLabel
-        ?.replace(/^best\s+(overall|value|premium)(?:\s*[-:])?\s*/i, '')
-        .replace(/^best\s+for\s+/i, '')
-        .replace(/^best\s+/i, '');
-      if (labelledUse) return labelledUse;
-      return tag;
-    })(),
-    whySelected: item.whySelected || item.customVerdict || item.product.pros?.[0] || 'A strong fit for the use case shown above.',
-    limitation: item.skipIf || item.product.cons?.[0] || 'Check the exact specification and seller terms before ordering.',
-  });
-
-  // Preserve the original shortlist elsewhere; only the five proven clusters
-  // get semantic, deduplicated recommendation roles.
-  const defaultQuickPicks = data.listItems?.slice(0, 3).map((item) =>
-    toQuickPick(item, item.badgeLabel || (item.rank === 1 ? 'Best Overall' : item.rank === 2 ? 'Runner Up' : 'Great Value'))
-  ) || [];
-  const recommendationCandidates = (data.listItems || []).filter((item) =>
-    item.product?.title && !/unavailable|verify stock/i.test(item.badgeLabel || '')
-  );
-  const selectedItems: { item: ListItem; tag: string }[] = [];
-  const addPick = (item: ListItem | undefined, tag: string) => {
-    if (item && !selectedItems.some(({ item: selected }) => selected._key === item._key)) selectedItems.push({ item, tag });
-  };
-  addPick(recommendationCandidates.find((item) => /best overall/i.test(item.badgeLabel || '')) || recommendationCandidates[0], 'Best Overall');
-  addPick(recommendationCandidates.find((item) => /best (?:simple )?value/i.test(item.badgeLabel || '')), 'Best Value');
-  addPick(recommendationCandidates.find((item) => /best premium/i.test(item.badgeLabel || '')), 'Best Premium');
-  addPick(recommendationCandidates.find((item) => /best for|best gaming|best hybrid|best non.?wi.?fi/i.test(item.badgeLabel || '')), recommendationCandidates.find((item) => /best for|best gaming|best hybrid|best non.?wi.?fi/i.test(item.badgeLabel || ''))?.badgeLabel || 'Best for a specific need');
-  const quickPicks = isPhase3Cluster ? selectedItems.slice(0, 4).map(({ item, tag }) => toQuickPick(item, tag)) : defaultQuickPicks;
+  const quickPicks = items
+    .filter(item => item.product._type === 'product' && (item.badgeLabel || item.product.heroFeature)
+      && !/unavailable|verify stock/i.test(item.badgeLabel || ''))
+    .slice(0, 4).map(item => ({
+      rank: item.rank,
+      tag: item.badgeLabel || item.product.heroFeature || '',
+      title: item.product.title,
+      rating: item.product.customerRating,
+      priceEstimate: item.product.priceTier ? `${item.product.priceTier} Tier` : undefined,
+      imageUrl: item.product.mainImage?.url || '',
+      imageAlt: item.product.mainImage?.alt || item.product.title,
+      affiliateLink: item.product.affiliateLink,
+      bestFor: item.product.heroFeature,
+      whySelected: item.whySelected || item.customVerdict || item.product.pros?.[0],
+      limitation: item.skipIf || item.product.cons?.[0],
+    }));
 
   // --- SCHEMA.ORG JSON-LD GENERATOR ---
   // Google Structured Data for Rich Snippets
@@ -276,7 +190,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
     "name": data.title,
     "description": "Top recommendations and independent reviews.",
     "itemListOrder": "http://schema.org/ItemListOrderDescending",
-    "itemListElement": data.listItems?.map((item) => {
+    "itemListElement": items.map((item) => {
       const entity = item.product;
       const isInstitution = entity._type === 'institution' || isEducationPost;
       
@@ -347,23 +261,41 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
       )}
 
       {/* --- TOP DISCLAIMER --- */}
-      {showDisclaimer && !isEducationPost && !isAviationPost && (
+      {(showDisclaimer || data.affiliateDisclosure) && !isEducationPost && !isAviationPost && (
         <div className="mb-2 text-sm text-gray-500 text-center md:text-left opacity-90 hover:opacity-100 transition-opacity">
-          <AffiliateDisclosure />
+          {isCommercial && data.affiliateDisclosure
+            ? <p className="text-left text-xs leading-relaxed"><strong>Affiliate disclosure:</strong> {data.affiliateDisclosure} <a href="/about-us" className="underline">Learn more</a></p>
+            : <AffiliateDisclosure compact={isCommercial} />}
         </div>
       )}
 
-      <div className="mb-6 space-y-6">
-        <EditorialTrust data={data} />
-      </div>
+      {isCommercial ? <EditorialTrust data={data} section="metadata" /> : <div className="mb-6 space-y-6"><EditorialTrust data={data} /></div>}
 
-      {isPhase3Cluster && affiliateCategory && (
-        <section className="mb-8 rounded-2xl border border-indigo-200 bg-indigo-50/70 p-5 md:p-6" aria-labelledby="quick-answer-heading">
-          <h2 id="quick-answer-heading" className="text-sm font-black uppercase tracking-wider text-primary">Quick answer</h2>
-          <p className="mt-2 text-base font-semibold leading-relaxed text-slate-800">{directAnswers[affiliateCategory]}</p>
-          <p className="mt-2 text-sm leading-relaxed text-slate-600">Recommendations are based on the documented specifications and buyer fit shown below, not an unsupported claim of hands-on testing. Confirm the current Amazon.ae variant, seller and warranty before ordering.</p>
+      {isCommercial && quickAnswer && (
+        <section className="mb-6 rounded-2xl border border-indigo-200 bg-indigo-50/70 p-4 md:p-5" aria-labelledby="quick-answer-heading">
+          <h2 id="quick-answer-heading" className="text-lg font-black text-primary">Quick answer</h2>
+          <div className="mt-2"><PortableText value={quickAnswer} /></div>
+          {bestOverall && <p className="mt-2 font-bold"><a href={`#item-${bestOverall.rank}`} className="text-primary underline">{bestOverall.badgeLabel}: {bestOverall.product.title}</a></p>}
+          {bestOverall?.product.affiliateLink && parseAmazonAffiliateDestination(bestOverall.product.affiliateLink) && (
+            <a href={bestOverall.product.affiliateLink} data-affiliate-product={bestOverall.product.title}
+              data-affiliate-cta="quick_picks" data-affiliate-category={affiliateCategory} data-affiliate-position={bestOverall.rank}
+              target="_blank" rel="nofollow sponsored noopener noreferrer"
+              className="mt-3 inline-block rounded-lg bg-blue-600 px-4 py-3 text-center font-bold text-white hover:bg-blue-700">
+              Check latest price on Amazon.ae
+            </a>
+          )}
         </section>
       )}
+      {isCommercial && quickPicks.length > 0 && <QuickVerdict picks={quickPicks} category={affiliateCategory} showRationale />}
+      {isCommercial && (checks || fallbackChecks?.length) && (
+        <section className="mb-6 rounded-xl border border-slate-200 bg-slate-50 p-4" aria-labelledby="uae-buying-checks">
+          <h2 id="uae-buying-checks" className="text-lg font-bold text-slate-900">UAE buying checks</h2>
+          {checks ? <PortableText value={checks} /> : <ul className="mt-2 grid gap-2 text-sm text-slate-700 md:grid-cols-2">
+            {fallbackChecks?.map(check => <li key={check}>✓ {check}</li>)}
+          </ul>}
+        </section>
+      )}
+      {isCommercial && <ComparisonSummaryTable items={items} category={affiliateCategory} />}
 
       {data.relatedBuyerGuide?.slug && (
         <aside className="mb-8 rounded-2xl border border-primary-200 bg-primary-50 p-5" aria-label="Related buyer guide">
@@ -381,10 +313,6 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
         </aside>
       )}
 
-      {isPhase3Cluster && quickPicks.length > 0 && (
-        <QuickVerdict picks={quickPicks} category={affiliateCategory} showRationale />
-      )}
-
       {isEducationPost && (
          <div className="bg-slate-50 border-b border-gray-100 py-2 px-4 mb-6 text-sm text-gray-600 flex items-start gap-2 leading-relaxed">
            <Shield className="w-4 h-4 mt-0.5 shrink-0 opacity-80" />
@@ -395,11 +323,11 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
       )}
 
       {/* HERO IMAGE */}
-      {heroImageUrl && (
+      {!isCommercial && heroImageUrl && (
         <div className="relative w-full aspect-video overflow-hidden rounded-xl shadow-lg mb-6">
           <img
             src={heroImageUrl}
-            alt={data.title || "Top 10 List"}
+            alt={data.mainImage?.alt || data.title || "Top 10 List"}
             loading="lazy"
             className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-700"
           />
@@ -407,13 +335,13 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
       )}
 
       {/* QUICK JUMP NAVIGATION */}
-      {data.listItems && data.listItems.length > 0 && (
+      {items.length > 0 && (
         <div className="mb-8 p-4 bg-gray-50/50 border border-gray-100 rounded-2xl">
           <h2 className="text-sm font-bold text-gray-800 uppercase tracking-widest mb-2 flex items-center gap-2 ml-1">
             <ArrowDown className="w-3 h-3" /> Quick Jump To:
           </h2>
           <nav className="flex flex-wrap gap-2">
-            {data.listItems
+            {items
               .filter((item) => item.product?.title)
               .map((item) => (
                 <a
@@ -433,38 +361,10 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
         </div>
       )}
 
-      {/* Purchase-decision summary is intentionally near the top so readers
-          can compare verified CMS attributes before scrolling through cards. */}
-      {data.listItems && data.listItems.length > 0 && !isEducationPost && !isAviationPost && (
-        <ComparisonSummaryTable items={data.listItems} category={affiliateCategory} />
-      )}
-
-      {isPhase3Cluster && affiliateCategory && (
-        <section className="mb-10 rounded-2xl border border-slate-200 bg-slate-50 p-5 md:p-6" aria-labelledby="uae-buying-checks">
-          <h2 id="uae-buying-checks" className="text-xl font-black text-slate-900">UAE buying checks</h2>
-          <ul className="mt-3 grid gap-2 text-sm leading-relaxed text-slate-700 md:grid-cols-2">
-            {uaeChecks[affiliateCategory].map((check) => <li key={check} className="flex gap-2"><span aria-hidden="true" className="font-black text-primary">✓</span><span>{check}</span></li>)}
-          </ul>
-        </section>
-      )}
-
       <div className="space-y-2">
-          {/* INTRO CONTENT BLOCK */}
-          <div className="prose prose-lg max-w-none text-slate-800 leading-relaxed bg-linear-to-b from-slate-100 to-white px-6 py-0 rounded-2xl border border-slate-200 shadow-inner mb-6">
-             {(() => {
-               const content = data.body;
-               const normalizedContent = Array.isArray(content) ? content : (content ? [content] : []);
-               return <PortableText value={normalizedContent} />;
-             })()}
-          </div>
-
-          {/* --- 3. QUICK VERDICT (Hide for Schools & Aviation) --- */}
-          {!isPhase3Cluster && !isEducationPost && !isAviationPost && quickPicks.length > 0 && (
-             <QuickVerdict picks={quickPicks} category={affiliateCategory} />
-          )}
-   
+        {!isCommercial && data.body?.length > 0 && <div className="prose prose-lg max-w-none"><PortableText value={data.body} /></div>}
         {/* RECOMMENDATIONS LOOP */}
-        {data.listItems && data.listItems.length > 0 && (
+        {items.length > 0 && (
           <div className="space-y-6">
             <div className="flex items-center gap-2 pb-2 border-b-2 border-gray-100 mt-4">
               <div className="text-primary">
@@ -476,7 +376,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
             </div>
 
             <div className="flex flex-col gap-8">
-              {data.listItems.map((item) => (
+              {items.map((item) => (
                 <React.Fragment key={item._key}>
                   
                   {/* CARD SWITCHER LOGIC */}
@@ -501,43 +401,25 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
           </div>
         )}
 
-        {/* CLOSING CONTENT & BUYER'S GUIDE */}
-        {data.closingContent && (
-          <div className="mb-12"> 
-            {data.listItems && data.listItems.length > 0 ? (
-              <div className="mt-12 prose prose-lg max-w-none text-slate-800 leading-relaxed bg-blue-50/50 p-6 md:p-8 rounded-2xl border border-blue-100 shadow-sm">
-                
-                {/* DYNAMIC FOOTER TITLE */}
-                <div className="flex items-center gap-2 mb-4 text-blue-800 border-b border-blue-200 pb-2">
-                  <Shield className="w-6 h-6" />
-                  <h2 className="text-xl font-bold m-0! p-0!">
-                    {isEducationPost ? "Admission & Parents' Guide" : 
-                     isAviationPost ? "Traveler's Guide & Tips" : 
-                     "Guide & Maintenance"}
-                  </h2>
-                </div>
-                
-                {(() => {
-                  const content = data.closingContent;
-                  const normalizedContent = Array.isArray(content) ? content : (content ? [content] : []);
-                  return <PortableText value={normalizedContent} />;
-                })()}
-              </div>
-            ) : (
-              // Fallback for standard articles without list items
-              <div className="mt-4 pt-4 border-t border-gray-100 prose prose-lg max-w-none text-gray-800 leading-relaxed prose-headings:first:mt-0 prose-p:first:mt-0">
-                {(() => {
-                  const content = data.closingContent;
-                  const normalizedContent = Array.isArray(content) ? content : (content ? [content] : []);
-                  return <PortableText value={normalizedContent} />;
-                })()}
-              </div>
-            )}
-          </div>
-        )}
+        {isCommercial ? <>
+          {sections.guide.length > 0 && <section className="mt-10 prose prose-lg max-w-none" aria-label="Buying guide"><PortableText value={sections.guide} /></section>}
+          <EditorialTrust data={data} section="context" />
+          {sections.editorial.length > 0 && <div className="mt-8 prose prose-lg max-w-none"><PortableText value={sections.editorial} /></div>}
+          <EditorialTrust data={data} section="audience" />
+        </> : data.closingContent?.length > 0 && <section className="mt-10 prose prose-lg max-w-none">
+          <h2>{isEducationPost ? "Admission & Parents' Guide" : isAviationPost ? "Traveler's Guide & Tips" : "Guide & Maintenance"}</h2>
+          <PortableText value={data.closingContent} />
+        </section>}
 
         {/* FAQ ACCORDION */}
         {data.faqs && data.faqs.length > 0 && <FAQAccordion faqs={data.faqs} />}
+
+        {isCommercial && <>
+          <EditorialTrust data={data} section="methodology" />
+          {sections.methodology.length > 0 && <section className="prose max-w-none" aria-label="Research methodology"><PortableText value={sections.methodology} /></section>}
+          <EditorialTrust data={data} section="sources" />
+          {sections.sources.length > 0 && <section className="prose max-w-none" aria-label="Product documentation"><PortableText value={sections.sources} /></section>}
+        </>}
 
         {data.relatedContent && data.relatedContent.length > 0 && (
           <section className="mt-12 border-t border-slate-200 pt-8" aria-labelledby="related-buying-guides-heading">

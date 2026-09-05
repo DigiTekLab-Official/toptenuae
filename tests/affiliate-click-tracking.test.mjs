@@ -45,3 +45,29 @@ test('leaves tracking ID blank for shortened links instead of guessing', () => {
   const payload = createAffiliateClickPayload({ destination });
   assert.equal(payload.affiliate_tracking_id, '');
 });
+
+test('installing tracking twice still emits one complete event per CTA click', async () => {
+  const { installAffiliateClickTracking } = await import('../src/lib/affiliate/click-tracking.js');
+  let listener;
+  let bindings = 0;
+  class Element {}
+  class Anchor extends Element {
+    href = 'https://www.amazon.ae/dp/B000?tag=existing-21';
+    dataset = {affiliateProduct:'Existing product', affiliateCta:'quick_picks', affiliateCategory:'automotive', affiliatePosition:'3'};
+    textContent = 'Check latest price on Amazon.ae';
+    closest() { return this; }
+    querySelector() { return null; }
+    getAttribute() { return null; }
+  }
+  const browser = {Element,HTMLAnchorElement:Anchor,location:{href:'https://toptenuae.com/top-ten/example',pathname:'/top-ten/example'},document:{addEventListener(_type,handler){bindings++;listener=handler;}},dataLayer:[]};
+  installAffiliateClickTracking(browser);
+  installAffiliateClickTracking(browser);
+  listener({target:new Anchor()});
+  assert.equal(bindings,1);
+  assert.equal(browser.dataLayer.length,1);
+  assert.deepEqual(browser.dataLayer[0], {
+    event:'affiliate_click', affiliate_network:'amazon_ae', page_path:'/top-ten/example',
+    affiliate_product:'Existing product',affiliate_cta:'quick_picks',affiliate_destination:'https://www.amazon.ae/dp/B000?tag=existing-21',
+    affiliate_category:'automotive',affiliate_position:'3',affiliate_tracking_id:'existing-21',
+  });
+});
