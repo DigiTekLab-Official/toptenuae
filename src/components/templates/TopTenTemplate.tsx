@@ -17,6 +17,7 @@ import LogoIcon from "@/components/icons/LogoIcon";
 import EditorialTrust from "@/components/EditorialTrust";
 import { buildContentPath } from "@/lib/contentRoute";
 import { getAffiliateCategory } from "@/lib/affiliate/category.js";
+import { createAmazonAffiliateLookup } from "@/lib/affiliate/amazon-asin";
 
 // --- CARDS ---
 import ProductCard from "../ui/ProductCard";       
@@ -106,6 +107,11 @@ interface ListItem {
 export default function TopTenTemplate({ data }: { data: TopTenData }) {
   const affiliateCategory = getAffiliateCategory(data.slug, data.title, data.reviewSection);
   const items = (data.listItems || []).filter(item => item?.product?.title);
+  const affiliateProductsByAsin = createAmazonAffiliateLookup(items.flatMap(item =>
+    typeof item.product.affiliateLink === 'string'
+      ? [{url: item.product.affiliateLink, title: item.product.title, rank: item.rank}]
+      : []
+  ));
   // Product references are the schema's commercial discriminator; titles are not.
   const isCommercial = items.some(item => item.product._type === 'product');
   const sections = splitBuyingGuideContent(data.body, data.closingContent);
@@ -418,7 +424,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
           <EditorialTrust data={data} section="methodology" />
           {sections.methodology.length > 0 && <section className="prose max-w-none" aria-label="Research methodology"><PortableText value={sections.methodology} /></section>}
           <EditorialTrust data={data} section="sources" />
-          {sections.sources.length > 0 && <section className="prose max-w-none" aria-label="Product documentation"><PortableText value={sections.sources} /></section>}
+          {sections.sources.length > 0 && <section className="prose max-w-none" aria-label="Product documentation"><PortableText value={sections.sources} affiliateProductsByAsin={affiliateProductsByAsin} /></section>}
         </>}
 
         {data.relatedContent && data.relatedContent.length > 0 && (

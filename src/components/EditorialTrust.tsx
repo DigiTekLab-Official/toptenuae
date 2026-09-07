@@ -1,38 +1,21 @@
 import { Children } from 'react';
 import PortableText from '@/components/sanity/PortableText';
+import { createAmazonAffiliateLookup, getAmazonUaeAsin } from '@/lib/affiliate/amazon-asin';
 
 const formatDate = (value?: string) => value
   ? new Intl.DateTimeFormat('en-AE', {day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Dubai'}).format(new Date(value))
   : '';
-
-const getAmazonUaeAsin = (value?: string) => {
-  if (!value) return null;
-  try {
-    const url = new URL(value);
-    const hostname = url.hostname.toLowerCase();
-    if (hostname !== 'amazon.ae' && !hostname.endsWith('.amazon.ae')) return null;
-    const match = url.pathname.match(/\/(?:dp|gp\/product|gp\/aw\/d|gp\/aw\/product|gp\/offer-listing|exec\/obidos\/ASIN)\/([a-z0-9]{10})(?:[/?]|$)/i);
-    return match?.[1].toUpperCase() || null;
-  } catch {
-    return null;
-  }
-};
 
 export default function EditorialTrust({data, section = "all"}: {data: any; section?: "all" | "metadata" | "audience" | "context" | "methodology" | "sources"}) {
   const reviewedAt = data.lastReviewedAt;
   const updatedAt = reviewedAt ? undefined : data._updatedAt;
   const methodology = data.testingMethodology || data.methodology;
   const sources = Array.isArray(data.sources) ? data.sources.filter((source: any) => source?.title && source?.url) : [];
-  const affiliateProductsByAsin = new Map<string, { url: string; title?: string; rank?: number }>();
-  if (Array.isArray(data.listItems)) {
-    data.listItems.forEach((item: any) => {
-      const url = item?.product?.affiliateLink;
-      const asin = getAmazonUaeAsin(url);
-      if (asin && typeof url === 'string' && !affiliateProductsByAsin.has(asin)) {
-        affiliateProductsByAsin.set(asin, {url, title: item.product.title, rank: item.rank});
-      }
-    });
-  }
+  const affiliateProductsByAsin = createAmazonAffiliateLookup((data.listItems || []).flatMap((item: any) =>
+    typeof item?.product?.affiliateLink === 'string'
+      ? [{url: item.product.affiliateLink, title: item.product.title, rank: item.rank}]
+      : []
+  ));
   const sourceLinks = sources.map((source: any) => {
     const affiliateProduct = affiliateProductsByAsin.get(getAmazonUaeAsin(source.url) || '');
     return {...source, affiliateProduct};

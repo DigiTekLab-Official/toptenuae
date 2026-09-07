@@ -7,6 +7,7 @@ import { urlForImage } from "@/sanity/lib/image";
 import SanityTable from "@/components/sanity/SanityTable"; 
 import NavigationGrid from "@/components/ui/NavigationGrid";
 import PriceWidget from '@/components/tools/PriceWidget';
+import { getAmazonUaeAsin, type AmazonAffiliateProduct } from '@/lib/affiliate/amazon-asin';
 
 // --- 1. InfoCards Component ---
 const InfoCards = ({ value }: { value: any }) => {
@@ -40,6 +41,37 @@ const InfoCards = ({ value }: { value: any }) => {
 };
 
 // --- 2. Main Components Map ---
+const PortableTextLink = ({ children, value, affiliateProductsByAsin }: { children: any; value: any; affiliateProductsByAsin?: ReadonlyMap<string, AmazonAffiliateProduct> }) => {
+  const originalHref = value?.href || "#";
+  const affiliateProduct = affiliateProductsByAsin?.get(getAmazonUaeAsin(originalHref) || '');
+  const href = affiliateProduct?.url || originalHref;
+  const siteUrl = import.meta.env.PUBLIC_BASE_URL || "https://toptenuae.com";
+  const isSameSite = href === siteUrl || href.startsWith(`${siteUrl}/`);
+  const isExternal = href.startsWith("http") && !isSameSite;
+  const isAmazonAffiliate = /^https?:\/\/(?:www\.)?(?:amazon\.ae|amzn\.to)(?:\/|$)/i.test(href);
+  const isMatchedSource = Boolean(affiliateProductsByAsin && affiliateProduct);
+  const isAffiliateLink = affiliateProductsByAsin ? isMatchedSource : isAmazonAffiliate;
+  return (
+    <a
+      href={href}
+      data-affiliate-product={isAffiliateLink ? (affiliateProduct?.title || (typeof children === 'string' ? children : 'Inline Amazon recommendation')) : undefined}
+      data-affiliate-cta={isAffiliateLink ? (isMatchedSource ? "source_link" : "inline_link") : undefined}
+      data-affiliate-position={isAffiliateLink ? (affiliateProduct?.rank || "editorial") : undefined}
+      target={isExternal || value?.blank ? "_blank" : "_self"}
+      rel={isAffiliateLink ? "nofollow sponsored noopener noreferrer" : isExternal ? "noopener noreferrer" : undefined}
+      className="text-primary underline decoration-primary/30 underline-offset-4 font-semibold hover:text-primary-700 hover:decoration-primary transition-all"
+    >
+      {children}
+      {isExternal && (
+        <>
+          <ExternalLink className="w-3 h-3 inline ml-1 align-top opacity-70" aria-hidden="true" />
+          <span className="sr-only">(opens in a new tab)</span>
+        </>
+      )}
+    </a>
+  );
+};
+
 const components: PortableTextComponents = {
   // ✅ FIX: Silence "Unknown block type" build warnings
   unknownType: () => null,
@@ -213,39 +245,14 @@ const components: PortableTextComponents = {
   },
 
   marks: {
-    link: ({ children, value }) => {
-      const href = value?.href || "#";
-      const siteUrl = import.meta.env.PUBLIC_BASE_URL || "https://toptenuae.com";
-      const isSameSite = href === siteUrl || href.startsWith(`${siteUrl}/`);
-      const isExternal = href.startsWith("http") && !isSameSite;
-      const isAmazonAffiliate = /^https?:\/\/(?:www\.)?(?:amazon\.ae|amzn\.to)(?:\/|$)/i.test(href);
-      return (
-        <a
-          href={href}
-          data-affiliate-product={isAmazonAffiliate ? (typeof children === 'string' ? children : 'Inline Amazon recommendation') : undefined}
-          data-affiliate-cta={isAmazonAffiliate ? "inline_link" : undefined}
-          data-affiliate-position={isAmazonAffiliate ? "editorial" : undefined}
-          target={isExternal || value?.blank ? "_blank" : "_self"}
-          rel={isAmazonAffiliate ? "nofollow sponsored noopener noreferrer" : isExternal ? "noopener noreferrer" : undefined}
-          className="text-primary underline decoration-primary/30 underline-offset-4 font-semibold hover:text-primary-700 hover:decoration-primary transition-all"
-        >
-          {children}
-          {isExternal && (
-            <>
-              <ExternalLink className="w-3 h-3 inline ml-1 align-top opacity-70" aria-hidden="true" />
-              <span className="sr-only">(opens in a new tab)</span>
-            </>
-          )}
-        </a>
-      );
-    },
+    link: ({ children, value }) => <PortableTextLink children={children} value={value} />,
     strong: ({ children }) => (
       <strong className="font-extrabold text-gray-800">{children}</strong>
     ),
   },
 };
 
-export default function PortableText({ value }: { value: any }) {
+export default function PortableText({ value, affiliateProductsByAsin }: { value: any; affiliateProductsByAsin?: ReadonlyMap<string, AmazonAffiliateProduct> }) {
   // Check if value is valid before processing
   if (value === null || value === undefined) {
     return null;
@@ -311,5 +318,8 @@ export default function PortableText({ value }: { value: any }) {
     return null;
   }
 
-  return <PortableTextComponent value={normalizedValue} components={components} />;
+  const sourceComponents = affiliateProductsByAsin
+    ? {...components, marks: {...components.marks, link: ({children, value}: any) => <PortableTextLink children={children} value={value} affiliateProductsByAsin={affiliateProductsByAsin} />}}
+    : components;
+  return <PortableTextComponent value={normalizedValue} components={sourceComponents} />;
 }
