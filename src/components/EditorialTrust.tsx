@@ -5,11 +5,39 @@ const formatDate = (value?: string) => value
   ? new Intl.DateTimeFormat('en-AE', {day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Dubai'}).format(new Date(value))
   : '';
 
+const getAmazonUaeAsin = (value?: string) => {
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    const hostname = url.hostname.toLowerCase();
+    if (hostname !== 'amazon.ae' && !hostname.endsWith('.amazon.ae')) return null;
+    const match = url.pathname.match(/\/(?:dp|gp\/product|gp\/aw\/d|gp\/aw\/product|gp\/offer-listing|exec\/obidos\/ASIN)\/([a-z0-9]{10})(?:[/?]|$)/i);
+    return match?.[1].toUpperCase() || null;
+  } catch {
+    return null;
+  }
+};
+
 export default function EditorialTrust({data, section = "all"}: {data: any; section?: "all" | "metadata" | "audience" | "context" | "methodology" | "sources"}) {
   const reviewedAt = data.lastReviewedAt;
   const updatedAt = reviewedAt ? undefined : data._updatedAt;
   const methodology = data.testingMethodology || data.methodology;
   const sources = Array.isArray(data.sources) ? data.sources.filter((source: any) => source?.title && source?.url) : [];
+  const affiliateProductsByAsin = new Map<string, { url: string; title?: string; rank?: number }>();
+  if (Array.isArray(data.listItems)) {
+    data.listItems.forEach((item: any) => {
+      const url = item?.product?.affiliateLink;
+      const asin = getAmazonUaeAsin(url);
+      if (asin && typeof url === 'string' && !affiliateProductsByAsin.has(asin)) {
+        affiliateProductsByAsin.set(asin, {url, title: item.product.title, rank: item.rank});
+      }
+    });
+  }
+  const sourceLinks = sources.map((source: any) => {
+    const affiliateProduct = affiliateProductsByAsin.get(getAmazonUaeAsin(source.url) || '');
+    return {...source, affiliateProduct};
+  });
+  const hasAffiliateSource = sourceLinks.some((source: any) => source.affiliateProduct);
   const uaeCommerce = data.uaeCommerce;
 
   const show = (name: typeof section) => section === "all" || section === name;
@@ -45,7 +73,14 @@ export default function EditorialTrust({data, section = "all"}: {data: any; sect
       {uaeCommerce.voltageOrCompatibility && <div><dt className="font-semibold">Compatibility</dt><dd>{uaeCommerce.voltageOrCompatibility}</dd></div>}
     </dl></section>}
 
-    {show("sources") && sources.length > 0 && <section className="rounded-2xl border border-slate-200 bg-white p-6"><h2 className="text-xl font-bold text-slate-900">Sources</h2><ol className="mt-3 list-decimal space-y-2 pl-5">{sources.map((source: any) => <li key={source.url}><a className="font-medium text-purple-700 underline" href={source.url} rel="nofollow noopener">{source.title}</a>{source.publisher ? ` — ${source.publisher}` : ''}{source.accessedAt ? ` (checked ${formatDate(source.accessedAt)})` : ''}</li>)}</ol></section>}
+    {show("sources") && sources.length > 0 && <section className="rounded-2xl border border-slate-200 bg-white p-6"><h2 className="text-xl font-bold text-slate-900">Sources</h2>{hasAffiliateSource && <p className="mt-2 text-sm text-slate-600">Some Amazon.ae links below are affiliate links. We may earn a commission from qualifying purchases at no extra cost to you.</p>}<ol className="mt-3 list-decimal space-y-2 pl-5">{sourceLinks.map((source: any) => {
+      const affiliateProduct = source.affiliateProduct;
+      return <li key={source.url}><a className="font-medium text-purple-700 underline" href={affiliateProduct?.url || source.url} rel={affiliateProduct ? "nofollow sponsored noopener noreferrer" : "nofollow noopener"}{...(affiliateProduct ? {
+        'data-affiliate-product': affiliateProduct.title,
+        'data-affiliate-cta': 'source_link',
+        'data-affiliate-position': affiliateProduct.rank,
+      } : {})}>{source.title}</a>{affiliateProduct && <span className="text-xs text-slate-500"> · Affiliate link</span>}{source.publisher ? ` — ${source.publisher}` : ''}{source.accessedAt ? ` (checked ${formatDate(source.accessedAt)})` : ''}</li>;
+    })}</ol></section>}
     {section === "all" && data.affiliateDisclosure && <aside className="rounded-xl bg-slate-100 p-4 text-sm text-slate-700" aria-label="Affiliate disclosure"><strong>Affiliate disclosure:</strong> {data.affiliateDisclosure}</aside>}
   </>;
   if (section === 'all') return content;
