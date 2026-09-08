@@ -328,8 +328,8 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
          </div>
       )}
 
-      {/* HERO IMAGE */}
-      {!isCommercial && heroImageUrl && (
+      {/* MAIN IMAGE — display for every Top Ten list when the CMS provides one. */}
+      {heroImageUrl && (
         <div className="relative w-full aspect-video overflow-hidden rounded-xl shadow-lg mb-6">
           <img
             src={heroImageUrl}
