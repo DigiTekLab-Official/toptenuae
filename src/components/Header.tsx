@@ -37,9 +37,8 @@ export default function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isScrolled, setIsScrolled] = useState(false);
   
-  const [pathname, setPathname] = useState(
-    typeof window !== 'undefined' ? window.location.pathname : '/'
-  );
+  // Keep the initial client render identical to SSR; update the active route after mount.
+  const [pathname, setPathname] = useState('/');
 
   useEffect(() => {
     setPathname(window.location.pathname);

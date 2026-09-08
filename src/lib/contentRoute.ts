@@ -61,7 +61,12 @@ export const buildContentPath = ({
   const typePrefix = ROUTE_PREFIX_BY_TYPE[_type];
   if (typePrefix) return `/${typePrefix}/${normalizedSlug}`;
 
-  if (_type === 'article' || _type === 'post' || _type === 'buyerGuide') {
+  if (_type === 'buyerGuide') {
+    const normalizedCategory = normalizeRouteSegment(categorySlug);
+    return `/${normalizedCategory || 'reviews'}/${normalizedSlug}`;
+  }
+
+  if (_type === 'article' || _type === 'post') {
     const normalizedCategory = normalizeRouteSegment(categorySlug);
     const articlePrefix = normalizedCategory
       ? ARTICLE_ROUTE_BY_CATEGORY[normalizedCategory]
