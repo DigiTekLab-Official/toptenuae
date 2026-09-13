@@ -6,11 +6,12 @@ import { client } from '@/sanity/lib/client';
 import { GENERIC_POST_QUERY } from '@/sanity/queries/post.queries';
 import { generateSchema } from '@/lib/schemaGenerator';
 import { getGscSeoOverride } from '@/lib/seo/gsc-overrides';
+import { buildContentPath } from '@/lib/contentRoute';
 import ArticleView from '@/components/views/ArticleView';
 
 const { category, slug } = Astro.params;
 
-if (!category || !slug) return Astro.redirect('/404');
+if (!category || !slug) return Astro.rewrite('/404');
 
 // Category normalization
 const normalizeCategory = (categorySlug: string) => {
@@ -33,10 +34,7 @@ try {
   console.error(`Error fetching content [${slug}]:`, error);
 }
 
-if (!data) return Astro.redirect('/404');
-
-if (data._type === 'topTenList') return Astro.redirect(`/top-ten/${slug}`, 301);
-if (data._type === 'product') return Astro.redirect(`/reviews/${slug}`, 301);
+if (!data) return Astro.rewrite('/404');
 
 // Determine correct category
 let defaultCat = 'reviews';
@@ -51,10 +49,22 @@ const rawCategory =
   data.categories?.[0]?.slug?.current ||
   data.categories?.[0]?.slug ||
   defaultCat;
-const correctCategory = normalizeCategory(rawCategory);
+const typeOwnedPath = buildContentPath({
+  _type: data._type,
+  slug,
+  categorySlug: rawCategory,
+});
+const hasDedicatedRoute = ['topTenList', 'product', 'howTo', 'tool', 'holiday', 'event']
+  .includes(data._type);
+const correctCategory = hasDedicatedRoute && typeOwnedPath
+  ? typeOwnedPath.split('/')[1]
+  : normalizeCategory(rawCategory);
 
-if (correctCategory !== category) {
-  return Astro.redirect(`/${correctCategory}/${slug}`, 301);
+const canonicalPath = typeOwnedPath && hasDedicatedRoute
+  ? typeOwnedPath
+  : `/${correctCategory}/${slug}`;
+if (canonicalPath !== Astro.url.pathname) {
+  return Astro.redirect(canonicalPath, 301);
 }
 
 // Generate schema. Stored HowTo steps are not rendered by this route, so do not

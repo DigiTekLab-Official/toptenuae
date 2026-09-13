@@ -8,6 +8,7 @@ import SanityTable from "@/components/sanity/SanityTable";
 import NavigationGrid from "@/components/ui/NavigationGrid";
 import PriceWidget from '@/components/tools/PriceWidget';
 import { getAmazonUaeAsin, type AmazonAffiliateProduct } from '@/lib/affiliate/amazon-asin';
+import { canonicalizeAuditedInternalLink } from '@/lib/seo/legacy-redirects';
 
 // --- 1. InfoCards Component ---
 const InfoCards = ({ value }: { value: any }) => {
@@ -42,7 +43,7 @@ const InfoCards = ({ value }: { value: any }) => {
 
 // --- 2. Main Components Map ---
 const PortableTextLink = ({ children, value, affiliateProductsByAsin }: { children: any; value: any; affiliateProductsByAsin?: ReadonlyMap<string, AmazonAffiliateProduct> }) => {
-  const originalHref = value?.href || "#";
+  const originalHref = canonicalizeAuditedInternalLink(value?.href || "#");
   const affiliateProduct = affiliateProductsByAsin?.get(getAmazonUaeAsin(originalHref) || '');
   const href = affiliateProduct?.url || originalHref;
   const siteUrl = import.meta.env.PUBLIC_BASE_URL || "https://toptenuae.com";

@@ -6,6 +6,16 @@ import {
   getAiReferralAttribution,
   serializeAiReferralAttribution,
 } from '@/lib/analytics/ai-referral-attribution.js';
+import { getLegacyRedirect, isKnownGonePath } from '@/lib/seo/legacy-redirects';
+
+const TRACKING_PARAMETERS = [
+  'fbclid',
+  'gclid',
+  'utm_source',
+  'utm_medium',
+  'utm_campaign',
+  'ref',
+] as const;
 
 export const onRequest = defineMiddleware(async ({ request, url, redirect, cookies }, next) => {
   const hostname = request.headers.get('host') || '';
@@ -35,25 +45,9 @@ export const onRequest = defineMiddleware(async ({ request, url, redirect, cooki
     return new Response('Not Found', { status: 404 });
   }
 
-  // --- 410 Gone: permanently-removed WordPress legacy namespaces (unchanged) ---
-  const path = url.pathname;
-  if (
-    path.startsWith('/category/') ||
-    path.startsWith('/author/') ||
-    path.startsWith('/tag/') ||
-    path === '/feed' ||
-    path.startsWith('/feed/') ||
-    path === '/rss' ||
-    path.startsWith('/rss/')
-  ) {
-    return new Response('Gone', { status: 410 });
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // CONSOLIDATED NORMALIZATION — collapse www + case + trailing-slash into ONE
-  // 301 so we never chain middleware → Astro-core-slash-strip → page redirect.
-  // This is the fix for the 14 trailing-slash redirect_error URLs in GSC.
-  // ─────────────────────────────────────────────────────────────────────────
+  // Build one normalized candidate URL before deciding whether to redirect.
+  // The exact legacy lookup below uses this normalized pathname, so host, case,
+  // slash and tracking cleanup are folded into the same single response.
   let needsRedirect = false;
   const newUrl = new URL(url);
   const incomingAiAttribution = getAiReferralAttribution({
@@ -62,8 +56,8 @@ export const onRequest = defineMiddleware(async ({ request, url, redirect, cooki
   });
 
   // 1. Force non-www
-  if (hostname.startsWith('www.')) {
-    newUrl.hostname = hostname.replace(/^www\./, '');
+  if (newUrl.hostname.startsWith('www.')) {
+    newUrl.hostname = newUrl.hostname.replace(/^www\./, '');
     needsRedirect = true;
   }
 
@@ -80,30 +74,28 @@ export const onRequest = defineMiddleware(async ({ request, url, redirect, cooki
     needsRedirect = true;
   }
 
-  // 4. Strip tracking parameters
-  const badParams = ['fbclid', 'gclid', 'utm_source', 'utm_medium', 'utm_campaign', 'ref'];
-  for (const param of badParams) {
+  // 4. Strip only the audited tracking parameters. Every other query parameter
+  // remains on the canonical destination.
+  for (const param of TRACKING_PARAMETERS) {
     if (newUrl.searchParams.has(param)) {
       newUrl.searchParams.delete(param);
       needsRedirect = true;
     }
   }
 
-  // 5. Reviews-list → top-ten consolidation, resolved HERE so it merges into the
-  //    same single 301 instead of firing as a trailing page-handler hop.
-  //    IMPORTANT: this must use the SAME source of truth the page handler used
-  //    to decide a slug is a topTenList. Options, in order of preference:
-  //      (a) a build-time generated Set of list slugs imported here, or
-  //      (b) a Sanity lookup (adds latency to every /reviews/ request — avoid).
-  //    Pseudocode below assumes (a): `LIST_SLUGS` is a Set<string> generated in
-  //    the same build step as sitemap.xml. Keep the page-handler redirect as a
-  //    fallback so a cache-miss can never 200 the wrong URL.
-  //
-  //    const m = newUrl.pathname.match(/^\/reviews\/([^/]+)$/);
-  //    if (m && LIST_SLUGS.has(m[1])) {
-  //      newUrl.pathname = `/top-ten/${m[1]}`;
-  //      needsRedirect = true;
-  //    }
+  // Known deleted URLs are terminal. Check the normalized path before emitting
+  // a normalization redirect so slash/case/tracking variants return 410 now.
+  if (isKnownGonePath(newUrl.pathname)) {
+    return new Response('Gone', { status: 410 });
+  }
+
+  // 5. Exact audited migration lookup. Changing only pathname preserves every
+  // non-tracking query parameter already present on newUrl.
+  const legacyDestination = getLegacyRedirect(newUrl.pathname);
+  if (legacyDestination) {
+    newUrl.pathname = legacyDestination;
+    needsRedirect = true;
+  }
 
   if (needsRedirect) {
     if (incomingAiAttribution) {

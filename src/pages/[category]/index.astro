@@ -7,6 +7,8 @@ import Sidebar from '@/components/Sidebar';
 import { cleanText } from '@/lib/utils/sanity-text';
 import { listImage } from '@/sanity/lib/image';
 import groq from 'groq';
+import { buildContentPath, type SupportedContentType } from '@/lib/contentRoute';
+import { isKnownGonePath } from '@/lib/seo/legacy-redirects';
 
 const { category } = Astro.params;
 
@@ -30,29 +32,6 @@ const normalizeCategory = (c: string): string => ({
   'buyers-guide': 'reviews',
 } as Record<string, string>)[c] || c;
 
-// Flat WordPress permalinks that are permanently gone → 410. A slug belongs here
-// ONLY if Sanity returns NO live doc for it (else the probe above 301s it). Each
-// entry below was confirmed dead via `*[slug.current==$s][0]._type` → null
-// (curated from gsc-exports/soft-404.csv + not-found-404.csv, 2026-05-30).
-// EXCLUDED because LIVE (probe 301s them): how-to-clean-washing-machine (howTo),
-//   eid-al-fitr-uae-prayer-timings-free-events (holiday), charity-organizations-uae-donations
-//   (howTo), where-to-donate-used-toys-uae (howTo), best-baby-monitors-uae (topTenList).
-const LEGACY_GONE = new Set<string>([
-  'best-diaper-bags-uae',                                      // no live doc; no diaper-bags list
-  'best-diaper-bags-in-uae',                                   // variant; no live doc
-  'best-baby-toys',                                            // no live doc
-  'best-books-for-babys-first-library',                        // no live doc
-  'nasa-astronaut-don-pettit-burj-khalifa-image-from-space',   // dead WP news article
-  'best-educational-toys-uae',                                 // no live doc; no equivalent list
-  'best-educational-toys-in-uae',                              // variant; no live doc
-  'best-beauty-products-uae',                                  // no live doc; no beauty list
-  'best-beauty-personal-care-products-uae',                    // no live doc
-  'uae-holidays-2025',                                         // no live doc (2026 is a separate live slug)
-  'best-eid-holiday-travel-destinations-uae',                  // no live doc
-  'free-eid-events-festive-activities-uae',                    // no live doc
-  'ninja-air-fryer-max-xl-af160me-review',                     // no live doc (dead product review)
-]);
-
 let data: any = null;
 try {
   data = await client.fetch(CATEGORY_PAGE_QUERY, { slug: category });
@@ -62,7 +41,7 @@ try {
 
 if (!data) {
   // Not a category hub. Probe whether this flat slug is a live content doc that moved.
-  let probe: { _type?: string; cat?: string; cats?: string[] } | null = null;
+  let probe: { _type?: SupportedContentType; cat?: string; cats?: string[] } | null = null;
   try {
     probe = await client.fetch(
       groq`*[slug.current == $slug][0]{ _type, "cat": category->slug.current, "cats": categories[]->slug.current }`,
@@ -73,26 +52,21 @@ if (!data) {
   }
 
   if (probe?._type) {
-    const t = probe._type;
-    let target: string;
-    if (t === 'topTenList') target = `/top-ten/${category}`;
-    else if (t === 'product') target = `/reviews/${category}`;
-    else {
-      let def = 'reviews';
-      if (t === 'holiday' || t === 'event') def = 'events-holidays';
-      else if (t === 'tool') def = 'finance-tools';
-      else if (t === 'howTo') def = 'how-to-guides';
-      target = `/${normalizeCategory(probe.cat || probe.cats?.[0] || def)}/${category}`;
-    }
-    return Astro.redirect(target, 301);
+    const target = buildContentPath({
+      _type: probe._type,
+      slug: category,
+      categorySlug: probe.cat || probe.cats?.[0],
+    });
+    if (target) return Astro.redirect(target, 301);
   }
 
   // No live doc: permanently-removed legacy permalink → 410; everything else → hard 404.
-  return Astro.rewrite(LEGACY_GONE.has(category) ? '/410' : '/404');
+  if (isKnownGonePath(`/${category}`)) return new Response('Gone', { status: 410 });
+  return Astro.rewrite('/404');
 }
 
 const categorySlug = data.slug || category;
-if (!categorySlug || categorySlug === 'null') return Astro.redirect('/404');
+if (!categorySlug || categorySlug === 'null') return Astro.rewrite('/404');
 
 const validItems = (data.items || []).filter((item: any) => item && item.slug);
 const isFinanceTools = categorySlug === 'finance-tools';

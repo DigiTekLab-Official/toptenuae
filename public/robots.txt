@@ -1,6 +1,11 @@
 User-agent: *
 # ✅ STRICT RULE: Allow ONLY the main page (ends with deals)
 Allow: /deals$
+Allow: /deals/samsung-galaxy-s25-ultra-deal-jan-2026$
+Allow: /deals/sony-wh-1000xm6-wireless-headphone$
+Allow: /deals/nutricook-extra-large-slim-xl-7l-air-fryer$
+Allow: /deals/kenwood-grill-xl-45l-hfp40-airfryer$
+Allow: /deals/latest$
 
 # 🚫 BLOCK the folder (which blocks all sub-pages inside it)
 Disallow: /deals/

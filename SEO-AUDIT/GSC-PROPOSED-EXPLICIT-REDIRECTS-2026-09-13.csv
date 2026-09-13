@@ -1,0 +1,96 @@
+Source Path,Target Path,Priority,Evidence
+/best-baby-skincare-uae,/top-ten/best-baby-skincare-uae,P0,Current production path takes 2 redirects before a 200.
+/best-beard-trimmers-uae,/top-ten/best-beard-trimmers-uae,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/best-educational-toys-in-uae,/top-ten/best-educational-toys-uae,P0,Near-identical legacy slug and exact current educational-toys list intent.
+/best-educational-toys-uae,/top-ten/best-educational-toys-uae,P0,Current production path takes 2 redirects before a 200.
+/best-electric-shaver-uae,/top-ten/best-electric-shaver-uae,P0,Current production path takes 2 redirects before a 200.
+/best-wireless-earbuds-uae,/top-ten/best-wireless-earbuds-uae,P0,Current production path takes 2 redirects before a 200.
+/charity-organizations-uae-donations,/how-to-guides/charity-organizations-uae-donations,P0,Current production path takes 2 redirects before a 200.
+/deals/kenwood-grill-xl-45l-hfp40-airfryer,/reviews/kenwood-air-fryer-grill-xl,P0,Same Kenwood HFP40 Air Fryer & Grill XL product; live review exists.
+/deals/latest,/deals,P0,The live deals hub is the direct replacement for the obsolete latest-deals listing.
+/deals/nutricook-extra-large-slim-xl-7l-air-fryer,/reviews/nutricook-air-fryer-slim-xl,P0,Same Nutricook Slim XL product; live review exists.
+/deals/samsung-galaxy-s25-ultra-deal-jan-2026,/reviews/samsung-galaxy-s25-ultra-5g-uae-smartphone,P0,Same Samsung Galaxy S25 Ultra product; live review exists.
+/deals/sony-wh-1000xm6-wireless-headphone,/reviews/sony-wh-1000xm6-wireless-headphone,P0,Same Sony WH-1000XM6 product; current route chains only because of slash normalization.
+/deepseek-ai-revolutionary-data-retrieval-method,/how-to-guides/how-to-use-deepseek-ai-data-extraction-analysis,P0,Exact surviving DeepSeek guide consolidates the same search intent.
+/deepseek-ai-revolutionary-data-retrieval-method/amp,/how-to-guides/how-to-use-deepseek-ai-data-extraction-analysis,P0,Legacy AMP URL belongs to the same surviving DeepSeek guide.
+/deepseek-ai-startup-disrupting-big-tech-with-innovation,/how-to-guides/how-to-use-deepseek-ai-data-extraction-analysis,P0,Exact surviving DeepSeek guide consolidates the same search intent.
+/deepseek-ai-startup-disrupting-big-tech-with-innovation/amp,/how-to-guides/how-to-use-deepseek-ai-data-extraction-analysis,P0,Legacy AMP URL belongs to the same surviving DeepSeek guide.
+/eid-al-fitr-uae-prayer-timings-free-events,/events-holidays/eid-al-fitr-uae-prayer-timings-free-events,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/events-holidays/ramadan-2026,/events-holidays/ramadan-2026-uae,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/how-to-clean-washing-machine,/how-to-guides/how-to-clean-washing-machine,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/laptops/best-laptop-under-1500-aed-uae,/top-ten/best-laptop-under-1500-aed-uae,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/lifestyle/charity-organizations-uae-donations,/how-to-guides/charity-organizations-uae-donations,P0,Current production path takes 2 redirects before a 200.
+/lifestyle/how-to-pay-zakat-in-uae-online,/how-to-guides/how-to-pay-zakat-in-uae-online,P0,Current production path takes 2 redirects before a 200.
+/parenting-kids/best-baby-monitors-uae,/top-ten/best-baby-monitors-uae,P0,Current production path takes 2 redirects before a 200.
+/parenting-kids/best-baby-skincare-uae,/top-ten/best-baby-skincare-uae,P0,Current production path takes 2 redirects before a 200.
+/parenting-kids/top-10-schools-dubai-2026-khda-fees-reviews,/top-ten/top-10-schools-dubai-2026-khda-fees-reviews,P0,Current production path takes 2 redirects before a 200.
+/parenting-kids/where-to-donate-used-toys-uae,/how-to-guides/where-to-donate-used-toys-uae,P0,Current production path takes 2 redirects before a 200.
+/reviews/apple-airpods-max-usb-c,/reviews/apple-airpods-max-usb-c-wireless-headphone,P0,Same AirPods Max USB-C product; current review is 200 and in sitemap.
+/reviews/apple-airpods-pro-3-review,/reviews/apple-airpods-pro-3,P0,"Same product; current review is 200, self-canonical, and in sitemap."
+/reviews/best-air-fryers-uae-2026,/top-ten/best-air-fryers-uae-2026,P0,Current production path takes 2 redirects before a 200.
+/reviews/best-baby-skincare-uae,/top-ten/best-baby-skincare-uae,P0,Current production path takes 2 redirects before a 200.
+/reviews/best-beard-trimmers-uae,/top-ten/best-beard-trimmers-uae,P0,Current production path takes 2 redirects before a 200.
+/reviews/best-laptop-under-1500-aed-uae,/top-ten/best-laptop-under-1500-aed-uae,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/reviews/best-wireless-earbuds-uae,/top-ten/best-wireless-earbuds-uae,P0,Production currently needs 3 redirect hops.
+/reviews/charity-organizations-uae-donations,/how-to-guides/charity-organizations-uae-donations,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/reviews/eid-al-fitr-uae-prayer-timings-free-events,/events-holidays/eid-al-fitr-uae-prayer-timings-free-events,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/reviews/eid-holidays-uae-2026-best-places-to-visit,/events-holidays/eid-holidays-uae-2026-best-places-to-visit,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/reviews/gmail-gemini-ai-features-2026,/how-to-guides/gmail-gemini-ai-features-2026,P0,Current production path takes 2 redirects before a 200.
+/reviews/gratuity-calculator-uae,/finance-tools/gratuity-calculator-uae,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/reviews/how-to-clean-washing-machine,/how-to-guides/how-to-clean-washing-machine,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/reviews/how-to-connect-laptop-projector-tv,/how-to-guides/how-to-connect-laptop-projector-tv,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/reviews/how-to-connect-second-monitor-laptop,/how-to-guides/how-to-connect-second-monitor-laptop,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/reviews/how-to-pay-zakat-in-uae-online,/how-to-guides/how-to-pay-zakat-in-uae-online,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/reviews/how-to-screen-record-laptop,/how-to-guides/how-to-screen-record-laptop,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/reviews/how-to-take-screenshot-laptop-pc,/how-to-guides/how-to-take-screenshot-laptop-pc,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/reviews/how-to-use-deepseek-ai-data-extraction-analysis,/how-to-guides/how-to-use-deepseek-ai-data-extraction-analysis,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/reviews/jbl-tune-770nc,/reviews/jbl-tune-770nc-wireless-headphone,P0,Same JBL Tune 770NC product; current review is 200 and in sitemap.
+/reviews/new-year-tech-upgrades-uae-2026,/top-ten/new-year-tech-upgrades-uae-2026,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/reviews/olov-for-man-grooming-kit-review,/reviews/olov-for-man-grooming-kit-trimmer,P0,Same OLOV YH-7280 product; current review is 200 and in sitemap.
+/reviews/quantum-computing-guide-uae,/how-to-guides/quantum-computing-guide-uae,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/reviews/quantum-computing-strategy-uae-2026,/how-to-guides/quantum-computing-strategy-uae-2026,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/reviews/ramadan-2026-uae,/events-holidays/ramadan-2026-uae,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/reviews/samsung-galaxy-s26-ultra-specs-uae-price,/how-to-guides/samsung-galaxy-s26-ultra-specs-uae-price,P0,"Sanity type is howTo; sitemap, indexed GSC URL, internal-link resolver, and shared contentRoute all select /how-to-guides, but the generic route currently lets category=smartphones override type."
+/reviews/sony-wh-1000xm6-headphones-review,/reviews/sony-wh-1000xm6-wireless-headphone,P0,Same Sony WH-1000XM6 product; current review is 200 and in sitemap.
+/reviews/state-of-ai-december-2025-uae-report,/how-to-guides/state-of-ai-december-2025-uae-report,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/reviews/uae-holidays-2026,/events-holidays/uae-holidays-2026,P0,The historical GSC error is stale relative to the current one-hop live result.
+/reviews/uae-vat-calculator,/finance-tools/uae-vat-calculator,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/reviews/where-to-donate-used-toys-uae,/how-to-guides/where-to-donate-used-toys-uae,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/reviews/zakat-calculator,/finance-tools/zakat-calculator,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/smart-home/how-to-clean-washing-machine,/how-to-guides/how-to-clean-washing-machine,P0,Current production path takes 2 redirects before a 200.
+/smartphones/samsung-galaxy-s26-ultra-specs-uae-price,/how-to-guides/samsung-galaxy-s26-ultra-specs-uae-price,P0,"Sanity type is howTo; sitemap, indexed GSC URL, internal-link resolver, and shared contentRoute all select /how-to-guides, but the generic route currently lets category=smartphones override type."
+/tech/asus-vivobook-go-15-e1504fa,/reviews/asus-vivobook-go-15-e1504fa,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/tech/best-noise-cancelling-headphones-uae,/top-ten/best-noise-cancelling-headphones-uae,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/tech/deepseek-ai-revolutionary-data-retrieval-method,/how-to-guides/how-to-use-deepseek-ai-data-extraction-analysis,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/tech/deepseek-ai-startup-disrupting-big-tech-with-innovation,/how-to-guides/how-to-use-deepseek-ai-data-extraction-analysis,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/tech/hp-14-n150-16gb-student,/reviews/hp-14-n150-16gb-student,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/tech/hp-stream-14-n150,/reviews/hp-stream-14-n150,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/tech/lenovo-slim-3-chromebook-14,/reviews/lenovo-slim-3-chromebook-14,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/tech/quantum-computing-strategy-uae-2026,/how-to-guides/quantum-computing-strategy-uae-2026,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/tech/samsung-galaxy-s26-ultra-specs-uae-price,/how-to-guides/samsung-galaxy-s26-ultra-specs-uae-price,P0,"Sanity type is howTo; sitemap, indexed GSC URL, internal-link resolver, and shared contentRoute all select /how-to-guides, but the generic route currently lets category=smartphones override type."
+/tech/state-of-ai-december-2025-uae-report,/how-to-guides/state-of-ai-december-2025-uae-report,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/top-ten/apple-macbook-air-m2-2022,/reviews/apple-macbook-air-m2-2022,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/top-ten/best-air-fryers-uae,/top-ten/best-air-fryers-uae-2026,P0,Explicit replacement supplied and destination is 200/self-canonical/in sitemap.
+/top-ten/braun-pocketgo-m90-mobile-shaver,/reviews/braun-pocketgo-m90-mobile-shaver,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/top-ten/braun-series-5-51-b1000s-shaver,/reviews/braun-series-5-51-b1000s-shaver,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/top-ten/braun-series-9-pro-plus-shaver,/reviews/braun-series-9-pro-plus-shaver,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/top-ten/kemei-2299-professional-trimmer,/reviews/kemei-2299-professional-trimmer,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/top-ten/kenwood-air-fryer-grill-xl,/reviews/kenwood-air-fryer-grill-xl,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/top-ten/microsoft-surface-laptop,/reviews/microsoft-surface-laptop,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/top-ten/nutricook-air-fryer-slim-xl,/reviews/nutricook-air-fryer-slim-xl,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/top-ten/panasonic-es-sa40-pro-curve-shaver,/reviews/panasonic-es-sa40-pro-curve-shaver,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/top-ten/philips-norelco-9000-prestige,/reviews/philips-norelco-9000-prestige,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/top-ten/philips-shaver-series-1000-s1151,/reviews/philips-shaver-series-1000-s1151,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/top-ten/pritech-3-in-1-grooming-set-shaver,/reviews/pritech-3-in-1-grooming-set-shaver,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/top-ten/quantum-computing-guide-uae,/how-to-guides/quantum-computing-guide-uae,P0,"Exact live slug exists as a howTo, returns 200, and is in sitemap."
+/top-ten/quantum-computing-strategy-uae-2026,/how-to-guides/quantum-computing-strategy-uae-2026,P0,"Exact live slug exists as a howTo, returns 200, and is in sitemap."
+/top-ten/remington-f5-5800-foil-shaver,/reviews/remington-f5-5800-foil-shaver,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/top-ten/skull-shaver-pitbull-gold-pro,/reviews/skull-shaver-pitbull-gold-pro,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/top-ten/soundcore-p30i-noise-cancelling-earbuds,/reviews/soundcore-p30i-noise-cancelling-earbuds,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/top-ten/ugreen-clipbuds-open-earbuds,/reviews/ugreen-clipbuds-open-earbuds,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/top-ten/wahl-travel-shaver-3615-1027,/reviews/wahl-travel-shaver-3615-1027,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/top-ten/xiaomi-redmi-buds-6-play-earbuds,/reviews/xiaomi-redmi-buds-6-play-earbuds,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
+/travel-tourism/world-safest-airlines-2026,/top-ten/world-safest-airlines-2026,P0,Current production path takes 2 redirects before a 200.
+/upcoming/samsung-galaxy-s26-ultra-specs-uae-price,/how-to-guides/samsung-galaxy-s26-ultra-specs-uae-price,P0,"Sanity type is howTo; sitemap, indexed GSC URL, internal-link resolver, and shared contentRoute all select /how-to-guides, but the generic route currently lets category=smartphones override type."
+/where-to-donate-used-toys-uae,/how-to-guides/where-to-donate-used-toys-uae,P0,Current production path takes 2 redirects before a 200.
+/zakat-calculator,/finance-tools/zakat-calculator,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.

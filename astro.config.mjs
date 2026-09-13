@@ -43,6 +43,6 @@ export default defineConfig({
     port: 4321,
   },
 
-  // Redirect trailing slashes
-  trailingSlash: 'never',
+  // Middleware owns slash normalization so it can combine it with legacy maps.
+  trailingSlash: 'ignore',
 });

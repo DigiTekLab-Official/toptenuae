@@ -1,51 +1,5 @@
-# Cloudflare Pages redirects
-# Format: /old-path /new-path STATUS_CODE
+# Cloudflare Pages static/external redirects only.
+# SSR content migrations are handled by src/middleware.ts so normalization and
+# exact legacy routing happen in one response.
 
-# Legacy /feed and /rss are dead WordPress feeds → served 410 Gone in
-# middleware.ts (T1-C). Do NOT re-add an edge 301 here: _redirects runs before
-# the worker, so a 301 would mask the 410 and the URLs would linger in the index.
-
-# Studio redirect (managed separately)
 /studio https://universal-studio.sanity.studio 301
-
-
-# GSC soft-404 fixes: map old single-segment paths to new hierarchy
-/how-to-clean-washing-machine /how-to-guides/how-to-clean-washing-machine 301
-/how-to-clean-washing-machine/ /how-to-guides/how-to-clean-washing-machine 301
-
-# GSC 404 fix (Commit 2b): legacy events-holidays Ramadan slug → live successor.
-# No published Sanity doc currently exists at `ramadan-2026`; the live Ramadan
-# 2026 UAE holiday is published at `ramadan-2026-uae` and self-canonicalizes there.
-# Map both slash variants directly to the verified 200 canonical successor.
-/events-holidays/ramadan-2026 /events-holidays/ramadan-2026-uae 301
-/events-holidays/ramadan-2026/ /events-holidays/ramadan-2026-uae 301
-
-# GSC 404 fix (Commit 2c): two legacy /tech/ DeepSeek slugs → live consolidated
-# guide. No published Sanity doc currently exists at either source slug (verified
-# against the live published dataset). The prior production (Next.js) redirect map
-# consolidated both of these exact URLs to the one surviving DeepSeek guide with
-# permanent 301s (_backup_nextjs/next.config.ts). That successor is published as a
-# howTo at `how-to-guides/how-to-use-deepseek-ai-data-extraction-analysis`, returns
-# 200, self-canonicalizes, and is in the sitemap. Map both slash variants directly
-# to the verified 200 successor (avoids the current 302→/404 and any multi-hop).
-/tech/deepseek-ai-startup-disrupting-big-tech-with-innovation /how-to-guides/how-to-use-deepseek-ai-data-extraction-analysis 301
-/tech/deepseek-ai-startup-disrupting-big-tech-with-innovation/ /how-to-guides/how-to-use-deepseek-ai-data-extraction-analysis 301
-/tech/deepseek-ai-revolutionary-data-retrieval-method /how-to-guides/how-to-use-deepseek-ai-data-extraction-analysis 301
-/tech/deepseek-ai-revolutionary-data-retrieval-method/ /how-to-guides/how-to-use-deepseek-ai-data-extraction-analysis 301
-
-# GSC fix (Commit 3): three bare single-segment legacy paths reported as
-# "Redirect error" in GSC, verified via direct fetch to be true 404s — unlike
-# /reviews/[slug], /parenting-kids/[slug], and /tech/[slug], bare top-level
-# paths have no cross-collection slug-lookup fallback, so nothing catches them.
-# All three targets verified live (200, self-canonicalizing):
-#   - best-baby-monitor: exact slug not live; live version is plural + -uae
-#     suffixed at top-ten/best-baby-monitors-uae
-#   - best-beard-trimmers-uae: same slug, just missing the top-ten/ prefix
-#   - nutricook-air-fryer-slim-xl-review: old slug had a "-review" suffix not
-#     present in the live slug; mapped to reviews/nutricook-air-fryer-slim-xl
-/best-baby-monitor /top-ten/best-baby-monitors-uae 301
-/best-baby-monitor/ /top-ten/best-baby-monitors-uae 301
-/best-beard-trimmers-uae /top-ten/best-beard-trimmers-uae 301
-/best-beard-trimmers-uae/ /top-ten/best-beard-trimmers-uae 301
-/nutricook-air-fryer-slim-xl-review /reviews/nutricook-air-fryer-slim-xl 301
-/nutricook-air-fryer-slim-xl-review/ /reviews/nutricook-air-fryer-slim-xl 301

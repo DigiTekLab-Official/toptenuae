@@ -6,6 +6,8 @@ import { PRODUCT_PAGE_QUERY } from '@/sanity/queries/product.queries';
 import { generateSchema } from '@/lib/schemaGenerator';
 import ProductView from '@/components/views/ProductView';
 import RelatedContent from '@/components/views/RelatedContent';
+import { buildContentPath } from '@/lib/contentRoute';
+import { isKnownGonePath } from '@/lib/seo/legacy-redirects';
 
 const { slug } = Astro.params;
 if (!slug) {
@@ -14,7 +16,7 @@ if (!slug) {
   // redirecting to the /404 route (a 302 → /404 is what GSC classifies as
   // "Redirect error"). This path is effectively unreachable given Astro's
   // routing, but kept correct for safety.
-  return new Response('Not Found', { status: 404 });
+  return Astro.rewrite('/404');
 }
 
 let data: any = null;
@@ -31,35 +33,23 @@ try {
 
 // 2. If no product data is found, check if it's actually another content type (like topTenList)
 if (!data) {
-  // 3. Smart 301 Redirects for wrong content types
-  //    (unchanged — these are correct single-hop 301s to the canonical route)
+  // 3. Keep a type-aware fallback for newly moved content that is not yet in
+  //    the frozen legacy map. Document type owns dedicated route prefixes.
   if (fallbackData) {
-    if (fallbackData._type === 'topTenList') {
-      return Astro.redirect(`/top-ten/${slug}`, 301);
-    }
-    if (fallbackData._type === 'holiday' || fallbackData._type === 'event') {
-      return Astro.redirect(`/events-holidays/${slug}`, 301);
-    }
-    if (['howTo', 'tool', 'article', 'post', 'buyerGuide'].includes(fallbackData._type)) {
-      const defaultCategory = fallbackData._type === 'howTo'
-        ? 'how-to-guides'
-        : fallbackData._type === 'tool'
-          ? 'finance-tools'
-          : 'reviews';
-      const catSlug = fallbackData.categorySlug || fallbackData.categories?.[0] || defaultCategory;
-      return Astro.redirect(`/${catSlug}/${slug}`, 301);
-    }
+    const target = buildContentPath({
+      _type: fallbackData._type,
+      slug,
+      categorySlug: fallbackData.categorySlug || fallbackData.categories?.[0],
+    });
+    if (target) return Astro.redirect(target, 301);
   }
 
-  // 4. Genuinely doesn't exist in Sanity → return 410 GONE directly.
-  //    Was: return Astro.redirect('/404');  →  emitted 302 → /404, which GSC
-  //    classifies as "Redirect error" (confirmed via curl: HTTP/2 302 +
-  //    location:/404). Returning the status directly on the requested URL is
-  //    the correct signal. 410 (not 404) because these are permanently-ended
-  //    deals / removed products that will not return at this slug — 410 clears
-  //    the index faster than 404 and stops recrawl churn. Switch to 404 only if
-  //    a slug pattern might be reused for future content.
-  return new Response('Gone', { status: 410 });
+  // Missing review slugs are not presumed deleted. Only an audited exact path
+  // may be terminal 410; every unknown miss is a normal direct 404.
+  if (isKnownGonePath(`/reviews/${slug}`)) {
+    return new Response('Gone', { status: 410 });
+  }
+  return Astro.rewrite('/404');
 }
 
 // 5. If data exists, format it and render the page normally

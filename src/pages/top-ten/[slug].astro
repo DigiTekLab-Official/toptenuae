@@ -8,7 +8,7 @@ import ArticleView from '@/components/views/ArticleView';
 import { getGscSeoOverride } from '@/lib/seo/gsc-overrides';
 
 const { slug } = Astro.params;
-if (!slug) return Astro.redirect('/404', 404);
+if (!slug) return Astro.rewrite('/404');
 
 let data: any = null;
 try {
@@ -36,7 +36,7 @@ if (!data) {
     return Astro.redirect(`/reviews/${slug}`, 301);
   }
   // No exact product → preserve existing null-list behavior unchanged.
-  return Astro.redirect('/404', 404);
+  return Astro.rewrite('/404');
 }
 
 // Issue 4 fix: type guard — if a non-topTenList doc somehow resolves here
@@ -44,7 +44,7 @@ if (!data) {
 // than rendering with a wrong schema. Preserves all existing valid behaviour
 // since TOP_TEN_LIST_QUERY is already scoped to _type == "topTenList".
 if (data._type && data._type !== 'topTenList') {
-  return Astro.redirect('/404');
+  return Astro.rewrite('/404');
 }
 
 // Issue 1 fix: _type fallback corrected to 'topTenList' so the schema
