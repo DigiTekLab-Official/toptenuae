@@ -1,0 +1,57 @@
+# Laptop Offer Refresh Baseline — 2026-09-16
+
+This is the pre-change commercial inventory required by Phase 5. It records the published Sanity state and the exact Amazon.ae pages opened on 16 September 2026. The browser verification window was approximately 10:25–10:35 UTC. `Unverified` means Amazon did not expose enough evidence; it is not an inference.
+
+## Scope
+
+- 7 commercial pages
+- 46 product placements
+- 28 unique current offers
+- 27 referenced product-review documents plus one inline MacBook Air M5 decision offer
+- Approved tracking tag checked: `apfunbox06-21`
+
+## Current inventory matrix
+
+| Page(s) | Product | ASIN | Current URL | Orderable? | Seller | Fulfilment | Price observed | Configuration | Keyboard | Warranty | Plug | Tag | Action |
+| --- | --- | --- | --- | --- | --- | --- | ---: | --- | --- | --- | --- | --- | --- |
+| AI | ASUS Zenbook S 16 UM5606GA | B0GPQH46G2 | `amazon.ae/dp/B0GPQH46G2` | Yes | Amazon.ae | Amazon.ae | AED 7,759.01 | Ryzen AI 9 465; 32GB; 2TB; 16-inch 3K OLED; Windows 11. Amazon overview separately says Ryzen AI 9 390. | Unverified | Optional third-party plans shown; base coverage unverified | Unverified | Correct | UPDATE / RISK |
+| AI | Microsoft Surface Laptop 15, 8th Edition | B0H5JWXP5D | `amazon.ae/dp/B0H5JWXP5D` | Yes | Amazon.ae | Amazon.ae | AED 6,999.00 | Title: 15-inch, Snapdragon X2 Elite, 16GB/512GB. Overview says 13.8-inch and bullets say 13-inch; power supply sold separately. | Unverified | Page surfaced “1 Year Manufacturer Warranty”; service route unverified | Power supply sold separately | Correct | UPDATE / RISK |
+| AI | ASUS ProArt P16 | B0GPRL4RDG | `amazon.ae/dp/B0GPRL4RDG` | No | None | None | Unavailable | Ryzen AI 9 HX 370; 64GB; 2TB; RTX 5070; 16-inch 3K OLED; Windows 11 | Backlit; language unverified | Unverified | Unverified | Correct | SUPPRESS |
+| AI; Windows vs Mac | MacBook Pro 14 M5 | B0FWD57CZH | `amazon.ae/dp/B0FWD57CZH` | Yes | Amazon.ae | Amazon.ae | AED 7,459.00 | Title/bullets: M5, 16GB, 1TB, 14.2-inch XDR; overview separately says Apple M4 | Unverified | Optional AppleCare+ shown; base UAE route unverified | Unverified | Correct | UPDATE / RISK |
+| AI | HP OmniBook X Flip 16 | B0FMY1W2ZH | `amazon.ae/dp/B0FMY1W2ZH` | Yes | ByteHub Traders | Fulfilled by Amazon | AED 3,249.00 | Core Ultra 7 256V; 16GB; 1TB; 16-inch 2K touch; Windows 11; stylus | Backlit; language unverified | Optional third-party plans; base coverage unverified | Unverified | Correct | UPDATE / RISK |
+| AI | Lenovo Yoga Slim 7x | B0DQRH3LQL | `amazon.ae/dp/B0DQRH3LQL` | No usable buy box | None | None | Unavailable | Snapdragon X Elite X1E-78-100; 16GB; 1TB; 14.5-inch OLED; Windows 11 on Arm | Backlit standard; language unverified | Unverified | 65W Type-C; Type-G lead unverified | Correct | SUPPRESS |
+| AI | Samsung Galaxy Book6 16 | B0H9RTKYQM | `amazon.ae/dp/B0H9RTKYQM` | Yes | Tech Point Zone Electronics Trading LLC | Fulfilled by Amazon | AED 3,775.00 | Core Ultra 7 355; 16GB; 512GB; 16-inch touch; Windows 11 Pro | Unverified | Optional third-party plans; base coverage unverified | Unverified | Correct | UPDATE / RISK |
+| AI; Business | Dell XPS 13 9350 | B0HCNMTX4F | `amazon.ae/dp/B0HCNMTX4F` | Yes | TECH-OFFER | Fulfilled by Amazon | AED 5,399.00 | Core Ultra 7 256V; 16GB; 1TB; 13.4-inch FHD+ 120Hz non-touch; Windows 11 | English | Optional third-party plans; base coverage unverified | Unverified | Correct | KEEP / RISK |
+| AI | Acer Aspire 14 AI | B0DWNLQLL6 | `amazon.ae/dp/B0DWNLQLL6` | Yes | Tech Point Zone Electronics Trading LLC | Fulfilled by Amazon | AED 3,099.00 | Core Ultra 7 256V; 16GB; 1TB; 14-inch WUXGA; Windows 11 Home | Backlit; language unverified | Optional third-party plans; base coverage unverified | Unverified | Correct | UPDATE / RISK |
+| AI | ASUS Vivobook 16 X1607QA | B0GWNCDMV6 | `amazon.ae/dp/B0GWNCDMV6` | Yes | TECH-OFFER | Fulfilled by Amazon | AED 2,298.99 | Snapdragon X X1-26-100; 16GB; 1TB; 16-inch WUXGA; Windows 11 Home | Unverified | Optional third-party plans; base coverage unverified | Unverified | Correct | UPDATE / RISK |
+| General; Student; Business; Windows vs Mac | ThinkPad E16 Gen 2 | B0DNQFK6B9 | `amazon.ae/dp/B0DNQFK6B9` | Yes | ByteHub Traders | Fulfilled by Amazon | AED 4,959.00 | Title/overview: Core Ultra 7 155H, 32GB, 1TB, 16-inch, Windows 11 Pro; seller-opened upgrade. One generic bullet conflicts. | Backlit; language unverified | One-year seller warranty | Unverified | Correct | UPDATE / RISK |
+| General; Student; Business | ASUS Vivobook 14 | B0FHHJW4NP | `amazon.ae/dp/B0FHHJW4NP` | Yes | DXB Laptop Arena | Fulfilled by Amazon | AED 2,299.00 | Core i5-1334U; 16GB; 512GB; 14-inch FHD; Windows 11 Pro; seller-opened upgrade | Language unverified; not stated as backlit | One-year seller warranty | Unverified | Correct | UPDATE / CHANGED |
+| General; Student; Business; Windows vs Mac | Lenovo Yoga 7i 16IML9 | B0FM3F1SGH | `amazon.ae/dp/B0FM3F1SGH` | Yes | B2C Hub | Fulfilled by Amazon | AED 3,639.00 | Core Ultra 7 155U; 16GB; 1TB; 16-inch 2K touch; Windows 11 Home; seller-opened upgrade. One generic bullet conflicts. | Backlit; English (US) surfaced in details | One-year seller warranty | Type-G lead unverified | Correct | UPDATE / CHANGED |
+| General; Student; Business | Surface Laptop 13 (2025) | B0DZBMVVLT | `amazon.ae/dp/B0DZBMVVLT` | Yes | TechFlip By CompuLogic | Fulfilled by Amazon | AED 3,599.00 | Snapdragon X Plus; 16GB; 256GB; 13-inch touch; Windows 11 Home; seller-described upgrade | Unverified | One-year seller warranty | Unverified | Correct | UPDATE / RISK |
+| General; Gaming; Student; Windows vs Mac | HP Victus 15-fa2701wm | B0DN5RWNNC | `amazon.ae/dp/B0DN5RWNNC` | Yes | Q A Z TECH GENERAL TRADING | Fulfilled by Amazon | AED 3,599.00 | Title: FA2701WM, i5-13420H, 16GB, 512GB, RTX 4050, 15.6-inch 144Hz; overview separately says 15-fa1082wm | English backlit | Optional plans; base UAE route unverified | Unverified | Correct | UPDATE / CHANGED / RISK |
+| General; Gaming | ASUS ROG Strix G16 | B0DZZWMB2L | `amazon.ae/dp/B0DZZWMB2L` | Yes | Tech Point Zone Electronics Trading LLC | Fulfilled by Amazon | AED 6,207.00 | i7-14650HX; 16GB; 1TB; RTX 5060; 16-inch FHD+ 165Hz; Windows 11. Generic seller bullet incorrectly says integrated graphics. | Esports keyboard; language unverified | One-year seller warranty | Type-G lead unverified | Correct | UPDATE / CHANGED / RISK |
+| General; Gaming | Lenovo Legion 5i OLED | B0F6NRYPPG | `amazon.ae/dp/B0F6NRYPPG` | Yes | Amazon US | Cross-border Amazon US | AED 7,711.14 plus observed import/delivery charge | i7-14700HX; 16GB; 1TB; RTX 5070; 15-inch 2.5K OLED 165Hz; Windows 11 Home | Unverified | UAE manufacturer coverage unverified | Amazon warns adaptor may be required | Correct | UPDATE / CHANGED / RISK |
+| Budget | Acer Aspire Go 15 | B0CV5ZSR17 | `amzn.to/4viWDWR` → exact ASIN | Yes | DesertcartAE | Shipper/seller DesertcartAE | AED 2,149.32 | i3-N305; 8GB; 128GB; 15.6-inch FHD IPS; Windows 11 S | English | Unverified | Unverified | Correct after redirect | REPLACE on budget page; UPDATE review link |
+| Budget | ASUS Vivobook 14 X1404VA | B0DB67YDVX | `amzn.to/3PYOhVw` → exact ASIN | Yes | THE-LAPTOP SHOP | Fulfilled by Amazon | AED 1,799.00 | i3-1315U; 8GB; 256GB; 14-inch FHD; Windows 11 | Unverified | Unverified | Unverified | Correct after redirect | REPLACE on budget page; UPDATE review link |
+| Budget | Lenovo Slim 3 Chromebook | B0DCLJ9V2B | `amzn.to/4dLCtiC` → exact ASIN | Yes | DesertcartAE | Shipper/seller DesertcartAE | AED 1,494.31 | Kompanio 520; 4GB; 64GB eMMC + 64GB card; 14-inch FHD touch; ChromeOS | English, non-backlit | Unverified | Unverified | Correct after redirect | KEEP / UPDATE |
+| Budget | HP Stream 14 | B0CZL2SLCJ | `amzn.to/3QiNEpQ` → exact ASIN | Yes | DesertcartAE | Shipper/seller DesertcartAE | AED 2,708.61 | Actual route: Celeron N4120, 16GB, 128GB eMMC + bundle; CMS says N150/4GB/128GB UFS | Unverified | Listing states one-year upgrade and manufacturer warranties; UAE route unverified | Unverified | Correct after redirect | REPLACE on budget page; UPDATE mismatched review |
+| Budget | HP 15-fc0025dx | B0DB5B5WWS | `amzn.to/4dJfS6a` → exact ASIN | Yes | Lenowo Online market | Fulfilled by Amazon | AED 1,759.00 | Ryzen 5 7520U; 8GB; 512GB; 15.6-inch HD touch; Windows 11 S | English | Unverified | Unverified | Correct after redirect | REPLACE on budget page; UPDATE review link |
+| Budget | ASUS Vivobook Go 15 | B0DTVQN7KM | `amzn.to/4vukUtr` → exact ASIN | Yes | DesertcartAE | Shipper/seller DesertcartAE | AED 2,410.88 | Ryzen 3 7320U; 8GB; 256GB; 15.6-inch FHD; Windows 11 Home | Unverified | Unverified | Unverified | Correct after redirect | REPLACE on budget page; UPDATE review link |
+| Budget | HP 14 Student | B0FPXJ6G6B | `amzn.to/4dZWfpu` → exact ASIN | No | None | None | Unavailable | N150; 16GB; 128GB UFS + 128GB microSD; 14-inch HD; Windows 11 S | Non-backlit; language unverified | Unverified | Unverified | Correct after redirect | SUPPRESS / REPLACE |
+| General; Student | MacBook Air 13 M2 | B0DLHK2MMY route resolves B0DLHFZ7TW | No CTA in CMS | No | None | None | Unavailable | M2; 16GB; 256GB; 13.6-inch; macOS | Arabic/English selected | Unverified | Unverified | No active link | SUPPRESS / NO CHANGE |
+| General | MacBook Air 13 M4 | B0DZDXCFJQ | No CTA in CMS | No | None | None | Unavailable | M4; 16GB; 512GB; 13.6-inch; macOS | Arabic/English selected; listing reviews conflict | Unverified | Unverified | No active link | SUPPRESS / NO CHANGE |
+| General | Acer Nitro V 16 AI | B0FWXM6R9N | No CTA in CMS | No | None | None | Unavailable | Ryzen 5 240; 16GB; 512GB; RTX 5050; 16-inch WUXGA 180Hz; Windows 11 | English | Unverified | Unverified | No active link | SUPPRESS / NO CHANGE |
+| Windows vs Mac | MacBook Air 13 M5 | B0GR1N3L6Q | `amazon.ae/dp/B0GR1N3L6Q` | Yes | Amazon.ae | Amazon.ae | AED 5,499.00 | M5; 16GB; 512GB; 13.6-inch; macOS. Overview separately says Apple M4. | English | Optional AppleCare+ shown; base UAE route unverified | Unverified | Correct | UPDATE / RISK |
+
+## Budget replacement evidence (not yet published)
+
+Three exact, role-distinct offers were separately checked as possible replacements: HP 15 Athlon 7120U 8GB/256GB (B0GQVG2Q7P, AED 1,299, PrimeGadgets World, fulfilled by Amazon), Lenovo 500w Gen 3 2-in-1 8GB/128GB (B0D2YDZWC1, AED 594, MicroBee Global, fulfilled by Amazon), and renewed ThinkPad T14 Gen 1 16GB/512GB (B0BCN5HR6V, AED 860, RWDS, fulfilled by Amazon). They are not silently substituted because each would require a new product-review document, which is outside the Phase 5 prohibition on new SEO articles.
+
+## Pre-change conclusions
+
+- Six offers have no usable purchase path: ProArt P16, Yoga Slim 7x, HP 14 Student, MacBook Air M2, MacBook Air M4 and Acer Nitro V 16 AI.
+- Five orderable budget-page offers exceed AED 1,500 and should leave that list even though their individual review CTAs can remain accurate.
+- All seven budget links are legacy `amzn.to` routes and must be replaced with canonical direct Amazon.ae URLs or suppressed.
+- Seller/fulfilment changed for Vivobook 14, Yoga 7i and Victus; large observed price changes affect Victus, ROG Strix and Legion.
+- Amazon itself exposes conflicting attributes for several marketplace listings. Those conflicts are retained as explicit risk notes; missing keyboard, warranty and Type-G evidence remains `Unverified`.
+- No CMS write had been made when this baseline was created.
