@@ -1,6 +1,17 @@
 interface RelatedProps {
-  lists: any[];
-  products: any[];
+  lists: Array<{
+    slug: string;
+    title: string;
+    url?: string;
+    mainImage?: { asset?: { url?: string } };
+  }>;
+  products: Array<{
+    slug: string;
+    title: string;
+    brand?: string;
+    priceTier?: string;
+    mainImage?: { asset?: { url?: string } };
+  }>;
 }
 
 export default function RelatedContent({ lists, products }: RelatedProps) {
@@ -16,9 +27,9 @@ export default function RelatedContent({ lists, products }: RelatedProps) {
             <h3 className="text-2xl font-bold font-geist mb-6">More Buying Guides</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {lists.map((item) => (
-                <a key={item.slug} href={`/top-ten/${item.slug}`} className="group">
+                <a key={item.slug} href={item.url || `/top-ten/${item.slug}`} className="group">
                   <div className="relative aspect-video mb-3 overflow-hidden rounded-lg">
-                    {item.mainImage && (
+                    {item.mainImage?.asset?.url && (
                       <img 
                         src={item.mainImage.asset.url} 
                         alt=""
@@ -42,7 +53,7 @@ export default function RelatedContent({ lists, products }: RelatedProps) {
               {products.map((product) => (
                 <a key={product.slug} href={`/reviews/${product.slug}`} className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition">
                   <div className="relative aspect-square mb-3">
-                    {product.mainImage && (
+                    {product.mainImage?.asset?.url && (
                        <img 
                          src={product.mainImage.asset.url} 
                          alt=""

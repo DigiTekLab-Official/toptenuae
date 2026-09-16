@@ -5,8 +5,27 @@ import { Star, ShoppingCart, Info } from "@/components/icons";
 // ✅ IMPORT PORTABLE TEXT (Crucial for fixing missing content)
 import PortableText from "@/components/sanity/PortableText";
 import EditorialTrust from "@/components/EditorialTrust";
+import { getAffiliateCategory } from '@/lib/affiliate/category';
 
-export default function ArticleTemplate({ data }: { data: any }) {
+interface ArticleData {
+  _type?: string;
+  slug?: string;
+  title?: string;
+  reviewSection?: string;
+  price?: number;
+  priceRange?: string;
+  affiliateLink?: string;
+  rating?: number;
+  intro?: unknown;
+  body?: unknown;
+  closingContent?: unknown;
+  lastReviewedAt?: string;
+  methodology?: unknown[];
+  testingMethodology?: unknown[];
+  sources?: unknown[];
+}
+
+export default function ArticleTemplate({ data }: { data: ArticleData }) {
   // 1. Safe Checks
   const hasPrice = data.price || (data.priceRange && data.priceRange !== "0");
   const hasAffiliateLink = !!data.affiliateLink;
@@ -19,12 +38,13 @@ export default function ArticleTemplate({ data }: { data: any }) {
     data.testingMethodology?.length ||
     data.sources?.length
   );
+  const affiliateCategory = getAffiliateCategory(data.slug, data.title, data.reviewSection) || 'editorial';
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto" data-affiliate-category={affiliateCategory}>
       
       {/* 1. INTRO / EXCERPT */}
-      {data.intro && (
+      {Boolean(data.intro) && (
         <section className="text-xl md:text-2xl font-medium text-slate-700 leading-relaxed mb-10 border-l-4 border-[#4b0082] pl-6" aria-labelledby={data._type === 'buyerGuide' ? 'buyer-guide-quick-answer' : undefined}>
           {data._type === 'buyerGuide' && (
             <h2 id="buyer-guide-quick-answer" className="mb-2 text-sm font-black uppercase tracking-wider text-primary">Quick answer</h2>
@@ -104,7 +124,7 @@ export default function ArticleTemplate({ data }: { data: any }) {
         prose-a:text-[#4b0082] prose-a:font-bold hover:prose-a:text-amber-500 
         prose-img:rounded-2xl prose-img:shadow-md">
         
-        {data.body ? (
+        {Boolean(data.body) ? (
           // ✅ THIS IS THE FIX: Using PortableText instead of {data.body}
           <PortableText value={data.body} />
         ) : (
@@ -123,7 +143,7 @@ export default function ArticleTemplate({ data }: { data: any }) {
       )}
 
       {/* 4. CLOSING / VERDICT */}
-      {data.closingContent && (
+      {Boolean(data.closingContent) && (
         <div className="mt-12 pt-8 border-t border-gray-100">
           <h3 className="text-2xl font-bold text-slate-900 mb-4">Our Verdict</h3>
           <div className="prose prose-lg text-slate-700">

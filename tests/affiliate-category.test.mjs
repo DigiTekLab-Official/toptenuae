@@ -19,6 +19,7 @@ test('attributes laptop money pages by commercial cluster', () => {
   assert.equal(getAffiliateCategory('best-laptops-for-students-uae', '', 'tech'), 'laptops-student');
   assert.equal(getAffiliateCategory('best-business-laptops-uae', '', 'tech'), 'laptops-business');
   assert.equal(getAffiliateCategory('best-ai-laptops-uae', '', 'tech'), 'laptops-ai');
+  assert.equal(getAffiliateCategory('windows-laptop-vs-macbook-uae', '', 'tech'), 'laptops-general');
 });
 
 test('supports other CMS sections and tolerates missing values', () => {

@@ -1,5 +1,6 @@
 // src/components/PortableText.tsx
 import { PortableText as PortableTextComponent, type PortableTextComponents } from "@portabletext/react";
+import type { ComponentProps } from 'react';
 import { ExternalLink } from "@/components/icons";
 import RelatedLinkCard from "@/components/ui/RelatedLinkCard";
 import CodeBlock from "@/components/ui/CodeBlock";
@@ -7,6 +8,7 @@ import { urlForImage } from "@/sanity/lib/image";
 import SanityTable from "@/components/sanity/SanityTable"; 
 import NavigationGrid from "@/components/ui/NavigationGrid";
 import PriceWidget from '@/components/tools/PriceWidget';
+import DecisionProductCard from '@/components/ui/DecisionProductCard';
 import { getAmazonUaeAsin, type AmazonAffiliateProduct } from '@/lib/affiliate/amazon-asin';
 import { canonicalizeAuditedInternalLink } from '@/lib/seo/legacy-redirects';
 
@@ -100,6 +102,8 @@ const components: PortableTextComponents = {
         badge={value.badge}
       />
     ),
+
+    decisionProduct: ({ value }) => <DecisionProductCard value={value as ComponentProps<typeof DecisionProductCard>['value']} />,
 
     code: ({ value }) => <CodeBlock value={value} />,
     table: ({ value }) => <SanityTable value={value} />,

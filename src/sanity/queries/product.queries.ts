@@ -127,12 +127,18 @@ export const PRODUCT_PAGE_QUERY = groq`{
   },
   "related": {
     "lists": *[
-      _type == "topTenList" &&
+      _type in ["topTenList", "buyerGuide"] &&
       references(*[_type == "product" && slug.current == $slug][0]._id)
     ] | order(publishedAt desc)[0...3]{
+      _type,
       title,
       "slug": slug.current,
-      mainImage { asset->{ url } }
+      "categorySlug": coalesce(categories[0]->slug.current, category->slug.current),
+      "url": select(
+        _type == "topTenList" => "/top-ten/" + slug.current,
+        _type == "buyerGuide" => "/" + coalesce(categories[0]->slug.current, category->slug.current, "reviews") + "/" + slug.current
+      ),
+      "mainImage": coalesce(featuredImage, mainImage) { asset->{ url } }
     },
     "products": *[
       _type == "product" &&
@@ -158,10 +164,16 @@ export const PRODUCT_PAGE_QUERY = groq`{
  * Use for: "Related articles" and "Similar products" sections on review pages
  */
 export const RELATED_FOR_PRODUCT = groq`{
-  "lists": *[_type == "topTenList" && references($id)] | order(publishedAt desc)[0...3]{
+  "lists": *[_type in ["topTenList", "buyerGuide"] && references($id)] | order(publishedAt desc)[0...3]{
+    _type,
     title,
     "slug": slug.current,
-    mainImage { asset->{ url } }
+    "categorySlug": coalesce(categories[0]->slug.current, category->slug.current),
+    "url": select(
+      _type == "topTenList" => "/top-ten/" + slug.current,
+      _type == "buyerGuide" => "/" + coalesce(categories[0]->slug.current, category->slug.current, "reviews") + "/" + slug.current
+    ),
+    "mainImage": coalesce(featuredImage, mainImage) { asset->{ url } }
   },
   "products": *[_type == "product" && _id != $id && count(*[_type == "topTenList" && references(^._id) && references($id)]) > 0]
     | order(_updatedAt desc)[0...8]{

@@ -45,6 +45,18 @@ export const GENERIC_POST_QUERY = groq`
     "intro": intro,
     "body": body[]{
       ...,
+      _type == "decisionProduct" => {
+        ...,
+        "product": product->{
+          _id,
+          title,
+          "slug": slug.current,
+          asin,
+          affiliateLink,
+          availabilityStatus,
+          availabilityCheckedAt
+        }
+      },
       _type == "relatedLink" => {
         ...,
         "targetPost": targetPost->{
