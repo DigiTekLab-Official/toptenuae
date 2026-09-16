@@ -92,11 +92,44 @@ The isolated source diff contains only the quick-pick date rendering, the suppor
 
 ## Deployment
 
-Pending the isolated branch commit, Cloudflare preview smoke test and promotion of that exact built bundle. This section will be updated with immutable commit and deployment identifiers after production verification.
+- Isolated branch: `codex/laptop-affiliate-phase2b`
+- Phase 2B code/content-tooling commit: `abfda718fc0cd7658dc976571d0061de973971ba`
+- Commit message: `feat(affiliate): upgrade student laptop money page`
+- Cloudflare preview: `https://cbf68a04.toptenuae.pages.dev`
+- Cloudflare preview alias: `https://codex-laptop-affiliate-phase-gu4x.toptenuae.pages.dev`
+- Cloudflare production deployment: `https://8313b38a.toptenuae.pages.dev`
+- Custom production domain: `https://toptenuae.com`
+- Production verification completed: `2026-09-16T06:15:49Z`
+
+The repository's normal `cf:deploy` command rebuilt the isolated committed branch and created the preview. The preview returned HTTP 200 and passed metadata, product-link, offer-suppression, internal-link and canonical-event smoke checks. That same `dist` bundle was then promoted with Wrangler to the configured `main` production branch using the Phase 2B commit hash. The generated `public/sitemap.xml` working-tree output was excluded from source control because the build fetched unrelated sitewide CMS updates; the deployed generated sitemap contains the student URL.
 
 ## Production verification
 
-Pending deployment. The final verification will cover HTTP status, metadata/indexability, product destinations, unavailable-product suppression, required internal links, mobile layout and one canonical production `affiliate_click` event.
+- `https://toptenuae.com/top-ten/best-laptops-for-students-uae` returned HTTP 200.
+- The production title, H1, canonical, `index, follow` robots directive and Open Graph title match the intended student page.
+- Structured data contains `Organization`, `BreadcrumbList`, `ItemList` and `FAQPage`; six visible FAQs support the FAQ markup.
+- The five unique active Amazon destinations are the verified Yoga, Vivobook, ThinkPad, Victus and Surface ASINs. Every destination is direct, exact-ASIN and tagged `apfunbox06-21`.
+- Neither MacBook ASIN `B0DLHK2MMY` nor variation route `B0DLHFZ7TW` appears in a rendered Amazon link.
+- All five required internal destinations are present in the production page.
+- At 390 × 844, body and document width remained 390px with no page-level overflow. All 15 active quick-pick, table and product-card CTA instances were visible; primary CTA heights were 48–72px and comparison-table CTAs were 36px inside the horizontally scrollable table.
+- The production browser console contained no warning or error.
+- One controlled quick-pick action produced exactly one canonical event:
+
+```json
+{
+  "event": "affiliate_click",
+  "affiliate_network": "amazon_ae",
+  "page_path": "/top-ten/best-laptops-for-students-uae",
+  "affiliate_product": "Lenovo Yoga 7i 2-in-1 16IML9",
+  "affiliate_cta": "quick_picks",
+  "affiliate_destination": "https://www.amazon.ae/dp/B0FM3F1SGH?th=1&tag=apfunbox06-21",
+  "affiliate_category": "laptops-student",
+  "affiliate_position": "1",
+  "affiliate_tracking_id": "apfunbox06-21"
+}
+```
+
+The upgraded page is now a credible commercial student money page: it gives a fast first-viewport decision, retains the useful combined student intent, provides course-specific compatibility guidance, exposes material limitations, and sends buyers only to exact offers that were orderable on the verification date.
 
 ## Remaining limitations
 
