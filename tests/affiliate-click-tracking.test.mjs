@@ -48,7 +48,7 @@ test('leaves tracking ID blank for shortened links instead of guessing', () => {
 
 test('installing tracking twice still emits one complete event per CTA click', async () => {
   const { installAffiliateClickTracking } = await import('../src/lib/affiliate/click-tracking.js');
-  let listener;
+  const listeners = {};
   let bindings = 0;
   class Element {}
   class Anchor extends Element {
@@ -59,15 +59,41 @@ test('installing tracking twice still emits one complete event per CTA click', a
     querySelector() { return null; }
     getAttribute() { return null; }
   }
-  const browser = {Element,HTMLAnchorElement:Anchor,location:{href:'https://toptenuae.com/top-ten/example',pathname:'/top-ten/example'},document:{addEventListener(_type,handler){bindings++;listener=handler;}},dataLayer:[]};
+  const browser = {Element,HTMLAnchorElement:Anchor,location:{href:'https://toptenuae.com/top-ten/example',pathname:'/top-ten/example'},document:{addEventListener(type,handler){bindings++;listeners[type]=handler;}},dataLayer:[]};
   installAffiliateClickTracking(browser);
   installAffiliateClickTracking(browser);
-  listener({target:new Anchor()});
-  assert.equal(bindings,1);
+  listeners.click({type:'click',button:0,target:new Anchor()});
+  assert.equal(bindings,2);
   assert.equal(browser.dataLayer.length,1);
   assert.deepEqual(browser.dataLayer[0], {
     event:'affiliate_click', affiliate_network:'amazon_ae', page_path:'/top-ten/example',
     affiliate_product:'Existing product',affiliate_cta:'quick_picks',affiliate_destination:'https://www.amazon.ae/dp/B000?tag=existing-21',
     affiliate_category:'automotive',affiliate_position:'3',affiliate_tracking_id:'existing-21',
   });
+});
+
+test('normal, modified, middle and mobile-style clicks each emit one event', async () => {
+  const { installAffiliateClickTracking } = await import('../src/lib/affiliate/click-tracking.js');
+  const listeners = {};
+  class Element {}
+  class Anchor extends Element {
+    href = 'https://www.amazon.ae/dp/B000000000?tag=apfunbox06-21';
+    dataset = {affiliateProduct:'Laptop',affiliateCta:'product_card',affiliateCategory:'laptops-general',affiliatePosition:'1'};
+    textContent = 'Check offer';
+    closest() { return this; }
+    querySelector() { return null; }
+    getAttribute() { return null; }
+  }
+  const browser = {Element,HTMLAnchorElement:Anchor,location:{href:'https://toptenuae.com/top-ten/best-laptops-uae',pathname:'/top-ten/best-laptops-uae'},document:{addEventListener(type,handler){listeners[type]=handler;}},dataLayer:[]};
+  installAffiliateClickTracking(browser);
+  const target = new Anchor();
+  listeners.click({type:'click',button:0,target});
+  listeners.click({type:'click',button:0,ctrlKey:true,target});
+  listeners.click({type:'click',button:0,metaKey:true,target});
+  listeners.auxclick({type:'auxclick',button:1,target});
+  listeners.click({type:'click',target});
+  assert.equal(browser.dataLayer.length, 5);
+  assert.ok(browser.dataLayer.every(event => event.event === 'affiliate_click'));
+  assert.ok(browser.dataLayer.every(event => event.affiliate_category === 'laptops-general'));
+  assert.ok(browser.dataLayer.every(event => event.affiliate_tracking_id === 'apfunbox06-21'));
 });

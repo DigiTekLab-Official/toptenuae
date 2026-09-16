@@ -52,6 +52,17 @@ const firstDecisionSentence = (value?: string) => {
   return sentenceEnd >= 0 ? normalized.slice(0, sentenceEnd + 1) : normalized;
 };
 
+const formatOfferCheckDate = (value?: string) => {
+  if (!value) return 'date not recorded';
+  try {
+    return new Intl.DateTimeFormat('en-AE', {
+      day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Dubai',
+    }).format(new Date(value));
+  } catch {
+    return value;
+  }
+};
+
 // --- 2. TYPES ---
 interface Specification {
   _key: string; // <-- Add this line to satisfy Sanity's array requirements
@@ -67,6 +78,12 @@ interface ExtendedProduct extends Product {
   fallbackPrice?: string;
   fallbackImageUrl?: string;
   siteStripeLink?: string;
+  uaeCommerce?: {
+    availabilityNote?: string;
+    shippingNote?: string;
+    warrantyNote?: string;
+    voltageOrCompatibility?: string;
+  };
 }
 
 interface ProductCardProps {
@@ -126,7 +143,8 @@ export default function ProductCard({ item, index = 0, category }: ProductCardPr
   const targetLink = liveData?.detailPageURL || product?.siteStripeLink || (product as any)?.affiliateLink || '#';
   const isUnavailable = (product as any)?.availabilityStatus === 'unavailable';
   const availabilityCheckedAt = (product as any)?.availabilityCheckedAt || 'date not recorded';
-  const availabilityMessage = `Currently unavailable on Amazon.ae — checked ${availabilityCheckedAt}`;
+  const formattedAvailabilityCheck = formatOfferCheckDate(availabilityCheckedAt);
+  const availabilityMessage = `Currently unavailable on Amazon.ae — checked ${formattedAvailabilityCheck}`;
   
   const displayName = product?.title || "Product Name Unavailable";
   const productSlug = (product as any)?.slug as string | undefined;
@@ -139,6 +157,12 @@ export default function ProductCard({ item, index = 0, category }: ProductCardPr
   const cons = product?.cons || [];
   const whyBuy = firstDecisionSentence(item.whySelected);
   const skipIf = firstDecisionSentence(item.skipIf) || cons[0]?.trim();
+  const uaeChecks = [
+    product?.uaeCommerce?.availabilityNote?.trim(),
+    product?.uaeCommerce?.shippingNote?.trim(),
+    product?.uaeCommerce?.warrantyNote?.trim(),
+    product?.uaeCommerce?.voltageOrCompatibility?.trim(),
+  ].filter(Boolean) as string[];
 
   return (
     <article
@@ -286,17 +310,25 @@ export default function ProductCard({ item, index = 0, category }: ProductCardPr
         )}
 
         {/* --- PURCHASE DECISION --- */}
-        {(whyBuy || skipIf) && (
-          <div className="mb-4 grid gap-3 md:grid-cols-2">
+        {(whyBuy || uaeChecks.length > 0 || skipIf) && (
+          <div className="mb-4 grid gap-3 lg:grid-cols-3">
             {whyBuy && (
               <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-                <h3 className="text-sm font-bold text-emerald-900">Why buy this one</h3>
+                <h3 className="text-sm font-bold text-emerald-900">Why It Made the List</h3>
                 <p className="mt-1 text-sm leading-relaxed text-slate-800">{whyBuy}</p>
+              </div>
+            )}
+            {uaeChecks.length > 0 && (
+              <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
+                <h3 className="text-sm font-bold text-blue-900">UAE Purchase Checks</h3>
+                <ul className="mt-1 space-y-1 text-sm leading-relaxed text-slate-800">
+                  {uaeChecks.map(check => <li key={check}>• {check}</li>)}
+                </ul>
               </div>
             )}
             {skipIf && (
               <div className="rounded-xl border border-rose-200 bg-rose-50 p-4">
-                <h3 className="text-sm font-bold text-rose-900">Skip if</h3>
+                <h3 className="text-sm font-bold text-rose-900">Who Should Skip It</h3>
                 <p className="mt-1 text-sm leading-relaxed text-slate-800">{skipIf}</p>
               </div>
             )}
@@ -346,8 +378,11 @@ export default function ProductCard({ item, index = 0, category }: ProductCardPr
                     rel="nofollow sponsored noopener noreferrer"
                     className="flex items-center justify-center gap-2 w-full sm:w-auto bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-3 px-8 rounded-lg shadow-sm text-center transition-colors"
                  >
-                    Check latest price on {(product as any)?.retailer || 'Amazon.ae'} <ExternalLink className="w-4 h-4" />
+                    Check seller, warranty and exact model <ExternalLink className="w-4 h-4" />
                  </a>
+                 <div className="mt-2 text-xs font-semibold text-slate-600">
+                   Offer checked {formattedAvailabilityCheck}
+                 </div>
                  {/* ✅ COMPLIANCE: Micro-disclosure required by Amazon's manual review process */}
                  <div className="mt-2 text-[10px] text-gray-500 font-medium">
                    As an Amazon Associate I earn from qualifying purchases.

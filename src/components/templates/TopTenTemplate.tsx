@@ -277,6 +277,12 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
 
       {isCommercial ? <EditorialTrust data={data} section="metadata" /> : <div className="mb-6 space-y-6"><EditorialTrust data={data} /></div>}
 
+      {isCommercial && data.intro && (
+        <section className="mb-6 border-l-4 border-primary pl-5 text-lg font-medium leading-relaxed text-slate-700" aria-label="Introduction">
+          <PortableText value={data.intro} />
+        </section>
+      )}
+
       {isCommercial && quickAnswer && (
         <section className="mb-6 rounded-2xl border border-indigo-200 bg-indigo-50/70 p-4 md:p-5" aria-labelledby="quick-answer-heading">
           <h2 id="quick-answer-heading" className="text-lg font-black text-primary">Quick answer</h2>
@@ -287,7 +293,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
               data-affiliate-cta="quick_picks" data-affiliate-category={affiliateCategory} data-affiliate-position={bestOverall.rank}
               target="_blank" rel="nofollow sponsored noopener noreferrer"
               className="mt-3 inline-block rounded-lg bg-blue-600 px-4 py-3 text-center font-bold text-white hover:bg-blue-700">
-              Check latest price on Amazon.ae
+              Check the exact model on Amazon.ae
             </a>
           )}
         </section>

@@ -86,6 +86,17 @@ const featuredGuide = featuredGuideSlug
 const gridItems = featuredGuide
   ? validItems.filter((item: any) => item.slug !== featuredGuide.slug)
   : validItems;
+const laptopPaths = categorySlug === 'laptops'
+  ? [
+      ['best-laptops-uae', 'Best laptops overall', 'Start with the main shortlist for work, study, portability, macOS and gaming.'],
+      ['best-gaming-laptops-uae', 'Gaming laptops', 'Compare verified GPU tiers, displays, portability and cooling trade-offs.'],
+      ['best-laptops-for-students-uae', 'Student laptops', 'Choose by coursework, coding, engineering needs and portability.'],
+      ['best-ai-laptops-uae', 'AI laptops', 'Compare NPU platforms, compatibility and Copilot+ considerations.'],
+      ['best-laptop-under-1500-aed-uae', 'Laptops under AED 1,500', 'Use the dedicated budget shortlist when the spending ceiling is firm.'],
+    ].map(([slug, label, description]) => ({
+      item: validItems.find((candidate: any) => candidate.slug === slug), label, description,
+    })).filter(({item}) => item)
+  : [];
 const sidebarPosts = validItems
   .filter((item: any) => ['topTenList', 'howTo', 'post'].includes(item._type))
   .slice(0, 5)
@@ -147,7 +158,7 @@ const breadcrumbJsonLd = {
   ],
 };
 
-const seoTitle = `${data.title} | TopTenUAE`;
+const seoTitle = data.metaTitle || data.seo?.metaTitle || `${data.title} | TopTenUAE`;
 const seoDescription = cleanText(data.description) || `Explore the best content in ${data.title}.`;
 ---
 
@@ -155,6 +166,7 @@ const seoDescription = cleanText(data.description) || `Explore the best content 
   title={seoTitle}
   description={seoDescription}
   canonical={`https://toptenuae.com/${categorySlug}`}
+  ogImage={data.ogImage?.url || data.mainImage?.url}
   jsonLd={[jsonLd, breadcrumbJsonLd]}
 >
   <div class="min-h-screen bg-slate-50 font-sans pb-20">
@@ -188,6 +200,20 @@ const seoDescription = cleanText(data.description) || `Explore the best content 
     <div class="container mx-auto px-4 py-16 max-w-7xl">
       <div class="flex flex-col lg:flex-row gap-12">
         <main class="flex-1">
+          {laptopPaths.length > 0 && (
+            <section class="mb-8" aria-labelledby="laptop-buying-paths">
+              <h2 id="laptop-buying-paths" class="text-2xl font-black text-slate-900">Choose your laptop buying path</h2>
+              <p class="mt-2 max-w-3xl text-slate-600">Use the broad shortlist for an overall decision, or jump to a specialist guide when your budget or workload is already clear.</p>
+              <div class="mt-5 grid gap-4 sm:grid-cols-2">
+                {laptopPaths.map(({item, label, description}) => (
+                  <a href={getItemHref(item)} class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-primary/30 hover:shadow-md">
+                    <span class="block font-black text-slate-900">{label} →</span>
+                    <span class="mt-1 block text-sm leading-relaxed text-slate-600">{description}</span>
+                  </a>
+                ))}
+              </div>
+            </section>
+          )}
           {featuredGuide && (
             <section class="mb-8 rounded-2xl border border-purple-200 bg-purple-50 p-6 md:p-7" aria-labelledby="featured-buying-guide">
               <p class="text-xs font-black uppercase tracking-[0.18em] text-[#4b0082]">Start here</p>
