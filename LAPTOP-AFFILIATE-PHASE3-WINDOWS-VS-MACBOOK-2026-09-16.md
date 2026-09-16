@@ -110,11 +110,17 @@ Passed before deployment:
 
 ## Deployment
 
-Pending at the time this implementation record was first written. Deployment is allowed only from the isolated `codex/laptop-affiliate-phase3` worktree after all checks above pass. The original dirty checkout at `/Volumes/DISK 1/Users/ameer/Developer/01-Affiliate-Empire/topten-uae` has not been reset, cleaned or deployed.
+The isolated branch was committed as `2a0cbf0dc2191f635e02a2bc435e84a91725549b` and pushed to `origin/codex/laptop-affiliate-phase3`. The build was deployed first to the immutable Cloudflare preview at `https://043bfdd2.toptenuae.pages.dev`, with branch alias `https://codex-laptop-affiliate-phase-mwdd.toptenuae.pages.dev`. After preview verification, that same `dist` artifact was promoted to the Cloudflare `main` production branch at deployment `https://57b0239c.toptenuae.pages.dev` on 16 September 2026.
+
+The original dirty checkout at `/Volumes/DISK 1/Users/ameer/Developer/01-Affiliate-Empire/topten-uae` was not reset, cleaned or used for deployment.
 
 ## Production verification
 
-Pending deployment. Required checks are HTTP 200, canonical, indexability, title/H1, schema, internal links, the five exact Amazon destinations and one Windows plus one Mac `affiliate_click` event.
+The custom-domain page at `https://toptenuae.com/laptops/windows-laptop-vs-macbook-uae` returned HTTP 200 and was browser-verified after production promotion. The title, H1, canonical, index/follow robots directive, `Organization`, `BreadcrumbList`, `Guide` and visible `FAQPage` schema were correct. The browser console contained no warnings or errors.
+
+Production rendered five decision CTAs with unique ASINs `B0FM3F1SGH`, `B0DNQFK6B9`, `B0DN5RWNNC`, `B0GR1N3L6Q` and `B0FWD57CZH`; every URL used `apfunbox06-21`, and no M2/M4 unavailable-offer CTA was present. One synthetic primary click on the Yoga CTA and one on the MacBook Air M5 CTA each produced exactly one canonical `affiliate_click` with `affiliate_category = laptops-general` and the correct exact destination. This verifies click measurement, not Amazon order attribution.
+
+All 34 internal destinations linked from the production page returned without a 4xx/5xx response. Each of the ten intended source pages returned HTTP 200 and contained exactly one inbound link. The production sitemap contains the canonical page URL.
 
 ## Remaining limitations
 
