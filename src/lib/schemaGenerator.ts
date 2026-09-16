@@ -701,6 +701,10 @@ export function generateSchema(
         const listSchema = generateTopTenListSchema(data, category, slug);
         if (listSchema) schemas.push(listSchema);
       }
+      // Product rankings are also editorial pages. Emit the Article node so
+      // the ItemList's mainEntityOfPage reference resolves to a concrete
+      // Article -> WebPage relationship instead of a dangling #webpage ID.
+      schemas.push(generateArticleSchema(data, category, slug));
       break;
     }
 
