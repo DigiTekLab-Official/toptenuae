@@ -1,8 +1,8 @@
 # Laptop Affiliate Phase 5 — Commercial Offer Refresh & Revenue Protection
 
-## Status — CMS COMPLETE; DEPLOYMENT VERIFICATION IN PROGRESS
+## Status — PASS
 
-The scoped production CMS transaction completed successfully after explicit approval to use the authenticated desktop Sanity CLI credential. The final pre-write guard and the post-write validator both passed. Deployment and final production browser verification are in progress.
+The scoped production CMS transaction completed successfully after explicit approval to use the authenticated desktop Sanity CLI credential. The final pre-write guard, post-write validator, tests, preview QA, production deployment and production browser verification all passed. One production limitation remains documented: five unavailable reviews suppress purchase CTAs but retain visible editorial Amazon evidence links in their source content.
 
 ## Executive Summary
 
@@ -125,24 +125,39 @@ Prepared outcomes:
 - Migration scripts `node --check`: PASS.
 - Guarded read-only migration plan: PASS.
 - `pnpm test`: PASS, 35/35.
-- Focused ESLint on both Phase 5 scripts: PASS.
+- Focused ESLint on both Phase 5 scripts plus the attribution fix and regression test: PASS.
 - `pnpm build`: PASS; Astro reported 0 errors and 0 warnings (19 existing hints).
 - `git diff --check`: PASS.
+- Preview and production affiliate-event QA identified and fixed one regression: the general page title includes “Gaming Picks,” so title-first classification incorrectly emitted `laptops-gaming`. The canonical `best-laptops-uae` slug now takes precedence and has a regression test.
 
 ## Deployment
 
-Pending preview and production promotion after the validated build is committed.
+- Isolated implementation commits: `58fb39e` (offer refresh tooling/report) and `899530d` (general-page attribution fix).
+- Branch pushed: `origin/codex/laptop-affiliate-phase5`.
+- Final Cloudflare preview: `https://2e4add8e.toptenuae.pages.dev`.
+- The exact preview-verified `dist` bundle was promoted to the Cloudflare Pages `main` production branch with commit hash `899530d`.
+- Production deployment URL: `https://28e11e5d.toptenuae.pages.dev`.
+- Cloudflare uploaded zero changed static assets during final preview and production promotion; the updated worker bundle carried the attribution fix.
 
 ## Production Verification
 
-The live CMS-backed pages already expose the refreshed titles, list sizes and canonical Amazon destinations. All seven return indexable canonicals and have no desktop or 390 × 844 document-level overflow. Final affiliate-event verification and post-deployment checks remain in progress.
+- All seven scoped custom-domain URLs rendered successfully with the expected title, H1, self-canonical and `index, follow` directive.
+- Final unique active ASIN counts were 7 general, 3 gaming, 5 student, 5 business, 8 AI, 1 budget and 5 on the Windows-vs-Mac decision page.
+- All rendered Amazon destinations on the seven pages were direct `amazon.ae/dp/{ASIN}` links; no `amzn.to` link remained and no link had a missing or changed tag.
+- Desktop and 390 × 844 QA passed on all seven pages: visible H1 and CTAs, no document-level horizontal overflow.
+- The commercial pages retained their expected laptop hub, money-page, guide and product-review internal links.
+- The browser console contained no warnings or errors during final verification.
+- Every scoped page emitted exactly one `affiliate_click` for one real CTA click. Categories were `laptops-general`, `laptops-gaming`, `laptops-student`, `laptops-business`, `laptops-ai`, `laptops-general` for budget, and `laptops-general` for Windows-vs-Mac. Every event contained the expected product, CTA, position, exact destination and `affiliate_tracking_id=apfunbox06-21`.
+- All six unavailable review pages rendered an unavailable message and no purchase CTA. HP 14 contained no Amazon link. ProArt, Yoga Slim 7x, MacBook Air M2, MacBook Air M4 and Acer Nitro retained a visible editorial Amazon evidence/source link with no `data-affiliate-cta`; this is a remaining production limitation, not an active product-card or review purchase button.
 
 ## Remaining Risks
 
 - Amazon attribute conflicts listed above require buyer-facing caution and future rechecks.
 - The budget page has only one qualifying existing reviewed offer. Three role-distinct replacement candidates were verified, but publishing them would require new review pages and is outside this phase.
-- Final affiliate-event checks, preview QA, production promotion and post-deployment verification remain in progress.
+- Five unavailable reviews retain editorial Amazon evidence links even though their purchase CTAs are suppressed. Removing those body/source links requires a separately reviewed CMS transaction and was not added to the approved prepared transaction.
+- Amazon.ae inventory, prices, sellers, fulfilment, warranties and selected variations can change after the 2026-09-16 verification.
+- Several exact marketplace listings retain the seller/configuration, keyboard, warranty and plug-evidence conflicts documented above.
 
 ## Next Single Task
 
-None until Phase 5 deployment and production verification are complete.
+Prepare a narrowly scoped follow-up transaction that removes or converts the five residual Amazon evidence links on unavailable reviews, then reverify that those pages cannot emit an affiliate event. Do not create another laptop article or add replacement products automatically.
