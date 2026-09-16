@@ -155,3 +155,74 @@ Production verification confirmed the new editorial content, dated availability 
 3. **Are every included Amazon product/configuration and destination verified?** Yes, as dated marketplace observations on 16 September 2026. Seven general-page offers and all three gaming-page offers were orderable; three unavailable general-page offers have no active Amazon purchase path. Missing warranty, plug or keyboard facts are explicitly marked unverified.
 4. **Is affiliate click attribution working and measurable?** Yes in the built implementation: all four click modes produced one canonical, fully populated data-layer event. Production still uses the older deployed category/click bundle until the isolated code deployment; Amazon order reporting also remains on the single existing approved tag.
 5. **What is the single next execution task after Phase 1?** Create a clean, Phase-1-only code deployment from the mixed worktree, then verify the production `affiliate_click` event in GTM Preview/GA4 DebugView.
+
+## Isolated Production Deployment
+
+### Isolated change set
+
+The deployment was built in a temporary Git worktree created from commit `1e4c038`. The original dirty checkout was not stashed, reset, cleaned or modified during isolation.
+
+| File | Phase 1 change | Include? | Reason |
+|---|---|---:|---|
+| `src/components/templates/ComparisonSummaryTable.tsx` | Availability suppression, offer-check date and CTA wording | Yes | Required to prevent unavailable table CTAs and show freshness. |
+| `src/components/templates/QuickVerdict.tsx` | Current-offer CTA wording | Yes | Required Phase 1 conversion copy. |
+| `src/components/templates/TopTenTemplate.tsx` | Commercial introduction and exact-model CTA | Yes | Required for the revised money-page structure and CTA intent. |
+| `src/components/ui/ProductCard.tsx` | UAE checks, skip guidance, offer date and seller/warranty CTA | Yes | Required for product decision quality and visible freshness. |
+| `src/lib/affiliate/category.js` | Five laptop cluster labels | Yes | Required for on-site laptop attribution. |
+| `src/lib/affiliate/click-tracking.js` | One guarded listener with primary and middle-click handling | Yes | Required for canonical click measurement. |
+| `src/pages/[category]/index.astro` | Neutral laptop-hub paths, metadata and Open Graph image | Yes | Required for `/laptops`. |
+| `src/sanity/queries/category.queries.ts` | Hub metadata and image fields | Yes | Required by the category rendering change. |
+| `src/sanity/queries/topten.queries.ts` | Revision and ASIN fields | Yes | Required supporting offer identity/query data. |
+| `tests/affiliate-category.test.mjs` | Laptop-cluster tests | Yes | Direct regression coverage. |
+| `tests/affiliate-click-tracking.test.mjs` | Normal, modified, middle and mobile-style tests | Yes | Direct regression coverage. |
+| `scripts/update-laptop-affiliate-phase1.mjs` | Repeatable publication validation | Yes | Direct Phase 1 validation tooling. |
+| `LAPTOP-AFFILIATE-PHASE1-IMPLEMENTATION-2026-09-16.md` | Implementation and deployment record | Yes | Required deliverable. |
+| `src/components/templates/ProductTemplate.tsx` | Pre-existing global wording edit | No | Not authored for the isolated deployment and not required by the three production routes. |
+| `public/sitemap.xml` | Generated build output | No | Regenerated during build, then restored before source-control checks. |
+| Newsletter, Guardian, other product clusters, environment, middleware and package files | Unrelated worktree changes | No | Outside Phase 1 scope. |
+
+### Deployment record
+
+- Phase 1 code commit: `7f7f871d912cc2e7d6bda559f98fc8d67fc8eb87`
+- Commit message: `feat(affiliate): deploy laptop phase 1`
+- Production deployment timestamp recorded: `2026-09-16T01:23:51Z`
+- Cloudflare preview: `https://229c8baf.toptenuae.pages.dev`
+- Cloudflare production deployment: `https://b2115c83.toptenuae.pages.dev`
+- Custom production domain: `https://toptenuae.com`
+
+The repository's existing `cf:deploy` command created the branch preview. The same smoke-tested `dist` bundle was then promoted with Wrangler to the configured `main` production branch using the Phase 1 commit hash.
+
+### Production smoke test
+
+- `/top-ten/best-laptops-uae`: HTTP 200; correct title, H1, canonical and indexable robots; `laptops-general` attributes; seven unique direct `/dp/{ASIN}` destinations with `apfunbox06-21`; seven visible offer dates; all three unavailable products render with zero Amazon links; gaming, student, AI, budget and buying-guide links present.
+- `/top-ten/best-gaming-laptops-uae`: HTTP 200; correct title, H1, canonical and indexable robots; `Organization`, `BreadcrumbList`, `ItemList` and visible-FAQ-backed `FAQPage` schema; exactly three intended products; `laptops-gaming` attributes; exact review, general-pillar and buying-guide links present.
+- `/laptops`: HTTP 200; neutral hub title/H1; correct canonical and indexable robots; direct paths to the general page, gaming page, AED 1,500 page and core buying guide.
+- Browser console: no warning or error observed on the production gaming page.
+- Mobile 390 × 844: 390px document width, no page overflow and 48px-high primary CTA.
+
+### Production affiliate and analytics verification
+
+Production tests were run on `toptenuae.com` against the gaming quick-pick CTA:
+
+| Interaction | Canonical-event count after action | Result |
+|---|---:|---|
+| Normal desktop click | 1 | Pass — one `affiliate_click`. |
+| Cmd/Ctrl click | 2 | Pass — one additional `affiliate_click`. |
+| Middle-click | 3 | Pass — one additional `affiliate_click`. |
+| Mobile primary tap at 390 × 844 | 4 | Pass — one additional `affiliate_click`. |
+
+Each payload contained `affiliate_network`, `page_path`, `affiliate_product`, `affiliate_cta`, `affiliate_category`, `affiliate_position`, `affiliate_destination` and `affiliate_tracking_id`, and each received a distinct GTM unique event ID. Network inspection observed exactly four outbound GA4 `/g/collect` requests with event name `affiliate_click`, one for each tested mode. Google Analytics also emitted its separate automatic link `click` event; this did not duplicate the canonical `affiliate_click` event.
+
+### Final checks
+
+- `pnpm test`: passed, 24/24 tests in the isolated committed baseline.
+- Focused ESLint over the affiliate utilities, queries, tests and publication script: passed.
+- `pnpm build`: passed; Astro reported 0 errors, 0 warnings and 19 informational hints; 278 Sanity documents were included during sitemap generation.
+- `node scripts/update-laptop-affiliate-phase1.mjs --validate`: passed; general record, gaming record and three available gaming products confirmed.
+- `git diff --cached --check` before the Phase 1 commit: passed.
+- Production HTTP checks for all three routes: HTTP 200.
+
+### Remaining limitations
+
+- Amazon Associates still uses the approved `apfunbox06-21` tracking ID. Laptop cluster labels remain on-site GA4/GTM dimensions until Amazon issues additional approved tracking IDs.
+- The production browser proved GTM processing and outbound GA4 collection requests. The authenticated GA4 DebugView interface was not used, so reporting-property ingestion should be spot-checked in the account after normal processing latency.
