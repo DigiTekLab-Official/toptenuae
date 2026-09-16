@@ -15,6 +15,10 @@ test('preserves established topic-level tracking labels', () => {
 
 test('attributes laptop money pages by commercial cluster', () => {
   assert.equal(getAffiliateCategory('best-laptops-uae', '', 'tech'), 'laptops-general');
+  assert.equal(
+    getAffiliateCategory('best-laptops-uae', '7 Best Laptops in UAE: Work, Study & Gaming Picks', 'tech'),
+    'laptops-general',
+  );
   assert.equal(getAffiliateCategory('best-gaming-laptops-uae', '', 'tech'), 'laptops-gaming');
   assert.equal(getAffiliateCategory('best-laptops-for-students-uae', '', 'tech'), 'laptops-student');
   assert.equal(getAffiliateCategory('best-business-laptops-uae', '', 'tech'), 'laptops-business');

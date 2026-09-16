@@ -1,5 +1,6 @@
 // Preserve established topic labels; use the CMS section for other guide types.
 export const getAffiliateCategory = (slug = '', title = '', reviewSection = '') => {
+  const normalizedSlug = String(slug).toLowerCase();
   const value = `${slug} ${title}`.toLowerCase();
   if (value.includes('electric-shaver') || value.includes('electric shaver')) return 'electric_shaver';
   if (value.includes('beard-trimmer') || value.includes('beard trimmer')) return 'beard_trimmer';
@@ -10,6 +11,9 @@ export const getAffiliateCategory = (slug = '', title = '', reviewSection = '') 
   if (value.includes('earbud')) return 'earbuds';
   // Laptop money pages need page-cluster attribution in GA4 even while the
   // Amazon Associates account continues to use its established partner tag.
+  // The general money-page title can mention gaming as a buyer role, so its
+  // canonical slug must win before topic words in the title are considered.
+  if (normalizedSlug === 'best-laptops-uae') return 'laptops-general';
   if (value.includes('gaming') && value.includes('laptop')) return 'laptops-gaming';
   if (value.includes('student') && value.includes('laptop')) return 'laptops-student';
   if ((value.includes('business') || value.includes('office')) && value.includes('laptop')) return 'laptops-business';
