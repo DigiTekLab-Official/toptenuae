@@ -13,7 +13,19 @@ interface QuickPick {
   bestFor?: string;
   whySelected?: string;
   limitation?: string;
+  offerCheckedAt?: string;
 }
+
+const formatOfferCheckDate = (value?: string) => {
+  if (!value) return undefined;
+  try {
+    return new Intl.DateTimeFormat('en-AE', {
+      day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Dubai',
+    }).format(new Date(value));
+  } catch {
+    return value;
+  }
+};
 
 export default function QuickVerdict({ picks, category, showRationale = false }: { picks: QuickPick[]; category?: string; showRationale?: boolean }) {
   if (!picks || picks.length === 0) return null;
@@ -43,6 +55,7 @@ export default function QuickVerdict({ picks, category, showRationale = false }:
       {/* Grid Layout */}
       <div className={`grid grid-cols-1 ${picks.length >= 4 ? 'sm:grid-cols-2 xl:grid-cols-4' : picks.length === 3 ? 'md:grid-cols-3' : picks.length === 2 ? 'sm:grid-cols-2' : ''} divide-y lg:divide-y-0 lg:divide-x divide-gray-100`}>
         {picks.map((pick, index) => {
+          const offerCheckedAt = formatOfferCheckDate(pick.offerCheckedAt);
           return (
             <div key={index} className="flex flex-col h-full group relative">
               
@@ -99,6 +112,11 @@ export default function QuickVerdict({ picks, category, showRationale = false }:
                      >
                        Check current Amazon.ae offer <ArrowRight className="w-4 h-4 inline ml-1" />
                      </a>
+                   )}
+                   {offerCheckedAt && (
+                     <p className="text-center text-xs font-semibold text-slate-500">
+                       Offer checked {offerCheckedAt}
+                     </p>
                    )}
                 </div>
               </div>

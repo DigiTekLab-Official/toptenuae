@@ -34,9 +34,9 @@ interface TopTenData {
   title: string;
   slug?: string;
   reviewSection?: string;
-  intro: any; 
-  body: any; 
-  closingContent?: any;
+  intro: unknown;
+  body: unknown[];
+  closingContent?: unknown[];
   mainImage?: { url: string; alt?: string }; 
   category?: { title: string; slug: string; menuLabel?: string } | string;
   publishedAt?: string;
@@ -67,7 +67,7 @@ interface Product {
   affiliateLink?: string;
   retailer?: string;
   priceTier?: string;  
-  itemDescription?: any;
+  itemDescription?: unknown;
   keyFeatures?: string[];
   
   // ✅ ADDED: Tech Specs Support (Label/Value pairs)
@@ -81,6 +81,7 @@ interface Product {
   price?: number;         
   currency?: string;      
   availability?: string;  
+  availabilityCheckedAt?: string;
   
   // Education/Location fields
   location?: string;
@@ -186,6 +187,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
       bestFor: item.product.heroFeature,
       whySelected: item.whySelected || item.customVerdict || item.product.pros?.[0],
       limitation: item.skipIf || item.product.cons?.[0],
+      offerCheckedAt: item.product.availabilityCheckedAt,
     }));
 
   // --- SCHEMA.ORG JSON-LD GENERATOR ---
@@ -277,7 +279,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
 
       {isCommercial ? <EditorialTrust data={data} section="metadata" /> : <div className="mb-6 space-y-6"><EditorialTrust data={data} /></div>}
 
-      {isCommercial && data.intro && (
+      {isCommercial && Boolean(data.intro) && (
         <section className="mb-6 border-l-4 border-primary pl-5 text-lg font-medium leading-relaxed text-slate-700" aria-label="Introduction">
           <PortableText value={data.intro} />
         </section>
@@ -400,7 +402,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
                   ) 
                   : (
                      // ✅ PASSES ITEM + SPECS TO PRODUCT CARD
-                     <ProductCard item={item as any} category={affiliateCategory} />
+                     <ProductCard item={item as React.ComponentProps<typeof ProductCard>['item']} category={affiliateCategory} />
                   )}
 
                   {/* Visual Separator */}
@@ -418,7 +420,7 @@ export default function TopTenTemplate({ data }: { data: TopTenData }) {
           <EditorialTrust data={data} section="context" />
           {sections.editorial.length > 0 && <div className="mt-8 prose prose-lg max-w-none"><PortableText value={sections.editorial} /></div>}
           <EditorialTrust data={data} section="audience" />
-        </> : data.closingContent?.length > 0 && <section className="mt-10 prose prose-lg max-w-none">
+        </> : Array.isArray(data.closingContent) && data.closingContent.length > 0 && <section className="mt-10 prose prose-lg max-w-none">
           <h2>{isEducationPost ? "Admission & Parents' Guide" : isAviationPost ? "Traveler's Guide & Tips" : "Guide & Maintenance"}</h2>
           <PortableText value={data.closingContent} />
         </section>}
