@@ -2,7 +2,7 @@
 
 ## Status
 
-CMS cleanup complete and validated. Deployment verification is in progress.
+PASS. The five-field CMS cleanup, tests, preview deployment, production promotion and custom-domain verification are complete.
 
 ## Target links
 
@@ -50,6 +50,10 @@ The transaction unsets only the five exact `sources[n].url` fields above. Titles
 - All six retain a self-canonical, visible H1 and valid page structure.
 - Desktop and 390 × 844 checks found no document-level horizontal overflow.
 - No unavailable review could dispatch an Amazon affiliate event because no Amazon link remained.
+- Cloudflare preview: `https://80fd4d56.toptenuae.pages.dev`.
+- Cloudflare production deployment: `https://9aa0330f.toptenuae.pages.dev`.
+- The exact preview-verified `dist` bundle was promoted to `main` with commit hash `35f7782`.
+- Final custom-domain checks repeated after promotion and passed; the browser console contained no warnings or errors.
 
 ## Active-product regression
 
@@ -61,4 +65,4 @@ The AED 1,500 page still has one verified active product. This cleanup does not 
 
 ## Next single task
 
-Complete preview and production deployment verification. Do not create new laptop content or replacements.
+Make a separate evidence-based decision on whether the AED 1,500 page's single verified product adequately satisfies search intent or whether distinct, fully verified replacement roles are justified. Do not pad the page or publish replacements automatically.
