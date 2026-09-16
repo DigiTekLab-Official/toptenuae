@@ -146,11 +146,26 @@ This verifies site-side event generation only. It does not prove an Amazon order
 
 ## Deployment
 
-Pending isolated branch commit, Cloudflare preview and production promotion at the time of this draft.
+- Isolated implementation commit: `7211086` (`feat: publish business laptop money page`).
+- Branch pushed: `origin/codex/laptop-affiliate-phase4`.
+- Cloudflare preview deployment: `https://0e371de0.toptenuae.pages.dev`.
+- Preview page QA passed before promotion: title, H1, canonical, robots, five structured-data types, five exact ASINs, approved tracking tag and no desktop overflow.
+- The same tested `dist` bundle was promoted to Cloudflare Pages production (`main`) with commit hash `7211086`.
+- Production deployment URL: `https://0cdcb237.toptenuae.pages.dev`.
+- Cloudflare uploaded zero changed assets during promotion because the production deployment reused the preview-verified bundle.
 
 ## Production verification
 
-Pending production deployment at the time of this draft.
+- Final custom-domain URL returned HTTP 200.
+- A direct no-cache production response contained the exact title, H1, canonical, index/follow directive, meta description and Open Graph data.
+- Production schema contained `Organization`, `BreadcrumbList`, five-item `ItemList`, `Article` with the page `WebPage` ID and five-question `FAQPage`.
+- All 19 rendered Amazon links retained `tag=apfunbox06-21`; the only product ASINs were the five verified selections.
+- Six required outgoing destinations returned 200.
+- The general page, buying guide, platform guide, `/laptops` hub and all five selected reviews returned 200 and contained backlinks to the business page.
+- Production sitemap returned 200 and contained the canonical URL (confirmed with a no-cache fetch).
+- Production 390 × 844 QA had a 390px document width, no page-level horizontal overflow, visible H1 and five 72px-high full product CTAs.
+- ThinkPad and Surface production product-card dispatch tests each emitted exactly one `affiliate_click` with `affiliate_category=laptops-business`, the correct product/position/destination and `affiliate_tracking_id=apfunbox06-21`.
+- Production browser console contained no warnings or errors during verification.
 
 ## Remaining limitations
 
