@@ -6,6 +6,8 @@ import { TOP_TEN_LIST_QUERY } from '@/sanity/queries/topten.queries';
 import { generateSchema } from '@/lib/schemaGenerator';
 import ArticleView from '@/components/views/ArticleView';
 import { getGscSeoOverride } from '@/lib/seo/gsc-overrides';
+import { getAffiliateCategory } from '@/lib/affiliate/category.js';
+import { applyLaptopTrackingToListItems } from '@/lib/affiliate/amazon-tracking.js';
 
 const { slug } = Astro.params;
 if (!slug) return Astro.rewrite('/404');
@@ -83,7 +85,11 @@ const seoDescription =
 
 const transformedData = {
   ...data,
-  listItems: data.listItems || [],
+  listItems: applyLaptopTrackingToListItems(
+    data.listItems || [],
+    getAffiliateCategory(data.slug, data.title, data.reviewSection),
+    import.meta.env
+  ),
   relatedLists: data.relatedLists || [],
   relatedProducts: data.relatedProducts || [],
 };

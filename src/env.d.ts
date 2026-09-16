@@ -26,6 +26,11 @@ interface ImportMetaEnv {
   readonly AMAZON_ACCESS_KEY: string;
   readonly AMAZON_SECRET_KEY: string;
   readonly AMAZON_PARTNER_TAG: string;
+  readonly AMAZON_TRACKING_ID_LAPTOPS_GENERAL?: string;
+  readonly AMAZON_TRACKING_ID_LAPTOPS_GAMING?: string;
+  readonly AMAZON_TRACKING_ID_LAPTOPS_STUDENT?: string;
+  readonly AMAZON_TRACKING_ID_LAPTOPS_BUSINESS?: string;
+  readonly AMAZON_TRACKING_ID_LAPTOPS_AI?: string;
 }
 
 interface ImportMeta {
