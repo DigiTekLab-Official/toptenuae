@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {createAffiliateClickPayload, parseAmazonAffiliateDestination} from '../src/lib/affiliate/click-tracking.js'
+import {getGscSeoOverride} from '../src/lib/seo/gsc-overrides.ts'
 import {
   APPROVED_PAGE_REVISION, CANONICAL, CURRENT_PRODUCT_ID, EVIDENCE, LIST_ITEMS, PAGE_ID, PAGE_PATH, PAGE_UPDATE,
   PRODUCTS, TAG, buildDryRunPlan, createExpectedAffiliatePayload, isEligibleEvidence, validateDryRunPlan,
@@ -51,6 +52,12 @@ test('current product is replaced only on the active list and URL/indexability a
   assert.equal(PAGE_UPDATE.seo.canonicalUrl, CANONICAL)
   assert.equal(PAGE_UPDATE.seo.noIndex, false)
   assert.equal(PAGE_UPDATE.seo.schemaType, 'ItemList')
+})
+
+test('page-specific GSC snippet override matches the approved Phase 6A SEO fields', () => {
+  const override = getGscSeoOverride('best-laptop-under-1500-aed-uae')
+  assert.equal(override?.title, PAGE_UPDATE.seo.metaTitle)
+  assert.equal(override?.description, PAGE_UPDATE.seo.metaDescription)
 })
 
 test('transaction preview is revision locked and touches only three creates plus the target page', () => {

@@ -26,8 +26,8 @@ const GSC_SEO_OVERRIDES: Record<string, { title: string; description: string }> 
     description: 'Compare the best wireless earbuds for UAE buyers, with picks for calls, commuting, workouts, noise cancelling and value at different budgets.',
   },
   'best-laptop-under-1500-aed-uae': {
-    title: 'Best Laptops Under AED 1,500 in UAE',
-    description: 'Compare reliable laptops under AED 1,500 in the UAE for students, home use and everyday work, with specs, limitations and buying advice.',
+    title: 'Best Laptop Under 1500 AED UAE: 3 Verified Picks',
+    description: 'Compare three verified new laptops under AED 1,500 in the UAE: an ASUS Chromebook, Lenovo Windows 2-in-1 and qualified HP 15 option.',
   },
   'uae-vat-calculator': {
     title: 'UAE VAT Calculator: Add or Remove 5% VAT',
