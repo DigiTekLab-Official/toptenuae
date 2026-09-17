@@ -67,6 +67,10 @@ export interface HomeCommercialGuide {
   slug: string;
   reviewSection: string;
   publishedAt?: string;
+  mainImage?: {
+    url: string;
+    alt?: string;
+  };
 }
 
 export interface HomePageData {

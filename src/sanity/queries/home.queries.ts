@@ -74,6 +74,7 @@ export const HOME_QUERY = groq`{
     title,
     "slug": slug.current,
     reviewSection,
-    publishedAt
+    publishedAt,
+    mainImage { "url": asset->url, alt }
   }
 }`;
