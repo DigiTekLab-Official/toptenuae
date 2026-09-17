@@ -1,4 +1,6 @@
 import {createClient} from '@sanity/client'
+import {readFileSync} from 'node:fs'
+import {homedir} from 'node:os'
 import {dirname, resolve} from 'node:path'
 import {fileURLToPath} from 'node:url'
 
@@ -17,6 +19,7 @@ export const PAGE_PATH = `/top-ten/${PAGE_SLUG}`
 export const CANONICAL = `https://toptenuae.com${PAGE_PATH}`
 export const CURRENT_PRODUCT_ID = '9371dd41-7b2d-4a0f-80a1-88c10d9ac927'
 export const CURRENT_ASIN = 'B0DCLJ9V2B'
+export const APPROVED_PAGE_REVISION = 'bIKE1WYOAdGKWMnUz3jFZX'
 
 const amazon = asin => `https://www.amazon.ae/dp/${asin}?tag=${TAG}&th=1`
 const ref = (_ref, _key) => ({_type: 'reference', _ref, _key})
@@ -238,6 +241,7 @@ export function buildDryRunPlan(state) {
   assert(state?.page?._id === PAGE_ID, 'Target production page is missing')
   assert(state.page.slug?.current === PAGE_SLUG, 'Established slug changed; stop')
   assert(state.page._rev, 'Target page revision is missing')
+  assert(state.page._rev === APPROVED_PAGE_REVISION, 'Target page revision changed; stop and prepare a refreshed dry run')
   assert(Array.isArray(state.candidateDocuments) && state.candidateDocuments.length === 0, 'A candidate ASIN or proposed product ID already exists; stop for collision review')
   assert(state.currentProduct?.asin === CURRENT_ASIN, 'Current product ASIN could not be confirmed')
   const mutations = [
@@ -251,6 +255,51 @@ export function buildDryRunPlan(state) {
   }
   validateDryRunPlan(plan)
   return plan
+}
+
+const getWriteToken = () => {
+  const environmentToken = process.env.SANITY_WRITE_TOKEN || process.env.SANITY_AUTH_TOKEN
+  if (environmentToken) return environmentToken
+  try {
+    const config = JSON.parse(readFileSync(resolve(homedir(), '.config/sanity/config.json'), 'utf8'))
+    return config.authToken || ''
+  } catch {
+    return ''
+  }
+}
+
+export async function validatePublishedState(client, incumbentRevision) {
+  const result = await client.fetch(`{
+    "page": *[_id == $pageId][0]{
+      _id,_rev,title,"slug":slug.current,lastReviewedAt,seo,"faqCount":count(faqs),
+      "bodyLinks":array::unique(body[].markDefs[].href),
+      listItems[]|order(rank asc){rank,badgeLabel,product->{_id,_rev,title,asin,affiliateLink,price,availabilityStatus,availabilityCheckedAt,"slug":slug.current}}
+    },
+    "products": *[_id in $candidateIds]|order(_id asc){_id,_rev,title,asin,affiliateLink,price,availabilityStatus,availabilityCheckedAt,"slug":slug.current},
+    "incumbent": *[_id == $currentProductId][0]{_id,_rev,title,asin,affiliateLink,price,availabilityStatus,"slug":slug.current}
+  }`, {pageId: PAGE_ID, candidateIds: PRODUCTS.map(product => product._id), currentProductId: CURRENT_PRODUCT_ID})
+  assert(result.page?.slug === PAGE_SLUG, 'Published page or established slug missing')
+  assert(result.page.title === PAGE_UPDATE.title, 'Published H1 mismatch')
+  assert(result.page.listItems?.length === 3, 'Published shortlist must contain exactly three products')
+  assert(JSON.stringify(result.page.listItems.map(item => item.product?.asin)) === JSON.stringify(EVIDENCE.map(item => item.asin)), 'Published ASIN order mismatch')
+  assert(!result.page.listItems.some(item => item.product?._id === CURRENT_PRODUCT_ID || item.product?.asin === CURRENT_ASIN), 'Incumbent remains on active page shortlist')
+  assert(result.products.length === 3, 'Expected exactly three Phase 6A product documents')
+  assert(result.incumbent?.asin === CURRENT_ASIN, 'Incumbent product document missing or changed ASIN')
+  if (incumbentRevision) assert(result.incumbent._rev === incumbentRevision, 'Incumbent product document was modified')
+  for (const item of result.page.listItems) {
+    const product = item.product
+    assert(product && product.availabilityStatus === 'available', `Unavailable product published at rank ${item.rank}`)
+    assert(!product.slug, `Product review slug was created for ${product.asin}`)
+    assert(product.price <= 1500, `Published price exceeds ceiling for ${product.asin}`)
+    const url = new URL(product.affiliateLink)
+    assert(url.hostname === 'www.amazon.ae' && url.pathname === `/dp/${product.asin}`, `Published destination mismatch for ${product.asin}`)
+    assert(url.searchParams.get('tag') === TAG && url.searchParams.get('th') === '1', `Published affiliate parameters mismatch for ${product.asin}`)
+  }
+  assert(result.page.seo?.canonicalUrl === CANONICAL && result.page.seo?.noIndex === false, 'Published canonical/indexability mismatch')
+  assert(result.page.seo?.schemaType === 'ItemList' && result.page.faqCount === 5, 'Published schema/visible FAQ preparation mismatch')
+  const requiredLinks = ['/top-ten/best-laptops-uae', '/top-ten/best-laptops-for-students-uae', '/top-ten/best-business-laptops-uae', '/laptops/how-to-choose-a-laptop-in-uae']
+  assert(requiredLinks.every(link => result.page.bodyLinks?.includes(link)), 'One or more required internal links is missing')
+  return result
 }
 
 export function validateDryRunPlan(plan) {
@@ -287,22 +336,41 @@ export function createExpectedAffiliatePayload(product, position) {
 }
 
 async function main() {
-  const mode = process.argv.find(arg => arg.startsWith('--'))
-  assert(mode === '--plan', 'DRY RUN ONLY — use --plan; no Sanity write is permitted')
+  const mode = process.argv.find(arg => ['--plan', '--write', '--validate'].includes(arg))
+  assert(mode, 'Choose --plan, --write or --validate')
   assert(process.env.AMAZON_PARTNER_TAG === TAG, `Set AMAZON_PARTNER_TAG=${TAG}`)
-  const client = createClient({projectId: PROJECT_ID, dataset: DATASET, apiVersion: API_VERSION, useCdn: false, perspective: 'published'})
+  const token = getWriteToken()
+  if (mode === '--write') assert(token, 'Sanity write token required')
+  const client = createClient({projectId: PROJECT_ID, dataset: DATASET, apiVersion: API_VERSION, useCdn: false, token, perspective: mode === '--write' ? 'raw' : 'published'})
+  if (mode === '--validate') {
+    const result = await validatePublishedState(client)
+    console.log(JSON.stringify({ok: true, mode, pageId: result.page._id, pageRevision: result.page._rev, products: result.page.listItems.map(item => item.product.asin), incumbentRevision: result.incumbent._rev}, null, 2))
+    return
+  }
   const state = await client.fetch(`{
     "page": *[_id == $pageId][0]{_id,_rev,slug,title,listItems[]{rank,product->{_id,asin}}},
-    "currentProduct": *[_id == $currentProductId][0]{_id,asin},
-    "candidateDocuments": *[_id in $candidateIds || asin in $candidateAsins]{_id,asin}
+    "currentProduct": *[_id == $currentProductId][0]{_id,_rev,asin},
+    "candidateDocuments": *[_id in $candidateIds || _id in $candidateDraftIds || asin in $candidateAsins]{_id,asin}
   }`, {
     pageId: PAGE_ID,
     currentProductId: CURRENT_PRODUCT_ID,
     candidateIds: PRODUCTS.map(product => product._id),
+    candidateDraftIds: PRODUCTS.map(product => `drafts.${product._id}`),
     candidateAsins: PRODUCTS.map(product => product.asin),
   })
   const plan = buildDryRunPlan(state)
-  console.log(JSON.stringify(plan, null, 2))
+  if (mode === '--plan') {
+    console.log(JSON.stringify(plan, null, 2))
+    return
+  }
+  const incumbentRevision = state.currentProduct._rev
+  const commit = await client.mutate(plan.mutations, {visibility: 'sync', returnDocuments: false})
+  const result = await validatePublishedState(client.withConfig({perspective: 'published'}), incumbentRevision)
+  console.log(JSON.stringify({
+    ok: true, mode, transactionId: commit.transactionId, pageId: result.page._id,
+    previousPageRevision: APPROVED_PAGE_REVISION, pageRevision: result.page._rev,
+    products: result.page.listItems.map(item => item.product.asin), incumbentRevision,
+  }, null, 2))
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

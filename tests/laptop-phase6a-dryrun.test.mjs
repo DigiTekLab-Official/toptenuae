@@ -2,12 +2,12 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import {createAffiliateClickPayload, parseAmazonAffiliateDestination} from '../src/lib/affiliate/click-tracking.js'
 import {
-  CANONICAL, CURRENT_PRODUCT_ID, EVIDENCE, LIST_ITEMS, PAGE_ID, PAGE_PATH, PAGE_UPDATE,
+  APPROVED_PAGE_REVISION, CANONICAL, CURRENT_PRODUCT_ID, EVIDENCE, LIST_ITEMS, PAGE_ID, PAGE_PATH, PAGE_UPDATE,
   PRODUCTS, TAG, buildDryRunPlan, createExpectedAffiliatePayload, isEligibleEvidence, validateDryRunPlan,
 } from '../scripts/prepare-laptop-affiliate-phase6a-dryrun.mjs'
 
 const state = {
-  page: {_id: PAGE_ID, _rev: 'test-revision', slug: {current: 'best-laptop-under-1500-aed-uae'}},
+  page: {_id: PAGE_ID, _rev: APPROVED_PAGE_REVISION, slug: {current: 'best-laptop-under-1500-aed-uae'}},
   currentProduct: {_id: CURRENT_PRODUCT_ID, asin: 'B0DCLJ9V2B'},
   candidateDocuments: [],
 }
@@ -60,7 +60,11 @@ test('transaction preview is revision locked and touches only three creates plus
   assert.deepEqual(plan.mutations.map(mutation => mutation.create?._id || mutation.patch.id), [
     ...PRODUCTS.map(product => product._id), PAGE_ID,
   ])
-  assert.equal(plan.mutations.at(-1).patch.ifRevisionID, 'test-revision')
+  assert.equal(plan.mutations.at(-1).patch.ifRevisionID, APPROVED_PAGE_REVISION)
+})
+
+test('a changed page revision stops the approved transaction', () => {
+  assert.throws(() => buildDryRunPlan({...state, page: {...state.page, _rev: 'changed-revision'}}), /refreshed dry run/)
 })
 
 test('each product card produces the one canonical laptop affiliate event', () => {
