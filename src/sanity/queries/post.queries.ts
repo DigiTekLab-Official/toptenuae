@@ -11,7 +11,10 @@ import groq from 'groq';
  * Returns: full post data including body, SEO, category, FAQs, and related content
  */
 export const GENERIC_POST_QUERY = groq`
-  *[slug.current == $slug][0]{
+  coalesce(
+    *[_type == "buyerGuide" && slug.current == $slug][0],
+    *[slug.current == $slug][0]
+  ){
     _type,
     "slug": slug.current, _id, title, description,
     "seoTitle": coalesce(seo.metaTitle, title),
