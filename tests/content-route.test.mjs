@@ -23,3 +23,15 @@ test('keeps dedicated top-ten routes independent of category', () => {
     '/top-ten/best-body-groomers-uae',
   )
 })
+
+test('keeps the S26 migration canonical while CMS and code deploy independently', () => {
+  const slug = 'samsung-galaxy-s26-ultra-specs-uae-price'
+  assert.equal(
+    buildContentPath({_type: 'howTo', slug, categorySlug: 'smartphones'}),
+    `/smartphones/${slug}`,
+  )
+  assert.equal(
+    buildContentPath({_type: 'buyerGuide', slug, categorySlug: 'smartphones'}),
+    `/smartphones/${slug}`,
+  )
+})

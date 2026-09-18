@@ -36,6 +36,13 @@ const ARTICLE_ROUTE_BY_CATEGORY: Record<string, string> = {
   upcoming: 'upcoming',
 };
 
+// Exact content migrations take precedence over the legacy document type.
+// This keeps deploys safe while Sanity and the frontend roll out separately.
+const CONTENT_PATH_BY_SLUG: Readonly<Record<string, string>> = Object.freeze({
+  'samsung-galaxy-s26-ultra-specs-uae-price':
+    '/smartphones/samsung-galaxy-s26-ultra-specs-uae-price',
+});
+
 const normalizeRouteSegment = (value?: string | null): string | null => {
   if (!value) return null;
 
@@ -57,6 +64,9 @@ export const buildContentPath = ({
 }: ContentRouteInput): string | null => {
   const normalizedSlug = normalizeRouteSegment(slug);
   if (!normalizedSlug || !_type || _type === 'category') return null;
+
+  const migratedPath = CONTENT_PATH_BY_SLUG[normalizedSlug];
+  if (migratedPath) return migratedPath;
 
   const typePrefix = ROUTE_PREFIX_BY_TYPE[_type];
   if (typePrefix) return `/${typePrefix}/${normalizedSlug}`;
