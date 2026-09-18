@@ -25,6 +25,14 @@ test('implements every audited pair and retains validated SSR migrations', async
     LEGACY_REDIRECTS['/nutricook-air-fryer-slim-xl-review'],
     '/reviews/nutricook-air-fryer-slim-xl',
   );
+  assert.equal(
+    LEGACY_REDIRECTS['/how-to-guides/samsung-galaxy-s26-ultra-specs-uae-price'],
+    '/smartphones/samsung-galaxy-s26-ultra-specs-uae-price',
+  );
+  assert.equal(
+    LEGACY_REDIRECTS['/smartphones/samsung-galaxy-s26-ultra-specs-uae-price'],
+    undefined,
+  );
 });
 
 test('redirect destinations are terminal and cannot form chains or loops', () => {

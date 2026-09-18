@@ -85,16 +85,24 @@ for (const path of ['/category/old-category/', '/author/removed-author/', '/tag/
   assert.equal(response.headers.get('location'), null, `${path}: retired namespace redirected`);
 }
 
-const samsungPath = '/how-to-guides/samsung-galaxy-s26-ultra-specs-uae-price';
+const samsungPath = '/smartphones/samsung-galaxy-s26-ultra-specs-uae-price';
 const samsungResponse = await request(samsungPath);
 assert.equal(samsungResponse.status, 200, 'Samsung canonical status');
 const samsungHtml = await samsungResponse.text();
 assert.match(
   samsungHtml,
-  /<link rel="canonical" href="https:\/\/toptenuae\.com\/how-to-guides\/samsung-galaxy-s26-ultra-specs-uae-price"/,
+  /<link rel="canonical" href="https:\/\/toptenuae\.com\/smartphones\/samsung-galaxy-s26-ultra-specs-uae-price"/,
   'Samsung self-canonical',
 );
 assert.doesNotMatch(samsungHtml, /href="\/favicon\.ico"/, 'broken favicon declaration');
+
+const samsungLegacyResponse = await request('/how-to-guides/samsung-galaxy-s26-ultra-specs-uae-price');
+assert.equal(samsungLegacyResponse.status, 301, 'Samsung legacy status');
+assert.equal(
+  new URL(samsungLegacyResponse.headers.get('location'), origin).pathname,
+  samsungPath,
+  'Samsung legacy redirect target',
+);
 
 const robots = await (await request('/robots.txt')).text();
 for (const path of [
