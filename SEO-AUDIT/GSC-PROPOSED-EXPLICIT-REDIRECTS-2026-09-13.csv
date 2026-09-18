@@ -50,7 +50,7 @@ Source Path,Target Path,Priority,Evidence
 /reviews/quantum-computing-guide-uae,/how-to-guides/quantum-computing-guide-uae,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
 /reviews/quantum-computing-strategy-uae-2026,/how-to-guides/quantum-computing-strategy-uae-2026,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
 /reviews/ramadan-2026-uae,/events-holidays/ramadan-2026-uae,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
-/reviews/samsung-galaxy-s26-ultra-specs-uae-price,/how-to-guides/samsung-galaxy-s26-ultra-specs-uae-price,P0,"Sanity type is howTo; sitemap, indexed GSC URL, internal-link resolver, and shared contentRoute all select /how-to-guides, but the generic route currently lets category=smartphones override type."
+/reviews/samsung-galaxy-s26-ultra-specs-uae-price,/smartphones/samsung-galaxy-s26-ultra-specs-uae-price,P0,Legacy review URL now redirects directly to the canonical Smartphones buyerGuide URL.
 /reviews/sony-wh-1000xm6-headphones-review,/reviews/sony-wh-1000xm6-wireless-headphone,P0,Same Sony WH-1000XM6 product; current review is 200 and in sitemap.
 /reviews/state-of-ai-december-2025-uae-report,/how-to-guides/state-of-ai-december-2025-uae-report,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
 /reviews/uae-holidays-2026,/events-holidays/uae-holidays-2026,P0,The historical GSC error is stale relative to the current one-hop live result.
@@ -58,7 +58,7 @@ Source Path,Target Path,Priority,Evidence
 /reviews/where-to-donate-used-toys-uae,/how-to-guides/where-to-donate-used-toys-uae,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
 /reviews/zakat-calculator,/finance-tools/zakat-calculator,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
 /smart-home/how-to-clean-washing-machine,/how-to-guides/how-to-clean-washing-machine,P0,Current production path takes 2 redirects before a 200.
-/smartphones/samsung-galaxy-s26-ultra-specs-uae-price,/how-to-guides/samsung-galaxy-s26-ultra-specs-uae-price,P0,"Sanity type is howTo; sitemap, indexed GSC URL, internal-link resolver, and shared contentRoute all select /how-to-guides, but the generic route currently lets category=smartphones override type."
+/how-to-guides/samsung-galaxy-s26-ultra-specs-uae-price,/smartphones/samsung-galaxy-s26-ultra-specs-uae-price,P0,Former howTo URL redirects to the canonical Smartphones buyerGuide URL after the Sanity content-type migration.
 /tech/asus-vivobook-go-15-e1504fa,/reviews/asus-vivobook-go-15-e1504fa,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
 /tech/best-noise-cancelling-headphones-uae,/top-ten/best-noise-cancelling-headphones-uae,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
 /tech/deepseek-ai-revolutionary-data-retrieval-method,/how-to-guides/how-to-use-deepseek-ai-data-extraction-analysis,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
@@ -67,7 +67,7 @@ Source Path,Target Path,Priority,Evidence
 /tech/hp-stream-14-n150,/reviews/hp-stream-14-n150,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
 /tech/lenovo-slim-3-chromebook-14,/reviews/lenovo-slim-3-chromebook-14,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
 /tech/quantum-computing-strategy-uae-2026,/how-to-guides/quantum-computing-strategy-uae-2026,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
-/tech/samsung-galaxy-s26-ultra-specs-uae-price,/how-to-guides/samsung-galaxy-s26-ultra-specs-uae-price,P0,"Sanity type is howTo; sitemap, indexed GSC URL, internal-link resolver, and shared contentRoute all select /how-to-guides, but the generic route currently lets category=smartphones override type."
+/tech/samsung-galaxy-s26-ultra-specs-uae-price,/smartphones/samsung-galaxy-s26-ultra-specs-uae-price,P0,Legacy Tech URL now redirects directly to the canonical Smartphones buyerGuide URL.
 /tech/state-of-ai-december-2025-uae-report,/how-to-guides/state-of-ai-december-2025-uae-report,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
 /top-ten/apple-macbook-air-m2-2022,/reviews/apple-macbook-air-m2-2022,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
 /top-ten/best-air-fryers-uae,/top-ten/best-air-fryers-uae-2026,P0,Explicit replacement supplied and destination is 200/self-canonical/in sitemap.
@@ -91,6 +91,6 @@ Source Path,Target Path,Priority,Evidence
 /top-ten/wahl-travel-shaver-3615-1027,/reviews/wahl-travel-shaver-3615-1027,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
 /top-ten/xiaomi-redmi-buds-6-play-earbuds,/reviews/xiaomi-redmi-buds-6-play-earbuds,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
 /travel-tourism/world-safest-airlines-2026,/top-ten/world-safest-airlines-2026,P0,Current production path takes 2 redirects before a 200.
-/upcoming/samsung-galaxy-s26-ultra-specs-uae-price,/how-to-guides/samsung-galaxy-s26-ultra-specs-uae-price,P0,"Sanity type is howTo; sitemap, indexed GSC URL, internal-link resolver, and shared contentRoute all select /how-to-guides, but the generic route currently lets category=smartphones override type."
+/upcoming/samsung-galaxy-s26-ultra-specs-uae-price,/smartphones/samsung-galaxy-s26-ultra-specs-uae-price,P0,Legacy Upcoming URL now redirects directly to the canonical Smartphones buyerGuide URL.
 /where-to-donate-used-toys-uae,/how-to-guides/where-to-donate-used-toys-uae,P0,Current production path takes 2 redirects before a 200.
 /zakat-calculator,/finance-tools/zakat-calculator,P1,One redirect reaches a 200 self-canonical destination; GSC “Page with redirect” is expected.
