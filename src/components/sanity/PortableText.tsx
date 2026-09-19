@@ -314,26 +314,32 @@ const components: PortableTextComponents = {
       <SanityTable value={value} />
     ),
 
-    separator: ({ value }) => {
-      if (value.style === "gap") {
-        return (
-          <div
-            className="w-full h-8 md:h-12"
-            aria-hidden="true"
-          />
-        );
-      }
-
-      return (
-        <hr className="w-full my-6 border-t border-gray-200" />
-      );
-    },
-
+    separator: () => (
+  <hr className="w-full my-6 border-t border-gray-200" />
+  ),
     // Existing Portable Text images
     image: PortableTextImage,
 
     // Buyer Guide → Guide Body images
     bodyImage: PortableTextImage,
+    contentImageGrid: ({ value }: any) => {
+    if (!value?.content || !value?.image) return null;
+
+    return (
+      <section className="my-10 grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-8 lg:gap-10 items-center">
+        <div>
+          <PortableTextComponent
+            value={value.content}
+            components={components}
+          />
+        </div>
+
+        <div>
+          <PortableTextImage value={value.image} />
+        </div>
+      </section>
+    );
+  },
   },
 
   block: {
