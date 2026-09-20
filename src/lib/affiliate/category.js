@@ -8,7 +8,13 @@ export const getAffiliateCategory = (slug = '', title = '', reviewSection = '') 
   if (value.includes('coffee-maker') || value.includes('coffee maker')) return 'coffee_maker';
   if (value.includes('tyre-inflator') || value.includes('tyre inflator')) return 'tyre_inflator';
   if (value.includes('earbud')) return 'earbuds';
-  if (value.includes('laptop')) return 'laptop';
+  // Laptop money pages need page-cluster attribution in GA4 even while the
+  // Amazon Associates account continues to use its established partner tag.
+  if (value.includes('gaming') && value.includes('laptop')) return 'laptops-gaming';
+  if (value.includes('student') && value.includes('laptop')) return 'laptops-student';
+  if ((value.includes('business') || value.includes('office')) && value.includes('laptop')) return 'laptops-business';
+  if (value.includes('ai') && value.includes('laptop')) return 'laptops-ai';
+  if (value.includes('laptop')) return 'laptops-general';
   if (value.includes('headphone')) return 'headphones';
   return typeof reviewSection === 'string' && reviewSection.trim() ? reviewSection.trim() : undefined;
 };

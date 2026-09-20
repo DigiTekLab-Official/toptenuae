@@ -4,6 +4,7 @@
 // Calculators are pure Astro + Vanilla JS. Body content uses React PortableText as a minimal island.
 
 import GratuityCalculator from '@/components/tools/GratuityCalculator.astro';
+import LoanEmiCalculator from '@/components/tools/LoanEmiCalculator.astro';
 import VatCalculator from '@/components/tools/VatCalculator.astro';
 import ZakatCalculator from '@/components/tools/ZakatCalculator.astro';
 import ZakatInputPanel from '@/components/tools/ZakatInputPanel.astro';
@@ -27,12 +28,14 @@ const TOOL_IDS: Record<string, string> = {
   'zakat-calculator': 'zakat-uae',
   'uae-zakat-calculator': 'zakat-uae',
   'zakat-calculator-uae': 'zakat-uae',
+  'uae-loan-emi-calculator': 'loan-emi-uae',
 };
 
 const toolId = data.componentId || TOOL_IDS[slug] || slug;
 const isZakat = toolId === 'zakat-uae';
 const isGratuity = toolId === 'gratuity-uae';
 const isVat = toolId === 'vat-uae';
+const isLoanEmi = toolId === 'loan-emi-uae';
 
 const bodyContent = data.body || data.content;
 const categorySlug = data.category?.slug?.current || data.category?.slug || 'finance-tools';
@@ -56,20 +59,25 @@ interface RelatedTool {
   title: string;
   iconId: string;
 }
+const TOOL_ICON_IDS: Record<string, string> = {
+  'gratuity-calculator-uae': 'coins',
+  'uae-vat-calculator': 'percent',
+  'zakat-calculator': 'heart',
+  'uae-loan-emi-calculator': 'card',
+};
 const RELATED_TOOLS: RelatedTool[] = [
   { slug: 'gratuity-calculator-uae', title: 'Gratuity Calculator', iconId: 'coins' },
   { slug: 'uae-vat-calculator', title: 'VAT Calculator', iconId: 'percent' },
   { slug: 'zakat-calculator', title: 'Zakat Calculator', iconId: 'heart' },
+  { slug: 'uae-loan-emi-calculator', title: 'Loan EMI Calculator', iconId: 'card' },
 ];
 const relatedTools = data.relatedTools?.length
   ? data.relatedTools.map((t: any) => ({
       slug: t.slug?.current || t.slug,
       title: t.title || 'Calculator Tool',
-      iconId: (t.slug?.current || t.slug || '').includes('vat') ? 'percent'
-            : (t.slug?.current || t.slug || '').includes('zakat') ? 'heart'
-            : 'coins',
+      iconId: TOOL_ICON_IDS[t.slug?.current || t.slug] || 'coins',
     })).filter((t: RelatedTool) => t.slug)
-  : RELATED_TOOLS.filter(t => !slug.includes(t.slug.split('-')[0]));
+  : RELATED_TOOLS.filter(t => t.slug !== slug);
 ---
 
 <div class="min-h-screen bg-slate-50 font-sans">
@@ -147,6 +155,7 @@ const relatedTools = data.relatedTools?.length
           {isGratuity && <GratuityCalculator />}
           {isVat && <VatCalculator />}
           {isZakat && <ZakatCalculator />}
+          {isLoanEmi && <LoanEmiCalculator />}
         </div>
       </div>
     </div>
@@ -229,6 +238,9 @@ const relatedTools = data.relatedTools?.length
                     )}
                     {tool.iconId === 'coins' && (
                       <svg class="w-7 h-7 text-amber-500 group-hover:text-white transition-colors duration-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/></svg>
+                    )}
+                    {tool.iconId === 'card' && (
+                      <svg class="w-7 h-7 text-sky-500 group-hover:text-white transition-colors duration-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
                     )}
                   </div>
                   <h4 class="text-lg font-bold text-slate-900 mb-auto group-hover:text-[#4b0082] transition-colors">

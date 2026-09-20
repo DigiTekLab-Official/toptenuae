@@ -1,4 +1,5 @@
 // src/components/PortableText.tsx
+import type { ReactNode } from "react";
 import {
   PortableText as PortableTextComponent,
   type PortableTextComponents,
@@ -16,8 +17,47 @@ import {
 } from "@/lib/affiliate/amazon-asin";
 import { canonicalizeAuditedInternalLink } from "@/lib/seo/legacy-redirects";
 
+type InfoCardVariant = "green" | "amber" | "purple" | "blue";
+
+type InfoCard = {
+  title?: string;
+  description?: string;
+  variant?: InfoCardVariant | "default" | string;
+};
+
+type PortableTextLinkValue = {
+  href?: string;
+  blank?: boolean;
+};
+
+type PortableTextImageAsset = {
+  url?: string;
+  _ref?: string;
+  metadata?: {
+    dimensions?: {
+      width?: number;
+      height?: number;
+    };
+  };
+};
+
+type PortableTextImageValue = {
+  asset?: PortableTextImageAsset;
+  alt?: string;
+  caption?: string;
+  display?: "left" | "right" | "full" | string;
+};
+
+type PortableTextBlockLike = {
+  _type?: string;
+  _key?: string;
+  children?: unknown[];
+  markDefs?: unknown[];
+  style?: string;
+};
+
 // --- 1. InfoCards Component ---
-const InfoCards = ({ value }: { value: any }) => {
+const InfoCards = ({ value }: { value?: { cards?: InfoCard[] } | null }) => {
   if (!value?.cards) return null;
 
   const getColors = (variant: string) => {
@@ -37,8 +77,8 @@ const InfoCards = ({ value }: { value: any }) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-8 not-prose">
-      {value.cards.map((card: any, index: number) => {
-        const colors = getColors(card.variant);
+      {value.cards.map((card: InfoCard, index: number) => {
+        const colors = getColors(card.variant ?? "default");
 
         return (
           <div
@@ -63,8 +103,8 @@ const PortableTextLink = ({
   value,
   affiliateProductsByAsin,
 }: {
-  children: any;
-  value: any;
+  children: ReactNode;
+  value?: PortableTextLinkValue;
   affiliateProductsByAsin?: ReadonlyMap<string, AmazonAffiliateProduct>;
 }) => {
   const originalHref = canonicalizeAuditedInternalLink(
@@ -160,7 +200,7 @@ const PortableTextLink = ({
 const PortableTextImage = ({
   value,
 }: {
-  value: any;
+  value: PortableTextImageValue;
 }) => {
   // Guard: image must have a Sanity asset
   if (!value?.asset) return null;
@@ -280,39 +320,83 @@ const components: PortableTextComponents = {
   types: {
     infoCards: InfoCards,
 
-    navigationGrid: ({ value }: any) => (
-      <NavigationGrid
-        title={value.title}
-        items={value.items}
-      />
-    ),
+    navigationGrid: ({ value }: { value: Record<string, unknown> }) => {
+      const navigationValue = value as {
+        title?: string;
+        items?: Array<{
+          label: string;
+          description?: string;
+          imageUrl?: string;
+          targetSlug?: string;
+        }>;
+      };
+
+      return (
+        <NavigationGrid
+          title={navigationValue.title}
+          items={navigationValue.items ?? []}
+        />
+      );
+    },
 
     // The data for targetPost is enriched by the GROQ query
-    relatedLink: ({ value }) => (
-      <RelatedLinkCard
-        label={value.label}
-        preText={value.preText}
-        post={value.targetPost}
-      />
-    ),
+    relatedLink: ({ value }: { value: Record<string, unknown> }) => {
+      const relatedLinkValue = value as {
+        label?: string;
+        preText?: string;
+        targetPost?: {
+          title: string;
+          slug: string;
+          category?: string;
+        };
+      };
 
-    priceWidget: ({ value }: any) => (
-      <PriceWidget
-        title={value.title}
-        price={value.price}
-        merchant={value.merchant}
-        link={value.affiliateLink}
-        badge={value.badge}
-      />
-    ),
+      return (
+        <RelatedLinkCard
+          label={relatedLinkValue.label ?? "LEARN MORE"}
+          preText={relatedLinkValue.preText ?? ""}
+          post={relatedLinkValue.targetPost ?? { title: "", slug: "" }}
+        />
+      );
+    },
 
-    code: ({ value }) => (
-      <CodeBlock value={value} />
-    ),
+    priceWidget: ({ value }: { value: Record<string, unknown> }) => {
+      const priceWidgetValue = value as {
+        title?: string;
+        price?: number | null;
+        merchant?: "Amazon" | "Noon" | "General";
+        affiliateLink?: string;
+        badge?: string;
+      };
 
-    table: ({ value }) => (
-      <SanityTable value={value} />
-    ),
+      return (
+        <PriceWidget
+          title={priceWidgetValue.title}
+          price={priceWidgetValue.price}
+          merchant={priceWidgetValue.merchant}
+          link={priceWidgetValue.affiliateLink ?? "#"}
+          badge={priceWidgetValue.badge}
+        />
+      );
+    },
+
+    code: ({ value }: { value: Record<string, unknown> }) => {
+      const codeValue = value as {
+        code: string;
+        language?: string;
+        filename?: string;
+      };
+
+      return <CodeBlock value={codeValue} />;
+    },
+
+    table: ({ value }: { value: Record<string, unknown> }) => {
+      const tableValue = value as {
+        rows: Array<{ _key: string; cells: string[] }>;
+      };
+
+      return <SanityTable value={tableValue} />;
+    },
 
     separator: () => (
   <hr className="w-full my-6 border-t border-gray-200" />
@@ -322,28 +406,37 @@ const components: PortableTextComponents = {
 
     // Buyer Guide → Guide Body images
     bodyImage: PortableTextImage,
-    contentImageGrid: ({ value }: any) => {
-    if (!value?.content || !value?.image) return null;
+    contentImageGrid: ({ value }: { value: Record<string, unknown> }) => {
+      const contentImageGridValue = value as {
+        content?: unknown[];
+        image?: PortableTextImageValue;
+      };
 
-    return (
-      <section className="my-10 grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-8 lg:gap-10 items-center">
-        <div>
-          <PortableTextComponent
-            value={value.content}
-            components={components}
-          />
-        </div>
+      if (!contentImageGridValue?.content || !contentImageGridValue?.image) return null;
 
-        <div>
-          <PortableTextImage value={value.image} />
-        </div>
-      </section>
-    );
-  },
+      return (
+        <section className="my-10 grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-8 lg:gap-10 items-center">
+          <div>
+            <PortableTextComponent
+              value={
+                contentImageGridValue.content as Parameters<
+                  typeof PortableTextComponent
+                >[0]["value"]
+              }
+              components={components}
+            />
+          </div>
+
+          <div>
+            <PortableTextImage value={contentImageGridValue.image} />
+          </div>
+        </section>
+      );
+    },
   },
 
   block: {
-    normal: ({ children }) => {
+    normal: ({ children }: { children?: ReactNode }) => {
       // Prevent rendering empty paragraphs
       if (
         !children ||
@@ -361,31 +454,31 @@ const components: PortableTextComponents = {
       );
     },
 
-    h2: ({ children }) => (
+    h2: ({ children }: { children?: ReactNode }) => (
       <h2 className="text-2xl md:text-3xl font-bold mt-8 mb-4 text-gray-900 border-b border-gray-100 pb-3">
         {children}
       </h2>
     ),
 
-    h3: ({ children }) => (
+    h3: ({ children }: { children?: ReactNode }) => (
       <h3 className="text-xl md:text-2xl font-semibold mt-8 mb-4 text-gray-800">
         {children}
       </h3>
     ),
 
-    h4: ({ children }) => (
+    h4: ({ children }: { children?: ReactNode }) => (
       <h4 className="text-lg md:text-xl font-semibold mt-6 mb-3 text-gray-800">
         {children}
       </h4>
     ),
 
-    h5: ({ children }) => (
+    h5: ({ children }: { children?: ReactNode }) => (
       <h5 className="text-base md:text-lg font-medium mt-5 mb-2 text-gray-700 uppercase tracking-wide">
         {children}
       </h5>
     ),
 
-    blockquote: ({ children }) => (
+    blockquote: ({ children }: { children?: ReactNode }) => (
       <blockquote className="border-l-4 border-[#8B5CF6] pl-6 py-4 text-gray-700 pr-6 my-10 bg-[#ECE4FD]/50 italic text-lg rounded-r-lg">
         {children}
       </blockquote>
@@ -393,13 +486,13 @@ const components: PortableTextComponents = {
   },
 
   list: {
-    bullet: ({ children }) => (
+    bullet: ({ children }: { children?: ReactNode }) => (
       <ul className="list-disc ml-6 space-y-3 mb-8 text-gray-700 marker:text-primary text-lg">
         {children}
       </ul>
     ),
 
-    number: ({ children }) => (
+    number: ({ children }: { children?: ReactNode }) => (
       <ol className="list-decimal ml-6 space-y-3 mb-8 text-gray-700 marker:text-primary font-medium text-lg">
         {children}
       </ol>
@@ -407,14 +500,14 @@ const components: PortableTextComponents = {
   },
 
   marks: {
-    link: ({ children, value }) => (
+    link: ({ children, value }: { children: ReactNode; value?: PortableTextLinkValue }) => (
       <PortableTextLink
         children={children}
         value={value}
       />
     ),
 
-    strong: ({ children }) => (
+    strong: ({ children }: { children?: ReactNode }) => (
       <strong className="font-extrabold text-gray-800">
         {children}
       </strong>
@@ -427,7 +520,7 @@ export default function PortableText({
   value,
   affiliateProductsByAsin,
 }: {
-  value: any;
+  value: unknown;
   affiliateProductsByAsin?: ReadonlyMap<
     string,
     AmazonAffiliateProduct
@@ -439,7 +532,7 @@ export default function PortableText({
   }
 
   // Ensure we always work with an array
-  let normalizedValue: any[] = [];
+  let normalizedValue: PortableTextBlockLike[] = [];
 
   if (Array.isArray(value)) {
     // Already an array
@@ -452,18 +545,19 @@ export default function PortableText({
     value !== null
   ) {
     // Single Portable Text object
+    const typedValue = value as Record<string, unknown>;
     const hasBlockSignature =
-      value._type !== undefined ||
-      value.children !== undefined ||
-      value._key !== undefined ||
-      value.style !== undefined;
+      typedValue._type !== undefined ||
+      typedValue.children !== undefined ||
+      typedValue._key !== undefined ||
+      typedValue.style !== undefined;
 
     if (hasBlockSignature) {
-      normalizedValue = [value];
+      normalizedValue = [typedValue as PortableTextBlockLike];
     } else if (
-      value.asset ||
-      value.url ||
-      value._ref
+      typedValue.asset ||
+      typedValue.url ||
+      typedValue._ref
     ) {
       // Raw image/reference object without Portable Text type
       return null;
@@ -540,7 +634,7 @@ export default function PortableText({
           link: ({
             children,
             value,
-          }: any) => (
+          }: { children: ReactNode; value?: PortableTextLinkValue }) => (
             <PortableTextLink
               children={children}
               value={value}
@@ -555,7 +649,7 @@ export default function PortableText({
 
   return (
     <PortableTextComponent
-      value={normalizedValue}
+      value={normalizedValue as Parameters<typeof PortableTextComponent>[0]["value"]}
       components={sourceComponents}
     />
   );

@@ -1,11 +1,20 @@
 // src/lib/amazon-paapi/fetchDeals.ts
 import { createClient } from "@sanity/client";
-import { getEnv, getEnvOptional } from "@/lib/validateEnv";
+
+function getServerEnv(key: string, defaultValue?: string): string {
+  const value = process.env[key] ?? defaultValue;
+
+  if (!value) {
+    throw new Error(`Missing server environment variable: ${key}`);
+  }
+
+  return value;
+}
 
 // --- 1. CONFIGURATION & CHECKS (with proper validation) ---
 const validateAmazonConfig = () => {
   const required = ['AMAZON_ACCESS_KEY', 'AMAZON_SECRET_KEY', 'AMAZON_PARTNER_TAG'];
-  const env = import.meta.env as Record<string, string>;
+  const env = process.env;
   const missing = required.filter(key => !env[key]);
   
   if (missing.length > 0) {
@@ -23,9 +32,9 @@ const amazonConfigValid = validateAmazonConfig();
 
 // Sanity Client for WRITING (Needs Write Token)
 const writeClient = createClient({
-  projectId: getEnv('PUBLIC_SANITY_PROJECT_ID'),
-  dataset: getEnvOptional('PUBLIC_SANITY_DATASET', 'production'),
-  token: getEnvOptional('SANITY_WRITE_TOKEN'),
+  projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID,
+  dataset: import.meta.env.PUBLIC_SANITY_DATASET || 'production',
+  token: process.env.SANITY_WRITE_TOKEN,
   apiVersion: '2024-01-01',
   useCdn: false, // Must be false for writing
 });
@@ -84,8 +93,8 @@ async function getSignatureKey(key: string, dateStamp: string, region: string, s
 }
 
 async function createAwsSignature(method: string, path: string, body: string, region: string = "eu-west-1") {
-  const accessKey = getEnv('AMAZON_ACCESS_KEY');
-  const secretKey = getEnv('AMAZON_SECRET_KEY');
+  const accessKey = getServerEnv('AMAZON_ACCESS_KEY');
+  const secretKey = getServerEnv('AMAZON_SECRET_KEY');
   const host = `webservices.amazon.ae`;
   const service = "ProductAdvertisingAPI";
   
@@ -125,7 +134,7 @@ async function searchAmazonProducts(keywords: string): Promise<AmazonProduct[]> 
     return [];
   }
 
-  const partnerTag = getEnvOptional('AMAZON_PARTNER_TAG');
+  const partnerTag = process.env.AMAZON_PARTNER_TAG;
   if (!partnerTag) {
     console.error('❌ AMAZON_PARTNER_TAG not set');
     return [];
@@ -162,11 +171,10 @@ async function searchAmazonProducts(keywords: string): Promise<AmazonProduct[]> 
 
     // ✅ Better error handling with specific messages
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error(
-        `❌ Amazon API Error (${response.status}):`,
-        errorText.slice(0, 200) // Limit error message length
-      );
+      // Consume, but never log, the provider body because it can contain
+      // request or account details.
+      await response.text();
+      console.error(`Amazon catalog request failed with HTTP ${response.status}`);
       
       // Specific handling for different error codes
       if (response.status === 401 || response.status === 403) {
@@ -200,15 +208,15 @@ async function searchAmazonProducts(keywords: string): Promise<AmazonProduct[]> 
       rating: item.CustomerReviews?.StarRating,
       reviewCount: item.CustomerReviews?.Count
     }));
-  } catch (error) {
-    console.error("Error calling Amazon PA-API:", error);
+  } catch {
+    console.error("Amazon catalog request failed");
     return [];
   }
 }
 
 // --- 5. MAIN EXPORT ---
 export async function fetchAndStoreDeals() {
-  if (!import.meta.env.SANITY_WRITE_TOKEN) {
+  if (!process.env.SANITY_WRITE_TOKEN) {
     throw new Error("Missing SANITY_WRITE_TOKEN. Cannot sync deals.");
   }
 
@@ -247,8 +255,8 @@ export async function fetchAndStoreDeals() {
     }
 
     return { added: deals.length, total: products.length };
-  } catch (error) {
-    console.error("Error in fetchAndStoreDeals:", error);
-    throw error;
+  } catch {
+    console.error("Amazon deal synchronization failed");
+    throw new Error("AMAZON_SYNC_FAILED");
   }
 }

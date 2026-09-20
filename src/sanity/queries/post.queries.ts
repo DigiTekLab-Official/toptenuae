@@ -17,6 +17,7 @@ export const GENERIC_POST_QUERY = groq`
   ){
     _type,
     "slug": slug.current, _id, title, description,
+    componentId, heroBadge, heroTitleSuffix,
     "seoTitle": coalesce(seo.metaTitle, title),
     "seoDescription": coalesce(seo.metaDescription, description, ""),
     seo,
@@ -65,6 +66,7 @@ export const GENERIC_POST_QUERY = groq`
     affiliateDisclosure,
     showAffiliateDisclosure,
     faqs[] { _key, question, answer },
+    "relatedTools": relatedTools[]->{ title, "slug": slug.current },
     howToSteps,
     startDate, endDate, isAllDay, locationName, address, ticketPrice, ticketUrl, isTicketAvailable, status,
     "sidebarPosts": *[

@@ -13,6 +13,7 @@ export const ALL_CATEGORIES = groq`
   *[_type == "category" && defined(slug.current)] | order(title asc){
     _id,
     title,
+    metaTitle,
     "slug": slug.current,
     description,
     mainImage { "url": asset->url, alt }
@@ -42,9 +43,11 @@ export const CATEGORY_BY_SLUG_QUERY = groq`
 export const CATEGORY_PAGE_QUERY = groq`
   *[_type == "category" && slug.current == $slug][0]{
     title,
+    metaTitle,
     description,
     "slug": slug.current,
     "seo": seo { metaTitle, metaDescription },
+    "ogImage": ogImage { "url": asset->url, alt },
     "mainImage": coalesce(
       mainImage,
       image,

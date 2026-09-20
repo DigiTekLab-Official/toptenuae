@@ -4,6 +4,31 @@ import { createImageUrlBuilder } from '@sanity/image-url'
 import type { SanityImageSource } from '@sanity/image-url'
 import { dataset, projectId } from '../env'
 
+type SanityImageLike = SanityImageSource & {
+  asset?: {
+    _ref?: string
+    _id?: string
+    metadata?: {
+      dimensions?: {
+        width?: number
+        height?: number
+      }
+      palette?: {
+        dominant?: {
+          background?: string
+        }
+      }
+      lqip?: string
+    }
+  }
+} | null | undefined
+
+const hasImageAsset = (source: SanityImageLike): source is SanityImageSource & {
+  asset: NonNullable<SanityImageLike extends { asset?: infer T } ? T : never>
+} => {
+  return !!source && typeof source === 'object' && 'asset' in source && !!source.asset
+}
+
 const builder = createImageUrlBuilder({
   projectId: projectId || '',
   dataset: dataset || '',
@@ -30,10 +55,10 @@ export const urlFor = (source: SanityImageSource) => {
  * SIZE: 1200px @ 75% quality
  * USE: Homepage hero, article headers, featured banners
  */
-export const mainImage = (source: any) => {
-  if (!source || !source.asset) return undefined 
-  
-  return builder.image(source)
+export const mainImage = (source: SanityImageLike): string | undefined => {
+  if (!hasImageAsset(source)) return undefined
+
+  return builder.image(source as SanityImageSource)
     .width(1200)
     .auto('format')
     .quality(75)
@@ -46,10 +71,10 @@ export const mainImage = (source: any) => {
  * SIZE: 800px @ 80% quality
  * USE: Article grids, category pages, archive listings
  */
-export const archiveCardImage = (source: any) => {
-  if (!source || !source.asset) return undefined
+export const archiveCardImage = (source: SanityImageLike): string | undefined => {
+  if (!hasImageAsset(source)) return undefined
 
-  return builder.image(source)
+  return builder.image(source as SanityImageSource)
     .width(800)
     .auto('format')
     .quality(80)
@@ -62,10 +87,10 @@ export const archiveCardImage = (source: any) => {
  * SIZE: 1600x1125 (1.42:1 aspect ratio) @ 80% quality
  * USE: Featured articles, highlighted products, hero cards
  */
-export const featureCardImage = (source: any) => {
-  if (!source || !source.asset) return undefined
-  
-  return builder.image(source)
+export const featureCardImage = (source: SanityImageLike): string | undefined => {
+  if (!hasImageAsset(source)) return undefined
+
+  return builder.image(source as SanityImageSource)
     .width(1600)
     .height(1125)
     .fit('crop')
@@ -80,10 +105,10 @@ export const featureCardImage = (source: any) => {
  * SIZE: 400px @ 85% quality
  * USE: Related posts, author avatars, sidebar images
  */
-export const thumbnailImage = (source: any) => {
-  if (!source || !source.asset) return undefined
+export const thumbnailImage = (source: SanityImageLike): string | undefined => {
+  if (!hasImageAsset(source)) return undefined
 
-  return builder.image(source)
+  return builder.image(source as SanityImageSource)
     .width(400)
     .auto('format')
     .quality(85)
@@ -96,10 +121,10 @@ export const thumbnailImage = (source: any) => {
  * SIZE: 1600x900 (16:9) @ 75% quality
  * USE: Section banners, discover cards, full-width visuals
  */
-export const heroBannerImage = (source: any) => {
-  if (!source || !source.asset) return undefined
+export const heroBannerImage = (source: SanityImageLike): string | undefined => {
+  if (!hasImageAsset(source)) return undefined
 
-  return builder.image(source)
+  return builder.image(source as SanityImageSource)
     .width(1600)
     .height(900)
     .fit('crop')
@@ -114,10 +139,10 @@ export const heroBannerImage = (source: any) => {
  * SIZE: 414x459 @ 85% quality
  * USE: Product cards, ecommerce listings
  */
-export const productCardImage = (source: any) => {
-  if (!source || !source.asset) return undefined
+export const productCardImage = (source: SanityImageLike): string | undefined => {
+  if (!hasImageAsset(source)) return undefined
 
-  return builder.image(source)
+  return builder.image(source as SanityImageSource)
     .width(414)
     .height(459)
     .fit('max')
@@ -131,10 +156,10 @@ export const productCardImage = (source: any) => {
  * SIZE: 1200x630 (Facebook/Twitter standard) @ 85% quality
  * USE: og:image meta tags
  */
-export const ogImage = (source: any) => {
-  if (!source || !source.asset) return undefined
+export const ogImage = (source: SanityImageLike): string | undefined => {
+  if (!hasImageAsset(source)) return undefined
 
-  return builder.image(source)
+  return builder.image(source as SanityImageSource)
     .width(1200)
     .height(630)
     .fit('crop')
@@ -149,10 +174,10 @@ export const ogImage = (source: any) => {
  * SIZE: 20px @ 10% quality
  * USE: <Image placeholder="blur" blurDataURL={blurImage(source)} />
  */
-export const blurImage = (source: any) => {
-  if (!source || !source.asset) return undefined
+export const blurImage = (source: SanityImageLike): string | undefined => {
+  if (!hasImageAsset(source)) return undefined
 
-  return builder.image(source)
+  return builder.image(source as SanityImageSource)
     .width(20)
     .quality(10)
     .blur(50)
@@ -165,17 +190,17 @@ export const blurImage = (source: any) => {
  * Flexible function for edge cases and special layouts
  */
 export const optimizedImage = (
-  source: any, 
-  options: { 
-    width: number; 
-    height?: number; 
+  source: SanityImageLike,
+  options: {
+    width: number;
+    height?: number;
     quality?: number;
     fit?: 'clip' | 'crop' | 'fill' | 'fillmax' | 'max' | 'scale' | 'min';
   }
-) => {
-  if (!source || !source.asset) return undefined
+): string | undefined => {
+  if (!hasImageAsset(source)) return undefined
 
-  let imageBuilder = builder.image(source)
+  let imageBuilder = builder.image(source as SanityImageSource)
     .width(options.width)
     .auto('format')
     .quality(options.quality || 80);
@@ -200,9 +225,11 @@ export const optimizedImage = (
  * Returns: { width, height } or null
  * USE: Calculate aspect ratios, reserve space for lazy-loaded images
  */
-export const getImageDimensions = (source: any): { width: number; height: number } | null => {
+export const getImageDimensions = (
+  source: SanityImageLike
+): { width: number; height: number } | null => {
   if (!source?.asset?._ref) return null
-  
+
   // Parse Sanity asset reference format: image-{assetId}-{width}x{height}-{format}
   const ref = source.asset._ref
   const match = ref.match(/image-[a-f0-9]+-(\d+)x(\d+)-/)
@@ -220,7 +247,7 @@ export const getImageDimensions = (source: any): { width: number; height: number
  * hotspot data and never requesting an image larger than the source asset.
  */
 export const responsiveSanityImage = (
-  source: any,
+  source: SanityImageLike,
   options: {
     widths: number[]
     defaultWidth: number
@@ -250,7 +277,7 @@ export const responsiveSanityImage = (
       ? Math.round(displayWidth * sourceDimensions.height / sourceDimensions.width)
       : displayWidth
   const imageUrl = (width: number) => {
-    let imageBuilder = urlFor(source)
+    let imageBuilder = urlFor(source as SanityImageSource)
       .width(width)
       .auto('format')
       .quality(options.quality || 78)
@@ -276,7 +303,7 @@ export const responsiveSanityImage = (
  * Calculate aspect ratio from image dimensions
  * Returns: CSS aspect-ratio string like "16/9" or null
  */
-export const getAspectRatio = (source: any): string | null => {
+export const getAspectRatio = (source: SanityImageLike): string | null => {
   const dimensions = getImageDimensions(source)
   if (!dimensions) return null
   
@@ -291,7 +318,7 @@ export const getAspectRatio = (source: any): string | null => {
  * Validate that image source is usable
  * Returns: boolean
  */
-export const isValidImage = (source: any): boolean => {
+export const isValidImage = (source: SanityImageLike): boolean => {
   return !!(source && (source.asset?._ref || source.asset?._id))
 }
 
@@ -300,7 +327,10 @@ export const isValidImage = (source: any): boolean => {
  * Returns: hex color string or fallback
  * USE: Background color while image loads
  */
-export const getDominantColor = (source: any, fallback: string = '#f3f4f6'): string => {
+export const getDominantColor = (
+  source: SanityImageLike,
+  fallback: string = '#f3f4f6'
+): string => {
   return source?.asset?.metadata?.palette?.dominant?.background || fallback
 }
 
@@ -309,12 +339,12 @@ export const getDominantColor = (source: any, fallback: string = '#f3f4f6'): str
  * Returns: base64 data URL or blur image fallback
  * USE: Progressive image loading
  */
-export const getLQIP = (source: any): string | undefined => {
+export const getLQIP = (source: SanityImageLike): string | undefined => {
   // Prefer Sanity's built-in LQIP from metadata
   if (source?.asset?.metadata?.lqip) {
     return source.asset.metadata.lqip
   }
-  
+
   // Fallback to blur image
   return blurImage(source)
 }

@@ -59,7 +59,7 @@ export default function NewsletterForm() {
         <CheckCircle className="w-12 h-12 text-green-600 mx-auto mb-3" />
         <h3 className="font-bold text-green-900 text-lg">One Last Step!</h3>
         <p className="text-green-800 mt-2 text-sm">
-          We sent a confirmation link to <strong>{email}</strong>. 
+          We sent a confirmation link to the address you provided.
           <br/>Please click it to activate your subscription.
         </p>
       </div>
@@ -118,7 +118,8 @@ export default function NewsletterForm() {
         {msg && <p className="text-red-500 text-sm text-center">{msg}</p>}
         
         <p className="text-xs text-center text-gray-500 mt-2">
-          No spam, ever. Unsubscribe anytime.
+          By subscribing, you agree to receive our newsletter. Unsubscribe anytime.{' '}
+          <a href="/privacy-policy" className="underline hover:text-primary">Privacy policy</a>
         </p>
       </div>
     </form>

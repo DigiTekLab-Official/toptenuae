@@ -5,6 +5,10 @@ import { apiVersion, dataset, projectId } from '../env'
 
 export { apiVersion, dataset, projectId }
 
+// Local production-preview switch. Draft credentials remain server-only and
+// production builds always use the published perspective.
+const previewDrafts = import.meta.env.DEV && process.env.SANITY_PREVIEW_DRAFTS === 'true'
+
 /**
  * Sanity client instance - use via sanityFetch() wrapper
  */
@@ -12,8 +16,10 @@ export const client = createClient({
   projectId,
   dataset,
   apiVersion,
-  useCdn: true,
-  perspective: 'published',
+  useCdn: !previewDrafts,
+  perspective: previewDrafts ? 'drafts' : 'published',
+  token: previewDrafts ? process.env.SANITY_WRITE_TOKEN : undefined,
+  stega: false,
 })
 
 /**

@@ -97,7 +97,7 @@ export default function QuickVerdict({ picks, category, showRationale = false }:
                        rel="nofollow sponsored noopener noreferrer"
                        className="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-md transition-all active:scale-95"
                      >
-                       Check latest price on Amazon.ae <ArrowRight className="w-4 h-4 inline ml-1" />
+                       Check current Amazon.ae offer <ArrowRight className="w-4 h-4 inline ml-1" />
                      </a>
                    )}
                 </div>

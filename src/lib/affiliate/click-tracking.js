@@ -40,7 +40,11 @@ export const installAffiliateClickTracking = (browserWindow) => {
   if (browserWindow[listenerFlag]) return;
   browserWindow[listenerFlag] = true;
 
-  browserWindow.document.addEventListener('click', (event) => {
+  const recordAffiliateClick = (event) => {
+    // Primary clicks (including Ctrl/Cmd clicks and touch-generated clicks)
+    // arrive as `click`; middle clicks arrive as `auxclick` in modern browsers.
+    if (event.type === 'click' && event.button != null && event.button !== 0) return;
+    if (event.type === 'auxclick' && event.button !== 1) return;
     const target = event.target;
     if (!(target instanceof browserWindow.Element)) return;
 
@@ -66,5 +70,8 @@ export const installAffiliateClickTracking = (browserWindow) => {
       position: link.dataset.affiliatePosition,
       trackingId: link.dataset.affiliateTrackingId,
     }));
-  }, { capture: true });
+  };
+
+  browserWindow.document.addEventListener('click', recordAffiliateClick, { capture: true });
+  browserWindow.document.addEventListener('auxclick', recordAffiliateClick, { capture: true });
 };

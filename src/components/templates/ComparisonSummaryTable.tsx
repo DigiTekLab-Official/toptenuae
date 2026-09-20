@@ -10,6 +10,8 @@ interface Product {
   // ✅ UPDATE: Matches the GROQ query structure
   mainImage?: { url: string; alt?: string }; 
   affiliateLink?: string;
+  availabilityStatus?: string;
+  availabilityCheckedAt?: string;
   retailer?: string;
   customerRating?: number;
   priceTier?: string;
@@ -27,6 +29,17 @@ interface ListItem {
 }
 
 interface DecisionDetail { label: string; value: string }
+
+const formatOfferCheckDate = (value?: string) => {
+  if (!value) return '';
+  try {
+    return new Intl.DateTimeFormat('en-AE', {
+      day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Dubai',
+    }).format(new Date(value));
+  } catch {
+    return value;
+  }
+};
 
 // Use the category's CMS specifications in their editorial order, capped for scanning.
 const decisionDetails = (product: Product): DecisionDetail[] => {
@@ -77,6 +90,7 @@ export default function ComparisonSummaryTable({ items, category }: { items: Lis
               const imageUrl = product.mainImage?.url || null;
               const title = product.title || "Product Name Unavailable";
               const details = decisionDetails(product);
+              const isUnavailable = product.availabilityStatus === 'unavailable';
 
               return (
                 <tr key={item._key || item.rank} className="hover:bg-gray-50 transition-colors group">
@@ -120,7 +134,11 @@ export default function ComparisonSummaryTable({ items, category }: { items: Lis
                   <td className="px-3 py-4 text-sm text-gray-700">{item.skipIf || product.cons?.[0] || 'Not stated'}</td>
 
                   <td className="px-3 py-4 text-center">
-                    {product.affiliateLink ? (
+                    {isUnavailable ? (
+                      <span className="text-xs text-amber-700 font-semibold">
+                        Unavailable{product.availabilityCheckedAt ? ` · checked ${product.availabilityCheckedAt}` : ''}
+                      </span>
+                    ) : product.affiliateLink ? (
                       <a 
                         href={product.affiliateLink} 
                         data-affiliate-product={title}
@@ -132,10 +150,15 @@ export default function ComparisonSummaryTable({ items, category }: { items: Lis
                         // Amazon Yellow (#FFD814) replaced with Tailwind standard 'bg-yellow-400'
                         className="inline-flex items-center justify-center bg-yellow-400 hover:bg-yellow-500 text-black font-bold text-sm px-4 py-2 rounded-lg shadow-sm transition-transform active:scale-95 whitespace-nowrap"
                       >
-                        Check price <ExternalLink className="w-3 h-3 ml-1" />
+                        Check offer <ExternalLink className="w-3 h-3 ml-1" />
                       </a>
                     ) : (
                       <span className="text-xs text-gray-400 italic flex justify-center gap-1"><Minus className="w-3 h-3"/> Unavailable</span>
+                    )}
+                    {product.availabilityCheckedAt && !isUnavailable && (
+                      <span className="mt-1 block text-[11px] font-medium text-slate-500">
+                        Checked {formatOfferCheckDate(product.availabilityCheckedAt)}
+                      </span>
                     )}
                   </td>
                 </tr>

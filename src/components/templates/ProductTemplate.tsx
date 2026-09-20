@@ -265,14 +265,14 @@ export default function ProductTemplate({ data }: ProductTemplateProps) {
               </div>
             )}
 
-            {/* Real Complaint Widget */}
+            {/* Decision-relevant limitations */}
             {realComplaint && (
               <div className="bg-red-50 rounded-3xl p-6 border border-red-100">
                  <h3 className="font-bold text-red-900 mb-2 flex items-center gap-2 text-sm uppercase tracking-wide">
-                   <Info className="w-4 h-4" /> Real User Feedback
+                   <Info className="w-4 h-4" /> Limitations to know
                  </h3>
-                 <p className="text-red-800/90 text-sm italic leading-relaxed">
-                   "{realComplaint}"
+                 <p className="text-red-800/90 text-sm leading-relaxed">
+                   {realComplaint}
                  </p>
               </div>
             )}

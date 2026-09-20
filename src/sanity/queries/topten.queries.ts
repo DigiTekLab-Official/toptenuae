@@ -9,6 +9,7 @@ export const TOP_TEN_BY_SLUG = groq`
   *[_type == "topTenList" && slug.current == $slug][0] {
     _type,
     _id,
+    _rev,
     _createdAt,
     _updatedAt,
     title,
@@ -60,7 +61,7 @@ export const TOP_TEN_BY_SLUG = groq`
     listItems[] | order(rank asc) {
       _key, rank, badgeLabel, whySelected, skipIf, customVerdict,
       product->{
-        _type, title, brand,
+        _type, title, brand, asin,
         "slug": slug.current, // ✅ PERFECT: This enables the Schema URL fix
         priceTier, price, currency, availability, availabilityStatus, availabilityCheckedAt,
         affiliateLink,

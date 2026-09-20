@@ -130,6 +130,11 @@ export default function HomeNewsletter() {
            </div>
         )}
 
+        <p className="text-xs text-center text-gray-500">
+          By subscribing, you agree to receive our newsletter. Unsubscribe anytime.{' '}
+          <a href="/privacy-policy" className="underline hover:text-[#4b0082]">Privacy policy</a>
+        </p>
+
       </form>
     </div>
   );

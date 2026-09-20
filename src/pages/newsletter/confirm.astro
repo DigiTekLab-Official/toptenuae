@@ -1,47 +1,59 @@
 ---
 // src/pages/newsletter/confirm.astro
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { jwtVerify } from 'jose';
+import { readSubscriptionToken } from '@/lib/newsletter/token';
+import { confirmResendSubscriber, NewsletterProviderError } from '@/lib/newsletter/resend';
 
-const token = Astro.url.searchParams.get('token');
+Astro.response.headers.set('Cache-Control', 'no-store');
+Astro.response.headers.set('Referrer-Policy', 'no-referrer');
 
-const SECRET = new TextEncoder().encode(import.meta.env.JWT_SECRET);
-const AUDIENCE_ID = import.meta.env.RESEND_AUDIENCE_ID;
-const API_KEY = import.meta.env.RESEND_API_KEY;
+const isPost = Astro.request.method === 'POST';
+let token = Astro.url.searchParams.get('token') || '';
 
-let status: 'success' | 'error' = 'success';
-let message = 'You have successfully confirmed your subscription.';
+if (isPost) {
+  const form = await Astro.request.formData();
+  token = String(form.get('token') || '');
+}
 
-if (!token) {
+let status: 'ready' | 'success' | 'error' = 'ready';
+let message = 'Confirm below to finish joining the Top Ten UAE newsletter.';
+
+if (!token || token.length > 4096) {
   status = 'error';
   message = 'Invalid or missing verification link.';
 } else {
   try {
-    const { payload } = await jwtVerify(token, SECRET);
-    const email = payload.email as string;
+    const email = await readSubscriptionToken(token, import.meta.env.JWT_SECRET);
 
-    if (AUDIENCE_ID && API_KEY) {
-      await fetch(`https://api.resend.com/audiences/${encodeURIComponent(AUDIENCE_ID)}/contacts`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${API_KEY}`,
-        },
-        body: JSON.stringify({
-          email,
-          unsubscribed: false,
-        }),
+    if (isPost) {
+      await confirmResendSubscriber(email, {
+        apiKey: import.meta.env.RESEND_API_KEY,
+        segmentId: import.meta.env.RESEND_SEGMENT_ID || import.meta.env.RESEND_AUDIENCE_ID || '',
+        topicId: import.meta.env.RESEND_TOPIC_ID,
       });
+      status = 'success';
+      message = 'You have successfully confirmed your subscription.';
     }
-  } catch {
+  } catch (error) {
     status = 'error';
-    message = 'This confirmation link has expired.';
+    message = error instanceof NewsletterProviderError || isPost
+      ? 'We could not activate your subscription. Please try again later.'
+      : 'This confirmation link is invalid or has expired.';
+
+    if (error instanceof NewsletterProviderError) {
+      console.error('Newsletter contact confirmation rejected', {
+        code: error.code,
+        statusCode: error.statusCode,
+      });
+    } else if (isPost) {
+      console.error('Newsletter contact confirmation failed');
+    }
   }
 }
 ---
 
 <BaseLayout
-  title={status === 'success' ? 'Confirmed! | Top Ten UAE' : 'Verification Failed | Top Ten UAE'}
+  title={status === 'success' ? 'Confirmed! | Top Ten UAE' : status === 'ready' ? 'Confirm Subscription | Top Ten UAE' : 'Verification Failed | Top Ten UAE'}
   description="Newsletter subscription confirmation"
   noIndex={true}
 >
@@ -55,6 +67,20 @@ if (!token) {
           <h1 class="text-2xl font-bold text-gray-900 mb-2">Confirmed!</h1>
           <p class="text-gray-600 mb-8">You are now officially on the list.</p>
         </>
+      ) : status === 'ready' ? (
+        <>
+          <div class="w-20 h-20 bg-indigo-50 text-primary rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          </div>
+          <h1 class="text-2xl font-bold text-gray-900 mb-2">Confirm your subscription</h1>
+          <p class="text-gray-600 mb-8">{message}</p>
+          <form method="POST" action="/newsletter/confirm">
+            <input type="hidden" name="token" value={token} />
+            <button type="submit" class="inline-flex items-center gap-2 bg-primary text-white font-bold py-3 px-8 rounded-full hover:bg-primary/90 transition-all">
+              Confirm Subscription
+            </button>
+          </form>
+        </>
       ) : (
         <>
           <div class="w-20 h-20 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -64,10 +90,16 @@ if (!token) {
           <p class="text-gray-600 mb-8">{message}</p>
         </>
       )}
-      <a href="/" class="inline-flex items-center gap-2 bg-primary text-white font-bold py-3 px-8 rounded-full hover:bg-primary/90 transition-all">
+      {status !== 'ready' && <a href="/" class="inline-flex items-center gap-2 bg-primary text-white font-bold py-3 px-8 rounded-full hover:bg-primary/90 transition-all">
         Return to Homepage
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-      </a>
+      </a>}
     </div>
   </div>
+  {status === 'success' && (
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ event: 'newsletter_signup_success' });
+    </script>
+  )}
 </BaseLayout>

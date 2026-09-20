@@ -1,8 +1,8 @@
 // src/pages/api/subscribe.ts
 import type { APIRoute } from 'astro';
 import { Resend } from 'resend';
-import { SignJWT } from 'jose';
 import { z } from 'zod';
+import { createSubscriptionToken } from '@/lib/newsletter/token';
 
 const SubscribeSchema = z.object({
   email: z.string().email().trim().toLowerCase(),
@@ -10,15 +10,15 @@ const SubscribeSchema = z.object({
   token: z.string().min(1),
 });
 
-const SECRET = new TextEncoder().encode(import.meta.env.JWT_SECRET);
-
 // In-memory rate limiting
 const rateLimit = new Map<string, number>();
 
 export const POST: APIRoute = async ({ request }) => {
   try {
     // Rate limit
-    const ip = request.headers.get('x-forwarded-for') || 'unknown';
+    const ip = request.headers.get('cf-connecting-ip')
+      || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+      || 'unknown';
     const now = Date.now();
     const lastRequestTime = rateLimit.get(ip);
 
@@ -29,6 +29,7 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
     rateLimit.set(ip, now);
+    if (rateLimit.size > 10_000) rateLimit.clear();
 
     const body = await request.json();
     const result = SubscribeSchema.safeParse(body);
@@ -90,21 +91,14 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // Generate secure confirmation link
-    const secureToken = await new SignJWT({
-      email: sanitizedEmail,
-      iat: Date.now(),
-    })
-      .setProtectedHeader({ alg: 'HS256' })
-      .setIssuedAt()
-      .setExpirationTime('1h')
-      .sign(SECRET);
-
-    const confirmUrl = `${import.meta.env.PUBLIC_BASE_URL}/newsletter/confirm?token=${secureToken}`;
+    const secureToken = await createSubscriptionToken(sanitizedEmail, import.meta.env.JWT_SECRET);
+    const confirmUrl = new URL('/newsletter/confirm', import.meta.env.PUBLIC_BASE_URL);
+    confirmUrl.searchParams.set('token', secureToken);
 
     // Send email
     const resend = new Resend(import.meta.env.RESEND_API_KEY);
 
-    await resend.emails.send({
+    const { error: sendError } = await resend.emails.send({
       from: 'Top Ten UAE <newsletter@toptenuae.com>',
       to: [sanitizedEmail],
       subject: 'Action Required: Confirm your subscription 🇦🇪',
@@ -113,7 +107,7 @@ export const POST: APIRoute = async ({ request }) => {
           <h2 style="color: #4b0082;">Please verify your email</h2>
           <p>You're almost there! Click the button below to confirm your subscription to Top Ten UAE.</p>
           <div style="text-align: center; margin: 30px 0;">
-             <a href="${confirmUrl}" style="background: #4b0082; color: white; padding: 14px 28px; text-decoration: none; border-radius: 50px; display: inline-block; font-weight: bold; font-size: 16px;">Confirm Subscription</a>
+             <a href="${confirmUrl.toString()}" style="background: #4b0082; color: white; padding: 14px 28px; text-decoration: none; border-radius: 50px; display: inline-block; font-weight: bold; font-size: 16px;">Confirm Subscription</a>
           </div>
           <p style="margin-top: 20px; font-size: 12px; color: #666;">
             ⏱️ Link expires in 1 hour. If you didn't request this, you can safely ignore this email.
@@ -126,12 +120,23 @@ export const POST: APIRoute = async ({ request }) => {
       `,
     });
 
+    if (sendError) {
+      console.error('Newsletter confirmation email rejected', {
+        code: sendError.name,
+        statusCode: sendError.statusCode,
+      });
+      return new Response(
+        JSON.stringify({ error: 'Failed to send confirmation email. Please try again later.' }),
+        { status: 502, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
     return new Response(
       JSON.stringify({ success: true, message: 'Check your email to confirm your subscription!' }),
       { headers: { 'Content-Type': 'application/json' } }
     );
-  } catch (error) {
-    console.error('Newsletter subscription error:', error);
+  } catch {
+    console.error('Newsletter subscription failed');
     return new Response(
       JSON.stringify({ error: 'An unexpected error occurred. Please try again later.' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }

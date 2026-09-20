@@ -47,6 +47,16 @@ if (data._type && data._type !== 'topTenList') {
   return Astro.rewrite('/404');
 }
 
+// This known asset depicts the superseded Lenovo Slim 3 shortlist. Omit it
+// from every page consumer until an accurate replacement is supplied in CMS.
+// Match the asset as well as the page so a future corrected hero can render.
+if (
+  slug === 'best-laptop-under-1500-aed-uae' &&
+  data.mainImage?.url?.endsWith('/190aa3d78d024537f36b241eaef118f5b272aa01-1672x941.webp')
+) {
+  data = { ...data, mainImage: null };
+}
+
 // Issue 1 fix: _type fallback corrected to 'topTenList' so the schema
 // dispatcher routes to generateTopTenListSchema (case 'toptenlist') instead
 // of generateArticleSchema (case 'article') when _type is unexpectedly absent.
