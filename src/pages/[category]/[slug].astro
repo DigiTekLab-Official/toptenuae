@@ -27,6 +27,8 @@ const normalizeCategory = (categorySlug: string) => {
 // A single type-aware projection replaces the old category-list query, type
 // probe and content query. Dedicated content types are redirected before this
 // generic payload is rendered, preserving every canonical route.
+// The generic GROQ projection intentionally spans heterogeneous Sanity schemas.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let data: any = null;
 try {
   data = await client.fetch(GENERIC_POST_QUERY, { slug });
@@ -72,6 +74,7 @@ if (canonicalPath !== Astro.url.pathname) {
 // schemas (Organization, BreadcrumbList and visible FAQs) remain unchanged.
 const generatedSchemas = generateSchema(data, category, slug);
 const schemaData = data._type === 'howTo' && Array.isArray(generatedSchemas)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ? generatedSchemas.filter((schema: any) => schema?.['@type'] !== 'HowTo')
   : generatedSchemas;
 
@@ -111,6 +114,7 @@ const isToolPage = data._type === 'tool';
     ogImage={imageUrl}
     noIndex={data.seo?.noIndex === true}
     jsonLd={schemaData}
+    enableClientRouter={slug !== 'how-to-choose-wireless-earbuds-uae'}
   >
     <ArticleView data={data} category={category} slug={slug} />
   </BaseLayout>
