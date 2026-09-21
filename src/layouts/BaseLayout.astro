@@ -1,7 +1,7 @@
 ---
 // src/layouts/BaseLayout.astro
 import { ClientRouter } from 'astro:transitions';
-import Header from '@/components/Header';
+import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import GTMScript from '@/components/analytics/GTMScript.astro';
 import ClarityScript from '@/components/analytics/ClarityScript.astro';
@@ -21,6 +21,7 @@ interface Props {
   ogType?: string;
   noIndex?: boolean;
   jsonLd?: object | object[];
+  enableClientRouter?: boolean;
 }
 
 const {
@@ -31,6 +32,7 @@ const {
   ogType = 'website',
   noIndex = false,
   jsonLd,
+  enableClientRouter = true,
 } = Astro.props;
 
 const fullTitle = title.includes('TopTenUAE') ? title : `${title} | TopTenUAE`;
@@ -114,23 +116,18 @@ const jsonLdGraph = {
     <meta name="twitter:creator" content="@top10_uae" />
     <meta name="twitter:site" content="@top10_uae" />
     
-    {/* Preload LCP font */}
+    {/* Preload the exact Latin variable font used by the critical CSS. */}
     <link
       rel="preload"
-      href="https://fonts.gstatic.com/s/ibmplexsans/v19/zYX9KVElMYYaJe8bpLHnCwDKjQ76AIxsdP3pBmtF8A.woff2"
+      href="https://fonts.gstatic.com/s/ibmplexsans/v23/zYXzKVElMYYaJe8bpLHnCwDKr932-G7dytD-Dmu1syxeKYbSB4Zh.woff2"
       as="font"
       type="font/woff2"
       crossorigin="anonymous"
     />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
     
     {/* DNS Prefetch */}
-    <link rel="dns-prefetch" href="https://cdn.sanity.io" />
+    <link rel="preconnect" href="https://cdn.sanity.io" crossorigin="anonymous" />
     <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
     
     {/* JSON-LD */}
@@ -140,7 +137,7 @@ const jsonLdGraph = {
     <slot name="head" />
     
     {/* View Transitions */}
-    <ClientRouter />
+    {enableClientRouter && <ClientRouter />}
   </head>
 
   <body class="font-sans text-slate-900 bg-slate-50 antialiased min-h-screen flex flex-col overflow-x-hidden">
@@ -171,7 +168,7 @@ const jsonLdGraph = {
     }
     </script>
 
-    <Header client:load />
+    <Header />
 
     <main class="grow w-full max-w-[100vw]" id="main-content">
       <slot />

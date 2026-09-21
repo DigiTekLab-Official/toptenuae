@@ -1,0 +1,172 @@
+---
+const pathname = Astro.url.pathname;
+const navLinks = [
+  { name: 'Rankings', href: '/top-ten', title: 'Best of UAE Ranked' },
+  { name: 'Buying Guides', href: '/buying-guides', title: 'Practical UAE Buying Guides' },
+  { name: 'Best Buys', href: '/reviews', title: 'Product & Service Reviews' },
+  { name: 'Guides', href: '/how-to-guides', title: 'Guides and Tutorials' },
+  { name: 'Finance Tools', href: '/finance-tools', title: 'UAE Finance Tools' },
+  { name: "What's On", href: '/events-holidays', title: 'UAE Events & Holidays' },
+  { name: 'Deals', href: '/deals', title: 'Latest Deals', isHighlight: true },
+];
+
+const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+---
+
+<header data-site-header class="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur-sm font-sans transition-shadow duration-300 shadow-sm">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+    <div class="flex h-16 items-center justify-between">
+      <div data-header-logo class="shrink-0 transition-opacity duration-200">
+        <a href="/" class="flex items-center group" title="TopTenUAE - The Best of the UAE">
+          <img
+            src="/images/brand/logo.svg"
+            alt="TopTenUAE Logo"
+            width="200"
+            height="40"
+            class="h-8 w-auto md:h-10 object-contain transition-transform duration-200 group-hover:scale-105"
+          />
+        </a>
+      </div>
+
+      <form data-header-search action="/search" method="get" hidden class="flex-1 max-w-2xl mx-auto px-4 relative items-center">
+        <div class="relative w-full">
+          <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+          <label for="site-search" class="sr-only">Search TopTenUAE</label>
+          <input id="site-search" name="q" type="search" placeholder="Search reviews, guides, calculators..." class="w-full pl-12 pr-12 py-2.5 border-2 border-[#4b0082] rounded-full focus:outline-none focus:ring-2 focus:ring-[#4b0082]/20 text-gray-900 placeholder:text-gray-500 transition-all" />
+          <button data-close-search type="button" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-red-600 transition-colors p-1 rounded-full hover:bg-gray-100" aria-label="Close search">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg>
+          </button>
+        </div>
+      </form>
+
+      <div data-header-default class="contents">
+        <nav aria-label="Primary navigation" class="hidden xl:flex xl:gap-x-6 xl:items-center">
+          {navLinks.map((link) => (
+            <a
+              href={link.href}
+              title={link.title}
+              aria-current={isActive(link.href) ? 'page' : undefined}
+              class:list={[
+                'relative text-[15px] font-semibold tracking-tight transition-all duration-200 whitespace-nowrap flex items-center gap-1.5 py-1 group',
+                link.isHighlight ? 'text-red-600 hover:text-red-700' : isActive(link.href) ? 'text-[#4b0082]' : 'text-gray-700 hover:text-[#4b0082]',
+              ]}
+            >
+              {link.isHighlight && (
+                <svg class="w-4 h-4 fill-red-600 group-hover:fill-red-700 transition-colors animate-pulse" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.83 2.18a1 1 0 0 0-1.66 0C8.77 5.77 6 8.95 6 13a6 6 0 0 0 12 0c0-4.05-2.77-7.23-5.17-10.82Z"></path></svg>
+              )}
+              <span>{link.name}</span>
+              <span class:list={['absolute bottom-0 left-0 right-0 h-0.5 transition-transform duration-200 origin-left', link.isHighlight ? 'bg-red-600' : 'bg-[#4b0082]', isActive(link.href) ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100']}></span>
+            </a>
+          ))}
+        </nav>
+
+        <div class="hidden items-center gap-3 lg:gap-4 xl:flex">
+          <button data-open-search type="button" class="p-2.5 text-gray-600 hover:text-[#4b0082] transition-all duration-200 rounded-full hover:bg-purple-50 group" aria-label="Open search">
+            <svg class="h-5 w-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+          </button>
+          <a href="/subscribe" class="rounded-full bg-linear-to-r from-[#4b0082] to-purple-700 px-6 py-2.5 text-xs font-bold uppercase text-white transition-all duration-200 hover:shadow-lg hover:shadow-purple-500/30 hover:-translate-y-0.5 whitespace-nowrap active:scale-95">Subscribe</a>
+        </div>
+
+        <div class="flex items-center gap-3 xl:hidden">
+          <button data-open-search type="button" class="p-2 text-gray-600 hover:text-[#4b0082] transition-colors rounded-full hover:bg-gray-100" aria-label="Open search">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+          </button>
+          <button data-menu-toggle type="button" class="p-2 text-gray-700 hover:text-[#4b0082] transition-colors rounded-lg hover:bg-gray-100" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-navigation">
+            <svg data-menu-open-icon class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16M4 6h16M4 18h16"></path></svg>
+            <svg data-menu-close-icon class="hidden h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="mobile-navigation" data-mobile-drawer hidden class="xl:hidden border-t border-gray-100 bg-white shadow-lg">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl pb-6 pt-4 max-h-[calc(100vh-4rem)] overflow-y-auto">
+      <nav aria-label="Mobile navigation" class="space-y-1">
+        {navLinks.map((link) => (
+          <a
+            href={link.href}
+            aria-current={isActive(link.href) ? 'page' : undefined}
+            class:list={[
+              'flex items-center justify-between gap-2.5 rounded-lg px-4 py-3.5 text-base font-semibold w-full transition-all duration-200',
+              link.isHighlight ? 'text-red-700 bg-red-50 hover:bg-red-100 active:bg-red-100' : isActive(link.href) ? 'text-[#4b0082] bg-purple-50' : 'text-gray-900 hover:bg-purple-50 hover:text-[#4b0082] active:bg-purple-100',
+            ]}
+          >
+            <span class="flex items-center gap-2.5">
+              {link.isHighlight && <svg class="w-4 h-4 fill-red-700 shrink-0" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.83 2.18a1 1 0 0 0-1.66 0C8.77 5.77 6 8.95 6 13a6 6 0 0 0 12 0c0-4.05-2.77-7.23-5.17-10.82Z"></path></svg>}
+              <span>{link.name}</span>
+            </span>
+            {isActive(link.href) && <span class="w-2 h-2 rounded-full bg-[#4b0082]" aria-hidden="true"></span>}
+          </a>
+        ))}
+        <a href="/calculators" class="flex items-center justify-between gap-2.5 rounded-lg px-4 py-3.5 text-base font-semibold w-full text-gray-900 hover:bg-purple-50 hover:text-[#4b0082] active:bg-purple-100 transition-all duration-200">Calculators</a>
+        <div class="mt-6 pt-4 border-t border-gray-200">
+          <a href="/subscribe" class="flex items-center justify-center w-full rounded-lg bg-linear-to-r from-[#4b0082] to-purple-700 px-4 py-3.5 text-center text-sm font-bold uppercase text-white hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-200 active:scale-[0.98]">Subscribe to Newsletter</a>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<script>
+  function initializeHeaders() {
+    document.querySelectorAll<HTMLElement>('[data-site-header]').forEach((header) => {
+      if (header.dataset.initialized === 'true') return;
+      header.dataset.initialized = 'true';
+
+      const search = header.querySelector<HTMLFormElement>('[data-header-search]');
+      const defaults = header.querySelector<HTMLElement>('[data-header-default]');
+      const logo = header.querySelector<HTMLElement>('[data-header-logo]');
+      const drawer = header.querySelector<HTMLElement>('[data-mobile-drawer]');
+      const menuToggle = header.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+      const menuOpenIcon = header.querySelector<SVGElement>('[data-menu-open-icon]');
+      const menuCloseIcon = header.querySelector<SVGElement>('[data-menu-close-icon]');
+      const searchInput = header.querySelector<HTMLInputElement>('input[type="search"]');
+
+      const closeMenu = () => {
+        if (drawer) drawer.hidden = true;
+        menuOpenIcon?.classList.remove('hidden');
+        menuCloseIcon?.classList.add('hidden');
+        menuToggle?.setAttribute('aria-expanded', 'false');
+        menuToggle?.setAttribute('aria-label', 'Open menu');
+        document.body.style.overflow = '';
+      };
+
+      const closeSearch = () => {
+        if (search) search.hidden = true;
+        if (defaults) defaults.hidden = false;
+        logo?.classList.remove('opacity-0', 'xl:opacity-100', 'pointer-events-none', 'xl:pointer-events-auto');
+        if (searchInput) searchInput.value = '';
+      };
+
+      header.querySelectorAll<HTMLButtonElement>('[data-open-search]').forEach((button) => {
+        button.addEventListener('click', () => {
+          closeMenu();
+          if (search) search.hidden = false;
+          if (defaults) defaults.hidden = true;
+          logo?.classList.add('opacity-0', 'xl:opacity-100', 'pointer-events-none', 'xl:pointer-events-auto');
+          searchInput?.focus();
+        });
+      });
+
+      header.querySelector<HTMLButtonElement>('[data-close-search]')?.addEventListener('click', closeSearch);
+      menuToggle?.addEventListener('click', () => {
+        const willOpen = drawer?.hidden ?? false;
+        if (drawer) drawer.hidden = !willOpen;
+        menuOpenIcon?.classList.toggle('hidden', willOpen);
+        menuCloseIcon?.classList.toggle('hidden', !willOpen);
+        menuToggle.setAttribute('aria-expanded', String(willOpen));
+        menuToggle.setAttribute('aria-label', willOpen ? 'Close menu' : 'Open menu');
+        document.body.style.overflow = willOpen ? 'hidden' : '';
+      });
+
+      window.addEventListener('scroll', () => {
+        header.classList.toggle('shadow-md', window.scrollY > 10);
+        header.classList.toggle('shadow-sm', window.scrollY <= 10);
+      }, { passive: true });
+    });
+  }
+
+  document.addEventListener('astro:page-load', initializeHeaders);
+  initializeHeaders();
+</script>

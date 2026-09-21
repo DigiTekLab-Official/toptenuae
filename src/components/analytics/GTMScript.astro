@@ -5,23 +5,48 @@ const { aiReferralAttribution = null } = Astro.props;
 
 <script is:inline define:vars={{ gtmId, aiReferralAttribution }}>
   if (gtmId) {
-    (function (w, d, s, l, i) {
+    window.dataLayer = window.dataLayer || [];
+    if (aiReferralAttribution) {
+      window.dataLayer.push({
+        event: 'ai_referral_attribution',
+        ai_referral_source: aiReferralAttribution.source,
+        ai_referral_method: aiReferralAttribution.method,
+        ai_referral_landing_page: window.location.pathname,
+      });
+    }
+
+    const loadGtm = function () {
+      if (window.__topTenGtmLoaded) return;
+      window.__topTenGtmLoaded = true;
+
+      (function (w, d, s, l, i) {
       w[l] = w[l] || [];
-      if (aiReferralAttribution) {
-        w[l].push({
-          event: 'ai_referral_attribution',
-          ai_referral_source: aiReferralAttribution.source,
-          ai_referral_method: aiReferralAttribution.method,
-          ai_referral_landing_page: w.location.pathname,
-        });
-      }
       w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
-      var f = d.getElementsByTagName(s)[0],
+      const f = d.getElementsByTagName(s)[0],
           j = d.createElement(s),
           dl = l !== 'dataLayer' ? '&l=' + l : '';
       j.async = true;
       j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
       f.parentNode.insertBefore(j, f);
-    })(window, document, 'script', 'dataLayer', gtmId);
+      })(window, document, 'script', 'dataLayer', gtmId);
+    };
+
+    const scheduleGtm = function () {
+      if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(loadGtm);
+      } else {
+        loadGtm();
+      }
+    };
+
+    if (document.readyState === 'complete') {
+      scheduleGtm();
+    } else {
+      window.addEventListener('load', scheduleGtm, { once: true });
+    }
+
+    // Preserve measurement for visitors who interact before the idle callback.
+    window.addEventListener('pointerdown', loadGtm, { once: true, passive: true });
+    window.addEventListener('keydown', loadGtm, { once: true });
   }
 </script>
