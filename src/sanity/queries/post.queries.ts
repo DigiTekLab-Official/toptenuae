@@ -55,6 +55,15 @@ export const GENERIC_POST_QUERY = groq`
           "slug": slug.current,
           "category": coalesce(categories[0]->slug.current, category->slug.current)
         }
+      },
+      _type == "productHighlight" => {
+        ...,
+        "relatedProduct": relatedProduct->{
+          affiliateLink,
+          mainImage,
+          price,
+          retailer
+        }
       }
     },
     "content": content,

@@ -6,6 +6,7 @@ import {
 import { ExternalLink } from "@/components/icons";
 import RelatedLinkCard from "@/components/ui/RelatedLinkCard";
 import CodeBlock from "@/components/ui/CodeBlock";
+import BuyButton from "@/components/ui/BuyButton";
 import { urlForImage } from "@/sanity/lib/image";
 import SanityTable from "@/components/sanity/SanityTable";
 import NavigationGrid from "@/components/ui/NavigationGrid";
@@ -15,6 +16,32 @@ import {
   type AmazonAffiliateProduct,
 } from "@/lib/affiliate/amazon-asin";
 import { canonicalizeAuditedInternalLink } from "@/lib/seo/legacy-redirects";
+
+const tintClasses: Record<string, string> = {
+  none: "",
+  blue: "bg-blue-50 border-blue-200",
+  amber: "bg-amber-50 border-amber-200",
+  neutral: "bg-slate-50 border-slate-200",
+};
+
+const getTintClasses = (tint?: string) => tintClasses[tint ?? "none"] ?? "";
+
+const getRetailer = (retailer?: string, url?: string) => {
+  let host = "";
+  try {
+    host = url ? new URL(url).hostname.toLowerCase() : "";
+  } catch {
+    // An invalid URL simply has no inferred retailer.
+  }
+  const name = `${host} ${retailer?.toLowerCase() ?? ""}`;
+  if (name.includes("noon")) return "noon";
+  if (name.includes("sharaf")) return "sharaf";
+  if (name.includes("carrefour")) return "carrefour";
+  if (name.includes("lifestyle")) return "lifestyle";
+  if (name.includes("amazon")) return "amazon";
+  if (/^https?:\/\/(?:www\.)?(?:amazon\.ae|amzn\.to)(?:\/|$)/i.test(url ?? "")) return "amazon";
+  return "generic";
+};
 
 // --- 1. InfoCards Component ---
 const InfoCards = ({ value }: { value: any }) => {
@@ -325,21 +352,51 @@ const components: PortableTextComponents = {
     contentImageGrid: ({ value }: any) => {
     if (!value?.content || !value?.image) return null;
 
+    const imageLeft = value.imagePosition === "left";
+    const tint = getTintClasses(value.backgroundTint);
+
     return (
-      <section className="my-10 grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-8 lg:gap-10 items-center">
-        <div>
+      <section className={`my-10 grid grid-cols-1 ${imageLeft ? "lg:grid-cols-[2fr_3fr]" : "lg:grid-cols-[3fr_2fr]"} gap-8 lg:gap-10 items-center${tint ? ` p-6 rounded-2xl border ${tint}` : ""}`}>
+        <div className={imageLeft ? "lg:order-2" : undefined}>
           <PortableTextComponent
             value={value.content}
             components={components}
           />
         </div>
 
-        <div>
+        <div className={imageLeft ? "lg:order-1" : undefined}>
           <PortableTextImage value={value.image} />
         </div>
       </section>
     );
   },
+    productHighlight: ({ value }: any) => {
+      const highlight = value;
+      const ctaUrl = highlight.ctaUrl || highlight.relatedProduct?.affiliateLink;
+      const tint = getTintClasses(highlight.backgroundTint);
+
+      return (
+        <section className={`my-10 grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-8 lg:gap-10 items-center p-6 rounded-2xl${tint ? ` border ${tint}` : ""}`}>
+          <div>
+            {highlight.heading && <h3 className="text-xl md:text-2xl font-semibold mb-4 text-gray-800">{highlight.heading}</h3>}
+            {highlight.body && (
+              <PortableTextComponent
+                value={highlight.body}
+                components={components}
+              />
+            )}
+            {ctaUrl && (
+              <BuyButton
+                url={ctaUrl}
+                retailer={getRetailer(highlight.ctaUrl ? undefined : highlight.relatedProduct?.retailer, ctaUrl)}
+                customLabel={highlight.ctaLabel || "Check verified offer"}
+              />
+            )}
+          </div>
+          <div>{highlight.image && <PortableTextImage value={highlight.image} />}</div>
+        </section>
+      );
+    },
   },
 
   block: {
