@@ -5,6 +5,7 @@
 
 import GratuityCalculator from '@/components/tools/GratuityCalculator.astro';
 import BmiCalculator from '@/components/tools/BmiCalculator.astro';
+import AgeCalculator from '@/components/tools/AgeCalculator.astro';
 import LoanEmiCalculator from '@/components/tools/LoanEmiCalculator.astro';
 import VatCalculator from '@/components/tools/VatCalculator.astro';
 import ZakatCalculator from '@/components/tools/ZakatCalculator.astro';
@@ -30,6 +31,7 @@ const TOOL_IDS: Record<string, string> = {
   'uae-zakat-calculator': 'zakat-uae',
   'zakat-calculator-uae': 'zakat-uae',
   'bmi-calculator-uae': 'bmi-uae',
+  'age-calculator-uae': 'age-uae',
   'uae-loan-emi-calculator': 'loan-emi-uae',
 };
 
@@ -38,6 +40,7 @@ const isZakat = toolId === 'zakat-uae';
 const isGratuity = toolId === 'gratuity-uae';
 const isVat = toolId === 'vat-uae';
 const isBmi = toolId === 'bmi-uae';
+const isAge = toolId === 'age-uae';
 const isLoanEmi = toolId === 'loan-emi-uae';
 
 const bodyContent = data.body || data.content;
@@ -153,6 +156,7 @@ const relatedTools = data.relatedTools?.length
           {isGratuity && <GratuityCalculator />}
           {isVat && <VatCalculator />}
           {isBmi && <BmiCalculator />}
+          {isAge && <AgeCalculator />}
           {isLoanEmi && <LoanEmiCalculator />}
           {isZakat && <ZakatCalculator />}
         </div>

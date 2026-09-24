@@ -345,6 +345,9 @@ export const generateToolSchema = (
   } else if (toolSlug === 'bmi-calculator-uae') {
     appCategory = 'HealthApplication';
     features = ['BMI from weight in kilograms and height in centimetres', 'WHO adult BMI classification'];
+  } else if (toolSlug === 'age-calculator-uae') {
+    appCategory = 'UtilitiesApplication';
+    features = ['Age in years, months and days', 'Current UAE date', 'Leap-year and month-end handling'];
   }
 
   return {
