@@ -1,0 +1,80 @@
+---
+// Gratuity calculator's Astro card and form pattern, with adult BMI inputs.
+---
+
+<div id="bmi-calc" class="w-full max-w-xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden border border-slate-200 font-sans">
+  <div class="bg-[#4b0082] p-5 text-center relative overflow-hidden">
+    <div class="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-amber-300 via-amber-500 to-amber-300"></div>
+    <h2 class="text-xl font-bold text-white relative z-10">BMI Calculator UAE</h2>
+    <p class="text-amber-300 text-sm uppercase tracking-wider font-semibold mt-1 relative z-10">WHO BMI Classification</p>
+  </div>
+
+  <form class="p-6 space-y-5" novalidate>
+    <div>
+      <label for="bmi-weight" class="block text-sm font-semibold text-gray-700 mb-1">Weight (kg)</label>
+      <input id="bmi-weight" name="weight" type="number" inputmode="decimal" min="0" step="any" required placeholder="e.g. 70" aria-describedby="bmi-weight-help bmi-error" class="w-full px-3 py-1 border border-gray-400 rounded-lg focus:ring-2 focus:ring-[#4b0082] outline-none transition-all font-medium" />
+      <p id="bmi-weight-help" class="text-sm text-gray-400 mt-1">Enter your weight in kilograms.</p>
+    </div>
+    <div>
+      <label for="bmi-height" class="block text-sm font-semibold text-gray-700 mb-1">Height (cm)</label>
+      <input id="bmi-height" name="height" type="number" inputmode="decimal" min="0" step="any" required placeholder="e.g. 175" aria-describedby="bmi-height-help bmi-error" class="w-full px-3 py-1 border border-gray-400 rounded-lg focus:ring-2 focus:ring-[#4b0082] outline-none transition-all font-medium" />
+      <p id="bmi-height-help" class="text-sm text-gray-400 mt-1">Enter your height in centimetres, without shoes.</p>
+    </div>
+    <p id="bmi-error" class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700" role="alert" hidden></p>
+    <button type="submit" id="bmi-calculate" class="w-full bg-[#4b0082] hover:bg-[#3b0066] text-white font-bold py-4 rounded-lg shadow-lg shadow-purple-900/20 transition-all transform active:scale-[0.98] mt-2">Calculate BMI</button>
+
+    <div aria-live="polite" aria-atomic="true">
+      <div id="bmi-result" class="mt-6 bg-green-50 border border-green-200 rounded-xl p-5 text-center animate-in fade-in slide-in-from-top-2" hidden>
+        <p class="text-sm font-bold text-green-700 uppercase tracking-widest mb-2">Your Body Mass Index</p>
+        <output id="bmi-value" for="bmi-weight bmi-height" class="text-5xl font-extrabold text-slate-900 tracking-tight">0.0</output>
+        <p id="bmi-classification" class="text-sm text-green-800 mt-2 font-medium"></p>
+        <p class="text-xs text-slate-600 mt-2">BMI is rounded to one decimal. The band uses the unrounded value.</p>
+      </div>
+    </div>
+    <p class="text-xs leading-relaxed text-gray-500">For adults aged 18 and over, excluding pregnancy. BMI is a screening measure, not a diagnosis; it does not distinguish muscle from body fat.</p>
+  </form>
+</div>
+
+<script>
+  import { calculateBmi } from '@/lib/calculators/bmi.js';
+
+  function initializeBmi() {
+    const root = document.getElementById('bmi-calc');
+    if (!root || root.dataset.initialized) return;
+    root.dataset.initialized = 'true';
+    const form = root.querySelector('form')!;
+    const weight = root.querySelector<HTMLInputElement>('#bmi-weight')!;
+    const height = root.querySelector<HTMLInputElement>('#bmi-height')!;
+    const error = root.querySelector<HTMLElement>('#bmi-error')!;
+    const result = root.querySelector<HTMLElement>('#bmi-result')!;
+    const value = root.querySelector<HTMLOutputElement>('#bmi-value')!;
+    const band = root.querySelector<HTMLElement>('#bmi-classification')!;
+    form.addEventListener('input', () => {
+      result.hidden = true;
+      error.hidden = true;
+      weight.removeAttribute('aria-invalid');
+      height.removeAttribute('aria-invalid');
+    });
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const weightKg = weight.valueAsNumber;
+      const heightCm = height.valueAsNumber;
+      weight.setAttribute('aria-invalid', String(!Number.isFinite(weightKg) || weightKg <= 0));
+      height.setAttribute('aria-invalid', String(!Number.isFinite(heightCm) || heightCm <= 0));
+      try {
+        const calculation = calculateBmi(weightKg, heightCm);
+        value.value = calculation.bmi.toFixed(1);
+        band.textContent = calculation.classification;
+        error.hidden = true;
+        result.hidden = false;
+      } catch (problem) {
+        result.hidden = true;
+        error.textContent = problem instanceof Error ? problem.message : 'Check your measurements.';
+        error.hidden = false;
+        root.querySelector<HTMLInputElement>('[aria-invalid="true"]')?.focus();
+      }
+    });
+  }
+  initializeBmi();
+  document.addEventListener('astro:page-load', initializeBmi);
+</script>

@@ -1,0 +1,149 @@
+---
+// UAE loan EMI calculator. Pure Astro + vanilla JavaScript, matching the
+// existing finance-tool component pattern.
+---
+
+<div id="loan-emi-calc" class="w-full max-w-xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden border border-slate-200 font-sans">
+  <div class="bg-[#4b0082] p-5 text-center relative overflow-hidden">
+    <div class="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-amber-300 via-amber-500 to-amber-300"></div>
+    <h2 class="text-xl font-bold text-white relative z-10">UAE Loan EMI Calculator</h2>
+    <p class="text-amber-300 text-sm uppercase tracking-wider font-semibold mt-1 relative z-10">
+      Reducing-Balance Estimate
+    </p>
+  </div>
+
+  <form class="p-6 space-y-5" novalidate>
+    <div>
+      <label for="emi-principal" class="block text-sm font-semibold text-gray-700 mb-1">
+        Loan Amount (AED)
+      </label>
+      <input
+        id="emi-principal"
+        name="principal"
+        type="number"
+        inputmode="decimal"
+        min="1"
+        step="1000"
+        placeholder="e.g. 250000"
+        aria-describedby="emi-principal-help"
+        class="w-full p-3 text-lg border border-gray-400 rounded-lg focus:ring-2 focus:ring-[#4b0082] outline-none transition-all font-medium placeholder:text-gray-300"
+      />
+      <p id="emi-principal-help" class="text-sm text-gray-400 mt-1">Enter the amount you plan to borrow.</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label for="emi-rate" class="block text-sm font-semibold text-gray-700 mb-1">
+          Annual Interest Rate (%)
+        </label>
+        <input
+          id="emi-rate"
+          name="annualRate"
+          type="number"
+          inputmode="decimal"
+          min="0"
+          max="100"
+          step="0.01"
+          placeholder="e.g. 4.5"
+          class="w-full p-3 text-lg border border-gray-400 rounded-lg focus:ring-2 focus:ring-[#4b0082] outline-none transition-all font-medium placeholder:text-gray-300"
+        />
+      </div>
+      <div>
+        <label for="emi-tenure" class="block text-sm font-semibold text-gray-700 mb-1">
+          Loan Tenure (Months)
+        </label>
+        <input
+          id="emi-tenure"
+          name="tenureMonths"
+          type="number"
+          inputmode="numeric"
+          min="1"
+          max="360"
+          step="1"
+          placeholder="e.g. 60"
+          class="w-full p-3 text-lg border border-gray-400 rounded-lg focus:ring-2 focus:ring-[#4b0082] outline-none transition-all font-medium placeholder:text-gray-300"
+        />
+      </div>
+    </div>
+
+    <div id="emi-error" class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700" role="alert" hidden></div>
+
+    <button
+      type="submit"
+      class="w-full bg-[#4b0082] hover:bg-[#3b0066] text-white font-bold py-4 rounded-lg shadow-lg shadow-purple-900/20 transition-all transform active:scale-[0.98]"
+    >
+      Calculate EMI
+    </button>
+
+    <div id="emi-result" class="bg-slate-50 rounded-xl border border-slate-100 overflow-hidden" aria-live="polite" hidden>
+      <div class="p-5 text-center bg-[#4b0082]/5 border-b border-slate-100">
+        <p class="text-sm font-bold text-[#4b0082] uppercase tracking-wider mb-2">Estimated Monthly EMI</p>
+        <div class="flex justify-center items-baseline gap-1">
+          <span class="text-base font-bold text-[#4b0082]">AED</span>
+          <span id="emi-monthly" class="text-4xl font-extrabold text-slate-900 tracking-tight">0.00</span>
+        </div>
+      </div>
+      <dl class="divide-y divide-slate-100">
+        <div class="flex justify-between items-center p-4">
+          <dt class="text-sm text-gray-500 font-medium">Total Interest</dt>
+          <dd class="text-base font-bold text-amber-600"><span class="text-sm">AED</span> <span id="emi-interest">0.00</span></dd>
+        </div>
+        <div class="flex justify-between items-center p-4">
+          <dt class="text-sm text-gray-500 font-medium">Total Repayment</dt>
+          <dd class="text-base font-bold text-slate-800"><span class="text-sm">AED</span> <span id="emi-total">0.00</span></dd>
+        </div>
+      </dl>
+    </div>
+
+    <p class="text-xs leading-relaxed text-gray-400">
+      This is an estimate based on a fixed reducing-balance rate. Bank fees, insurance, early-settlement charges and rate changes are not included.
+    </p>
+  </form>
+</div>
+
+<script>
+  import { calculateLoanEmi } from '@/lib/calculators/loan-emi.js';
+
+  const root = document.getElementById('loan-emi-calc');
+  const form = root?.querySelector('form');
+  const principalInput = root?.querySelector('#emi-principal') as HTMLInputElement | null;
+  const rateInput = root?.querySelector('#emi-rate') as HTMLInputElement | null;
+  const tenureInput = root?.querySelector('#emi-tenure') as HTMLInputElement | null;
+  const errorEl = root?.querySelector('#emi-error') as HTMLDivElement | null;
+  const resultEl = root?.querySelector('#emi-result') as HTMLDivElement | null;
+  const monthlyEl = root?.querySelector('#emi-monthly');
+  const interestEl = root?.querySelector('#emi-interest');
+  const totalEl = root?.querySelector('#emi-total');
+  const formatter = new Intl.NumberFormat('en-AE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  form?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (!principalInput || !rateInput || !tenureInput || !errorEl || !resultEl) return;
+
+    [principalInput, rateInput, tenureInput].forEach(input => input.setAttribute('aria-invalid', 'false'));
+
+    try {
+      if (rateInput.value === '') throw new RangeError('Enter an annual interest rate, including 0 for an interest-free loan');
+      const result = calculateLoanEmi({
+        principal: Number(principalInput.value),
+        annualRate: Number(rateInput.value),
+        tenureMonths: Number(tenureInput.value),
+      });
+
+      if (monthlyEl) monthlyEl.textContent = formatter.format(result.monthlyPayment);
+      if (interestEl) interestEl.textContent = formatter.format(result.totalInterest);
+      if (totalEl) totalEl.textContent = formatter.format(result.totalPayment);
+      errorEl.hidden = true;
+      resultEl.hidden = false;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Enter valid loan details.';
+      errorEl.textContent = message;
+      errorEl.hidden = false;
+      resultEl.hidden = true;
+
+      if (!principalInput.value || Number(principalInput.value) <= 0) principalInput.setAttribute('aria-invalid', 'true');
+      if (rateInput.value === '' || Number(rateInput.value) < 0 || Number(rateInput.value) > 100) rateInput.setAttribute('aria-invalid', 'true');
+      if (!tenureInput.value || !Number.isInteger(Number(tenureInput.value)) || Number(tenureInput.value) < 1 || Number(tenureInput.value) > 360) tenureInput.setAttribute('aria-invalid', 'true');
+    }
+  });
+</script>

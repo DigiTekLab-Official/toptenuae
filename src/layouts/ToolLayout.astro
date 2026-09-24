@@ -4,6 +4,8 @@
 // Calculators are pure Astro + Vanilla JS. Body content uses React PortableText as a minimal island.
 
 import GratuityCalculator from '@/components/tools/GratuityCalculator.astro';
+import BmiCalculator from '@/components/tools/BmiCalculator.astro';
+import LoanEmiCalculator from '@/components/tools/LoanEmiCalculator.astro';
 import VatCalculator from '@/components/tools/VatCalculator.astro';
 import ZakatCalculator from '@/components/tools/ZakatCalculator.astro';
 import ZakatInputPanel from '@/components/tools/ZakatInputPanel.astro';
@@ -27,12 +29,16 @@ const TOOL_IDS: Record<string, string> = {
   'zakat-calculator': 'zakat-uae',
   'uae-zakat-calculator': 'zakat-uae',
   'zakat-calculator-uae': 'zakat-uae',
+  'bmi-calculator-uae': 'bmi-uae',
+  'uae-loan-emi-calculator': 'loan-emi-uae',
 };
 
 const toolId = data.componentId || TOOL_IDS[slug] || slug;
 const isZakat = toolId === 'zakat-uae';
 const isGratuity = toolId === 'gratuity-uae';
 const isVat = toolId === 'vat-uae';
+const isBmi = toolId === 'bmi-uae';
+const isLoanEmi = toolId === 'loan-emi-uae';
 
 const bodyContent = data.body || data.content;
 const categorySlug = data.category?.slug?.current || data.category?.slug || 'finance-tools';
@@ -146,6 +152,8 @@ const relatedTools = data.relatedTools?.length
         <div class="w-full max-w-xl shrink-0 mx-auto lg:mx-0">
           {isGratuity && <GratuityCalculator />}
           {isVat && <VatCalculator />}
+          {isBmi && <BmiCalculator />}
+          {isLoanEmi && <LoanEmiCalculator />}
           {isZakat && <ZakatCalculator />}
         </div>
       </div>

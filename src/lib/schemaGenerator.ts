@@ -338,10 +338,13 @@ export const generateToolSchema = (
   } else if (toolSlug.includes('loan') || toolSlug.includes('emi')) {
     features = [
       'Monthly EMI calculation',
-      'Amortization schedule',
-      'Interest breakdown',
-      'UAE bank rates comparison',
+      'Total interest estimate',
+      'Total repayment estimate',
+      'Reducing-balance interest formula',
     ];
+  } else if (toolSlug === 'bmi-calculator-uae') {
+    appCategory = 'HealthApplication';
+    features = ['BMI from weight in kilograms and height in centimetres', 'WHO adult BMI classification'];
   }
 
   return {
