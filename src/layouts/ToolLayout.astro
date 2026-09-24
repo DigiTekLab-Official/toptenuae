@@ -48,8 +48,8 @@ const bodyContent = data.body || data.content;
 const categorySlug = data.category?.slug?.current || data.category?.slug || 'finance-tools';
 const categoryName = data.category?.menuLabel || 'Tools';
 const BASE_URL = import.meta.env.PUBLIC_BASE_URL || 'https://toptenuae.com';
-// The document type owns the page URL; its editorial category may differ.
-const toolPath = buildContentPath({ _type: 'tool', slug });
+// Tool URLs use the shared type/category routing policy, not arbitrary category slugs.
+const toolPath = buildContentPath({ _type: 'tool', slug, categorySlug });
 if (!toolPath) throw new Error(`Invalid tool slug: ${slug}`);
 const toolUrl = new URL(toolPath, BASE_URL).href;
 
@@ -70,21 +70,27 @@ interface RelatedTool {
   slug: string;
   title: string;
   iconId: string;
+  categorySlug?: string;
 }
 const RELATED_TOOLS: RelatedTool[] = [
   { slug: 'gratuity-calculator-uae', title: 'Gratuity Calculator', iconId: 'coins' },
   { slug: 'uae-vat-calculator', title: 'VAT Calculator', iconId: 'percent' },
   { slug: 'zakat-calculator', title: 'Zakat Calculator', iconId: 'heart' },
 ];
-const relatedTools = data.relatedTools?.length
-  ? data.relatedTools.map((t: any) => ({
+const hasCuratedTools = Array.isArray(data.relatedTools) && data.relatedTools.length > 0;
+const relatedTools = hasCuratedTools
+  ? data.relatedTools.filter((t: any) => t && t._type === 'tool').map((t: any) => ({
       slug: t.slug?.current || t.slug,
       title: t.title || 'Calculator Tool',
+      categorySlug: t.categorySlug,
       iconId: (t.slug?.current || t.slug || '').includes('vat') ? 'percent'
             : (t.slug?.current || t.slug || '').includes('zakat') ? 'heart'
             : 'coins',
     })).filter((t: RelatedTool) => t.slug)
-  : RELATED_TOOLS.filter(t => !slug.includes(t.slug.split('-')[0]));
+  : RELATED_TOOLS.filter(t => t.slug !== slug);
+const heroTags = Array.isArray(data.heroTags)
+  ? data.heroTags.filter((tag: unknown) => typeof tag === 'string' && tag.trim())
+  : [];
 ---
 
 <div class="min-h-screen bg-slate-50 font-sans">
@@ -155,6 +161,15 @@ const relatedTools = data.relatedTools?.length
               <p>{data.description}</p>
             )}
           </div>
+          {heroTags.length > 0 && (
+            <ul aria-label="Calculator topics" class="flex flex-wrap justify-center lg:justify-start gap-2 mb-8">
+              {heroTags.map((tag: string) => (
+                <li class="px-3 py-1.5 rounded-full bg-white/10 border border-white/10 text-sm font-semibold text-indigo-100">
+                  {tag}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         {/* Right: Calculator */}
@@ -224,12 +239,12 @@ const relatedTools = data.relatedTools?.length
       {relatedTools.length > 0 && (
         <div class="mt-16 pt-10 border-t border-gray-100">
           <h3 class="text-xl font-bold text-gray-900 mb-6">
-            {data.relatedTools?.length ? 'Explore Other Tools' : 'More UAE Finance Tools'}
+            {hasCuratedTools ? 'Explore Other Tools' : 'More UAE Finance Tools'}
           </h3>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {relatedTools.map((tool: RelatedTool) => (
               <a
-                href={`/finance-tools/${tool.slug}`}
+                href={buildContentPath({ _type: 'tool', slug: tool.slug, categorySlug: tool.categorySlug })!}
                 class="group relative block h-full focus:outline-none focus:ring-2 focus:ring-[#4b0082] rounded-2xl"
               >
                 <div class="bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl border border-slate-200 hover:border-[#4b0082]/30 transition-all h-full flex flex-col overflow-hidden">

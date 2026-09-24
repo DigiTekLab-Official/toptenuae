@@ -24,6 +24,25 @@ test('keeps dedicated top-ten routes independent of category', () => {
   )
 })
 
+test('routes any tool assigned to the calculators category without a slug allowlist', () => {
+  for (const slug of ['bmi-calculator-uae', 'age-calculator-uae', 'future-wellness-tool']) {
+    assert.equal(buildContentPath({_type: 'tool', slug, categorySlug: 'calculators'}), `/calculators/${slug}`)
+  }
+})
+
+test('keeps finance tools and legacy uncategorized tools on their established routes', () => {
+  for (const categorySlug of ['finance-tools', undefined, 'unregistered-category']) {
+    for (const slug of ['gratuity-calculator-uae', 'uae-vat-calculator', 'zakat-calculator', 'uae-loan-emi-calculator']) {
+      assert.equal(buildContentPath({_type: 'tool', slug, categorySlug}), `/finance-tools/${slug}`)
+    }
+  }
+})
+
+test('tool routes reject invalid slugs and normalize category input', () => {
+  assert.equal(buildContentPath({_type: 'tool', slug: '../bmi', categorySlug: 'calculators'}), null)
+  assert.equal(buildContentPath({_type: 'tool', slug: 'bmi', categorySlug: '/Calculators/'}), '/calculators/bmi')
+})
+
 test('keeps the S26 migration canonical while CMS and code deploy independently', () => {
   const slug = 'samsung-galaxy-s26-ultra-specs-uae-price'
   assert.equal(

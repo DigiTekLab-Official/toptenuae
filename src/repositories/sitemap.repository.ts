@@ -5,6 +5,7 @@
 import { client } from '@/sanity/lib/client';
 import { SITEMAP_ENTRIES_QUERY } from '@/sanity/queries/sitemap.queries';
 import type { SitemapEntry } from '@/types/content/sitemap';
+import { buildContentPath } from '@/lib/contentRoute';
 
 /**
  * Fetch raw sitemap entries (type, slug, categorySlug, last updated) for
@@ -35,6 +36,9 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
 function buildSitemapUrl(entry: SitemapEntry): string | null {
   if (entry._type === 'category') {
     return `/${entry.slug}`;
+  }
+  if (entry._type === 'tool') {
+    return buildContentPath({ ...entry, _type: 'tool' });
   }
 
   if (!entry.categorySlug) {

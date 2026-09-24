@@ -17,7 +17,11 @@ export const GENERIC_POST_QUERY = groq`
   ){
     _type,
     "slug": slug.current, _id, title, description,
-    componentId, heroBadge, heroTitleSuffix,
+    componentId, heroBadge, heroTitleSuffix, heroTags,
+    relatedTools[]->{
+      _id, _type, title, "slug": slug.current,
+      "categorySlug": coalesce(categories[0]->slug.current, category->slug.current)
+    },
     "seoTitle": coalesce(seo.metaTitle, title),
     "seoDescription": coalesce(seo.metaDescription, description, ""),
     seo,

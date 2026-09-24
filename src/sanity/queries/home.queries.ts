@@ -36,6 +36,7 @@ export const HOME_QUERY = groq`{
       _type,
       title,
       "slug": slug.current,
+      "categorySlug": coalesce(categories[0]->slug.current, category->slug.current),
       publishedAt,
       mainImage { "url": asset->url, alt }
     }

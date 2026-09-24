@@ -2,6 +2,7 @@ import { createClient } from '@sanity/client';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { buildContentPath } from '../src/lib/contentRoute.js';
 
 const client = createClient({
   projectId: 'kxdjzy8e',
@@ -115,7 +116,7 @@ async function generateSitemap() {
           break;
           
         case 'tool': 
-          urlPath = `/finance-tools/${normalizedSlug}`;
+          urlPath = buildContentPath({ _type: 'tool', slug: normalizedSlug, categorySlug: item.category });
           break;
 
         case 'deal':

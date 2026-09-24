@@ -384,7 +384,7 @@ const seoDescription = 'Discover trending products, expert reviews, and free UAE
                   const isProduct = post._type === 'product';
                   const postLink = buildContentPath({
                     ...post,
-                    categorySlug: section.slug,
+                    categorySlug: post.categorySlug || section.slug,
                   });
                   if (!postLink) return null;
                   const cardImageUrl = sanityImageUrl(post.mainImage?.url, { width: 640 }) || null;

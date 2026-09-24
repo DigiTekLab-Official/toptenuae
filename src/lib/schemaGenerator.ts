@@ -3,6 +3,7 @@
 // Post-review fixes:            ✓ Gap A 'faqpage' dispatcher  ✓ Gap B author Person  ✓ Gap C HowTo rich fields
 
 import { cleanText } from '@/lib/utils/sanity-text';
+import { buildContentPath } from '@/lib/contentRoute';
 
 // =============================================================================
 // CONFIGURATION
@@ -303,8 +304,8 @@ export const generateToolSchema = (
   slug?: string
 ) => {
   const toolSlug = slug || data.slug?.current || data.slug || '';
-  const categorySlug = category || data.category?.slug || 'finance-tools';
-  const fullUrl = `${baseUrl}/${categorySlug}/${toolSlug}`;
+  const categorySlug = data.categorySlug || data.category?.slug?.current || data.category?.slug || category;
+  const fullUrl = `${baseUrl}${buildContentPath({ _type: 'tool', slug: toolSlug, categorySlug })}`;
 
   let features = [
     'Free Online Tool',

@@ -88,7 +88,7 @@ const seoDescription = gscSeoOverride?.description || data.seo?.metaDescription 
 // howTo/tool/holiday pages emitted a wrong /reviews/ canonical that contradicted
 // their own JSON-LD and suppressed indexing.
 const baseUrl = import.meta.env.PUBLIC_BASE_URL || 'https://toptenuae.com';
-const canonicalUrl = data.seo?.canonicalUrl || `${baseUrl}/${correctCategory}/${slug}`;
+const canonicalUrl = data.seo?.canonicalUrl || `${baseUrl}${canonicalPath}`;
 const isToolPage = data._type === 'tool';
 ---
 

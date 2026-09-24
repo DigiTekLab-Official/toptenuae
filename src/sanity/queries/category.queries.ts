@@ -55,6 +55,7 @@ export const CATEGORY_PAGE_QUERY = groq`
       (references(^._id) || category._ref == ^._id || categories[]._ref == ^._id)
     ] | order(coalesce(publishedAt, _createdAt) desc)[0...100] {
       _type, title, "slug": slug.current, publishedAt,
+      "categorySlug": coalesce(categories[0]->slug.current, category->slug.current),
       "mainImage": coalesce(featuredImage, mainImage, image, product->mainImage) { "url": asset->url, alt },
       "rawExcerpt": coalesce(description, intro, "")
     }

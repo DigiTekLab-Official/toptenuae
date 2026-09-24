@@ -20,6 +20,7 @@ export interface HomeSectionPost {
   _type: SupportedContentType;
   title: string;
   slug: string;
+  categorySlug?: string;
   publishedAt?: string;
   mainImage?: {
     url: string;

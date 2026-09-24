@@ -3,11 +3,13 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { client } from '@/sanity/lib/client';
 import { DownloadButtons } from '@/components/report/DownloadButtons';
+import { buildContentPath } from '@/lib/contentRoute';
 
 const productionUrl = 'https://toptenuae.com';
 
 const buildPostUrl = (post: any, useProduction = false) => {
   const baseUrl = useProduction ? productionUrl : (import.meta.env.PUBLIC_BASE_URL || 'http://localhost:4321');
+  if (post._type === 'tool') return `${baseUrl}${buildContentPath(post)}`;
 
   let folder = '/reviews';
 
@@ -29,7 +31,6 @@ const buildPostUrl = (post: any, useProduction = false) => {
       case 'howTo': folder = '/how-to-guides'; break;
       case 'holiday':
       case 'event': folder = '/events-holidays'; break;
-      case 'tool': folder = '/finance-tools'; break;
     }
   }
 
@@ -61,11 +62,12 @@ const categories = await client.fetch(`
   }
 `);
 
-const toolPages = [
-  { title: 'Gratuity Calculator UAE', slug: 'gratuity-calculator-uae' },
-  { title: 'UAE VAT Calculator', slug: 'uae-vat-calculator' },
-  { title: 'Zakat Calculator', slug: 'zakat-calculator' },
-];
+const toolPages = await client.fetch(`
+  *[_type == "tool" && defined(slug.current)] | order(title asc) {
+    _type, title, "slug": slug.current,
+    "categorySlug": coalesce(categories[0]->slug.current, category->slug.current)
+  }
+`);
 
 const staticPages = [
   { title: 'Home', slug: '' },
@@ -159,10 +161,10 @@ const staticPages = [
         🛠️ Functional Tools ({toolPages.length})
       </h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {toolPages.map((tool) => (
-          <a href={`${productionUrl}/finance-tools/${tool.slug}`} target="_blank" rel="noopener noreferrer" class="block p-4 bg-white rounded shadow-sm border hover:shadow-md transition">
+        {toolPages.map((tool: any) => (
+          <a href={`${productionUrl}${buildContentPath(tool)}`} target="_blank" rel="noopener noreferrer" class="block p-4 bg-white rounded shadow-sm border hover:shadow-md transition">
             <div class="font-semibold text-blue-600">{tool.title}</div>
-            <div class="text-xs text-gray-500 mt-1 break-all">/finance-tools/{tool.slug}</div>
+            <div class="text-xs text-gray-500 mt-1 break-all">{buildContentPath(tool)}</div>
           </a>
         ))}
       </div>

@@ -36,7 +36,7 @@ Project layout:
 ### Content Types (Sanity)
 topTenList → /top-ten/{slug}
 product    → /reviews/{slug}
-tool       → /finance-tools/{slug}  (via [category]/[slug] dispatch)
+tool       → /finance-tools/{slug}, or /calculators/{slug} when primary category is calculators
 howTo      → /how-to-guides/{slug}  (via [category]/[slug] dispatch)
 holiday    → /events-holidays/{slug} (via [category]/[slug] dispatch)
 category   → /{slug} (hub listing)
@@ -520,6 +520,19 @@ full-document scan is the authoritative audit.
 baby eczema cream no longer makes the unqualified “clinically proven to reduce
 itching” claim; and the airline-safety page no longer carries the unrelated
 Amazon/Remington product methodology. The remediation is deployed and live.
+
+## 2026-09-24 — Category-based calculator routing
+
+- Shared routing lives in `src/lib/contentRoute.js`, with the existing typed
+  `contentRoute.ts` API retained. Tools assigned to primary category `calculators`
+  use `/calculators/{slug}`; existing/uncategorized tools retain `/finance-tools`.
+- Category `topten-category-calculators` (slug `calculators`, menu label
+  `Health & Everyday`) owns BMI and Age. The four finance tools are unchanged.
+- The existing slug dispatcher provides 301s from the previous BMI/Age paths.
+- `heroTags` and dereferenced `relatedTools` now reach ToolLayout. Empty related
+  lists retain the existing fallback. Age has neither field populated as audited;
+  do not assume all six tools have tags or curated related links.
+- Audit and local verification: `SEO-AUDIT/calculator-routing-2026-09-24.md`.
 
 # Parked / Future
 

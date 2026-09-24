@@ -2,6 +2,7 @@
 // src/pages/search.astro
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { client } from '@/sanity/lib/client';
+import { buildContentPath } from '@/lib/contentRoute';
 
 const query = Astro.url.searchParams.get('q')?.trim() || '';
 
@@ -43,7 +44,7 @@ const resultPath = (post: any) => {
   if (post._type === 'category') return `/${post.slug}`;
   if (post._type === 'topTenList') return `/top-ten/${post.slug}`;
   if (post._type === 'holiday' || post._type === 'event') return `/events-holidays/${post.slug}`;
-  if (post._type === 'tool') return `/finance-tools/${post.slug}`;
+  if (post._type === 'tool') return buildContentPath(post)!;
   if (post._type === 'howTo') return `/how-to-guides/${post.slug}`;
   if (post._type === 'buyerGuide') return `/${post.categorySlug || 'reviews'}/${post.slug}`;
   return `/${post.slug}`;
