@@ -6,6 +6,7 @@ const navLinks = [
   { name: 'Best Buys', href: '/reviews', title: 'Product & Service Reviews' },
   { name: 'Guides', href: '/how-to-guides', title: 'Guides and Tutorials' },
   { name: 'Finance Tools', href: '/finance-tools', title: 'UAE Finance Tools' },
+  { name: 'Calculators', href: '/calculators', title: 'Health & Everyday Calculators' },
   { name: "What's On", href: '/events-holidays', title: 'UAE Events & Holidays' },
   { name: 'Deals', href: '/deals', title: 'Latest Deals', isHighlight: true },
 ];
@@ -99,7 +100,6 @@ const isActive = (href: string) => pathname === href || pathname.startsWith(`${h
             {isActive(link.href) && <span class="w-2 h-2 rounded-full bg-[#4b0082]" aria-hidden="true"></span>}
           </a>
         ))}
-        <a href="/calculators" class="flex items-center justify-between gap-2.5 rounded-lg px-4 py-3.5 text-base font-semibold w-full text-gray-900 hover:bg-purple-50 hover:text-[#4b0082] active:bg-purple-100 transition-all duration-200">Calculators</a>
         <div class="mt-6 pt-4 border-t border-gray-200">
           <a href="/subscribe" class="flex items-center justify-center w-full rounded-lg bg-linear-to-r from-[#4b0082] to-purple-700 px-4 py-3.5 text-center text-sm font-bold uppercase text-white hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-200 active:scale-[0.98]">Subscribe to Newsletter</a>
         </div>

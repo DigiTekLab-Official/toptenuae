@@ -534,6 +534,19 @@ Amazon/Remington product methodology. The remediation is deployed and live.
   do not assume all six tools have tags or curated related links.
 - Audit and local verification: `SEO-AUDIT/calculator-routing-2026-09-24.md`.
 
+## 2026-09-24 — Calculator discovery surfaces and Age tags
+
+- Age now has exactly four approved heroTags: Age in Years, Months & Days,
+  Date of Birth, UAE Date. Only this content field was patched.
+- Calculators is in the shared desktop/mobile nav array (the prior standalone
+  mobile link was removed), footer Discover links and HOME_SECTION_CATEGORIES.
+- Homepage reuses its existing Sanity-driven tool cards, without a new template.
+  Finance retains four cards; Health & Everyday contains BMI and Age.
+- Footer retains its finance hub link and adds the previously missing Loan EMI
+  direct link, so all four finance tools are represented.
+- Verification: `scripts/verify-calculator-surfaces.mjs [baseURL]`.
+- Audit: `SEO-AUDIT/calculator-surfaces-2026-09-24.md`.
+
 # Parked / Future
 
 ## Arabic (en + ar bilingual) — PARKED until English is indexing well

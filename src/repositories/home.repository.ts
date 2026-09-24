@@ -22,6 +22,7 @@ export const HOME_SECTION_CATEGORIES: string[] = [
   'whats-on',
   'parenting-kids',
   'finance-tools',
+  'calculators',
 ];
 
 /**
