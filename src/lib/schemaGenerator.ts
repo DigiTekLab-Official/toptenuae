@@ -665,8 +665,9 @@ export function generateSchema(
     return schemas;
   }
 
-  // Breadcrumb for all content pages
-  if (category && slug) {
+  // ToolLayout owns tool breadcrumbs so their labels match the visible trail.
+  // Keep the shared breadcrumb unchanged for every other content type.
+  if (category && slug && data._type !== 'tool') {
     const categoryTitle =
       data.category?.title ||
       category.charAt(0).toUpperCase() +

@@ -11,6 +11,7 @@ import VatCalculator from '@/components/tools/VatCalculator.astro';
 import ZakatCalculator from '@/components/tools/ZakatCalculator.astro';
 import ZakatInputPanel from '@/components/tools/ZakatInputPanel.astro';
 import PortableText from '@/components/sanity/PortableText';
+import { buildContentPath } from '@/lib/contentRoute';
 
 interface Props {
   data: any;
@@ -47,15 +48,20 @@ const bodyContent = data.body || data.content;
 const categorySlug = data.category?.slug?.current || data.category?.slug || 'finance-tools';
 const categoryName = data.category?.menuLabel || 'Tools';
 const BASE_URL = import.meta.env.PUBLIC_BASE_URL || 'https://toptenuae.com';
+// The document type owns the page URL; its editorial category may differ.
+const toolPath = buildContentPath({ _type: 'tool', slug });
+if (!toolPath) throw new Error(`Invalid tool slug: ${slug}`);
+const toolUrl = new URL(toolPath, BASE_URL).href;
 
-// Breadcrumb JSON-LD
+// Sole tool breadcrumb emitter (the shared schema dispatcher skips tools).
 const breadcrumbJsonLd = JSON.stringify({
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
+  '@id': `${toolUrl}#breadcrumb`,
   itemListElement: [
     { '@type': 'ListItem', position: 1, name: 'Home', item: BASE_URL },
     { '@type': 'ListItem', position: 2, name: categoryName, item: `${BASE_URL}/${categorySlug}` },
-    { '@type': 'ListItem', position: 3, name: data.title, item: `${BASE_URL}/${categorySlug}/${slug}` },
+    { '@type': 'ListItem', position: 3, name: data.title, item: toolUrl },
   ],
 });
 
