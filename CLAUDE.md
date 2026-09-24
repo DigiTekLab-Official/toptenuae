@@ -547,6 +547,22 @@ Amazon/Remington product methodology. The remediation is deployed and live.
 - Verification: `scripts/verify-calculator-surfaces.mjs [baseURL]`.
 - Audit: `SEO-AUDIT/calculator-surfaces-2026-09-24.md`.
 
+## 2026-09-24 — Height and Calories calculators
+
+- Added height-calculator-uae / height-uae and calories-calculator-uae /
+  calories-uae, both assigned to the existing calculators category.
+- Exact component registration in ToolLayout; no new routing or homepage layout.
+  The existing category section now contains four tools (BMI, Age, Height, Calories).
+- Height converts cm and feet/inches, not child growth. Calories uses Mifflin–St
+  Jeor resting energy with explicitly approximate activity factors; lower/higher
+  scenarios are illustrations, not diet prescriptions. Adults only, excluding
+  pregnancy/breastfeeding; underweight/low-estimate lower-scenario guardrails.
+- Pure formula tests and eight-tool HTML checks included. Publication script
+  refuses overwrites and verifies existing tool revisions were untouched.
+- Current Age content was independently edited earlier today: 14 FAQs and five
+  tags. Preserve that editorial update; do not restore the former four-tag baseline.
+- Details: `SEO-AUDIT/height-calories-release-2026-09-24.md`.
+
 # Parked / Future
 
 ## Arabic (en + ar bilingual) — PARKED until English is indexing well

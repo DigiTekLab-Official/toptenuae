@@ -1,0 +1,88 @@
+---
+const fieldClass = 'w-full px-3 py-2 border border-gray-400 rounded-lg focus:ring-2 focus:ring-[#4b0082] outline-none font-medium';
+---
+<div id="height-calc" class="w-full max-w-xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden border border-slate-200 font-sans">
+  <div class="bg-[#4b0082] p-5 text-center border-t-4 border-amber-400">
+    <h2 class="text-xl font-bold text-white">Height Calculator UAE</h2>
+    <p class="text-amber-300 text-sm font-semibold mt-1">Centimetres ↔ Feet &amp; Inches</p>
+  </div>
+  <form class="p-6 space-y-5" novalidate>
+    <div>
+      <label for="height-mode" class="block text-sm font-semibold text-gray-700 mb-1">Conversion direction</label>
+      <select id="height-mode" class={fieldClass}>
+        <option value="cm">Centimetres to feet &amp; inches</option>
+        <option value="imperial">Feet &amp; inches to centimetres</option>
+      </select>
+    </div>
+    <div id="height-metric-fields">
+      <label for="height-cm" class="block text-sm font-semibold text-gray-700 mb-1">Height (cm)</label>
+      <input id="height-cm" type="number" inputmode="decimal" min="0.01" max="300" step="any" required placeholder="e.g. 175" aria-describedby="height-error height-help" class={fieldClass} />
+    </div>
+    <div id="height-imperial-fields" class="grid grid-cols-2 gap-4" hidden>
+      <div>
+        <label for="height-feet" class="block text-sm font-semibold text-gray-700 mb-1">Feet</label>
+        <input id="height-feet" type="number" inputmode="numeric" min="0" max="9" step="1" required disabled placeholder="e.g. 5" aria-describedby="height-error height-help" class={fieldClass} />
+      </div>
+      <div>
+        <label for="height-inches" class="block text-sm font-semibold text-gray-700 mb-1">Inches</label>
+        <input id="height-inches" type="number" inputmode="decimal" min="0" max="11.999999" step="any" required disabled placeholder="e.g. 9" aria-describedby="height-error height-help" class={fieldClass} />
+      </div>
+    </div>
+    <p id="height-help" class="text-xs text-slate-600">Use decimal centimetres or whole feet plus inches below 12. Enter 0 inches when appropriate. This converts a measured height; it does not predict growth.</p>
+    <p id="height-error" class="rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700" role="alert" hidden></p>
+    <button type="submit" class="w-full bg-[#4b0082] hover:bg-[#3b0066] text-white font-bold py-4 rounded-lg">Convert Height</button>
+    <div aria-live="polite" aria-atomic="true">
+      <div id="height-result" class="bg-green-50 border border-green-200 rounded-xl p-5 text-center" hidden>
+        <p class="text-sm font-bold text-green-700 uppercase mb-2">Converted height</p>
+        <output id="height-value" for="height-cm height-feet height-inches height-mode" class="text-3xl font-extrabold text-slate-900"></output>
+        <p id="height-secondary" class="text-sm text-slate-700 mt-2"></p>
+        <p class="text-xs text-slate-600 mt-2">Results rounded to two decimal places. 1 inch = exactly 2.54 cm.</p>
+      </div>
+    </div>
+  </form>
+</div>
+<script>
+  import { convertHeight } from '@/lib/calculators/height.js';
+  function initializeHeight() {
+    const root = document.getElementById('height-calc');
+    if (!root || root.dataset.initialized) return;
+    root.dataset.initialized = 'true';
+    const form = root.querySelector('form')!;
+    const mode = root.querySelector<HTMLSelectElement>('#height-mode')!;
+    const cm = root.querySelector<HTMLInputElement>('#height-cm')!;
+    const feet = root.querySelector<HTMLInputElement>('#height-feet')!;
+    const inches = root.querySelector<HTMLInputElement>('#height-inches')!;
+    const error = root.querySelector<HTMLElement>('#height-error')!;
+    const result = root.querySelector<HTMLElement>('#height-result')!;
+    const reset = () => {
+      error.hidden = true; result.hidden = true;
+      for (const input of [cm, feet, inches]) input.removeAttribute('aria-invalid');
+    };
+    form.addEventListener('input', reset);
+    mode.addEventListener('change', () => {
+      reset();
+      const metric = mode.value === 'cm';
+      root.querySelector<HTMLElement>('#height-metric-fields')!.hidden = !metric;
+      root.querySelector<HTMLElement>('#height-imperial-fields')!.hidden = metric;
+      cm.disabled = !metric; feet.disabled = metric; inches.disabled = metric;
+    });
+    form.addEventListener('submit', event => {
+      event.preventDefault(); reset();
+      const fields = mode.value === 'cm' ? [cm] : [feet, inches];
+      try {
+        const r = convertHeight(mode.value, mode.value === 'cm' ? cm.valueAsNumber : feet.valueAsNumber, inches.valueAsNumber);
+        root.querySelector<HTMLOutputElement>('#height-value')!.value = mode.value === 'cm' ? `${r.feet} ft ${r.inches.toFixed(2)} in` : `${r.cm.toFixed(2)} cm`;
+        root.querySelector<HTMLElement>('#height-secondary')!.textContent = `Total inches: ${r.totalInches.toFixed(2)}`;
+        result.hidden = false;
+      } catch (problem) {
+        for (const input of fields) input.setAttribute('aria-invalid', String(!input.checkValidity()));
+        if (!fields.some(input => input.getAttribute('aria-invalid') === 'true')) fields[0].setAttribute('aria-invalid', 'true');
+        error.textContent = problem instanceof Error ? problem.message : 'Check your height.';
+        error.hidden = false;
+        root.querySelector<HTMLInputElement>('[aria-invalid="true"]')?.focus();
+      }
+    });
+  }
+  initializeHeight();
+  document.addEventListener('astro:page-load', initializeHeight);
+</script>

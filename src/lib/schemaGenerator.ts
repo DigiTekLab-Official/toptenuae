@@ -349,6 +349,12 @@ export const generateToolSchema = (
   } else if (toolSlug === 'age-calculator-uae') {
     appCategory = 'UtilitiesApplication';
     features = ['Age in years, months and days', 'Current UAE date', 'Leap-year and month-end handling'];
+  } else if (toolSlug === 'height-calculator-uae') {
+    appCategory = 'UtilitiesApplication';
+    features = ['Centimetres to feet and inches', 'Feet and inches to centimetres', 'Decimal height conversion'];
+  } else if (toolSlug === 'calories-calculator-uae') {
+    appCategory = 'HealthApplication';
+    features = ['Adult resting energy estimate using Mifflin–St Jeor', 'Activity-adjusted maintenance calorie estimate', 'Illustrative ten-percent lower and higher scenarios'];
   }
 
   return {

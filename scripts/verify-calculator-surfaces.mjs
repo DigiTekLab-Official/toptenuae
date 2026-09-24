@@ -2,8 +2,9 @@ import assert from 'node:assert/strict';
 
 const base = process.argv[2] || 'http://127.0.0.1:4341';
 const finance = ['gratuity-calculator-uae', 'uae-vat-calculator', 'zakat-calculator', 'uae-loan-emi-calculator'];
-const everyday = ['bmi-calculator-uae', 'age-calculator-uae'];
-const tags = ['Age in Years', 'Months & Days', 'Date of Birth', 'UAE Date'];
+const everyday = ['bmi-calculator-uae', 'age-calculator-uae', 'height-calculator-uae', 'calories-calculator-uae'];
+// Published editorial baseline updated before the Height/Calories release.
+const tags = ['Age by Date of Birth', 'Age Calculator Online', 'Birthday Calculator', 'Chronological Age', 'Exact Age'];
 const get = async path => {
   const response = await fetch(base + path, {redirect:'manual', signal:AbortSignal.timeout(30000)});
   assert.equal(response.status, 200, path);
@@ -35,4 +36,4 @@ const classes = html => [...tagList(html).matchAll(/<li class="([^"]+)"/g)].map(
 assert.ok(classes(age).every(c=>c===classes(bmi)[0]), 'Same shared pill styling');
 const ageHeader = age.match(/<header\b[\s\S]*?<\/header>/)[0];
 assert.equal([...ageHeader.matchAll(/<a[^>]*href="\/calculators"[^>]*aria-current="page"[^>]*>/g)].length,2);
-console.log(JSON.stringify({base,desktopNav:'PASS',mobileNav:'PASS',footer:'PASS',financeCards:4,calculatorCards:2,staleLinks:0,ageTags:tags,sharedTagStyle:'PASS'},null,2));
+console.log(JSON.stringify({base,desktopNav:'PASS',mobileNav:'PASS',footer:'PASS',financeCards:4,calculatorCards:everyday.length,staleLinks:0,ageTags:tags,sharedTagStyle:'PASS'},null,2));
