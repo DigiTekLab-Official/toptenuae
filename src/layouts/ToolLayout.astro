@@ -9,6 +9,7 @@ import AgeCalculator from '@/components/tools/AgeCalculator.astro';
 import HeightCalculator from '@/components/tools/HeightCalculator.astro';
 import CaloriesCalculator from '@/components/tools/CaloriesCalculator.astro';
 import LoanEmiCalculator from '@/components/tools/LoanEmiCalculator.astro';
+import RentVsBuyCalculator from '@/components/tools/RentVsBuyCalculator.astro';
 import VatCalculator from '@/components/tools/VatCalculator.astro';
 import ZakatCalculator from '@/components/tools/ZakatCalculator.astro';
 import ZakatInputPanel from '@/components/tools/ZakatInputPanel.astro';
@@ -38,6 +39,7 @@ const TOOL_IDS: Record<string, string> = {
   'height-calculator-uae': 'height-uae',
   'calories-calculator-uae': 'calories-uae',
   'uae-loan-emi-calculator': 'loan-emi-uae',
+  'rent-vs-buy-calculator-uae': 'rent-buy-uae',
 };
 
 const toolId = data.componentId || TOOL_IDS[slug] || slug;
@@ -185,6 +187,7 @@ const heroTags = Array.isArray(data.heroTags)
           {toolId === 'height-uae' && <HeightCalculator />}
           {toolId === 'calories-uae' && <CaloriesCalculator />}
           {isLoanEmi && <LoanEmiCalculator />}
+          {toolId === 'rent-buy-uae' && <RentVsBuyCalculator />}
           {isZakat && <ZakatCalculator />}
         </div>
       </div>

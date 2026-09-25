@@ -1,0 +1,103 @@
+---
+import { RENT_BUY_FIELDS } from '@/lib/calculators/rent-vs-buy.js';
+const groups = [...new Set(RENT_BUY_FIELDS.map(f => f.group))];
+---
+<div id="rent-buy-calc" class="w-full max-w-xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden border border-slate-200 font-sans">
+  <div class="bg-[#4b0082] p-5 text-center border-t-4 border-amber-400">
+    <h2 class="text-xl font-bold text-white">Rent vs Buy Calculator UAE</h2>
+    <p class="text-amber-300 text-sm font-semibold mt-1">Compare costs and future financial positions</p>
+  </div>
+  <form class="p-5 sm:p-6 space-y-5" novalidate>
+    <p id="rb-help" class="text-xs leading-relaxed text-slate-600">All starting values are illustrative, not current market quotes or lending eligibility rules. Replace them with your rent, property costs and lender terms. The model assumes sale at the end of your holding period.</p>
+    {groups.map(group => (
+      <fieldset class="border border-slate-200 rounded-lg p-3">
+        <legend class="px-1 font-bold text-sm text-[#4b0082]">{group}</legend>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {RENT_BUY_FIELDS.filter(f => f.group === group).map(f => (
+            <div>
+              <label for={`rb-${f.key}`} class="block text-sm font-semibold text-gray-700 mb-1">{f.label}</label>
+              <input id={`rb-${f.key}`} data-field={f.key} type="number" inputmode={f.step === '1' ? 'numeric' : 'decimal'} min={f.min} max={f.max} step={f.step} value={f.value} required aria-describedby="rb-help rb-costs-help rb-error" class="w-full min-w-0 px-3 py-2 border border-gray-400 rounded-lg focus:ring-2 focus:ring-[#4b0082] outline-none font-medium" />
+            </div>
+          ))}
+        </div>
+      </fieldset>
+    ))}
+    <p id="rb-costs-help" class="text-xs leading-relaxed text-slate-600">Buying costs exclude the down payment: combine transfer, agent, bank, registration and other upfront charges into one percentage. Ownership costs include service charges, maintenance and insurance, held constant each year. Selling costs should include any applicable loan-exit charges. UAE fees vary by emirate and transaction.</p>
+    <p id="rb-error" class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700" role="alert" hidden></p>
+    <button type="submit" class="w-full bg-[#4b0082] hover:bg-[#3b0066] text-white font-bold py-4 rounded-lg">Compare Rent vs Buy</button>
+    <div aria-live="polite" aria-atomic="true">
+      <div id="rb-result" class="rounded-xl border border-indigo-200 bg-indigo-50 p-4 sm:p-5 text-slate-900" hidden>
+        <h3 id="rb-summary" class="text-xl font-extrabold"></h3>
+        <p id="rb-difference" class="text-2xl font-bold mt-2"></p>
+        <p class="text-xs text-slate-600 mt-2">Estimated difference at your chosen horizon—not a recommendation or a guaranteed return. Equal starting cash and monthly budgets are assumed.</p>
+        <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm mt-5">
+          <div><dt class="font-semibold">Buying: sale equity + invested savings</dt><dd id="rb-buy" class="text-lg font-bold"></dd></div>
+          <div><dt class="font-semibold">Renting: investment balance</dt><dd id="rb-rent" class="text-lg font-bold"></dd></div>
+          <div><dt class="font-semibold">Initial cash needed to buy</dt><dd id="rb-upfront"></dd></div>
+          <div><dt class="font-semibold">Monthly mortgage payment</dt><dd id="rb-payment"></dd></div>
+          <div><dt class="font-semibold">Remaining mortgage at sale</dt><dd id="rb-balance"></dd></div>
+          <div><dt class="font-semibold">Net sale equity after fees and loan</dt><dd id="rb-equity"></dd></div>
+          <div><dt class="font-semibold">Buyer’s invested monthly savings</dt><dd id="rb-owner-savings"></dd></div>
+          <div><dt class="font-semibold">Total rent paid</dt><dd id="rb-total-rent"></dd></div>
+          <div><dt class="font-semibold">Mortgage interest paid</dt><dd id="rb-interest"></dd></div>
+        </dl>
+        <p id="rb-first-ahead" class="text-sm mt-4"></p>
+        <div class="overflow-x-auto mt-4" tabindex="0" role="region" aria-label="Year-by-year comparison, scroll horizontally if needed">
+          <table class="w-full text-xs text-right border-collapse">
+            <caption class="text-left font-bold mb-2">Year-end positions if you sell then (AED, rounded)</caption>
+            <thead><tr class="border-b border-indigo-200"><th scope="col" class="p-2 text-left">Year</th><th scope="col" class="p-2">Buy</th><th scope="col" class="p-2">Rent</th><th scope="col" class="p-2">Buy − rent</th></tr></thead>
+            <tbody id="rb-year-rows"></tbody>
+          </table>
+        </div>
+        <p class="text-xs leading-relaxed text-slate-600 mt-3">Both sides invest any monthly saving at the assumed net return. Rent changes annually; the mortgage rate and annual ownership costs stay constant. No taxes, moving costs, renter deposits or rental admin fees are modelled. Add relevant purchase/sale charges to the fee inputs. Figures are nominal, not inflation-adjusted. Negative sale equity means proceeds would not clear the loan and sale costs.</p>
+      </div>
+    </div>
+    <p class="text-xs text-slate-600">Planning estimate only. Check affordability, fees and mortgage eligibility with qualified UAE advisers. Numbers entered are calculated in your browser, not sent to a finance API.</p>
+  </form>
+</div>
+<script>
+  import { calculateRentVsBuy, RentBuyInputError } from '@/lib/calculators/rent-vs-buy.js';
+  function initializeRentBuy() {
+    const root = document.getElementById('rent-buy-calc');
+    if (!root || root.dataset.initialized) return;
+    root.dataset.initialized = 'true';
+    const form = root.querySelector('form')!;
+    const inputs = Array.from(form.querySelectorAll<HTMLInputElement>('input[data-field]'));
+    const error = root.querySelector<HTMLElement>('#rb-error')!;
+    const result = root.querySelector<HTMLElement>('#rb-result')!;
+    const text = (id: string, value: string) => { root.querySelector<HTMLElement>(`#rb-${id}`)!.textContent = value; };
+    const number = (n: number) => Math.round(n).toLocaleString('en-AE');
+    const money = (n: number) => `AED ${number(n)}`;
+    const reset = () => { result.hidden = true; error.hidden = true; inputs.forEach(input => input.removeAttribute('aria-invalid')); };
+    form.addEventListener('input', reset);
+    form.addEventListener('submit', event => {
+      event.preventDefault(); reset();
+      try {
+        const values = Object.fromEntries(inputs.map(input => [input.dataset.field!, input.valueAsNumber]));
+        const r = calculateRentVsBuy(values);
+        const tied = Math.abs(r.difference) < 0.5;
+        text('summary', tied ? `Approximately equal after ${values.years} years` : `${r.difference > 0 ? 'Buying' : 'Renting'} is ahead after ${values.years} years`);
+        text('difference', `${money(Math.abs(r.difference))} estimated difference`);
+        for (const [id, value] of Object.entries({buy:r.buyPosition,rent:r.rentPosition,upfront:r.upfrontCash,payment:r.mortgagePayment,balance:r.balance,equity:r.saleEquity,'owner-savings':r.ownerSavings,'total-rent':r.totalRent,interest:r.totalInterest})) text(id,money(value));
+        text('first-ahead', r.firstYearBuyingAhead === null ? 'Buying is not ahead at any year-end within this horizon.' : `First year-end buying is at least equal: year ${r.firstYearBuyingAhead}. This may reverse later; see the table.`);
+        const tbody = root.querySelector<HTMLTableSectionElement>('#rb-year-rows')!;
+        tbody.replaceChildren();
+        for (const row of r.annual) {
+          const tr = document.createElement('tr'); tr.className = 'border-b border-indigo-100';
+          for (const value of [row.year,row.buyPosition,row.rentPosition,row.difference]) {
+            const td = document.createElement('td'); td.className = 'p-2 whitespace-nowrap'; td.textContent = number(value); tr.append(td);
+          }
+          tbody.append(tr);
+        }
+        result.hidden = false;
+      } catch (problem) {
+        error.textContent = problem instanceof Error ? problem.message : 'Check the inputs.';
+        error.hidden = false;
+        const invalid = problem instanceof RentBuyInputError ? inputs.find(input => input.dataset.field === problem.field) : inputs.find(input => !input.checkValidity());
+        if (invalid) { invalid.setAttribute('aria-invalid','true'); invalid.focus(); }
+      }
+    });
+  }
+  initializeRentBuy();
+  document.addEventListener('astro:page-load', initializeRentBuy);
+</script>

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 
 const base = process.argv[2] || 'http://127.0.0.1:4341';
-const finance = ['gratuity-calculator-uae', 'uae-vat-calculator', 'zakat-calculator', 'uae-loan-emi-calculator'];
+const finance = ['gratuity-calculator-uae', 'uae-vat-calculator', 'zakat-calculator', 'uae-loan-emi-calculator', 'rent-vs-buy-calculator-uae'];
 const everyday = ['bmi-calculator-uae', 'age-calculator-uae', 'height-calculator-uae', 'calories-calculator-uae'];
 // Published editorial baseline updated before the Height/Calories release.
 const tags = ['Age by Date of Birth', 'Age Calculator Online', 'Birthday Calculator', 'Chronological Age', 'Exact Age'];
@@ -23,7 +23,15 @@ assert.ok(links(footer).includes('/finance-tools'));
 assert.deepEqual(links(footer).filter(l=>l.startsWith('/finance-tools/')).sort(), finance.map(s=>`/finance-tools/${s}`).sort());
 for (const [hub, slugs] of [['finance-tools',finance],['calculators',everyday]]) {
   const section = home.match(new RegExp(`<section[^>]*aria-labelledby="section-${hub}"[^>]*>([\\s\\S]*?)<\\/section>`))[1];
-  assert.deepEqual(links(section).filter(l=>l.startsWith(`/${hub}/`)).sort(), slugs.map(s=>`/${hub}/${s}`).sort());
+  const cards = links(section).filter(l=>l.startsWith(`/${hub}/`));
+  if (hub === 'finance-tools') {
+    assert.equal(cards.length, 4, 'Homepage retains its four-card finance feed');
+    assert.equal(new Set(cards).size, 4);
+    assert.ok(cards.every(path => slugs.some(slug => path === `/${hub}/${slug}`)));
+    assert.ok(cards.includes('/finance-tools/rent-vs-buy-calculator-uae'));
+  } else {
+    assert.deepEqual(cards.sort(), slugs.map(s=>`/${hub}/${s}`).sort());
+  }
   assert.ok(links(section).includes(`/${hub}`));
 }
 for (const slug of everyday) assert.ok(!home.includes(`/finance-tools/${slug}`), 'Stale homepage/header/footer link');

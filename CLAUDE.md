@@ -1,4 +1,5 @@
 Operating principles for this project:
+<!-- Rent vs Buy release, 2026-09-25: see SEO-AUDIT/rent-vs-buy-release-2026-09-25.md. New finance tool rent-vs-buy-calculator-uae / rent-buy-uae; equal-budget comparison, ten FAQs, reciprocal Loan EMI/Gratuity links. Homepage finance feed remains four cards; finance hub/footer now include five. -->
 - Understand architecture before proposing changes.
 - Identify root causes, not symptoms.
 - Evidence-based only: cite file paths and line numbers for every claim.

@@ -343,6 +343,8 @@ export const generateToolSchema = (
       'Total repayment estimate',
       'Reducing-balance interest formula',
     ];
+  } else if (toolSlug === 'rent-vs-buy-calculator-uae') {
+    features = ['Rent versus buy comparison in AED', 'Mortgage amortisation and sale equity', 'Equal-budget investment comparison', 'Editable cost and growth assumptions', 'Year-by-year financial positions'];
   } else if (toolSlug === 'bmi-calculator-uae') {
     appCategory = 'HealthApplication';
     features = ['BMI from weight in kilograms and height in centimetres', 'WHO adult BMI classification'];

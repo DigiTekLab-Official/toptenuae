@@ -2,9 +2,9 @@ import assert from 'node:assert/strict';
 
 const base = process.argv[2] || 'http://127.0.0.1:4340';
 const site = 'https://toptenuae.com';
-const finance = ['gratuity-calculator-uae', 'uae-vat-calculator', 'zakat-calculator', 'uae-loan-emi-calculator'];
+const finance = ['gratuity-calculator-uae', 'uae-vat-calculator', 'zakat-calculator', 'uae-loan-emi-calculator', 'rent-vs-buy-calculator-uae'];
 const everyday = ['bmi-calculator-uae', 'age-calculator-uae', 'height-calculator-uae', 'calories-calculator-uae'];
-const expectedFaqs = [7, 4, 4, 12, 14, 14, 6, 8];
+const expectedFaqs = [7, 4, 4, 12, 10, 14, 14, 6, 8];
 const pathFor = slug => `/${everyday.includes(slug) ? 'calculators' : 'finance-tools'}/${slug}`;
 const api = new URL('https://kxdjzy8e.api.sanity.io/v2021-06-07/data/query/production');
 api.searchParams.set('query', '*[_type == "tool" && !(_id in path("drafts.**"))]{"slug":slug.current,heroTags,relatedTools[]->{"slug":slug.current},faqs}');
@@ -63,7 +63,7 @@ const sitemap = await get('/sitemap.xml');
 for (const slug of [...finance, ...everyday]) assert.ok(sitemap.includes(`<loc>${site}${pathFor(slug)}</loc>`));
 for (const slug of everyday) assert.ok(!sitemap.includes(`<loc>${site}/finance-tools/${slug}</loc>`));
 assert.ok(sitemap.includes(`<loc>${site}/calculators</loc>`));
-console.log('PASS: sitemap contains all eight canonical tool URLs and calculators hub; noncanonical finance paths absent');
+console.log('PASS: sitemap contains all nine canonical tool URLs and calculators hub; noncanonical finance paths absent');
 for (const path of ['/search?q=BMI', '/search?q=Age', '/report']) {
   const html = await get(path);
   const slug = path.includes('BMI') ? everyday[0] : everyday[1];

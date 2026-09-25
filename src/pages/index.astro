@@ -16,6 +16,7 @@ import {
 // Tool icon config
 const getToolConfig = (slug: string) => {
   const s = slug.toLowerCase();
+  if (s === 'rent-vs-buy-calculator-uae') return { icon: Calculator, ctaLabel: 'Compare Rent vs Buy', iconColor: 'text-primary', iconBg: 'bg-primary/10', gradient: 'from-[#4b0082] to-purple-600' };
   if (s.includes('vat')) return { icon: Percent, ctaLabel: 'Calculate VAT', iconColor: 'text-blue-600', iconBg: 'bg-blue-50', gradient: 'from-blue-500 to-blue-600' };
   if (s.includes('zakat')) return { icon: Coins, ctaLabel: 'Calculate Zakat', iconColor: 'text-amber-600', iconBg: 'bg-amber-50', gradient: 'from-amber-500 to-amber-600' };
   if (s.includes('gratuity')) return { icon: PieChart, ctaLabel: 'Check Gratuity', iconColor: 'text-emerald-600', iconBg: 'bg-emerald-50', gradient: 'from-emerald-500 to-emerald-600' };

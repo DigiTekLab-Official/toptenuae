@@ -111,6 +111,7 @@ const getItemHref = (item: any): string => {
 const getToolConfig = (slug: string) => {
   if (!slug) return { ctaLabel: 'Calculate', iconColor: 'text-purple-600 group-hover:text-white', iconBg: 'bg-purple-50 group-hover:bg-purple-600' };
   const s = slug.toLowerCase();
+  if (s === 'rent-vs-buy-calculator-uae') return { ctaLabel: 'Compare Rent vs Buy', iconColor: 'text-purple-600 group-hover:text-white', iconBg: 'bg-purple-50 group-hover:bg-purple-600' };
   if (s.includes('vat')) return { ctaLabel: 'Calculate VAT', iconColor: 'text-[#4b0082] group-hover:text-white', iconBg: 'bg-blue-50 group-hover:bg-[#4b0082]' };
   if (s.includes('zakat')) return { ctaLabel: 'Calculate Zakat', iconColor: 'text-indigo-500 group-hover:text-white', iconBg: 'bg-indigo-50 group-hover:bg-indigo-500' };
   if (s.includes('gratuity')) return { ctaLabel: 'Calculate Benefits', iconColor: 'text-amber-500 group-hover:text-white', iconBg: 'bg-amber-50 group-hover:bg-amber-500' };
