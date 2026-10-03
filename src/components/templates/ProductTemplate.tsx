@@ -13,6 +13,7 @@ import {
 } from "@/components/icons";
 import PortableText from '@/components/sanity/PortableText';
 import EditorialTrust from '@/components/EditorialTrust';
+import { getAffiliateCategory } from '@/lib/affiliate/category.js';
 
 interface ProductTemplateProps {
   data: any;
@@ -45,7 +46,10 @@ export default function ProductTemplate({ data }: ProductTemplateProps) {
   const pickingReason = customVerdict || verdict;
   const isUnavailable = availabilityStatus === 'unavailable';
   const availabilityMessage = `Currently unavailable on Amazon.ae — checked ${availabilityCheckedAt || 'date not recorded'}`;
-  const affiliateCategory = data.category?.slug || data.categories?.[0]?.slug || 'product-review';
+  const affiliateCategory = getAffiliateCategory(
+    data.slug, title,
+    data.reviewSection || data.category?.slug || data.categories?.[0]?.slug || 'product-review'
+  );
 
   return (
     <article className="font-sans bg-slate-50 min-h-screen pb-24 lg:pb-20" data-affiliate-category={affiliateCategory}>

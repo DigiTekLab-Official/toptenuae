@@ -5,6 +5,7 @@ import { Star, ShoppingCart, Info } from "@/components/icons";
 // ✅ IMPORT PORTABLE TEXT (Crucial for fixing missing content)
 import PortableText from "@/components/sanity/PortableText";
 import EditorialTrust from "@/components/EditorialTrust";
+import { getAffiliateCategory } from "@/lib/affiliate/category.js";
 
 export default function ArticleTemplate({ data }: { data: any }) {
   // 1. Safe Checks
@@ -20,8 +21,12 @@ export default function ArticleTemplate({ data }: { data: any }) {
     data.sources?.length
   );
 
+  const affiliateCategory = getAffiliateCategory(
+    data.slug, data.title, data.reviewSection || data.category?.slug || data.categorySlug
+  );
+
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto" data-affiliate-category={affiliateCategory}>
       
       {/* 1. INTRO / EXCERPT */}
       {data.intro && (

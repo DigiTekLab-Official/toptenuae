@@ -1,3 +1,5 @@
+import { routeAmazonAffiliateLink, routeAmazonAffiliateLinks } from './tracking-id.js';
+
 const clean = (value, limit = 120) =>
   String(value || '').trim().replace(/\s+/g, ' ').slice(0, limit);
 
@@ -9,6 +11,7 @@ export const parseAmazonAffiliateDestination = (value, baseUrl = 'https://topten
     return null;
   }
 
+  if (!['http:', 'https:'].includes(destination.protocol)) return null;
   const hostname = destination.hostname.toLowerCase();
   const isAmazonUae = hostname === 'amazon.ae' || hostname.endsWith('.amazon.ae');
   const isAmazonShortLink = hostname === 'amzn.to' || hostname.endsWith('.amzn.to');
@@ -40,13 +43,26 @@ export const installAffiliateClickTracking = (browserWindow) => {
   if (browserWindow[listenerFlag]) return;
   browserWindow[listenerFlag] = true;
 
-  browserWindow.document.addEventListener('click', (event) => {
+  const routeRenderedLinks = () => routeAmazonAffiliateLinks(browserWindow.document);
+  if (browserWindow.document.readyState === 'loading') {
+    browserWindow.document.addEventListener('DOMContentLoaded', routeRenderedLinks, { once: true });
+  } else {
+    routeRenderedLinks();
+  }
+  browserWindow.document.addEventListener('astro:page-load', routeRenderedLinks);
+
+  const recordAffiliateClick = (event) => {
+    // Keyboard/touch activation uses click; middle-button activation uses auxclick.
+    if (event.type === 'click' && event.button != null && event.button !== 0) return;
+    if (event.type === 'auxclick' && event.button !== 1) return;
     const target = event.target;
     if (!(target instanceof browserWindow.Element)) return;
 
     const link = target.closest('a[href]');
     if (!(link instanceof browserWindow.HTMLAnchorElement)) return;
 
+    // Late-rendered anchors are routed immediately before native navigation.
+    routeAmazonAffiliateLink(link);
     const destination = parseAmazonAffiliateDestination(link.href, browserWindow.location.href);
     if (!destination) return;
 
@@ -56,8 +72,9 @@ export const installAffiliateClickTracking = (browserWindow) => {
     const explicitProduct = link.dataset.affiliateProduct || productContainer?.dataset.affiliateProduct;
     const contextualProduct = productHeading?.textContent || link.getAttribute('aria-label');
 
-    browserWindow.dataLayer = browserWindow.dataLayer || [];
-    browserWindow.dataLayer.push(createAffiliateClickPayload({
+    try {
+      browserWindow.dataLayer = browserWindow.dataLayer || [];
+      browserWindow.dataLayer.push(createAffiliateClickPayload({
       pagePath: browserWindow.location.pathname,
       destination,
       product: explicitProduct || contextualProduct || link.textContent,
@@ -65,6 +82,12 @@ export const installAffiliateClickTracking = (browserWindow) => {
       category: link.dataset.affiliateCategory || categoryContainer?.dataset.affiliateCategory,
       position: link.dataset.affiliatePosition,
       trackingId: link.dataset.affiliateTrackingId,
-    }));
-  }, { capture: true });
+      }));
+    } catch {
+      // Analytics availability must never interfere with native navigation.
+    }
+  };
+
+  browserWindow.document.addEventListener('click', recordAffiliateClick, { capture: true });
+  browserWindow.document.addEventListener('auxclick', recordAffiliateClick, { capture: true });
 };

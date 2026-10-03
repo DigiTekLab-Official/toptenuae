@@ -2,6 +2,7 @@ import { useState } from 'react';
 import CountdownTimer from './CountdownTimer';
 import type { Deal } from '@/types/sanity'; 
 import { ShoppingCart, Copy, Check, ExternalLink, FileText } from 'lucide-react';
+import { getAffiliateCategory } from '@/lib/affiliate/category.js';
 
 interface DealCardProps {
   deal: Deal & { reviewSlug?: string }; 
@@ -40,6 +41,8 @@ export default function DealCard({ deal }: DealCardProps) {
   const categoryLabel = typeof deal.category === 'object' && deal.category !== null
     ? deal.category.title || 'Deal'
     : (deal.category as string) || 'Deal';
+
+  const affiliateCategory = getAffiliateCategory('', deal.title, categoryLabel);
 
   const discount = deal.discountPercentage ||
     (typeof deal.originalPrice === 'number' && typeof deal.dealPrice === 'number' && deal.originalPrice > 0
@@ -83,7 +86,7 @@ export default function DealCard({ deal }: DealCardProps) {
   };
 
   return (
-    <article className="group relative block h-full">
+    <article className="group relative block h-full" data-affiliate-category={affiliateCategory}>
       <div className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl border border-slate-300 hover:border-[#4b0082]/30 transition-all duration-300 h-full flex flex-col overflow-hidden">
         
         {/* Corner Decoration: Discount */}

@@ -1,5 +1,16 @@
 // Preserve established topic labels; use the CMS section for other guide types.
+const LAPTOP_CATEGORY_BY_SLUG = Object.freeze({
+  'best-laptops-uae': 'laptops-general',
+  'best-gaming-laptops-uae': 'laptops-gaming',
+  'best-laptops-for-students-uae': 'laptops-student',
+  'best-business-laptops-uae': 'laptops-business',
+  'best-ai-laptops-uae': 'laptops-ai',
+});
+
 export const getAffiliateCategory = (slug = '', title = '', reviewSection = '') => {
+  const laptopCategory = LAPTOP_CATEGORY_BY_SLUG[String(slug).trim().toLowerCase()];
+  if (laptopCategory) return laptopCategory;
+
   const value = `${slug} ${title}`.toLowerCase();
   if (value.includes('electric-shaver') || value.includes('electric shaver')) return 'electric_shaver';
   if (value.includes('beard-trimmer') || value.includes('beard trimmer')) return 'beard_trimmer';
